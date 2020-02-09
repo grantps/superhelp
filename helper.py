@@ -1,59 +1,74 @@
-import conf, html
+import ast
 
-statement = """names = ['Noor', 'Grant', 'Hyeji', 'Vicky', 'Olek', 'Marzena', 'Jess', 'Nicole']"""
+import conf, html, syntaxer
 
-def get_item_type(item):
-    raw_item_type = type(item)
-    if raw_item_type.__name__ == 'list':
-        item_type = conf.LIST
-    else:
-        raise Exception("Only list statements supported in MVP")
-    return item_type
+statement = """names = [
+    5, 'Noor', 'Grant', 'Hyeji', 'Vicky', 'Olek', 'Marzena', 'Jess', 'Nicole',
+]
+"""
 
-def explain_list(list_name, list_val):
+def get_item(item):
+    try:
+        item = item.n
+    except AttributeError:
+        item = item.s
+    return item
+
+def explain_list_pattern(objs):
+    name_obj, list_obj = objs
+    name = name_obj.id
+    list_content = [get_item(elt) for elt in list_obj.elts]
+    elt_types = set([type(elt).__name__ for elt in list_obj.elts])
     explanation = {
         conf.BRIEF: [
             conf.Explanation(
                 conf.P,
-                f"{list_name} = {list_val}"),
+                f"{name} = {list_content}"),
         ],
         conf.MAIN: [
             conf.Explanation(
                 conf.H1,
-                'Lists - one of the Big Two data structures in Python'),
+                'Lists - one of the most important data structures in Python'),
             conf.Explanation(
                 conf.P,
-                f"The first item is {list_val[0]}"),
+                f"The first item is {list_content[0]}"),
         ],
     }
+    if len(elt_types) > 1:
+        explanation[conf.EXTRA] = [
+                conf.Explanation(
+                    conf.H1,
+                    ("WARNING!")),
+                conf.Explanation(
+                    conf.P,
+                    ("Your list has more than one data type - that is almost "
+                     "always a bad idea")),
+            ]
     return explanation
 
-def explain(name, val):
-    item_type = get_item_type(val)
-    if item_type == conf.LIST:
-        explanation = explain_list(list_name=name, list_val=val)
+def get_explanation(statement):
+    try:
+        parsed = ast.parse(statement)
+    except SyntaxError as e:
+        raise SyntaxError(
+            f"Something is wrong with what you wrote - details: {e}")
+    analyser = syntaxer.Analyser()
+    analyser.visit(parsed)
+    pattern_type, objs = analyser.get_patterns()
+    if pattern_type == syntaxer.LIST_ONLY:
+        explanation = explain_list_pattern(objs)
     else:
-        raise Exception(f"Unexpected item_type: {item_type}")
+        raise Exception("Only simple lists are supported in the MVP")
     return explanation
-
-
-def get_name_val(statement):
-    orig_locals = locals()
-    new_locals = {}
-    exec(statement, new_locals)
-    new_keys = list(set(new_locals.keys()) - set(orig_locals.keys()))
-    new_keys.remove('__builtins__')
-    name = new_keys[0]
-    val = new_locals[name]
-    return name, val
 
 def superhelp(statement):
     """
     Talk about the snippet supplied
     """
-    name, val = get_name_val(statement)
-    explanation = explain(name, val)
-    html.show_explanation(explanation)
-    return "Sorry Dave - I can't help you with that"
+    try:
+        explanation = get_explanation(statement)
+        html.show_explanation(explanation)
+    except Exception:
+        raise Exception("Sorry Dave - I can't help you with that")
 
 superhelp(statement)
