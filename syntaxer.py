@@ -38,7 +38,28 @@ class Analyser(ast.NodeVisitor):
         self.pattern_parts.append(LIST)
         if self.debug: print(f"List: {[elt for elt in node.elts]}")
         self.objs.append(node)
-        
+        for elt in node.elts:
+            if isinstance(elt, ast.Str):
+                self.visit_Str(elt)
+            elif isinstance(elt, ast.Num):
+                self.visit_Num(elt)
+            elif isinstance(elt, ast.Call):
+                self.visit_Call(elt)
+
+    def visit_Str(self, node):
+        print('Str')
+
+    def visit_Num(self, node):
+        print('Num')
+
+    def visit_Call(self, node):
+        print('func',
+            node.func.value.value.id,
+            node.func.value.attr,
+            node.func.attr,
+            node.args[0].s, node.args[1].s)
+        print('Call', node)
+
     def get_patterns(self):
         if self.pattern_parts == [NAME, LIST]:
             return PatternDets(LIST_ONLY, self.objs)

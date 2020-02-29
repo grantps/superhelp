@@ -2,16 +2,23 @@ import ast
 
 import conf, html, syntaxer
 
-statement = """names = [
-    5, 'Noor', 'Grant', 'Hyeji', 'Vicky', 'Olek', 'Marzena', 'Jess', 'Nicole',
+statement = """
+names = [
+    datetime.datetime.strptime('%Y-%m-%d', '2020-02-10'),
+    fake.bogus.spam('sausage', 'eggs'),
+    5,
+    1.234,
+    'Noor', 'Grant', 'Hyeji', 'Vicky', 'Olek', 'Marzena', 'Jess', 'Nicole',
 ]
 """
 
-def get_item(item):
-    try:
-        item = item.n
-    except AttributeError:
-        item = item.s
+def get_item(obj):
+    if isinstance(obj, ast.Str):
+        item = obj.s
+    elif isinstance(obj, ast.Num):
+        item = obj.n
+    elif isinstance(obj, ast.Call):
+        item = obj
     return item
 
 def explain_list_pattern(objs):
@@ -52,7 +59,7 @@ def get_explanation(statement):
     except SyntaxError as e:
         raise SyntaxError(
             f"Something is wrong with what you wrote - details: {e}")
-    analyser = syntaxer.Analyser()
+    analyser = syntaxer.Analyser(debug=True)
     analyser.visit(parsed)
     pattern_type, objs = analyser.get_patterns()
     if pattern_type == syntaxer.LIST_ONLY:

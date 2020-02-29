@@ -2,6 +2,7 @@ from collections import namedtuple
 
 """
 Goals - simple, simple, simple. NOT trying to replicate HTML, markdown etc.
+
 Semantic not style. Main information is the nature of the information e.g. extra
 vs brief.
 """
