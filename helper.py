@@ -1,7 +1,53 @@
 import ast, astpath
 
-import html
+import conf, html
 from rules import RULES
+
+def get_xml_element_line_no(element):
+    """
+    See:
+    https://github.com/hchasestevens/astpath/blob/master/astpath/search.py#L84
+    (linenos_from_xml)
+    """
+    return int(element.xpath('./ancestor-or-self::*[@lineno][1]/@lineno')[0])
+
+def get_explanations_dets(text):
+    explanations_dets = []
+    try:
+        tree = ast.parse(text)
+    except SyntaxError as e:
+        raise SyntaxError(
+            f"Something is wrong with what you wrote - details: {e}")
+    else:
+        xml = astpath.asts.convert_to_xml(tree)
+        for rule_name, rule_dets in RULES.items():
+            ## Find all elements in XML matching this rule's selector
+            matching_elements = xml.cssselect(rule_dets.element_type)
+            ## Get explanations for each matched element
+            for element in matching_elements:
+                line_no = get_xml_element_line_no(element)
+                explanation = rule_dets.explainer(element)
+                if explanation is not None:
+                    explanation_dets = conf.ExplanationDets(
+                        line_no, rule_name, rule_dets.warning,
+                        rule_dets.element_type, explanation,
+                    )
+                    explanations_dets.append(explanation_dets)
+    return explanations_dets
+
+def show_explanations(medium, explanations):
+    medium.show(explanations)
+
+def superhelp(text, medium):
+    """
+    Talk about the snippet supplied
+    """
+    try:
+        explanations_dets = get_explanations_dets(text)
+        show_explanations(medium, explanations_dets)
+    except Exception:
+        raise Exception("Sorry Dave - I can't help you with that")
+
 
 text = """
 broken = [
@@ -15,47 +61,5 @@ names = ['Noor', 'Grant', 'Hyeji', 'Vicky', 'Olek', 'Marzena', 'Jess', 'Nicole']
 empty = []
 myint = 666
 """
-def get_xml_element_linenos(element):
-    """
-    See:
-    https://github.com/hchasestevens/astpath/blob/master/astpath/search.py#L84
-    (linenos_from_xml)
-    """
-    return element.xpath('./ancestor-or-self::*[@lineno][1]/@lineno')
-
-def get_explanations(text):
-    explanations = []
-    try:
-        tree = ast.parse(text)
-    except SyntaxError as e:
-        raise SyntaxError(
-            f"Something is wrong with what you wrote - details: {e}")
-    else:
-        xml = astpath.asts.convert_to_xml(tree)
-        for rule_name, rule in RULES.items():
-            print(f"Processing {rule_name}")
-            ## Find all elements in XML matching this rule's selector
-            matching_elements = xml.cssselect(rule['selector'])
-            ## Get explanations for each matched element
-            for element in matching_elements:
-                line_no = int(get_xml_element_linenos(element)[0])
-                explanation = rule['explainer'](line_no, element)
-                if explanation is not None:
-                    explanations.append(explanation)
-    return explanations
-
-def show_explanations(explainer, explanations):
-    explainer(explanations)
-
-def superhelp(text):
-    """
-    Talk about the snippet supplied
-    """
-    try:
-        explanations = get_explanations(text)
-        explainer = html.show_explanations
-        show_explanations(explainer, explanations)
-    except Exception:
-        raise Exception("Sorry Dave - I can't help you with that")
-
-superhelp(text)
+medium = html
+superhelp(text, medium)

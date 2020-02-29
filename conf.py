@@ -1,13 +1,13 @@
-from collections import namedtuple
-
 """
 Goals - simple, simple, simple. NOT trying to replicate HTML, markdown etc.
 
 Semantic not style. Main information is the nature of the information e.g. extra
 vs brief.
 """
+from collections import namedtuple
 
-Explanation = namedtuple('Explanation','type, content')
+ExplanationDets = namedtuple('ExplanationDets',
+    'line_no, rule_name, warning, element_type, explanation')
 
 BRIEF = 'Brief'
 MAIN = 'Main'
@@ -20,4 +20,4 @@ H3 = 'heading level 3'
 P = 'paragraph'
 C = 'code'
 
-LIST = 'List'
+LIST_ELEMENT_TYPE = 'List'

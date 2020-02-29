@@ -1,13 +1,19 @@
+from collections import namedtuple
+
 import conf
+
+RuleDets = namedtuple('RuleDets', 'element_type, warning, explainer')
+Explanation = namedtuple('Explanation', 'semantic_role, msg')
 
 RULES = {}
 
-def rule(selector):
+def rule(element_type, *, warning=False):
     """
-    Simple decorator that registers a rule in the list of RULES.
+    Simple decorator that registers an unchanged rule function in the list of
+    RULES.
     """
     def decorator(func):
-        RULES[func.__name__] = {'selector': selector, 'explainer': func}
+        RULES[func.__name__] = RuleDets(element_type, warning, func)
         return func
     return decorator
 
@@ -26,21 +32,20 @@ def _get_list_name(list_element):
         list_name = 'An anonymous list'
     return list_name
 
-@rule('List')
-def overview(line_no, element):
+@rule(conf.LIST_ELEMENT_TYPE)
+def overview(element):
     list_name = _get_list_name(element)
     items = element[0]
     explanation = {
         conf.BRIEF: [
-            conf.Explanation(conf.H1, f'Your list on line {line_no:,}'),
-            conf.Explanation(
-                conf.P, f'{list_name} has {len(items):,} elements'),
+            Explanation(conf.H1, f'Details for list "{list_name}"'),
+            Explanation(conf.P, f'{list_name} has {len(items):,} elements'),
         ]
     }
     return explanation
 
-@rule('List')
-def mixed_list_rule(line_no, element):
+@rule(conf.LIST_ELEMENT_TYPE, warning=True)
+def mixed_list_rule(element):
     """
     Warns about lists with mixed types.
 
@@ -54,15 +59,14 @@ def mixed_list_rule(line_no, element):
         list_name = _get_list_name(element)
         explanation = {
             conf.BRIEF: [
-                conf.Explanation(conf.H1, 'Risky code'),
-                conf.Explanation(conf.P,
-                    (f'{list_name} on line {line_no:,} contains more than one '
-                     'data type, probably a bad idea.')),
+                Explanation(conf.H1, 'Risky code'),
+                Explanation(conf.P,
+                    (f'{list_name} contains more than one data type - probably '
+                     'a bad idea.')),
             ],
             conf.MAIN: [
-                conf.Explanation(
-                    conf.H1, 'Dangers of mixed data types in lists'),
-                conf.Explanation(conf.P,
+                Explanation(conf.H1, 'Dangers of mixed data types in lists'),
+                Explanation(conf.P,
                     (f'{list_name} contains the following data types: '
                      f'{item_types}')),
             ],
