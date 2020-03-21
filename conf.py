@@ -7,7 +7,7 @@ vs brief.
 from collections import namedtuple
 
 ExplanationDets = namedtuple('ExplanationDets',
-    'line_no, rule_name, warning, element_type, explanation')
+    'content, line_no, rule_name, warning, element_type, explanation')
 
 BRIEF = 'Brief'
 MAIN = 'Main'

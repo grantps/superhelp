@@ -1,3 +1,8 @@
+"""
+Main is not more material to add after Brief - it is a complete replacement of
+it. Extra is additional to Main.
+"""
+
 from collections import namedtuple
 
 import conf
@@ -27,9 +32,9 @@ def _get_list_name(list_element):
     name_elements = list_element.xpath('../../targets/Name')
     if len(name_elements) == 1 and name_elements[0].get('id'):
         name_id = name_elements[0].get('id')
-        list_name = f'The "{name_id}" list'
+        list_name = name_id
     else:
-        list_name = 'An anonymous list'
+        list_name = 'Anonymous'
     return list_name
 
 @rule(conf.LIST_ELEMENT_TYPE)
@@ -38,7 +43,7 @@ def overview(element):
     items = element[0]
     explanation = {
         conf.BRIEF: [
-            Explanation(conf.H1, f'Details for list "{list_name}"'),
+            Explanation(conf.H1, f'Details for "{list_name}" list'),
             Explanation(conf.P, f'{list_name} has {len(items):,} elements'),
         ]
     }
@@ -51,7 +56,7 @@ def mixed_list_rule(element):
 
     NOTE: This isn't actually checking variable types, just AST node types ;-)
     """
-    item_types = set([item.tag for item in element[0]])
+    item_types = sorted(set([item.tag for item in element[0]]))
     if len(item_types) <= 1:
         ## No explanation needed if there aren't multiple types.
         return None
@@ -66,6 +71,9 @@ def mixed_list_rule(element):
             ],
             conf.MAIN: [
                 Explanation(conf.H1, 'Dangers of mixed data types in lists'),
+                Explanation(conf.P,
+                    (f'{list_name} contains more than one data type - probably '
+                     'a bad idea.')),
                 Explanation(conf.P,
                     (f'{list_name} contains the following data types: '
                      f'{item_types}')),
