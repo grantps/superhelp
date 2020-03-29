@@ -153,7 +153,7 @@ def _get_all_html_strs(explanations_dets):
 
 def show(explanations_dets):
     """
-    Show by lines and then by rules within line.
+    Show by lines and then by list_rules within line.
     """
     explained_fpath = Path.cwd() / 'explained.html'
     with open(explained_fpath, 'w') as f:

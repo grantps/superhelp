@@ -1,7 +1,9 @@
 import ast, astpath
 
 import conf, html
-from rules import RULES
+import rules
+
+rules.load_rules()
 
 def _get_last_line_no(element, *, first_line_no):
     last_line_no = None
@@ -49,7 +51,7 @@ def get_explanations_dets(text):
     else:
         lines = text.split('\n')
         xml = astpath.asts.convert_to_xml(tree)
-        for rule_name, rule_dets in RULES.items():
+        for rule_name, rule_dets in rules.RULES.items():
             ## Find all elements in XML matching this rule's selector
             matching_elements = xml.cssselect(rule_dets.element_type)
             ## Get explanations for each matched element

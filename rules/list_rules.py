@@ -1,29 +1,7 @@
-"""
-Main is not more material to add after Brief - it is a complete replacement of
-it. Extra is additional to Main.
-"""
-
-from collections import namedtuple
+from rules import rule, Explanation
 
 import conf
 
-RuleDets = namedtuple('RuleDets', 'element_type, warning, explainer')
-Explanation = namedtuple('Explanation', 'semantic_role, msg')
-
-RULES = {}
-
-def rule(element_type, *, warning=False):
-    """
-    Simple decorator that registers an unchanged rule function in the list of
-    RULES.
-
-    :param bool warning: tags rules as warning or not - up to rendered e.g. HTML
-     to decide what to do with that information, if anything.
-    """
-    def decorator(func):
-        RULES[func.__name__] = RuleDets(element_type, warning, func)
-        return func
-    return decorator
 
 # Python AST explorer: https://python-ast-explorer.com/
 # Selectors can use any CSS-style selector supported according to: https://cssselect.readthedocs.io/en/latest/#supported-selectors
