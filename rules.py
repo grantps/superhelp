@@ -16,6 +16,9 @@ def rule(element_type, *, warning=False):
     """
     Simple decorator that registers an unchanged rule function in the list of
     RULES.
+
+    :param bool warning: tags rules as warning or not - up to rendered e.g. HTML
+     to decide what to do with that information, if anything.
     """
     def decorator(func):
         RULES[func.__name__] = RuleDets(element_type, warning, func)

@@ -11,7 +11,8 @@ def _get_last_line_no(element, *, first_line_no):
         next_siblings = ancestor.xpath('./following-sibling::*')
         ## Get the line no of the closest following sibling we can.
         for sibling in next_siblings:
-            sibling_line_nos = sibling.xpath('./ancestor-or-self::*[@lineno][1]/@lineno')
+            sibling_line_nos = sibling.xpath(
+                './ancestor-or-self::*[@lineno][1]/@lineno')
             if len(sibling_line_nos):
                 ## Subtract 1 from the next siblings line_no to get the
                 ## last line_no of the element (unless that would be
@@ -29,7 +30,8 @@ def _get_last_line_no(element, *, first_line_no):
     return last_line_no
 
 def get_xml_element_line_no_range(element):
-    element_line_nos = element.xpath('./ancestor-or-self::*[@lineno][1]/@lineno')
+    element_line_nos = element.xpath(
+        './ancestor-or-self::*[@lineno][1]/@lineno')
     if element_line_nos:
         first_line_no = int(element_line_nos[0])
         last_line_no = _get_last_line_no(element, first_line_no=first_line_no)
@@ -47,14 +49,15 @@ def get_explanations_dets(text):
     else:
         lines = text.split('\n')
         xml = astpath.asts.convert_to_xml(tree)
-        print(RULES)
         for rule_name, rule_dets in RULES.items():
             ## Find all elements in XML matching this rule's selector
             matching_elements = xml.cssselect(rule_dets.element_type)
             ## Get explanations for each matched element
             for element in matching_elements:
-                first_line_no, last_line_no = get_xml_element_line_no_range(element)
-                content = '\n'.join(lines[first_line_no-1: last_line_no]).strip()
+                first_line_no, last_line_no = get_xml_element_line_no_range(
+                    element)
+                content = '\n'.join(
+                    lines[first_line_no-1: last_line_no]).strip()
                 explanation = rule_dets.explainer(element)
                 if explanation is not None:
                     explanation_dets = conf.ExplanationDets(

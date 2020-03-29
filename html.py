@@ -65,6 +65,12 @@ p {
 .code {
   font-family: courier mono;
 }
+.warning {
+  border-radius: 6px;
+  padding: 6px;
+  border: 1px solid #d86231;
+  width: 400px;
+}
 .help {
   display: none;
 }
@@ -105,9 +111,10 @@ VISIBILITY_SCRIPT = """\
 </script>
 """
 
-def get_html_strs(msg_dets, msg_type):
+def get_html_strs(msg_dets, msg_type,*, warning=False):
     div_class = MSG_TYPE2CLASS[msg_type]
-    str_html_list = [f"<div class='{div_class}'>", ]
+    warning_class = ' warning' if warning else ''
+    str_html_list = [f"<div class='{div_class}{warning_class}'>", ]
     for item in msg_dets:
         start_tag, end_tag = HTML_TAGS[item.semantic_role]
         str_html_list.append(f"{start_tag}{item.msg}{end_tag}")
@@ -139,7 +146,8 @@ def _get_all_html_strs(explanations_dets):
             except KeyError:
                 pass
             else:
-                msg_html_strs = get_html_strs(msg_dets, msg_type)
+                msg_html_strs = get_html_strs(
+                    msg_dets, msg_type, warning=explanation_dets.warning)
                 all_html_strs.extend(msg_html_strs)
     return all_html_strs
 
