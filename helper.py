@@ -61,7 +61,14 @@ def get_explanations_dets(text):
                 content = '\n'.join(
                     lines[first_line_no-1: last_line_no]).strip()
                 explanation = rule_dets.explainer(element)
-                if explanation is not None:
+                if explanation is None:
+                    pass  ## it is OK for a rule to have nothing to say about an element e.g. if the rule is concerned with duplicate items in a list and there are none then it probably won't have anything to say
+                else:
+                    if conf.BRIEF not in explanation.keys():
+                        raise Exception(f"'{rule_name}' supplied an explanation"
+                            " but didn't include a '{conf.BRIEF}' message")
+                    if conf.MAIN not in explanation.keys():
+                        explanation[conf.MAIN] = explanation[conf.BRIEF]
                     explanation_dets = conf.ExplanationDets(
                         content, first_line_no, rule_name, rule_dets.warning,
                         rule_dets.element_type, explanation,

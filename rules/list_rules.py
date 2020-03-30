@@ -2,7 +2,6 @@ from rules import rule, Explanation
 
 import conf
 
-
 # Python AST explorer: https://python-ast-explorer.com/
 # Selectors can use any CSS-style selector supported according to: https://cssselect.readthedocs.io/en/latest/#supported-selectors
 #   - You could also use xpath instead of CSS-style if you wanted more power.
@@ -26,7 +25,7 @@ def overview(element):
         conf.BRIEF: [
             Explanation(conf.H1, f'Details for "{list_name}" list'),
             Explanation(conf.P, f'{list_name} has {len(items):,} elements'),
-        ]
+        ],
     }
     return explanation
 

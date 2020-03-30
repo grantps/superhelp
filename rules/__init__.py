@@ -14,6 +14,7 @@ def rule(element_type, *, warning=False):
     Simple decorator that registers an unchanged rule function in the list of
     RULES.
 
+    :param str element_type: e.g. conf.LIST_ELEMENT_TYPE
     :param bool warning: tags rules as warning or not - up to rendered e.g. HTML
      to decide what to do with that information, if anything.
     """
