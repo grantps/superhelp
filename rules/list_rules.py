@@ -1,4 +1,4 @@
-from rules import rule, Explanation
+from rules import rule
 
 import conf
 
@@ -22,10 +22,10 @@ def overview(element):
     list_name = _get_list_name(element)
     items = element[0]
     explanation = {
-        conf.BRIEF: [
-            Explanation(conf.H1, f'Details for "{list_name}" list'),
-            Explanation(conf.P, f'{list_name} has {len(items):,} elements'),
-        ],
+        conf.BRIEF: f"""
+            #### Info on *{list_name}*\n
+            *{list_name}* is a list with {len(items):,} items
+        """,
     }
     return explanation
 
@@ -43,21 +43,17 @@ def mixed_list_rule(element):
     else:
         list_name = _get_list_name(element)
         explanation = {
-            conf.BRIEF: [
-                Explanation(conf.H1, 'Risky code'),
-                Explanation(conf.P,
-                    (f'{list_name} contains more than one data type - probably '
-                     'a bad idea.')),
-            ],
-            conf.MAIN: [
-                Explanation(conf.H1, 'Dangers of mixed data types in lists'),
-                Explanation(conf.P,
-                    (f'{list_name} contains more than one data type - probably '
-                     'a bad idea.')),
-                Explanation(conf.P,
-                    (f'{list_name} contains the following data types: '
-                     f'{item_types}')),
-            ],
+            conf.BRIEF: f"""
+                #### Risky code - has mix of different data types
+                *{list_name}* contains more than one data type -
+                which is probably a bad idea.
+            """,
+            conf.MAIN: f"""
+                #### Risky code - has mix of different data types
+                *{list_name}* contains more than one data type -
+                which is probably a bad idea. The data types found were:
+                {", ".join(item_types)}.
+            """,
         }
         return explanation
 

@@ -1,13 +1,16 @@
+"""
+Warning - putting an explicit newline character (backslash n) before a line in a
+message messes up dedenting and thus the markdown-to-HTML rendering. It is
+treated as raw code which is probably not what you want.
+"""
 from collections import namedtuple
 from importlib import import_module
 from pkgutil import iter_modules
 import sys
 
 RuleDets = namedtuple('RuleDets', 'element_type, warning, explainer')
-Explanation = namedtuple('Explanation', 'semantic_role, msg')
 
 RULES = {}
-
 
 def rule(element_type, *, warning=False):
     """

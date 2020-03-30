@@ -1,6 +1,7 @@
 import ast, astpath
 
-import conf, html
+import conf
+import html_renderer
 import rules
 
 rules.load_rules()
@@ -102,5 +103,5 @@ names = ['Noor', 'Grant', 'Hyeji', 'Vicky', 'Olek', 'Marzena', 'Jess', 'Nicole']
 empty = []
 myint = 666
 """
-medium = html
+medium = html_renderer
 superhelp(text, medium)
