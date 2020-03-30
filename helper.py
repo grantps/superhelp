@@ -1,4 +1,7 @@
-import ast, astpath
+import argparse
+
+import ast
+import astpath
 
 import conf
 from renderers import cli_renderer, html_renderer
@@ -42,15 +45,15 @@ def get_xml_element_line_no_range(element):
         first_line_no, last_line_no = None, None
     return first_line_no, last_line_no
 
-def get_explanations_dets(text):
+def get_explanations_dets(snippet):
     explanations_dets = []
     try:
-        tree = ast.parse(text)
+        tree = ast.parse(snippet)
     except SyntaxError as e:
         raise SyntaxError(
             f"Something is wrong with what you wrote - details: {e}")
     else:
-        lines = text.split('\n')
+        lines = snippet.split('\n')
         xml = astpath.asts.convert_to_xml(tree)
         for rule_name, rule_dets in rules.RULES.items():
             ## Find all elements in XML matching this rule's selector
@@ -80,28 +83,34 @@ def get_explanations_dets(text):
 def show_explanations(renderer, explanations, *, msg_level=conf.BRIEF):
     renderer.show(explanations, msg_level=msg_level)
 
-def superhelp(text, renderer, *, msg_level=conf.BRIEF):
+def superhelp(snippet, renderer, *, msg_level=conf.BRIEF):
     """
     Talk about the snippet supplied
     """
     try:
-        explanations_dets = get_explanations_dets(text)
+        explanations_dets = get_explanations_dets(snippet)
         show_explanations(renderer, explanations_dets, msg_level=msg_level)
     except Exception:
         raise Exception("Sorry Dave - I can't help you with that")
 
-
-text = """
-broken = [
-    datetime.datetime.strptime('%Y-%m-%d', '2020-02-10'),
-    fake.bogus.spam('sausage', 'eggs'),
-    5,
-    1.234,
-    'Noor', 'Grant', 'Hyeji', 'Vicky', 'Olek', 'Marzena', 'Jess', 'Nicole',
-]
-names = ['Noor', 'Grant', 'Hyeji', 'Vicky', 'Olek', 'Marzena', 'Jess', 'Nicole']
-empty = []
-myint = 666
-"""
-renderer = cli_renderer # html_renderer
-superhelp(text, renderer, msg_level=conf.BRIEF)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='Superhelp - Help for Humans!')
+    ## don't use type=list ever https://stackoverflow.com/questions/15753701/argparse-option-for-passing-a-list-as-option
+    parser.add_argument('-r', '--renderer', type=str,
+        required=False, default='html',
+        help="Where do you want your help shown? html, cli, etc")
+    parser.add_argument('-l', '--level', type=str,
+        required=False, default='Brief',
+        help="What level of help do you want? Brief, Main, or Extra?")
+    parser.add_argument('-s', '--snippet', type=str,
+        required=False, default=conf.DEMO_SNIPPET,
+        help="Supply a brief snippet of Python code")
+    args = parser.parse_args()
+    ARG2RENDERER = {
+        'html': html_renderer,
+        'cli': cli_renderer,
+    }
+    renderer = ARG2RENDERER[args.renderer]
+    snippet = args.snippet
+    superhelp(snippet, renderer, msg_level=conf.BRIEF)
