@@ -77,16 +77,16 @@ def get_explanations_dets(text):
                     explanations_dets.append(explanation_dets)
     return explanations_dets
 
-def show_explanations(medium, explanations):
-    medium.show(explanations)
+def show_explanations(renderer, explanations):
+    renderer.show(explanations)
 
-def superhelp(text, medium):
+def superhelp(text, renderer):
     """
     Talk about the snippet supplied
     """
     try:
         explanations_dets = get_explanations_dets(text)
-        show_explanations(medium, explanations_dets)
+        show_explanations(renderer, explanations_dets)
     except Exception:
         raise Exception("Sorry Dave - I can't help you with that")
 
@@ -103,5 +103,5 @@ names = ['Noor', 'Grant', 'Hyeji', 'Vicky', 'Olek', 'Marzena', 'Jess', 'Nicole']
 empty = []
 myint = 666
 """
-medium = html_renderer
-superhelp(text, medium)
+renderer = html_renderer
+superhelp(text, renderer)
