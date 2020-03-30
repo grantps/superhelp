@@ -1,7 +1,7 @@
 import ast, astpath
 
 import conf
-import html_renderer
+from renderers import cli_renderer, html_renderer
 import rules
 
 rules.load_rules()
@@ -77,16 +77,16 @@ def get_explanations_dets(text):
                     explanations_dets.append(explanation_dets)
     return explanations_dets
 
-def show_explanations(renderer, explanations):
-    renderer.show(explanations)
+def show_explanations(renderer, explanations, *, msg_level=conf.BRIEF):
+    renderer.show(explanations, msg_level=msg_level)
 
-def superhelp(text, renderer):
+def superhelp(text, renderer, *, msg_level=conf.BRIEF):
     """
     Talk about the snippet supplied
     """
     try:
         explanations_dets = get_explanations_dets(text)
-        show_explanations(renderer, explanations_dets)
+        show_explanations(renderer, explanations_dets, msg_level=msg_level)
     except Exception:
         raise Exception("Sorry Dave - I can't help you with that")
 
@@ -103,5 +103,5 @@ names = ['Noor', 'Grant', 'Hyeji', 'Vicky', 'Olek', 'Marzena', 'Jess', 'Nicole']
 empty = []
 myint = 666
 """
-renderer = html_renderer
-superhelp(text, renderer)
+renderer = cli_renderer # html_renderer
+superhelp(text, renderer, msg_level=conf.BRIEF)
