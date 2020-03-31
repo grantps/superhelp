@@ -107,10 +107,11 @@ if __name__ == '__main__':
         required=False, default=conf.DEMO_SNIPPET,
         help="Supply a brief snippet of Python code")
     args = parser.parse_args()
+    snippet = args.snippet
     ARG2RENDERER = {
         'html': html_renderer,
         'cli': cli_renderer,
     }
     renderer = ARG2RENDERER[args.renderer]
-    snippet = args.snippet
-    superhelp(snippet, renderer, msg_level=conf.BRIEF)
+    msg_level = args.level
+    superhelp(snippet, renderer, msg_level=msg_level)
