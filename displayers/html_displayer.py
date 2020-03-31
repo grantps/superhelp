@@ -6,8 +6,9 @@ import conf
 
 from markdown import markdown  ## https://coderbook.com/@marcus/how-to-render-markdown-syntax-as-html-using-python/
 
-MSG_TYPE2CLASS = {
-    msg_type: f"help help-{msg_type}" for msg_type in conf.MSG_TYPES}
+MESSAGE_TYPE2CLASS = {
+    message_type: f"help help-{message_type}"
+    for message_type in conf.MESSAGE_TYPES}
 
 HTML_WRAPPER = """\
 <!DOCTYPE html>
@@ -184,68 +185,69 @@ VISIBILITY_SCRIPT = """\
 </script>
 """ % {'brief': conf.BRIEF, 'main': conf.MAIN, 'extra': conf.EXTRA}
 
-def get_html_strs(msg, msg_type,*, warning=False):
-    div_class = MSG_TYPE2CLASS[msg_type]
+def get_html_strs(message, message_type,*, warning=False):
+    div_class = MESSAGE_TYPE2CLASS[message_type]
     warning_class = ' warning' if warning else ''
     str_html_list = [f"<div class='{div_class}{warning_class}'>", ]
-    msg_str = markdown(dedent(msg))
-    str_html_list.append(msg_str)
+    message_str = markdown(dedent(message))
+    str_html_list.append(message_str)
     str_html_list.append("</div>")
     return str_html_list
 
-def _get_all_html_strs(explanations_dets):
+def _get_all_html_strs(messages_dets):
     """
     Display all message types - eventually will show brief and, if the user
     clicks to expand, main instead with the option of expanding to show Extra.
     """
     all_html_strs = []
-    explanations_dets.sort(key=lambda nt: (nt.line_no))
+    messages_dets.sort(key=lambda nt: (nt.line_no))
     prev_line_no = None
-    for explanation_dets in explanations_dets:
+    for message_dets in messages_dets:
         ## display code for line number (once ;-))
-        line_no = explanation_dets.line_no
+        line_no = message_dets.line_no
         if line_no != prev_line_no:
             all_html_strs.append(f'<h2>Line {line_no:,}</h2>')
             code_content = indent(
-                f"::python\n{explanation_dets.content}",
+                f"::python\n{message_dets.content}",
                 ' '*4)
             content = markdown(code_content, extensions=['codehilite'])
             all_html_strs.append(content)
             prev_line_no = line_no
         ## process messages
-        for msg_type in conf.MSG_TYPES:
+        for message_type in conf.MESSAGE_TYPES:
             try:
-                msg = explanation_dets.explanation[msg_type]
+                message = message_dets.message[message_type]
             except KeyError:
-                if msg_type != conf.EXTRA:
-                    raise Exception(f"Missing required message type {msg_type}")
+                if message_type != conf.EXTRA:
+                    raise Exception(
+                        f"Missing required message type {message_type}")
             else:
-                msg_html_strs = get_html_strs(
-                    msg, msg_type, warning=explanation_dets.warning)
-                all_html_strs.extend(msg_html_strs)
+                message_html_strs = get_html_strs(
+                    message, message_type, warning=message_dets.warning)
+                all_html_strs.extend(message_html_strs)
     return all_html_strs
 
-def _get_radio_buttons(*, msg_level=conf.BRIEF):
+def _get_radio_buttons(*, message_level=conf.BRIEF):
     radio_buttons_dets = []
-    for msg_type in conf.MSG_TYPES:
-        checked = ' checked' if msg_type == msg_level else ''
+    for message_type in conf.MESSAGE_TYPES:
+        checked = ' checked' if message_type == message_level else ''
         radio_button_dets = f"""\
             <input type="radio"
-             id="radio-verbosity-{msg_type}"
+             id="radio-verbosity-{message_type}"
              name="verbosity"
-             value="{msg_type}"{checked}>
-            <label for="radio-verbosity-{msg_type}">{msg_type}</label>
+             value="{message_type}"{checked}>
+            <label for="radio-verbosity-{message_type}">{message_type}</label>
             """
         radio_buttons_dets.append(radio_button_dets)
     radio_buttons = '\n'.join(radio_buttons_dets)
     return radio_buttons
 
-def show(explanations_dets, *, msg_level=conf.BRIEF):
+def display(messages_dets, *, message_level=conf.BRIEF):
     """
     Show by lines and then by list_rules within line.
     """
-    radio_buttons = _get_radio_buttons(msg_level=msg_level)
-    all_html_strs = _get_all_html_strs(explanations_dets)
+    radio_buttons = _get_radio_buttons(message_level=message_level)
+    all_html_strs = _get_all_html_strs(messages_dets)
     body_inner = '\n'.join(all_html_strs)
     html2write = HTML_WRAPPER.format(
         head=HTML_HEAD, radio_buttons=radio_buttons, body_inner=body_inner,

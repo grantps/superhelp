@@ -10,4 +10,4 @@ Python 3.6+ and requirements.txt
 
 ## Usage
 
-    python helper.py -s "people = ['Tomas', 'Sal', 'Raj']" -r html -l Main
+    python helper.py -s "people = ['Tomas', 'Sal', 'Raj']" -d html -l Main

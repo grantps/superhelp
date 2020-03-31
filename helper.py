@@ -4,10 +4,10 @@ import ast
 import astpath
 
 import conf
-from renderers import cli_renderer, html_renderer
-import rules
+from displayers import cli_displayer, html_displayer
+import advisors
 
-rules.load_rules()
+advisors.load_advisors()
 
 def _get_last_line_no(element, *, first_line_no):
     last_line_no = None
@@ -45,51 +45,57 @@ def get_xml_element_line_no_range(element):
         first_line_no, last_line_no = None, None
     return first_line_no, last_line_no
 
-def get_explanations_dets(snippet):
-    explanations_dets = []
+def get_messages_dets(snippet):
+    """
+    Break snippet up into syntactical parts.
+    Messages relate to specific syntax parts.
+    Apply matching advisor functions and get message details. 
+    """
+    messages_dets = []
     try:
         tree = ast.parse(snippet)
     except SyntaxError as e:
         raise SyntaxError(
-            f"Something is wrong with what you wrote - details: {e}")
+            f"Oops - something is wrong with what you wrote - details: {e}")
     else:
         lines = snippet.split('\n')
         xml = astpath.asts.convert_to_xml(tree)
-        for rule_name, rule_dets in rules.RULES.items():
+        for advisor_name, advisor_dets in advisors.ADVISORS.items():
             ## Find all elements in XML matching this rule's selector
-            matching_elements = xml.cssselect(rule_dets.element_type)
+            matching_elements = xml.cssselect(advisor_dets.element_type)
             ## Get explanations for each matched element
             for element in matching_elements:
                 first_line_no, last_line_no = get_xml_element_line_no_range(
                     element)
                 content = '\n'.join(
                     lines[first_line_no-1: last_line_no]).strip()
-                explanation = rule_dets.explainer(element)
-                if explanation is None:
+                message = advisor_dets.advisor(element)
+                if message is None:
                     pass  ## it is OK for a rule to have nothing to say about an element e.g. if the rule is concerned with duplicate items in a list and there are none then it probably won't have anything to say
                 else:
-                    if conf.BRIEF not in explanation.keys():
-                        raise Exception(f"'{rule_name}' supplied an explanation"
-                            " but didn't include a '{conf.BRIEF}' message")
-                    if conf.MAIN not in explanation.keys():
-                        explanation[conf.MAIN] = explanation[conf.BRIEF]
-                    explanation_dets = conf.ExplanationDets(
-                        content, first_line_no, rule_name, rule_dets.warning,
-                        rule_dets.element_type, explanation,
+                    if conf.BRIEF not in message.keys():
+                        raise Exception(f"'{advisor_name}' gave advice "
+                            "but didn't include a '{conf.BRIEF}' message")
+                    if conf.MAIN not in message.keys():
+                        message[conf.MAIN] = message[conf.BRIEF]
+                    message_dets = conf.MessageDets(
+                        content, first_line_no, advisor_name, 
+                        advisor_dets.warning, advisor_dets.element_type,
+                        message,
                     )
-                    explanations_dets.append(explanation_dets)
-    return explanations_dets
+                    messages_dets.append(message_dets)
+    return messages_dets
 
-def show_explanations(renderer, explanations, *, msg_level=conf.BRIEF):
-    renderer.show(explanations, msg_level=msg_level)
+def display_messages(displayer, messages_dets, *, message_level=conf.BRIEF):
+    displayer.display(messages_dets, message_level=message_level)
 
-def superhelp(snippet, renderer, *, msg_level=conf.BRIEF):
+def superhelp(snippet, displayer, *, message_level=conf.BRIEF):
     """
     Talk about the snippet supplied
     """
     try:
-        explanations_dets = get_explanations_dets(snippet)
-        show_explanations(renderer, explanations_dets, msg_level=msg_level)
+        messages_dets = get_messages_dets(snippet)
+        display_messages(displayer, messages_dets, message_level=message_level)
     except Exception:
         raise Exception("Sorry Dave - I can't help you with that")
 
@@ -97,7 +103,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Superhelp - Help for Humans!')
     ## don't use type=list ever https://stackoverflow.com/questions/15753701/argparse-option-for-passing-a-list-as-option
-    parser.add_argument('-r', '--renderer', type=str,
+    parser.add_argument('-d', '--displayer', type=str,
         required=False, default='html',
         help="Where do you want your help shown? html, cli, etc")
     parser.add_argument('-l', '--level', type=str,
@@ -108,10 +114,10 @@ if __name__ == '__main__':
         help="Supply a brief snippet of Python code")
     args = parser.parse_args()
     snippet = args.snippet
-    ARG2RENDERER = {
-        'html': html_renderer,
-        'cli': cli_renderer,
+    ARG2DISPLAYER = {
+        'html': html_displayer,
+        'cli': cli_displayer,
     }
-    renderer = ARG2RENDERER[args.renderer]
-    msg_level = args.level
-    superhelp(snippet, renderer, msg_level=msg_level)
+    displayer = ARG2DISPLAYER[args.displayer]
+    message_level = args.level
+    superhelp(snippet, displayer, message_level=message_level)
