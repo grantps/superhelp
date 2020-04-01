@@ -45,7 +45,7 @@ def get_xml_element_line_no_range(element):
         first_line_no, last_line_no = None, None
     return first_line_no, last_line_no
 
-def get_messages_dets(snippet):
+def get_messages_dets(snippet, *, debug=False):
     """
     Break snippet up into syntactical parts.
     Messages relate to specific syntax parts.
@@ -60,16 +60,20 @@ def get_messages_dets(snippet):
     else:
         lines = snippet.split('\n')
         xml = astpath.asts.convert_to_xml(tree)
+        if debug:
+            xml.getroottree().write('ast_output.xml')
         for advisor_name, advisor_dets in advisors.ADVISORS.items():
             ## Find all elements in XML matching this rule's selector
-            matching_elements = xml.cssselect(advisor_dets.element_type)
+            ## xml.cssselect would mix up match on ListComp when searching for List. Fun ensued ;-)
+            matching_elements = xml.xpath(
+                f"body/Assign/value/{advisor_dets.element_type}")
             ## Get explanations for each matched element
             for element in matching_elements:
                 first_line_no, last_line_no = get_xml_element_line_no_range(
                     element)
-                content = '\n'.join(
+                code_str = '\n'.join(
                     lines[first_line_no-1: last_line_no]).strip()
-                message = advisor_dets.advisor(element)
+                message = advisor_dets.advisor(element, code_str)
                 if message is None:
                     pass  ## it is OK for a rule to have nothing to say about an element e.g. if the rule is concerned with duplicate items in a list and there are none then it probably won't have anything to say
                 else:
@@ -78,8 +82,10 @@ def get_messages_dets(snippet):
                             "but didn't include a '{conf.BRIEF}' message")
                     if conf.MAIN not in message.keys():
                         message[conf.MAIN] = message[conf.BRIEF]
+                    if conf.EXTRA not in message.keys():
+                        message[conf.EXTRA] = ''
                     message_dets = conf.MessageDets(
-                        content, first_line_no, advisor_name, 
+                        code_str, first_line_no, advisor_name, 
                         advisor_dets.warning, advisor_dets.element_type,
                         message,
                     )
@@ -89,12 +95,12 @@ def get_messages_dets(snippet):
 def display_messages(displayer, messages_dets, *, message_level=conf.BRIEF):
     displayer.display(messages_dets, message_level=message_level)
 
-def superhelp(snippet, displayer, *, message_level=conf.BRIEF):
+def superhelp(snippet, displayer, *, message_level=conf.BRIEF, debug=False):
     """
     Talk about the snippet supplied
     """
     try:
-        messages_dets = get_messages_dets(snippet)
+        messages_dets = get_messages_dets(snippet, debug=debug)
         display_messages(displayer, messages_dets, message_level=message_level)
     except Exception:
         raise Exception("Sorry Dave - I can't help you with that")
@@ -107,10 +113,10 @@ if __name__ == '__main__':
         required=False, default='html',
         help="Where do you want your help shown? html, cli, etc")
     parser.add_argument('-l', '--level', type=str,
-        required=False, default='Brief',
+        required=False, default='Extra',
         help="What level of help do you want? Brief, Main, or Extra?")
     parser.add_argument('-s', '--snippet', type=str,
-        required=False, default=conf.DEMO_SNIPPET,
+        required=False, default=conf.TEST_SNIPPET,
         help="Supply a brief snippet of Python code")
     args = parser.parse_args()
     snippet = args.snippet
@@ -120,4 +126,4 @@ if __name__ == '__main__':
     }
     displayer = ARG2DISPLAYER[args.displayer]
     message_level = args.level
-    superhelp(snippet, displayer, message_level=message_level)
+    superhelp(snippet, displayer, message_level=message_level, debug=False)

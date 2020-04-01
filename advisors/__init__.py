@@ -10,13 +10,19 @@ from importlib import import_module
 from pkgutil import iter_modules
 import sys
 
+import conf
+
 AdvisorDets = namedtuple('AdvisorDets', 'element_type, warning, advisor')
 
 ADVISORS = {}
 
-def get_element_name(element):
+def get_name(element):
     """
     Python AST explorer: https://python-ast-explorer.com/
+
+    :return: None if no name (perhaps an incomplete expression) e.g.
+      5, 1.123, in the middle of a multi-line list definition
+    :rtype: str
     """
     ## Get the name of the element if we can.
     name_elements = element.xpath('../../targets/Name')
@@ -24,8 +30,22 @@ def get_element_name(element):
         name_id = name_elements[0].get('id')
         name = name_id
     else:
-        name = 'Anonymous'
+        name = None
     return name
+
+def get_val(code_str, name):
+    """
+    Executing supplied code from end users - nope - nothing to see here from a
+    security point of view ;-) Needs addressing if this code is ever used as a
+    service for other users.
+    """
+    exp_dets = {}
+    exec(code_str, exp_dets)
+    try:
+        val = exp_dets[name]
+    except KeyError:
+        raise KeyError(f"Unable to find name '{name}' in code_str\n{code_str}")
+    return val
 
 def advisor(element_type, *, warning=False):
     """

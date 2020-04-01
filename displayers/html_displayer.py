@@ -185,7 +185,9 @@ VISIBILITY_SCRIPT = """\
 </script>
 """ % {'brief': conf.BRIEF, 'main': conf.MAIN, 'extra': conf.EXTRA}
 
-def get_html_strs(message, message_type,*, warning=False):
+def get_html_strs(message, message_type, *, warning=False):
+    if not message:
+        return []
     div_class = MESSAGE_TYPE2CLASS[message_type]
     warning_class = ' warning' if warning else ''
     str_html_list = [f"<div class='{div_class}{warning_class}'>", ]
@@ -207,11 +209,11 @@ def _get_all_html_strs(messages_dets):
         line_no = message_dets.line_no
         if line_no != prev_line_no:
             all_html_strs.append(f'<h2>Line {line_no:,}</h2>')
-            code_content = indent(
-                f"::python\n{message_dets.content}",
+            code_str = indent(
+                f"::python\n{message_dets.code_str}",
                 ' '*4)
-            content = markdown(code_content, extensions=['codehilite'])
-            all_html_strs.append(content)
+            code_str_highlighted = markdown(code_str, extensions=['codehilite'])
+            all_html_strs.append(code_str_highlighted)
             prev_line_no = line_no
         ## process messages
         for message_type in conf.MESSAGE_TYPES:
