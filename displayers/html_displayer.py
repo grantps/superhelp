@@ -185,14 +185,69 @@ VISIBILITY_SCRIPT = """\
 </script>
 """ % {'brief': conf.BRIEF, 'main': conf.MAIN, 'extra': conf.EXTRA}
 
+PART = 'part'
+IS_CODE = 'is_code'
+
+def _get_radio_buttons(*, message_level=conf.BRIEF):
+    radio_buttons_dets = []
+    for message_type in conf.MESSAGE_TYPES:
+        checked = ' checked' if message_type == message_level else ''
+        radio_button_dets = f"""\
+            <input type="radio"
+             id="radio-verbosity-{message_type}"
+             name="verbosity"
+             value="{message_type}"{checked}>
+            <label for="radio-verbosity-{message_type}">{message_type}</label>
+            """
+        radio_buttons_dets.append(radio_button_dets)
+    radio_buttons = '\n'.join(radio_buttons_dets)
+    return radio_buttons
+
+def get_separate_code_message_parts(message):
+    """
+    Need to handle code portions differently so need to separate it out.
+
+    :return: list of message part details
+     [{'part': 'asdf', 'is_code': False}, ...]
+    :rtype: list
+    """
+    message_parts = []
+    open_code_block = False
+    lines = message.split('\n')
+    for i, line in enumerate(lines):
+        first_line = i == 0
+        line_in_code_block = line.startswith(' ' * 4)
+        if line_in_code_block:
+            if open_code_block:
+                open_code_part = message_parts[-1]
+                open_code_part[PART] += f"\n{line}"  ## add to already-open code part
+            else:
+                message_parts.append({PART: line, IS_CODE: True})  ## start new code part
+            open_code_block = True
+        else:  ## line not in a code block
+            if first_line or open_code_block:
+                message_parts.append({PART: line, IS_CODE: False})
+            else:
+                open_non_code_part = message_parts[-1]
+                open_non_code_part[PART] += f"\n{line}"
+            open_code_block = False
+    return message_parts
+
 def get_html_strs(message, message_type, *, warning=False):
     if not message:
         return []
     div_class = MESSAGE_TYPE2CLASS[message_type]
     warning_class = ' warning' if warning else ''
     str_html_list = [f"<div class='{div_class}{warning_class}'>", ]
-    message_str = markdown(dedent(message))
-    str_html_list.append(message_str)
+    message_parts = get_separate_code_message_parts(message)
+    for message_part in message_parts:
+        if message_part[IS_CODE]:
+            message_part_str = markdown(
+                message_part[PART], extensions=['codehilite'])
+        else:
+            message_part_str = markdown(
+                dedent(message_part[PART]))
+        str_html_list.append(message_part_str)
     str_html_list.append("</div>")
     return str_html_list
 
@@ -205,12 +260,12 @@ def _get_all_html_strs(messages_dets):
     messages_dets.sort(key=lambda nt: (nt.line_no))
     prev_line_no = None
     for message_dets in messages_dets:
-        ## display code for line number (once ;-))
+        ## display code for line number (once ;-)) Each line might have one or more messages but it will always have the one code_str starting on that line
         line_no = message_dets.line_no
         if line_no != prev_line_no:
             all_html_strs.append(f'<h2>Line {line_no:,}</h2>')
             code_str = indent(
-                f"::python\n{message_dets.code_str}",
+                f"{conf.MD_PYTHON_CODE_START}\n{message_dets.code_str}",
                 ' '*4)
             code_str_highlighted = markdown(code_str, extensions=['codehilite'])
             all_html_strs.append(code_str_highlighted)
@@ -228,21 +283,6 @@ def _get_all_html_strs(messages_dets):
                     message, message_type, warning=message_dets.warning)
                 all_html_strs.extend(message_html_strs)
     return all_html_strs
-
-def _get_radio_buttons(*, message_level=conf.BRIEF):
-    radio_buttons_dets = []
-    for message_type in conf.MESSAGE_TYPES:
-        checked = ' checked' if message_type == message_level else ''
-        radio_button_dets = f"""\
-            <input type="radio"
-             id="radio-verbosity-{message_type}"
-             name="verbosity"
-             value="{message_type}"{checked}>
-            <label for="radio-verbosity-{message_type}">{message_type}</label>
-            """
-        radio_buttons_dets.append(radio_button_dets)
-    radio_buttons = '\n'.join(radio_buttons_dets)
-    return radio_buttons
 
 def display(messages_dets, *, message_level=conf.BRIEF):
     """

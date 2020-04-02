@@ -1,9 +1,35 @@
 """
 Advisors return None if a selected element doesn't match.
 
-Warning - putting an explicit newline character (backslash n) before a line in a
-message messes up dedenting and thus the markdown-to-HTML display. It is
-treated as raw code which is probably not what you want.
+WARNING: Dedenting can be broken by a single line which is not indented like the
+rest. It is surprisingly easy to create this problem using new line characters
+in your strings. So don't ;-). Use triple quotes and actual line breaks. Don't
+believe me? See examples below:
+
+Note - the backslash after the triple quotes below is a standard Python trick to
+prevent an extra implicit new line character.
+
+E.g. dedent(
+'''\
+    line 1
+    line 2
+
+    line 100\n Extra text  FAIL - will not dedent beyond the one space before 'Extra text'.
+''')
+
+E.g. dedent(
+'''\
+    line 1
+    \nline 2  ## FAIL - no indentation for line 2 so no dedenting possible
+''')
+
+E.g. dedent(
+'''\
+    line 1\n  ## SUCCESS - lines 1 and 2 are indented and the new line character won't interfere
+    line 2
+''')
+
+Subtle huh!!? And you thought whitespace in Python was a risk!
 """
 from collections import namedtuple
 from importlib import import_module
@@ -15,6 +41,11 @@ import conf
 AdvisorDets = namedtuple('AdvisorDets', 'element_type, warning, advisor')
 
 ADVISORS = {}
+
+def code_indent(text):
+    lines = text.split('\n')
+    indented_lines = [f"{' ' * 4}{line}" for line in lines]
+    return f'\n'.join(indented_lines)
 
 def get_name(element):
     """
@@ -33,14 +64,14 @@ def get_name(element):
         name = None
     return name
 
-def get_val(code_str, name):
+def get_val(safe_imports, code_str, name):
     """
     Executing supplied code from end users - nope - nothing to see here from a
     security point of view ;-) Needs addressing if this code is ever used as a
     service for other users.
     """
     exp_dets = {}
-    exec(code_str, exp_dets)
+    exec(safe_imports + code_str, exp_dets)
     try:
         val = exp_dets[name]
     except KeyError:
