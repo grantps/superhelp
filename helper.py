@@ -23,8 +23,8 @@ def get_messages_dets(snippet, *, debug=False):
     else:
         analyser = ast_funcs.Analyser()
         analyser.visit(tree)
-        safe_imports = ('; '.join(analyser.safe_imports) + '; '
-            if analyser.safe_imports else '')
+        std_imports = ('; '.join(analyser.std_imports) + '; '
+            if analyser.std_imports else '')
         lines = snippet.split('\n')
         xml = astpath.asts.convert_to_xml(tree)
         if debug:
@@ -41,7 +41,7 @@ def get_messages_dets(snippet, *, debug=False):
                     element)
                 code_str = '\n'.join(
                     lines[first_line_no-1: last_line_no]).strip()
-                message = advisor_dets.advisor(element, safe_imports, code_str)
+                message = advisor_dets.advisor(element, std_imports, code_str)
                 if message is None:
                     pass  ## it is OK for a rule to have nothing to say about an element e.g. if the rule is concerned with duplicate items in a list and there are none then it probably won't have anything to say
                 else:

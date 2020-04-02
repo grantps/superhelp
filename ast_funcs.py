@@ -43,25 +43,24 @@ def get_xml_element_line_no_range(element):
 class Analyser(ast.NodeVisitor):
 
     def __init__(self):
-        self.imports = []
+        self.std_imports = []
+
+    def check_module(self, module):
+        if module not in conf.STD_LIBS:
+            raise Exception("Only modules from the Python standard library can "
+                f"be imported. {module} is not in the current list of standard "
+                "modules.")
 
     def visit_Import(self, node):
         for alias in node.names:
-            self.imports.append((alias.name,
-                f"import {alias.name} as {alias.asname or alias.name}"))
+            module = alias.name
+            self.check_module(module)
+            self.std_imports.append(f"import {module} as {alias.asname or module}")
         self.generic_visit(node)
 
     def visit_ImportFrom(self, node):
         for alias in node.names:
-            self.imports.append((node.module,
-                f"from {node.module} "
-                f"import {alias.name} as {alias.asname or alias.name}"))
+            self.check_module(node.module)
+            self.std_imports.append(f"from {node.module} "
+                f"import {alias.name} as {alias.asname or alias.name}")
         self.generic_visit(node)
-
-    @property
-    def safe_imports(self):
-        safe_imports = [
-            import_statement for module, import_statement in self.imports
-            if module in conf.STD_LIBS]
-        return safe_imports
-

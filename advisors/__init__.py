@@ -64,14 +64,14 @@ def get_name(element):
         name = None
     return name
 
-def get_val(safe_imports, code_str, name):
+def get_val(std_imports, code_str, name):
     """
     Executing supplied code from end users - nope - nothing to see here from a
     security point of view ;-) Needs addressing if this code is ever used as a
     service for other users.
     """
     exp_dets = {}
-    exec(safe_imports + code_str, exp_dets)
+    exec(std_imports + code_str, exp_dets)
     try:
         val = exp_dets[name]
     except KeyError:
