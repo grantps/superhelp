@@ -12,12 +12,15 @@ MESSAGE_TYPES = [BRIEF, MAIN, EXTRA]
 
 ANON_NAME = 'Anonymous'
 
-## Only include elements which are safe to exec
-## To see what 
+AST_OUTPUT_XML = 'ast_output.xml'
+
+## To see what elements are named look in AST_OUTPUT_XML
+## e.g. <For lineno="3" col_offset="0"> is "For"
 LIST_ELEMENT_TYPE = 'List'
 LISTCOMP_ELEMENT_TYPE = 'ListComp'
 NUM_ELEMENT_TYPE = 'Num'
 STR_ELEMENT_TYPE = 'Str'
+FOR_ELEMENT_TYPE = 'For'
 
 INT_CLASS = 'int'
 FLOAT_CLASS = 'float'
@@ -63,25 +66,15 @@ STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',
 'winsound', 'wsgiref', 'xdrlib', 'xml', 'xmlrpc', 'zipapp', 'zipfile',
 'zipimport', 'zlib']
 
-ADVANCED_DEMO_SNIPPET = """\
+DEMO_SNIPPET = """\
 import datetime
-import math
+from math import pi as π
 mixed = [
     datetime.datetime.strptime('2020-02-10', '%Y-%m-%d'),
-    math.pi, 5, 1.234, 'Noor',
+    π, 5, 1.234, 'Noor',
 ]
 names = ['Noor', 'Grant', 'Hyeji', 'Vicky', 'Olek', 'Marzena', 'Jess', 'Nicole']
 names_lower = [name.lower() for name in names]
-empty = []
-myint = 666
-"""
-DEMO_SNIPPET = """\
-import datetime
-from math import pi
-mixed = [
-    datetime.datetime.strptime('2020-02-10', '%Y-%m-%d'),
-    pi, 5, 1.234, 'Noor',
-]
 person = 'Guido van Rossum'
 evens_squared = [x**2 for x in range(1, 6) if x % 2 == 0]
 empty = []
@@ -90,11 +83,8 @@ myfloat = 6.667
 myscinot = 1.23E-7
 """
 TEST_SNIPPET = """\
-import datetime
-import math
-from math import pi as pie
-mixed = [
-    datetime.datetime.strptime('2020-02-10', '%Y-%m-%d'),
-    math.pi, 5, 1.234, 'Noor',
-]
+names = ['Noor', 'Grant', 'Hyeji', 'Vicky', 'Olek', 'Marzena', 'Jess', 'Nicole']
+names_lower = []
+for name in names:
+    names_lower.append(name.lower())
 """

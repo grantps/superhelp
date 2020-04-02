@@ -4,11 +4,11 @@ from advisors import advisor, get_name, get_val
 import conf
 
 @advisor(conf.STR_ELEMENT_TYPE)
-def str_overview(element, std_imports, code_str):
+def str_overview(element, pre_line_code_str, line_code_str):
     name = get_name(element)
     if not name:
         return None
-    val = get_val(std_imports, code_str, name)
+    val = get_val(pre_line_code_str, line_code_str, name)
     black_heart = "\N{BLACK HEART}"
     message = {
         conf.BRIEF: dedent(f"""\

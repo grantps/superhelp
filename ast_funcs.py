@@ -64,3 +64,8 @@ class Analyser(ast.NodeVisitor):
             self.std_imports.append(f"from {node.module} "
                 f"import {alias.name} as {alias.asname or alias.name}")
         self.generic_visit(node)
+
+
+def check_tree(tree):
+    analyser = Analyser()
+    analyser.visit(tree)

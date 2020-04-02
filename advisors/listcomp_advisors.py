@@ -4,9 +4,9 @@ from advisors import advisor, get_name, get_val, code_indent
 import conf
 
 @advisor(conf.LISTCOMP_ELEMENT_TYPE)
-def listcomp_overview(element, std_imports, code_str):
+def listcomp_overview(element, pre_line_code_str, line_code_str):
     name = get_name(element)
-    items = get_val(std_imports, code_str, name)
+    items = get_val(pre_line_code_str, line_code_str, name)
     message = {
         conf.BRIEF: dedent(f"""
             `{name}` is a list comprehension returning a list

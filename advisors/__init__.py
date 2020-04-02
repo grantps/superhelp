@@ -38,9 +38,10 @@ import sys
 
 import conf
 
-AdvisorDets = namedtuple('AdvisorDets', 'element_type, warning, advisor')
+AdvisorDets = namedtuple(
+    'AdvisorDets', 'element_type, warning, advisor_name, advisor')
 
-ADVISORS = {}
+ADVISORS = []
 
 def code_indent(text):
     lines = text.split('\n')
@@ -64,18 +65,19 @@ def get_name(element):
         name = None
     return name
 
-def get_val(std_imports, code_str, name):
+def get_val(pre_line_code_str, line_code_str, name):
     """
     Executing supplied code from end users - nope - nothing to see here from a
     security point of view ;-) Needs addressing if this code is ever used as a
     service for other users.
     """
     exp_dets = {}
-    exec(std_imports + code_str, exp_dets)
+    exec(pre_line_code_str + line_code_str, exp_dets)
     try:
         val = exp_dets[name]
     except KeyError:
-        raise KeyError(f"Unable to find name '{name}' in code_str\n{code_str}")
+        raise KeyError(
+            f"Unable to find name '{name}' in code_str\n{line_code_str}")
     return val
 
 def advisor(element_type, *, warning=False):
@@ -88,7 +90,7 @@ def advisor(element_type, *, warning=False):
      e.g. HTML to decide what to do with that information, if anything.
     """
     def decorator(func):
-        ADVISORS[func.__name__] = AdvisorDets(element_type, warning, func)
+        ADVISORS.append(AdvisorDets(element_type, warning, func.__name__, func))
         return func
     return decorator
 

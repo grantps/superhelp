@@ -42,11 +42,11 @@ CLASS2FUNC = {
 }
 
 @advisor(conf.NUM_ELEMENT_TYPE)
-def num_overview(element, std_imports, code_str):
+def num_overview(element, pre_line_code_str, line_code_str):
     name = get_name(element)
     if not name:
         return None
-    val = get_val(std_imports, code_str, name)
+    val = get_val(pre_line_code_str, line_code_str, name)
     val_type = type(val).__name__
     message_func = CLASS2FUNC[val_type]
     message = message_func(name, val)
