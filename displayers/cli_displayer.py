@@ -1,6 +1,6 @@
 from textwrap import dedent
 
-import mdv
+import mdv_fixed as mdv
 
 """
 Note - displays properly in the terminal but not necessarily in other output
@@ -12,6 +12,7 @@ TERMINAL_WIDTH = 220
 
 SHORT_LINE = '-' * 2  ## at 3 long it automatically becomes a long line (at least, it does in my bash terminal on Ubuntu)
 LONG_LINE = '-' * 120
+MDV_CODE_BOUNDARY = "```"
 
 def display(messages_dets, *, message_level=conf.BRIEF):
     """
@@ -31,14 +32,21 @@ def display(messages_dets, *, message_level=conf.BRIEF):
         line_no = message_dets.line_no
         if line_no != prev_line_no:
             text.append(mdv.main(f'{LONG_LINE}\n## Line {line_no:,}'))
-            text.append(mdv.main(dedent(message_dets.code_str)))
+            text.append(mdv.main(dedent(
+                f"{MDV_CODE_BOUNDARY}\n"
+                + message_dets.code_str
+                + f"\n{MDV_CODE_BOUNDARY}")))
             prev_line_no = line_no
         ## process messages
         message = dedent(message_dets.message[message_level])
         if message_level == conf.EXTRA:
             message = dedent(message_dets.message[conf.MAIN]) + message
         warning_str = 'WARNING:\n' if message_dets.warning else ''
-        message = warning_str + message
-        text.append(mdv.main(message.replace('\n', '\n\n')))
+        message = dedent(warning_str + message)
+        message = (message
+            .replace(f"    {conf.PYTHON_CODE_START}", MDV_CODE_BOUNDARY)
+            .replace(f"\n    {conf.PYTHON_CODE_END}", MDV_CODE_BOUNDARY)
+        )
+        text.append(mdv.main(md=message))  ## setting code_hilite is how you highlight the code - it is about handling MD within code e.g. in doc string
     content = '\n'.join(text)
     print(content)

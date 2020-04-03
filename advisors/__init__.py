@@ -104,7 +104,7 @@ GENERIC_ADVISORS = [
 ]
 
 def code_indent(text):
-    lines = text.split('\n')
+    lines = [conf.PYTHON_CODE_START] + text.split('\n') + [conf.PYTHON_CODE_END]
     indented_lines = [f"{' ' * 4}{line}" for line in lines]
     return f'\n'.join(indented_lines)
 
@@ -117,7 +117,7 @@ GENERAL_COMPREHENSION_COMMENT = dedent(f"""\
     single English sentence then it might belong on one line. The code
     should say what it is doing more than how it is doing it.
     Comprehensions are declarative and that is A Very Good Thing™.
-    
+
     Pro tip: don't make comprehensions *in*comprehensions ;-).
     If your comprehension is hard to read it is probably better rewritten as a
     looping structure.
@@ -125,12 +125,11 @@ GENERAL_COMPREHENSION_COMMENT = dedent(f"""\
 
 LIST_COMPREHENSION_COMMENT = (
     dedent("""\
-    ##### Example List Comprehension:  
+    ##### Example List Comprehension:
     """)
     +
     code_indent(
     dedent(f"""\
-        {conf.MD_PYTHON_CODE_START}
         names_lengths = [
             len(name)
             for name in ['Tinky Winky', 'Dipsy', 'La La', 'Po']
@@ -160,7 +159,6 @@ LIST_COMPREHENSION_COMMENT = (
     +
     code_indent(
     dedent(f"""\
-        {conf.MD_PYTHON_CODE_START}
         names_lengths = [
             len(name)
             for name in ['Tinky Winky', 'Dipsy', 'La La', 'Po']
@@ -191,7 +189,6 @@ DICT_COMPREHENSION_COMMENT = (
     +
     code_indent(
         dedent(f"""\
-            {conf.MD_PYTHON_CODE_START}
             country2capital = {{
                 country: capital
                 for country, capital in [('NZ', 'Wellington'), ('Italy', 'Rome')]
@@ -222,7 +219,6 @@ DICT_COMPREHENSION_COMMENT = (
     +
     code_indent(
         dedent(f"""\
-            {conf.MD_PYTHON_CODE_START}
             country2capital = {{
                 country: capital
                 for country, capital in [('NZ', 'Wellington'), ('Italy', 'Rome')]
@@ -254,7 +250,6 @@ SET_COMPREHENSION_COMMENT = (
     +
     code_indent(
         dedent(f"""\
-            {conf.MD_PYTHON_CODE_START}
             pets = {{
                 pet for _person, pet
                 in [('Rachel', 'cat'), ('Elliot', 'goat'), ('Giles', 'cat'),]
@@ -284,7 +279,6 @@ SET_COMPREHENSION_COMMENT = (
     +
     code_indent(
         dedent(f"""\
-            {conf.MD_PYTHON_CODE_START}
             pets = {{
                 pet for person, pet
                 in [('Rachel', 'cat'), ('Elliot', 'goat'), ('Giles', 'cat'),]

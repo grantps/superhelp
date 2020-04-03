@@ -27,7 +27,8 @@ def mixed_list_types(element, pre_line_code_str, line_code_str):
     name = advisors.get_name(element)
     items = advisors.get_val(pre_line_code_str, line_code_str, name)
     item_types = sorted(set([
-        conf.CLASS2NAME[type(item).__name__] for item in items]
+        conf.CLASS2NAME.get(type(item).__name__, type(item).__name__)
+        for item in items]
     ))
     if len(item_types) <= 1:
         ## No explanation needed if there aren't multiple types.

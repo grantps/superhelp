@@ -286,6 +286,11 @@ def _get_all_html_strs(messages_dets):
                 raise TypeError(
                     f"Missing message in message_dets {message_dets}")
             else:
+                message = (
+                    message
+                    .replace(conf.PYTHON_CODE_START, conf.MD_PYTHON_CODE_START)
+                    .replace(f"\n    {conf.PYTHON_CODE_END}", '')
+                )
                 message_html_strs = get_html_strs(
                     message, message_type, warning=message_dets.warning)
                 all_html_strs.extend(message_html_strs)

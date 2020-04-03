@@ -6,6 +6,9 @@ LineCodeDets = namedtuple(
 MessageDets = namedtuple('MessageDets',
     'code_str, line_no, advisor_name, warning, message')
 
+PYTHON_CODE_START = '__python_code_start__'
+PYTHON_CODE_END = '__python_code_end__'
+
 MD_PYTHON_CODE_START = '::python'
 
 BRIEF = 'Brief'  ## no spaces; used as labels and as parts of class names in CSS
@@ -32,12 +35,14 @@ INT_CLASS = 'int'
 FLOAT_CLASS = 'float'
 STR_CLASS = 'str'
 DATETIME_CLASS = 'datetime'
+BOOLEAN_CLASS = 'bool'
 
 CLASS2NAME = {
     INT_CLASS: 'integer',
     FLOAT_CLASS: 'float',
     STR_CLASS: 'string',
-    DATETIME_CLASS: 'datetime object'
+    DATETIME_CLASS: 'datetime object',
+    BOOLEAN_CLASS: 'boolean',
 }
 
 ## scraped from https://docs.python.org/3/py-modindex.html 2020-04-02
@@ -77,7 +82,7 @@ import datetime
 from math import pi as π
 mixedTypes = [
     datetime.datetime.strptime('2020-02-10', '%Y-%m-%d'),
-    π, 5, 1.234, 'Noor',
+    π, 5, 1.234, 'Noor', False,
 ]
 names = ['Noor', 'Grant', 'Hyeji', 'Vicky', 'Olek', 'Marzena', 'Jess', 'Nicole']
 names_lower = [name.lower() for name in names]
