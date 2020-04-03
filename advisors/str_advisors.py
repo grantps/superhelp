@@ -3,7 +3,8 @@ from textwrap import dedent
 from advisors import advisor, get_name, get_val
 import conf
 
-@advisor(conf.STR_ELEMENT_TYPE)
+@advisor(element_type=conf.STR_ELEMENT_TYPE,
+    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
 def str_overview(element, pre_line_code_str, line_code_str):
     name = get_name(element)
     if not name:
@@ -53,5 +54,3 @@ def str_overview(element, pre_line_code_str, line_code_str):
         """),
     }
     return message
-
-# To add more advice, just declare more advisor functions with the @advisor decorator!

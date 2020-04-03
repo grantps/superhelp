@@ -1,7 +1,10 @@
 from collections import namedtuple
 
+LineCodeDets = namedtuple(
+    'LineCodeDets', 'element, line_code_str, first_line_no')
+
 MessageDets = namedtuple('MessageDets',
-    'code_str, line_no, advisor_name, warning, element_type, message')
+    'code_str, line_no, advisor_name, warning, message')
 
 MD_PYTHON_CODE_START = '::python'
 
@@ -13,6 +16,9 @@ MESSAGE_TYPES = [BRIEF, MAIN, EXTRA]
 ANON_NAME = 'Anonymous'
 
 AST_OUTPUT_XML = 'ast_output.xml'
+
+XML_ROOT_BODY_ASSIGN_VALUE = 'body/Assign/value'
+XML_ROOT_BODY = 'body'
 
 ## To see what elements are named look in AST_OUTPUT_XML
 ## e.g. <For lineno="3" col_offset="0"> is "For"
@@ -69,13 +75,16 @@ STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',
 DEMO_SNIPPET = """\
 import datetime
 from math import pi as π
-mixed = [
+mixedTypes = [
     datetime.datetime.strptime('2020-02-10', '%Y-%m-%d'),
     π, 5, 1.234, 'Noor',
 ]
 names = ['Noor', 'Grant', 'Hyeji', 'Vicky', 'Olek', 'Marzena', 'Jess', 'Nicole']
 names_lower = [name.lower() for name in names]
-person = 'Guido van Rossum'
+name_lengths = []
+for name in names:
+    name_lengths.append(len(name))
+fullName = 'Guido van Rossum'
 evens_squared = [x**2 for x in range(1, 6) if x % 2 == 0]
 empty = []
 myint = 666
@@ -83,8 +92,6 @@ myfloat = 6.667
 myscinot = 1.23E-7
 """
 TEST_SNIPPET = """\
-names = ['Noor', 'Grant', 'Hyeji', 'Vicky', 'Olek', 'Marzena', 'Jess', 'Nicole']
-names_lower = []
-for name in names:
-    names_lower.append(name.lower())
+meals = [['weetbix', 'toast'], ]
+meals[0] = ['muesli', ]
 """

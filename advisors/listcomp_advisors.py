@@ -1,9 +1,12 @@
 from textwrap import dedent
 
-from advisors import advisor, get_name, get_val, code_indent
+from advisors import advisor, get_name, get_val, \
+    GENERAL_COMPREHENSION_COMMENT, DICT_COMPREHENSION_COMMENT, \
+    SET_COMPREHENSION_COMMENT
 import conf
 
-@advisor(conf.LISTCOMP_ELEMENT_TYPE)
+@advisor(element_type=conf.LISTCOMP_ELEMENT_TYPE,
+    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
 def listcomp_overview(element, pre_line_code_str, line_code_str):
     name = get_name(element)
     items = get_val(pre_line_code_str, line_code_str, name)
@@ -16,66 +19,20 @@ def listcomp_overview(element, pre_line_code_str, line_code_str):
             dedent(f"""\
             #### Other "comprehensions"
 
-            Comprehensions are one the great things about Python. To see why,
-            have a look at Raymond Hettinger's classic talk "Transforming Code
-            into Beautiful, Idiomatic Python"
-            https://youtu.be/OSGv2VnC0go?t=2738 where he explains the
-            rationale. In short, if the goal of your code can be expressed as a
-            single English sentence then it might belong on one line. The code
-            should say what it is doing more than how it is doing it.
-            Comprehensions are declarative and that is good.
+            """)
+            + GENERAL_COMPREHENSION_COMMENT
+            + dedent("""\
 
-            Python also lets you make:
 
-            1) dictionary comprehensions e.g.
+            List comprehensions aren't the only type of comprehension you can
+            make. Python also lets you write Dictionary and Set Comprehensions:
 
             """)
-            +
-            code_indent(
-                dedent(f"""\
-                    {conf.MD_PYTHON_CODE_START}
-                    country2capital = {{
-                        country: capital
-                        for country, capital in [('NZ', 'Wellington'), ('Italy', 'Rome')]
-                    }}
-                    """)
-            )
-            +
-            dedent("\nproduces an ordinary dictionary:\n")
-            +
-            dedent(str(
-                {
-                    country: capital
-                    for country, capital
-                    in [('NZ', 'Wellington'), ('Italy', 'Rome')]
-                }
-            ))
-            +
-            dedent(f"""\n\n
-            2) set comprehensions e.g.
-
-            """)
-            +
-            code_indent(
-                dedent(f"""\
-                    {conf.MD_PYTHON_CODE_START}
-                    pets = {{
-                        pet for _person, pet
-                        in [('Rachel', 'cat'), ('Elliot', 'goat'), ('Giles', 'cat'),]
-                    }}
-                    """)
-            )
-            +
-            dedent("\nproduces an ordinary set (i.e. unique members only):\n")
-            +
-            dedent(str(
-                {
-                    pet for _person, pet
-                        in [('Rachel', 'cat'), ('Elliot', 'goat'), ('Giles', 'cat'),]
-                }
-            ))
-            +
-            dedent("""\n
+            + DICT_COMPREHENSION_COMMENT
+            + '\n\n'
+            + SET_COMPREHENSION_COMMENT
+            + '\n\n'
+            + dedent("""\
             Pro tip: don't make comprehension *in*comprehensions ;-). If it is
             hard to read it is probably better written as a looping structure.
             """)

@@ -120,6 +120,10 @@ h3 {
 h4 {
   font-size: 11px;
 }
+h5 {
+  font-size: 9px;
+  font-style: italic;
+}
 .warning h4 {
   margin: 0;
 }
@@ -132,7 +136,7 @@ label {
 .warning {
   border-radius: 3px;
   padding: 6px;
-  margin: 0;
+  margin: 10px 0 0 0;
   border: 1px solid #d86231;
 }
 .help {
@@ -278,6 +282,9 @@ def _get_all_html_strs(messages_dets):
                 if message_type != conf.EXTRA:
                     raise Exception(
                         f"Missing required message type {message_type}")
+            except TypeError:
+                raise TypeError(
+                    f"Missing message in message_dets {message_dets}")
             else:
                 message_html_strs = get_html_strs(
                     message, message_type, warning=message_dets.warning)

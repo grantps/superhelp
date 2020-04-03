@@ -1,12 +1,14 @@
 from textwrap import dedent
 
-from advisors import advisor, get_name, get_val
+import advisors
+from advisors import advisor
 import conf
 
-@advisor(conf.LIST_ELEMENT_TYPE)
+@advisor(element_type=conf.LIST_ELEMENT_TYPE,
+    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
 def list_overview(element, std_imports, code_str):
-    name = get_name(element)
-    items = get_val(std_imports, code_str, name)
+    name = advisors.get_name(element)
+    items = advisors.get_val(std_imports, code_str, name)
     message = {
         conf.BRIEF: dedent(f"""
             `{name}` is a list with {len(items):,} items
@@ -14,15 +16,16 @@ def list_overview(element, std_imports, code_str):
     }
     return message
 
-@advisor(conf.LIST_ELEMENT_TYPE, warning=True)
+@advisor(element_type=conf.LIST_ELEMENT_TYPE,
+    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE, warning=True)
 def mixed_list_types(element, pre_line_code_str, line_code_str):
     """
     Warns about lists with mixed types.
 
     NOTE: This isn't actually checking variable types, just AST node types ;-)
     """
-    name = get_name(element)
-    items = get_val(pre_line_code_str, line_code_str, name)
+    name = advisors.get_name(element)
+    items = advisors.get_val(pre_line_code_str, line_code_str, name)
     item_types = sorted(set([
         conf.CLASS2NAME[type(item).__name__] for item in items]
     ))
@@ -32,17 +35,15 @@ def mixed_list_types(element, pre_line_code_str, line_code_str):
     else:
         message = {
             conf.BRIEF: dedent(f"""
-                #### Risky code - has mix of different data types
+                #### Mix of different data types in list
                 `{name}` contains more than one data type -
                 which is probably a bad idea.
             """),
             conf.MAIN: dedent(f"""
-                #### Risky code - has mix of different data types
+                #### Mix of different data types in list
                 `{name}` contains more than one data type -
                 which is probably a bad idea. The data types found were:
                 {", ".join(item_types)}.
             """),
         }
         return message
-
-# To add more advice, just declare more advisor functions with the @advisor decorator!

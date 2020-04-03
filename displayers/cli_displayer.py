@@ -21,7 +21,7 @@ def display(messages_dets, *, message_level=conf.BRIEF):
     text = [mdv.main(f"{LONG_LINE}\n"
         "# SuperHELP - Help for Humans!\n"),
         mdv.main(f"\n{SHORT_LINE}\n"),
-        "Help is provided for each line of your snippet.",
+        "Help is provided for each line of your snippet.\n",
         f"Currently showing {message_level} content as requested",
     ]
     messages_dets.sort(key=lambda nt: (nt.line_no))
@@ -39,6 +39,6 @@ def display(messages_dets, *, message_level=conf.BRIEF):
             message = dedent(message_dets.message[conf.MAIN]) + message
         warning_str = 'WARNING:\n' if message_dets.warning else ''
         message = warning_str + message
-        text.append(mdv.main(message))
+        text.append(mdv.main(message.replace('\n', '\n\n')))
     content = '\n'.join(text)
     print(content)

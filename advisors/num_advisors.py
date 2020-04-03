@@ -41,7 +41,8 @@ CLASS2FUNC = {
     conf.FLOAT_CLASS: float_message,
 }
 
-@advisor(conf.NUM_ELEMENT_TYPE)
+@advisor(element_type=conf.NUM_ELEMENT_TYPE,
+    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
 def num_overview(element, pre_line_code_str, line_code_str):
     name = get_name(element)
     if not name:
@@ -51,5 +52,3 @@ def num_overview(element, pre_line_code_str, line_code_str):
     message_func = CLASS2FUNC[val_type]
     message = message_func(name, val)
     return message
-
-# To add more advice, just declare more advisor functions with the @advisor decorator!
