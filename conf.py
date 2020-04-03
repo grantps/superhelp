@@ -1,4 +1,5 @@
 from collections import namedtuple
+import datetime
 
 LineCodeDets = namedtuple(
     'LineCodeDets', 'element, line_code_str, first_line_no')
@@ -27,22 +28,34 @@ XML_ROOT_BODY = 'body'
 ## e.g. <For lineno="3" col_offset="0"> is "For"
 LIST_ELEMENT_TYPE = 'List'
 LISTCOMP_ELEMENT_TYPE = 'ListComp'
+DICT_ELEMENT_TYPE = 'Dict'
 NUM_ELEMENT_TYPE = 'Num'
 STR_ELEMENT_TYPE = 'Str'
 FOR_ELEMENT_TYPE = 'For'
 
-INT_CLASS = 'int'
-FLOAT_CLASS = 'float'
-STR_CLASS = 'str'
-DATETIME_CLASS = 'datetime'
-BOOLEAN_CLASS = 'bool'
+INT_TYPE = 'int'
+FLOAT_TYPE = 'float'
+STR_TYPE = 'str'
+DATETIME_TYPE = 'datetime'
+BOOLEAN_TYPE = 'bool'
 
-CLASS2NAME = {
-    INT_CLASS: 'integer',
-    FLOAT_CLASS: 'float',
-    STR_CLASS: 'string',
-    DATETIME_CLASS: 'datetime object',
-    BOOLEAN_CLASS: 'boolean',
+TYPE2NAME = {
+    INT_TYPE: 'integer',
+    FLOAT_TYPE: 'float',
+    STR_TYPE: 'string',
+    DATETIME_TYPE: 'datetime object',
+    BOOLEAN_TYPE: 'boolean',
+}
+
+EXAMPLES_OF_TYPES = {
+    INT_TYPE: [123, 9, 17, 20, 100, 2020, 16],
+    FLOAT_TYPE: [1.2345, 0.667, 0.1, 0.001, 10.0],
+    STR_TYPE: ['apple', 'banana', 'kiwifruit', 'Auckland, New Zealand'],
+    DATETIME_TYPE: [
+        datetime.date(2020, 4, 4),
+        datetime.date(1066, 10, 14),
+        datetime.datetime.today(), ],
+    BOOLEAN_TYPE: [True, False],
 }
 
 ## scraped from https://docs.python.org/3/py-modindex.html 2020-04-02
@@ -80,6 +93,7 @@ STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',
 DEMO_SNIPPET = """\
 import datetime
 from math import pi as π
+mixed_keys = {1: 'cat', '1': 'dog'}
 mixedTypes = [
     datetime.datetime.strptime('2020-02-10', '%Y-%m-%d'),
     π, 5, 1.234, 'Noor', False,
@@ -97,6 +111,9 @@ myfloat = 6.667
 myscinot = 1.23E-7
 """
 TEST_SNIPPET = """\
+capitals = {'NZ': 'Auckland', 'France': 'Paris'}
+"""
+BROKEN_TEST_SNIPPET = """\
 meals = [['weetbix', 'toast'], ]
 meals[0] = ['muesli', ]
 """

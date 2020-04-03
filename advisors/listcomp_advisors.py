@@ -3,7 +3,7 @@ from textwrap import dedent
 from advisors import advisor, get_name, get_val, \
     GENERAL_COMPREHENSION_COMMENT, DICT_COMPREHENSION_COMMENT, \
     SET_COMPREHENSION_COMMENT
-import conf
+import conf, utils
 
 @advisor(element_type=conf.LISTCOMP_ELEMENT_TYPE,
     xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
@@ -13,7 +13,7 @@ def listcomp_overview(element, pre_line_code_str, line_code_str):
     message = {
         conf.BRIEF: dedent(f"""
             `{name}` is a list comprehension returning a list
-            with {len(items):,} items: {items}
+            with {utils.int2nice(len(items))} items: {items}
         """),
         conf.EXTRA: (
             dedent(f"""\

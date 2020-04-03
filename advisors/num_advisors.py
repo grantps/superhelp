@@ -36,9 +36,9 @@ def float_message(name, val):
     }
     return message
 
-CLASS2FUNC = {
-    conf.INT_CLASS: int_message,
-    conf.FLOAT_CLASS: float_message,
+TYPE2FUNC = {
+    conf.INT_TYPE: int_message,
+    conf.FLOAT_TYPE: float_message,
 }
 
 @advisor(element_type=conf.NUM_ELEMENT_TYPE,
@@ -49,6 +49,6 @@ def num_overview(element, pre_line_code_str, line_code_str):
         return None
     val = get_val(pre_line_code_str, line_code_str, name)
     val_type = type(val).__name__
-    message_func = CLASS2FUNC[val_type]
+    message_func = TYPE2FUNC[val_type]
     message = message_func(name, val)
     return message
