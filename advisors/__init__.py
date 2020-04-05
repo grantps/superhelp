@@ -112,7 +112,7 @@ GENERAL_COMPREHENSION_COMMENT = dedent(f"""\
     Comprehensions are one the great things about Python. To see why,
     have a look at Raymond Hettinger's classic talk "Transforming Code
     into Beautiful, Idiomatic Python"
-    https://youtu.be/OSGv2VnC0go?t=2738 where he explains the
+    <https://youtu.be/OSGv2VnC0go?t=2738> where he explains the
     rationale. In short, if the goal of your code can be expressed as a
     single English sentence then it might belong on one line. The code
     should say what it is doing more than how it is doing it.

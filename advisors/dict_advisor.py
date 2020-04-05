@@ -73,6 +73,16 @@ def dict_overview(element, std_imports, code_str):
 
                 """))
         ),
+        conf.EXTRA: dedent("""\
+
+            Python dictionaries (now) keep the order in which items are added.
+
+            They are also super-efficient and fast. The two presentations to
+            watch are by living treasure Brandon Rhodes:
+
+            1. The Dictionary Even Mightier - <https://www.youtube.com/watch?v=66P5FMkWoVU>
+            1. The Mighty Dictionary - <https://www.youtube.com/watch?v=oMyy4Sm0uBs>
+            """)
     }
     return message
 

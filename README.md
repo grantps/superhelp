@@ -11,3 +11,16 @@ Python 3.6+ and requirements.txt
 ## Usage
 
     python helper.py -s "people = ['Tomas', 'Sal', 'Raj']" -d html -l Main
+
+## TODO
+
+Assuming users find value in the tool, and there is no specific direction arising from discount usability testing, I'll add coverage of:
+
+* named tuples
+* string interpolation
+* packing and unpacking
+* function parameters (inc forced keywords)
+* sets
+* if-elif-else (always else - even if to raise an exception)
+* exceptions (specific is best)
+* sorting (sort() vs sorted() and sort(reverse=True) vs reversed)

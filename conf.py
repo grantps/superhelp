@@ -28,6 +28,7 @@ XML_ROOT_BODY = 'body'
 ## e.g. <For lineno="3" col_offset="0"> is "For"
 LIST_ELEMENT_TYPE = 'List'
 LISTCOMP_ELEMENT_TYPE = 'ListComp'
+TUPLE_ELEMENT_TYPE = 'Tuple'
 DICT_ELEMENT_TYPE = 'Dict'
 NUM_ELEMENT_TYPE = 'Num'
 STR_ELEMENT_TYPE = 'Str'
@@ -38,6 +39,7 @@ FLOAT_TYPE = 'float'
 STR_TYPE = 'str'
 DATETIME_TYPE = 'datetime'
 BOOLEAN_TYPE = 'bool'
+TUPLE_TYPE = 'tuple'
 
 TYPE2NAME = {
     INT_TYPE: 'integer',
@@ -45,6 +47,7 @@ TYPE2NAME = {
     STR_TYPE: 'string',
     DATETIME_TYPE: 'datetime object',
     BOOLEAN_TYPE: 'boolean',
+    TUPLE_TYPE: 'tuple',
 }
 
 EXAMPLES_OF_TYPES = {
@@ -111,7 +114,7 @@ myfloat = 6.667
 myscinot = 1.23E-7
 """
 TEST_SNIPPET = """\
-capitals = {'NZ': 'Auckland', 'France': 'Paris'}
+location = (-37, 174, 'Auckland')
 """
 BROKEN_TEST_SNIPPET = """\
 meals = [['weetbix', 'toast'], ]
