@@ -16,7 +16,6 @@ Python 3.6+ and requirements.txt
 
 Assuming users find value in the tool, and there is no specific direction arising from discount usability testing, I'll add coverage of:
 
-* named tuples
 * string interpolation
 * packing and unpacking
 * function parameters (inc forced keywords)
