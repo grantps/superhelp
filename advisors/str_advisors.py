@@ -1,15 +1,16 @@
 from textwrap import dedent
 
-from advisors import advisor, get_name, get_val
+import advisors
+from advisors import gen_advisor, type_advisor
 import conf
 
-@advisor(element_type=conf.STR_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
-def str_overview(element, pre_line_code_str, line_code_str):
-    name = get_name(element)
+@type_advisor(element_type=conf.STR_ELEMENT_TYPE, xml_root='value')
+def str_overview(line_dets):
+    name = advisors.get_name(line_dets.element)
     if not name:
         return None
-    val = get_val(pre_line_code_str, line_code_str, name)
+    val = advisors.get_val(
+        line_dets.pre_line_code_str, line_dets.line_code_str, name)
     black_heart = "\N{BLACK HEART}"
     message = {
         conf.BRIEF: dedent(f"""\
@@ -62,12 +63,13 @@ def str_combination(val, element):
     
     return combination
 
-def str_interpolation(element, pre_line_code_str, line_code_str):
-    name = get_name(element)
+def str_interpolation(line_dets):
+    name = advisors.get_name(line_dets.element)
     if not name:
         return None
-    val = get_val(pre_line_code_str, line_code_str, name)
-    if not str_combination(val, element):
+    val = advisors.get_val(
+        line_dets.pre_line_code_str, line_dets.line_code_str, name)
+    if not str_combination(val, line_dets.element):
         return None
     message = {
         conf.BRIEF: dedent(f"""\
@@ -76,14 +78,20 @@ def str_interpolation(element, pre_line_code_str, line_code_str):
     }
     return message
 
-@advisor(element_type=conf.JOINED_STR_ELEMENT_TYPE,
-    xml_root='body/Assign/value')
-def f_str_interpolation(element, pre_line_code_str, line_code_str):
-    return str_interpolation(element, pre_line_code_str, line_code_str)
+@type_advisor(element_type=conf.JOINED_STR_ELEMENT_TYPE, xml_root='value')
+def f_str_interpolation(line_dets):
+    return str_interpolation(line_dets)
 
-@advisor(element_type=conf.FUNC_ELEMENT_TYPE,
-    xml_root='body/Assign/value/Call')
-def format_str_interpolation(element, pre_line_code_str, line_code_str):
-    if element.xpath('Attribute')[0].get('attr') != 'format':
+@type_advisor(element_type=conf.FUNC_ELEMENT_TYPE, xml_root='value/Call')
+def format_str_interpolation(line_dets):
+    func_attributes = line_dets.element.xpath('value/Call/func/Attribute')
+    if func_attributes[0].get('attr') != 'format':
         return None
-    return str_interpolation(element, pre_line_code_str, line_code_str)
+    return str_interpolation(line_dets)
+
+@gen_advisor()
+def sprintf(line_dets):
+    has_sprintf = ('%s' in line_dets.line_code_str)
+    if not has_sprintf:
+        return None
+    return str_interpolation(line_dets)

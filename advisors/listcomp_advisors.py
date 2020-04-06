@@ -1,15 +1,14 @@
 from textwrap import dedent
 
-from advisors import advisor, get_name, get_val, \
-    GENERAL_COMPREHENSION_COMMENT, DICT_COMPREHENSION_COMMENT, \
-    SET_COMPREHENSION_COMMENT
+import advisors
+from advisors import type_advisor
 import conf, utils
 
-@advisor(element_type=conf.LISTCOMP_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
-def listcomp_overview(element, pre_line_code_str, line_code_str):
-    name = get_name(element)
-    items = get_val(pre_line_code_str, line_code_str, name)
+@type_advisor(element_type=conf.LISTCOMP_ELEMENT_TYPE, xml_root='value')
+def listcomp_overview(line_dets):
+    name = advisors.get_name(line_dets.element)
+    items = advisors.get_val(
+        line_dets.pre_line_code_str, line_dets.line_code_str, name)
     message = {
         conf.BRIEF: dedent(f"""
             `{name}` is a list comprehension returning a list
@@ -20,7 +19,7 @@ def listcomp_overview(element, pre_line_code_str, line_code_str):
             #### Other "comprehensions"
 
             """)
-            + GENERAL_COMPREHENSION_COMMENT
+            + advisors.GENERAL_COMPREHENSION_COMMENT
             + dedent("""\
 
 
@@ -28,9 +27,9 @@ def listcomp_overview(element, pre_line_code_str, line_code_str):
             make. Python also lets you write Dictionary and Set Comprehensions:
 
             """)
-            + DICT_COMPREHENSION_COMMENT
+            + advisors.DICT_COMPREHENSION_COMMENT
             + '\n\n'
-            + SET_COMPREHENSION_COMMENT
+            + advisors.SET_COMPREHENSION_COMMENT
             + '\n\n'
             + dedent("""\
             Pro tip: don't make comprehension *in*comprehensions ;-). If it is

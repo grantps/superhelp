@@ -1,15 +1,14 @@
 from textwrap import dedent
 
 import advisors
-from advisors import advisor
+from advisors import type_advisor
 import conf, utils
 
-
-@advisor(element_type=conf.TUPLE_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
-def tuple_overview(element, std_imports, code_str):
-    name = advisors.get_name(element)
-    my_tuple = advisors.get_val(std_imports, code_str, name)
+@type_advisor(element_type=conf.TUPLE_ELEMENT_TYPE, xml_root='value')
+def tuple_overview(line_dets):
+    name = advisors.get_name(line_dets.element)
+    my_tuple = advisors.get_val(
+        line_dets.pre_line_code_str, line_dets.line_code_str, name)
     if my_tuple:
         tuple_replaced = list(my_tuple)
         tuple_replaced[0] = 100

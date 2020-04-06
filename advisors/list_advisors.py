@@ -1,7 +1,7 @@
 from textwrap import dedent
 
 import advisors
-from advisors import advisor
+from advisors import type_advisor
 import conf, utils
 
 def get_item_type_names(items):
@@ -13,11 +13,13 @@ def get_item_type_names(items):
         for item_type in item_type_names]
     return item_type_names, item_type_nice_names
 
-@advisor(element_type=conf.LIST_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
-def list_overview(element, std_imports, code_str):
-    name = advisors.get_name(element)
-    items = advisors.get_val(std_imports, code_str, name)
+## only interested in lists when being assigned as a value
+## (i.e. <body><Assign><value><List> so we're looking for List under value only)
+@type_advisor(element_type=conf.LIST_ELEMENT_TYPE, xml_root='value')
+def list_overview(line_dets):
+    name = advisors.get_name(line_dets.element)
+    items = advisors.get_val(
+        line_dets.pre_line_code_str, line_dets.line_code_str, name)
     item_type_names, _item_type_nice_names = get_item_type_names(items)
     try:
         type4example = item_type_names.pop()
@@ -141,14 +143,15 @@ def list_overview(element, std_imports, code_str):
     }
     return message
 
-@advisor(element_type=conf.LIST_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE, warning=True)
-def mixed_list_types(element, pre_line_code_str, line_code_str):
+@type_advisor(
+    element_type=conf.LIST_ELEMENT_TYPE, xml_root='value', warning=True)
+def mixed_list_types(line_dets):
     """
     Warns about lists containing a mix of data types.
     """
-    name = advisors.get_name(element)
-    items = advisors.get_val(pre_line_code_str, line_code_str, name)
+    name = advisors.get_name(line_dets.element)
+    items = advisors.get_val(
+        line_dets.pre_line_code_str, line_dets.line_code_str, name)
     _item_type_names, item_type_nice_names = get_item_type_names(items)
     if len(item_type_nice_names) <= 1:
         ## No explanation needed if there aren't multiple types.

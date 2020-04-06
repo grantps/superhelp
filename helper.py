@@ -1,5 +1,7 @@
 import argparse
 import ast
+from collections import namedtuple
+from itertools import product
 
 import astpath
 
@@ -8,6 +10,16 @@ from displayers import cli_displayer, html_displayer
 
 advisors.load_advisors()
 
+LineDets = namedtuple(
+    'LineDets', 'element, pre_line_code_str, line_code_str, first_line_no')
+LineDets.pre_line_code_str.__doc__ = ("The code up until the line we are "
+    "interested in needs to be run - it may depend on names from earlier")
+
+MessageDets = namedtuple('MessageDets',
+    'code_str, line_no, advisor_name, warning, message')
+MessageDets.__doc__ += ("All the bits and pieces that might be needed to craft "
+    "a message")
+
 def get_tree(snippet):
     try:
         tree = ast.parse(snippet)
@@ -15,6 +27,30 @@ def get_tree(snippet):
         raise SyntaxError(
             f"Oops - something is wrong with what you wrote - details: {e}")
     return tree
+
+def get_lines_dets(xml, snippet_lines):
+    """
+    Returning a list of all the details needed to process a line
+    (namely LineDets named tuples)
+
+    Note - lines in the XML sit immediately under body.
+
+    :return: list of LineDets named tuples
+    :rtype: list
+    """
+    lines_dets = []
+    all_elements = xml.xpath('body')[0].getchildren()  ## [0] because there is only one body under root
+    for element in all_elements:
+        line_nos = ast_funcs.get_xml_element_line_no_range(element)
+        first_line_no, last_line_no = line_nos
+        line_code_str = (
+            '\n'.join(snippet_lines[first_line_no - 1: last_line_no]).strip())
+        pre_line_code_str = (
+            '\n'.join(snippet_lines[0: first_line_no - 1]).strip()
+            + '\n')
+        lines_dets.append(LineDets(
+            element, pre_line_code_str, line_code_str, first_line_no))
+    return lines_dets
 
 def fix_message(message, advisor_name):
     try:
@@ -31,96 +67,66 @@ def fix_message(message, advisor_name):
         message[conf.EXTRA] = ''
     return message
 
-def get_message_dets_by_element_type(advisor_dets, element,
-        pre_line_code_str, line_code_str, first_line_no):
-    message = advisor_dets.advisor(
-        element, pre_line_code_str, line_code_str)
+def get_message_dets(advisor_dets, line_dets):
+    message = advisor_dets.advisor(line_dets)
     if message is None:
         return None
     message = fix_message(message, advisor_dets.advisor_name)
-    message_dets = conf.MessageDets(
-        line_code_str, first_line_no,
+    message_dets = MessageDets(
+        line_dets.line_code_str, line_dets.first_line_no,
         advisor_dets.advisor_name, advisor_dets.warning,
         message
     )
     return message_dets
 
-def get_message_dets_by_line_dets(advisor_dets, line_code_dets):
-    message = advisor_dets.advisor(line_code_dets.element)
-    if message is None:  ## it is OK for a rule to have nothing to say about an element e.g. if the rule is concerned with duplicate items in a list and there are none then it probably won't have anything to say
-        return None
-    message = fix_message(message, advisor_dets.advisor_name)
-    message_dets = conf.MessageDets(
-        line_code_dets.line_code_str, line_code_dets.first_line_no,
-        advisor_dets.advisor_name, advisor_dets.warning,
-        message
-    )
-    return message_dets
-
-def get_messages_dets_by_element_type(xml, lines):
+def is_type_advisor_relevant(advisor_dets, line_dets):
     """
-    Get advisor messages based on XML element type filtering.
+    Assumes it is receiving a element type-specific advisor not a general one.
+    """
+    element = line_dets.element
+    if advisor_dets.xml_root is None:
+        advisor_is_relevant = (element.tag == advisor_dets.element_type)
+    else:
+        xml_path = f"{advisor_dets.xml_root}/{advisor_dets.element_type}"
+        matching_elements = element.xpath(xml_path)  ## using xml.xpath because xml.cssselect would mix up match on ListComp when searching for List. Fun ensued ;-)
+        advisor_is_relevant = bool(matching_elements)
+    return advisor_is_relevant
 
-    :param xml xml: the xml version of the Abstract Syntax Tree
-    :param list lines: The lines of raw code strings
-    :return: advised_line_code_dets is the set of the lines that actually got
-     type messages. These are the only ones we'll do generic advising on.
-     :rtype: tuple
+def get_messages_dets_from_lines_dets(lines_dets):
+    """
+    For each line get advice from advisors.
+
+    lines_dets only has top-level elements whereas we might be filtering to find
+    lines that _contain_ specific sorts of elements. So we may need to look
+    inside them. Sometimes we can't find the elements we want within 
     """
     messages_dets = []
-    advised_line_code_dets = set()
-    ## Get advice according to type e.g. Lists
-    for type_advisor_dets in advisors.TYPE_ADVISORS:
-        advisor_relevant_elements = xml.xpath(  ## xml.cssselect would mix up match on ListComp when searching for List. Fun ensued ;-)
-            f"{type_advisor_dets.xml_root}/{type_advisor_dets.element_type}")
-        for element in advisor_relevant_elements:
-            line_nos = ast_funcs.get_xml_element_line_no_range(element)
-            first_line_no, last_line_no = line_nos
-            ## need to run entire code up to point where name is set - may derive from other names set earlier in code
-            pre_line_code_str = (
-                '\n'.join(lines[0: first_line_no - 1]).strip() + '\n')
-            line_code_str = '\n'.join(lines[first_line_no - 1: last_line_no]).strip()
-            message_dets = get_message_dets_by_element_type(
-                type_advisor_dets, element,
-                pre_line_code_str, line_code_str, first_line_no)
-            advised_line_code_dets.add(conf.LineCodeDets(
-                element, line_code_str, first_line_no))
+    all_advisors_dets = advisors.TYPE_ADVISORS + advisors.ALL_LINE_ADVISORS
+    for advisor_dets, line_dets in product(all_advisors_dets, lines_dets):
+        type_filtering = hasattr(advisor_dets, 'xml_root')
+        if type_filtering:
+            use_advisor = is_type_advisor_relevant(advisor_dets, line_dets)
+        else:  ## no filtering by element type so advisor is always potentially relevant
+            use_advisor = True
+        if use_advisor:
+            message_dets = get_message_dets(advisor_dets, line_dets)
             if message_dets:
                 messages_dets.append(message_dets)
-    return messages_dets, advised_line_code_dets
-
-def get_messages_dets_by_line_dets(advised_line_code_dets):
-    messages_dets = []
-    for generic_advisor_dets in advisors.GENERIC_ADVISORS:
-        for line_code_dets in advised_line_code_dets:
-            generic_advisor_message_dets = get_message_dets_by_line_dets(
-                generic_advisor_dets, line_code_dets)
-            if generic_advisor_message_dets:
-                messages_dets.append(generic_advisor_message_dets)
     return messages_dets
 
 def get_messages_dets(snippet, *, debug=False):
     """
-    Break snippet up into syntactical parts.
-    Messages relate to specific syntax parts.
+    Break snippet up into syntactical parts and blocks of code.
     Apply matching advisor functions and get message details.
-    Also run general checks e.g. variable naming, on the elements advised upon.
     """
     tree = get_tree(snippet)
     ast_funcs.check_tree(tree)
-    lines = snippet.split('\n')
+    snippet_lines = snippet.split('\n')
     xml = astpath.asts.convert_to_xml(tree)
+    lines_dets = get_lines_dets(xml, snippet_lines)
     if debug:
         xml.getroottree().write(conf.AST_OUTPUT_XML, pretty_print=True)
-    messages_dets = []
-    ## Get advice according to element type e.g. Lists
-    res_dets = get_messages_dets_by_element_type(xml, lines)
-    messages_dets_by_element_type, advised_line_code_dets = res_dets
-    messages_dets.extend(messages_dets_by_element_type)
-    ## Get advice according to lines of code e.g. looking at variable names. Only for items already covered by type-specific advisors
-    messages_dets_by_line_dets = get_messages_dets_by_line_dets(
-        advised_line_code_dets)
-    messages_dets.extend(messages_dets_by_line_dets)
+    messages_dets = get_messages_dets_from_lines_dets(lines_dets)
     return messages_dets
 
 def display_messages(displayer, messages_dets, *, message_level=conf.BRIEF):
@@ -147,7 +153,7 @@ if __name__ == '__main__':
         required=False, default='Extra',
         help="What level of help do you want? Brief, Main, or Extra?")
     parser.add_argument('-s', '--snippet', type=str,
-        required=False, default=conf.TEST_SNIPPET,
+        required=False, default=conf.INTERP_SNIPPET,
         help="Supply a brief snippet of Python code")
     args = parser.parse_args()
     snippet = args.snippet

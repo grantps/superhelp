@@ -2,7 +2,7 @@
 Add advisors modules inside this folder.
 
 To add more advice, just declare more advisor functions inside the advisors
-modules with the @advisor decorator!
+modules with the @type_advisor decorator :-).
 
 Advisors return None if a selected element doesn't match.
 
@@ -47,16 +47,26 @@ import conf
 ## TYPE-specific advisors e.g. for list, or numbers etc
 
 TYPE_ADVISORS = []
-TypeAdvisorDets = namedtuple(
-    'TypeAdvisorDets', 'element_type, xml_root, warning, advisor_name, advisor')
+TypeAdvisorDets = namedtuple('ElementTypeAdvisorDets',
+    'element_type, xml_root, warning, advisor_name, advisor')
+TypeAdvisorDets.__doc__ += ('\n\nDetails for advisors which only work on '
+    'specific element types')
+TypeAdvisorDets.xml_root.__doc__ = ('XML starting point for xpath filtering to '
+    'get specified element type e.g. body/Assign/value')
+TypeAdvisorDets.advisor.__doc__ = ('Functions which takes prefiltered elements '
+    'of the required type and return message')
 
-## GENERIC advisors
+## ALL Line advisors
 
-GenericAdvisorDets = namedtuple(
-    'GenericAdvisorDets', 'warning, advisor_name, advisor')
+AllLineAdvisorDets = namedtuple(
+    'AllLineAdvisorDets', 'warning, advisor_name, advisor')
+AllLineAdvisorDets.__doc__ += ('\n\nDetails for advisors which only work on '
+    'specific element types')
+AllLineAdvisorDets.advisor.__doc__ = ('Functions which take line dets '
+    '(including element and line code string) and return message')
 
-def name_style_check(element):
-    name = get_name(element)
+def name_style_check(line_dets):
+    name = get_name(line_dets.element)
     if not name:
         return None
     all_lower_case = (name.lower() == name)
@@ -67,7 +77,7 @@ def name_style_check(element):
 
             Generally speaking Python variables should be snake case -
             that is lower case, with multiple words joined by underscores
-            e.g. high_scores (not highScores or HighScores)
+            e.g. `high_scores` (not `highScores` or `HighScores`)
             """)
     elif all_upper_case:
         comment = dedent(f"""\
@@ -89,7 +99,7 @@ def name_style_check(element):
             + dedent("""\
                 In Python class names and named tuples are expected to be in
                 Pascal Case (also known as upper camel case) rather than the
-                usual snake case. E.g. collections.ChainMap
+                usual snake case. E.g. `collections.ChainMap`
 
                 Exceptions can also be made when a higher priority is
                 consistency with other code e.g. a library the Python is ported
@@ -99,8 +109,8 @@ def name_style_check(element):
     }
     return message
 
-GENERIC_ADVISORS = [
-    GenericAdvisorDets(True, name_style_check.__name__, name_style_check),
+ALL_LINE_ADVISORS = [
+    AllLineAdvisorDets(True, name_style_check.__name__, name_style_check),
 ]
 
 def code_indent(text):
@@ -311,7 +321,7 @@ def get_name(element):
     :rtype: str
     """
     ## Get the name of the element if we can.
-    name_elements = element.xpath('../../targets/Name')
+    name_elements = element.xpath('targets/Name')
     if len(name_elements) == 1 and name_elements[0].get('id'):
         name_id = name_elements[0].get('id')
         name = name_id
@@ -330,16 +340,21 @@ def get_val(pre_line_code_str, line_code_str, name):
     try:
         val = exp_dets[name]
     except KeyError:
-        raise KeyError(
-            f"Unable to find name '{name}' in code_str\n{line_code_str}")
+        val = None
+#         raise KeyError(
+#             f"Unable to find name '{name}' in code_str\n{line_code_str}")
     return val
 
-def advisor(*, element_type, xml_root, warning=False):
+def type_advisor(*, element_type, xml_root, warning=False):
     """
     Simple decorator that registers an unchanged advisor function in the list of
     TYPE_ADVISORS.
 
     :param str element_type: e.g. conf.LIST_ELEMENT_TYPE
+    :param str xml_root: Used by xpath on the line element being examined. Set
+     to None if the element type we are filtering by is not under the line
+     element but _is_ the line element (e.g. when looking for For sitting
+     directly under body).
     :param bool warning: tags messages as warning or not - up to displayer
      e.g. HTML to decide what to do with that information, if anything.
     """
@@ -347,6 +362,20 @@ def advisor(*, element_type, xml_root, warning=False):
         TYPE_ADVISORS.append(
             TypeAdvisorDets(
                 element_type, xml_root, warning, func.__name__, func))
+        return func
+    return decorator
+
+def gen_advisor(*, warning=False):
+    """
+    Simple decorator that registers an unchanged advisor function in the list of
+    ALL_LINE_ADVISORS.
+
+    :param bool warning: tags messages as warning or not - up to displayer
+     e.g. HTML to decide what to do with that information, if anything.
+    """
+    def decorator(func):
+        ALL_LINE_ADVISORS.append(
+            AllLineAdvisorDets(warning, func.__name__, func))
         return func
     return decorator
 

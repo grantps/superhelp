@@ -1,14 +1,16 @@
 from textwrap import dedent
 
 import advisors
-from advisors import advisor
+from advisors import type_advisor
 import conf, utils
 
-@advisor(element_type=conf.DICT_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
-def dict_overview(element, std_imports, code_str):
-    name = advisors.get_name(element)
-    items = advisors.get_val(std_imports, code_str, name)
+@type_advisor(element_type=conf.DICT_ELEMENT_TYPE, xml_root='value')
+def dict_overview(line_dets):
+    name = advisors.get_name(line_dets.element)
+    items = advisors.get_val(
+        line_dets.pre_line_code_str, line_dets.line_code_str, name)
+    if not items:
+        return None
     message = {
         conf.BRIEF: dedent(f"""
             Dictionaries map keys to values.
@@ -95,14 +97,15 @@ def get_key_type_names(items):
         for key_type in key_type_names]
     return key_type_names, key_type_nice_names
 
-@advisor(element_type=conf.DICT_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE, warning=True)
-def mixed_list_types(element, pre_line_code_str, line_code_str):
+@type_advisor(
+    element_type=conf.DICT_ELEMENT_TYPE, xml_root='value', warning=True)
+def mixed_list_types(line_dets):
     """
     Warns about dictionaries with mix of string and integer keys.
     """
-    name = advisors.get_name(element)
-    items = advisors.get_val(pre_line_code_str, line_code_str, name)
+    name = advisors.get_name(line_dets.element)
+    items = advisors.get_val(
+        line_dets.pre_line_code_str, line_dets.line_code_str, name)
     key_type_names, _key_type_nice_names = get_key_type_names(items)
     bad_key_type_combo = (
         conf.INT_TYPE in key_type_names and conf.STR_TYPE in key_type_names)

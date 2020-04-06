@@ -1,11 +1,4 @@
-from collections import namedtuple
 import datetime
-
-LineCodeDets = namedtuple(
-    'LineCodeDets', 'element, line_code_str, first_line_no')
-
-MessageDets = namedtuple('MessageDets',
-    'code_str, line_no, advisor_name, warning, message')
 
 PYTHON_CODE_START = '__python_code_start__'
 PYTHON_CODE_END = '__python_code_end__'
@@ -22,7 +15,6 @@ ANON_NAME = 'Anonymous'
 AST_OUTPUT_XML = 'ast_output.xml'
 
 ## don't include trailing slash (unless you don't want matches ;-))
-XML_ROOT_BODY_ASSIGN_VALUE = 'body/Assign/value'
 XML_ROOT_BODY = 'body'
 
 ## To see what elements are named look in AST_OUTPUT_XML
@@ -107,7 +99,7 @@ mixedTypes = [
 names = ['Noor', 'Grant', 'Hyeji', 'Vicky', 'Olek', 'Marzena', 'Jess', 'Nicole']
 names_lower = [name.lower() for name in names]
 name_lengths = []
-for name in names:
+for name in ['Noor', 'Grant', ]:
     name_lengths.append(len(name))
 fullName = 'Guido van Rossum'
 evens_squared = [x**2 for x in range(1, 6) if x % 2 == 0]
@@ -115,8 +107,14 @@ empty = []
 myint = 666
 myfloat = 6.667
 myscinot = 1.23E-7
+my_tup = ('alpha', 'beta')
 """
 TEST_SNIPPET = """\
+named = []
+for name in ['Noor', 'Grant']:
+    named.append(name)
+"""
+INTERP_SNIPPET = """\
 name = 'Grant'
 greeting = f"Hi1 {name} there!"
 greeting = "Hi2 {} there!".format(name)
