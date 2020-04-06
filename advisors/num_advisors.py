@@ -42,7 +42,8 @@ TYPE2FUNC = {
     conf.FLOAT_TYPE: float_message,
 }
 
-@type_advisor(element_type=conf.NUM_ELEMENT_TYPE, xml_root='value')
+@type_advisor(element_type=conf.NUM_ELEMENT_TYPE,
+    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
 def num_overview(line_dets):
     name = advisors.get_name(line_dets.element)
     if not name:

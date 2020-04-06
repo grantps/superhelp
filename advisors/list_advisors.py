@@ -15,7 +15,8 @@ def get_item_type_names(items):
 
 ## only interested in lists when being assigned as a value
 ## (i.e. <body><Assign><value><List> so we're looking for List under value only)
-@type_advisor(element_type=conf.LIST_ELEMENT_TYPE, xml_root='value')
+@type_advisor(element_type=conf.LIST_ELEMENT_TYPE,
+    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
 def list_overview(line_dets):
     name = advisors.get_name(line_dets.element)
     items = advisors.get_val(
@@ -143,8 +144,8 @@ def list_overview(line_dets):
     }
     return message
 
-@type_advisor(
-    element_type=conf.LIST_ELEMENT_TYPE, xml_root='value', warning=True)
+@type_advisor(element_type=conf.LIST_ELEMENT_TYPE,
+    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE, warning=True)
 def mixed_list_types(line_dets):
     """
     Warns about lists containing a mix of data types.

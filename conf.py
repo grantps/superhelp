@@ -16,6 +16,7 @@ AST_OUTPUT_XML = 'ast_output.xml'
 
 ## don't include trailing slash (unless you don't want matches ;-))
 XML_ROOT_BODY = 'body'
+XML_ROOT_BODY_ASSIGN_VALUE = 'body/Assign/value'  ## where assignment to names occurs e.g. name = value; or age = 21
 
 ## To see what elements are named look in AST_OUTPUT_XML
 ## e.g. <For lineno="3" col_offset="0"> is "For"
@@ -114,13 +115,14 @@ named = []
 for name in ['Noor', 'Grant']:
     named.append(name)
 """
-INTERP_SNIPPET = """\
+STR_COMB_SNIPPET = """\
 name = 'Grant'
-greeting = f"Hi1 {name} there!"
-greeting = "Hi2 {} there!".format(name)
-greeting = "Hi3 {name} there!".format(name=name)
-greeting = "Hi4 %(name)s there!" % {'name': name}
-greeting = "Hi5 %s there!" % name
+greeting = f"1) Hi {name} there!"
+greeting = "2) Hi {} there!".format(name)
+greeting = "3) Hi {name} there!".format(name=name)
+greeting = "4) Hi %(name)s there!" % {'name': name}
+greeting = "5) Hi %s there!" % name
+greeting = "6) Hi " + name + " there!"
 """
 BROKEN_TEST_SNIPPET = """\
 meals = [['weetbix', 'toast'], ]

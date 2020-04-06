@@ -4,7 +4,8 @@ import advisors
 from advisors import gen_advisor, type_advisor
 import conf
 
-@type_advisor(element_type=conf.STR_ELEMENT_TYPE, xml_root='value')
+@type_advisor(element_type=conf.STR_ELEMENT_TYPE,
+    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
 def str_overview(line_dets):
     name = advisors.get_name(line_dets.element)
     if not name:
@@ -78,20 +79,32 @@ def str_interpolation(line_dets):
     }
     return message
 
-@type_advisor(element_type=conf.JOINED_STR_ELEMENT_TYPE, xml_root='value')
+@type_advisor(element_type=conf.JOINED_STR_ELEMENT_TYPE,
+    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
 def f_str_interpolation(line_dets):
     return str_interpolation(line_dets)
 
-@type_advisor(element_type=conf.FUNC_ELEMENT_TYPE, xml_root='value/Call')
+@type_advisor(element_type=conf.FUNC_ELEMENT_TYPE,
+    xml_root='body/Assign/value/Call')
 def format_str_interpolation(line_dets):
-    func_attributes = line_dets.element.xpath('value/Call/func/Attribute')
-    if func_attributes[0].get('attr') != 'format':
-        return None
     return str_interpolation(line_dets)
 
 @gen_advisor()
 def sprintf(line_dets):
     has_sprintf = ('%s' in line_dets.line_code_str)
     if not has_sprintf:
+        return None
+    return str_interpolation(line_dets)
+
+@gen_advisor()
+def string_addition(line_dets):
+    
+    
+    
+    has_string_addition = True  ## TODO: soft-wire this
+    
+    
+        
+    if not has_string_addition:
         return None
     return str_interpolation(line_dets)

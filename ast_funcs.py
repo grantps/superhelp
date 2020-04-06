@@ -2,6 +2,15 @@ import ast
 
 import conf
 
+def get_xml_element_first_line_no(element):
+    element_line_nos = element.xpath(
+        './ancestor-or-self::*[@lineno][1]/@lineno')
+    if element_line_nos:
+        first_line_no = int(element_line_nos[0])
+    else:
+        first_line_no = None
+    return first_line_no
+
 def _get_last_line_no(element, *, first_line_no):
     last_line_no = None
     ancestor = element

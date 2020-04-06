@@ -1,7 +1,6 @@
 import argparse
 import ast
 from collections import namedtuple
-from itertools import product
 
 import astpath
 
@@ -79,36 +78,41 @@ def get_message_dets(advisor_dets, line_dets):
     )
     return message_dets
 
-def is_type_advisor_relevant(advisor_dets, line_dets):
+def get_filtered_lines_dets(advisor_dets, xml, lines_dets):
     """
-    Assumes it is receiving a element type-specific advisor not a general one.
-    """
-    element = line_dets.element
-    if advisor_dets.xml_root is None:
-        advisor_is_relevant = (element.tag == advisor_dets.element_type)
-    else:
-        xml_path = f"{advisor_dets.xml_root}/{advisor_dets.element_type}"
-        matching_elements = element.xpath(xml_path)  ## using xml.xpath because xml.cssselect would mix up match on ListComp when searching for List. Fun ensued ;-)
-        advisor_is_relevant = bool(matching_elements)
-    return advisor_is_relevant
+    Identify first line numbers for matching element types. Then filter
+    lines_dets accordingly.
 
-def get_messages_dets_from_lines_dets(lines_dets):
+    :return: filtered_lines_dets
+    :rtype: list
     """
-    For each line get advice from advisors.
+    xml_path = f"{advisor_dets.xml_root}/{advisor_dets.element_type}"
+    matching_elements = xml.xpath(xml_path)
+    filt_first_line_nos = set(
+        ast_funcs.get_xml_element_first_line_no(element)
+        for element in matching_elements)
+    filtered_lines_dets = [line_dets for line_dets in lines_dets
+        if line_dets.first_line_no in filt_first_line_nos]
+    return filtered_lines_dets
 
-    lines_dets only has top-level elements whereas we might be filtering to find
-    lines that _contain_ specific sorts of elements. So we may need to look
-    inside them. Sometimes we can't find the elements we want within 
+def get_messages_dets_from_xml(xml, snippet_lines):
+    """
+    For each advisor, get advice on every relevant line. Element type specific
+    advisors process filtered lines_dets; all line advisors process all lines
+    (as you'd expect ;-)).
     """
     messages_dets = []
     all_advisors_dets = advisors.TYPE_ADVISORS + advisors.ALL_LINE_ADVISORS
-    for advisor_dets, line_dets in product(all_advisors_dets, lines_dets):
+    lines_dets = get_lines_dets(xml, snippet_lines)
+    for advisor_dets in all_advisors_dets:
         type_filtering = hasattr(advisor_dets, 'xml_root')
         if type_filtering:
-            use_advisor = is_type_advisor_relevant(advisor_dets, line_dets)
-        else:  ## no filtering by element type so advisor is always potentially relevant
-            use_advisor = True
-        if use_advisor:
+            filtered_lines_dets = get_filtered_lines_dets(
+                advisor_dets, xml, lines_dets)
+            lines_dets2use = filtered_lines_dets
+        else:  ## no filtering by element type so process all lines
+            lines_dets2use = lines_dets
+        for line_dets in lines_dets2use:
             message_dets = get_message_dets(advisor_dets, line_dets)
             if message_dets:
                 messages_dets.append(message_dets)
@@ -123,10 +127,9 @@ def get_messages_dets(snippet, *, debug=False):
     ast_funcs.check_tree(tree)
     snippet_lines = snippet.split('\n')
     xml = astpath.asts.convert_to_xml(tree)
-    lines_dets = get_lines_dets(xml, snippet_lines)
     if debug:
         xml.getroottree().write(conf.AST_OUTPUT_XML, pretty_print=True)
-    messages_dets = get_messages_dets_from_lines_dets(lines_dets)
+    messages_dets = get_messages_dets_from_xml(xml, snippet_lines)
     return messages_dets
 
 def display_messages(displayer, messages_dets, *, message_level=conf.BRIEF):
@@ -153,7 +156,7 @@ if __name__ == '__main__':
         required=False, default='Extra',
         help="What level of help do you want? Brief, Main, or Extra?")
     parser.add_argument('-s', '--snippet', type=str,
-        required=False, default=conf.INTERP_SNIPPET,
+        required=False, default=conf.DEMO_SNIPPET,
         help="Supply a brief snippet of Python code")
     args = parser.parse_args()
     snippet = args.snippet

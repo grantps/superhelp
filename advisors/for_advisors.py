@@ -4,7 +4,7 @@ import advisors
 from advisors import type_advisor
 import conf
 
-@type_advisor(element_type=conf.FOR_ELEMENT_TYPE, xml_root=None)
+@type_advisor(element_type=conf.FOR_ELEMENT_TYPE, xml_root='..')
 def for_overview(line_dets):  #@UnusedVariable (Ctrl 1 to identify what to suppress)
     """
     Don't try to properly understand the for loop or make a built comprehension.

@@ -4,7 +4,8 @@ import advisors
 from advisors import type_advisor
 import conf, utils
 
-@type_advisor(element_type=conf.DICT_ELEMENT_TYPE, xml_root='value')
+@type_advisor(element_type=conf.DICT_ELEMENT_TYPE,
+    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
 def dict_overview(line_dets):
     name = advisors.get_name(line_dets.element)
     items = advisors.get_val(
@@ -98,7 +99,8 @@ def get_key_type_names(items):
     return key_type_names, key_type_nice_names
 
 @type_advisor(
-    element_type=conf.DICT_ELEMENT_TYPE, xml_root='value', warning=True)
+    element_type=conf.DICT_ELEMENT_TYPE,
+    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE, warning=True)
 def mixed_list_types(line_dets):
     """
     Warns about dictionaries with mix of string and integer keys.
