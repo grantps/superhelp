@@ -21,6 +21,7 @@ ANON_NAME = 'Anonymous'
 
 AST_OUTPUT_XML = 'ast_output.xml'
 
+## don't include trailing slash (unless you don't want matches ;-))
 XML_ROOT_BODY_ASSIGN_VALUE = 'body/Assign/value'
 XML_ROOT_BODY = 'body'
 
@@ -32,6 +33,8 @@ TUPLE_ELEMENT_TYPE = 'Tuple'
 DICT_ELEMENT_TYPE = 'Dict'
 NUM_ELEMENT_TYPE = 'Num'
 STR_ELEMENT_TYPE = 'Str'
+JOINED_STR_ELEMENT_TYPE = 'JoinedStr'
+FUNC_ELEMENT_TYPE = 'func'
 FOR_ELEMENT_TYPE = 'For'
 
 INT_TYPE = 'int'
@@ -114,7 +117,12 @@ myfloat = 6.667
 myscinot = 1.23E-7
 """
 TEST_SNIPPET = """\
-location = (-37, 174, 'Auckland')
+name = 'Grant'
+greeting = f"Hi1 {name} there!"
+greeting = "Hi2 {} there!".format(name)
+greeting = "Hi3 {name} there!".format(name=name)
+greeting = "Hi4 %(name)s there!" % {'name': name}
+greeting = "Hi5 %s there!" % name
 """
 BROKEN_TEST_SNIPPET = """\
 meals = [['weetbix', 'toast'], ]

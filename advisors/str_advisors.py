@@ -54,3 +54,36 @@ def str_overview(element, pre_line_code_str, line_code_str):
         """),
     }
     return message
+
+def str_combination(val, element):
+    print(val)
+    print(element)
+    combination = ''
+    
+    return combination
+
+def str_interpolation(element, pre_line_code_str, line_code_str):
+    name = get_name(element)
+    if not name:
+        return None
+    val = get_val(pre_line_code_str, line_code_str, name)
+    if not str_combination(val, element):
+        return None
+    message = {
+        conf.BRIEF: dedent(f"""\
+        
+        """)
+    }
+    return message
+
+@advisor(element_type=conf.JOINED_STR_ELEMENT_TYPE,
+    xml_root='body/Assign/value')
+def f_str_interpolation(element, pre_line_code_str, line_code_str):
+    return str_interpolation(element, pre_line_code_str, line_code_str)
+
+@advisor(element_type=conf.FUNC_ELEMENT_TYPE,
+    xml_root='body/Assign/value/Call')
+def format_str_interpolation(element, pre_line_code_str, line_code_str):
+    if element.xpath('Attribute')[0].get('attr') != 'format':
+        return None
+    return str_interpolation(element, pre_line_code_str, line_code_str)
