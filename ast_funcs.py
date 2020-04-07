@@ -64,7 +64,8 @@ class Analyser(ast.NodeVisitor):
         for alias in node.names:
             module = alias.name
             self.check_module(module)
-            self.std_imports.append(f"import {module} as {alias.asname or module}")
+            self.std_imports.append(
+                f"import {module} as {alias.asname or module}")
         self.generic_visit(node)
 
     def visit_ImportFrom(self, node):

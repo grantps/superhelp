@@ -4,6 +4,11 @@ import advisors
 from advisors import gen_advisor, type_advisor
 import conf
 
+F_STR = 'f-string'
+STR_FORMAT_FUNC = 'str_format'
+SPRINTF = 'sprintf'
+STR_ADDITION = 'string addition'
+
 @type_advisor(element_type=conf.STR_ELEMENT_TYPE,
     xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
 def str_overview(line_dets):
@@ -57,54 +62,125 @@ def str_overview(line_dets):
     }
     return message
 
-def str_combination(val, element):
-    print(val)
-    print(element)
-    combination = ''
-    
-    return combination
-
-def str_interpolation(line_dets):
+def str_combination(combination_type, line_dets):
     name = advisors.get_name(line_dets.element)
     if not name:
         return None
-    val = advisors.get_val(
-        line_dets.pre_line_code_str, line_dets.line_code_str, name)
-    if not str_combination(val, line_dets.element):
-        return None
+    combination_type2comment = {
+        F_STR: "f-string interpolation",
+        STR_FORMAT_FUNC: "the format function",
+        SPRINTF: "sprintf string interpolation",
+        STR_ADDITION: "string addition (e.g. animal = 'jelly' + 'fish')",
+    }
+    combination_comment = combination_type2comment[combination_type]
     message = {
         conf.BRIEF: dedent(f"""\
-        
-        """)
+            `{name}` is created using {combination_comment}.
+            """),
+        conf.MAIN: dedent(f"""\
+            `{name}` is created using {combination_comment}.
+            """),
     }
+    if combination_type != F_STR:
+        message[conf.BRIEF] += dedent(f"""\
+
+            Have you considered using an f-string approach to constructing
+            your `{name}`?
+            """)
+        message[conf.MAIN] += (
+            dedent(f"""\
+
+                Have you considered using an f-string approach to constructing
+                your `{name}`?
+
+                f-strings let you reference variables from earlier in your code and
+                allow very readable string construction. All the usual tricks of the
+                .format() approach also work. For example, comma separating
+                thousands in numbers:
+
+                """)
+            +
+            advisors.code_indent(dedent("""\
+                cost = 10_550
+                print(f"Cost is ${cost:,}")
+                # >>> 'Cost is $10,550'
+                """))
+            +
+            dedent(f"""\
+
+                Or making small in-line calculations:
+
+                """)
+            +
+            advisors.code_indent(dedent("""\
+                people = ['Bart', 'Lisa']
+                print(f"There are {len(people)} people")
+                # >>> 'There are 2 people'
+                """))
+            +
+            dedent(f"""\
+
+                Or zero-padding numbers:
+
+                """)
+            +
+            advisors.code_indent(dedent("""\
+                num = 525
+                print(f"{num:0>4}")
+                # >>> '0525'
+                """))
+        )
     return message
 
 @type_advisor(element_type=conf.JOINED_STR_ELEMENT_TYPE,
     xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
 def f_str_interpolation(line_dets):
-    return str_interpolation(line_dets)
+    return str_combination(F_STR, line_dets)
 
 @type_advisor(element_type=conf.FUNC_ELEMENT_TYPE,
     xml_root='body/Assign/value/Call')
 def format_str_interpolation(line_dets):
-    return str_interpolation(line_dets)
+    was_a_format_func = (
+        line_dets.element.xpath('//Attribute')[0].get('attr') == 'format')
+    if not was_a_format_func:
+        return None
+    return str_combination(STR_FORMAT_FUNC, line_dets)
 
 @gen_advisor()
 def sprintf(line_dets):
-    has_sprintf = ('%s' in line_dets.line_code_str)
+    code_str = line_dets.line_code_str
+    conversion_types = ['d', 'i', 'o', 'u', 'x', 'X', 'e', 'E', 'f', 'F',
+        'g', 'G', 'c', 'r', 's', 'a', '%']  ## https://docs.python.org/3/library/stdtypes.html#old-string-formatting
+    format_specifiers = [
+        f"%{conversion_type}" for conversion_type in conversion_types ]
+    has_sprintf = any(
+        [format_specifier in code_str
+         for format_specifier in format_specifiers])
     if not has_sprintf:
         return None
-    return str_interpolation(line_dets)
+    return str_combination(SPRINTF, line_dets)
 
 @gen_advisor()
 def string_addition(line_dets):
-    
-    
-    
-    has_string_addition = True  ## TODO: soft-wire this
-    
-    
-        
+    """
+    Look inside for any (possibly nested) BinOp with op = Add and either a left
+    being a Str or right being a Str.
+    """
+    element = line_dets.element
+    left_strs = 'descendant-or-self::BinOp/left/Str'
+    right_strs = 'descendant-or-self::BinOp/right/Str'
+    str_elements_being_combined = element.xpath(f'{left_strs} | {right_strs}')
+    has_string_addition = False
+    for str_el in str_elements_being_combined:
+        ## Does their immediate ancestor BinOp have op of Add?
+        ## Don't know if there any alternatives but let's be sure
+        ## Ordered set of nodes, from parent to ancestor? https://stackoverflow.com/a/15645846
+        bin_op_el = str_el.xpath('ancestor-or-self::BinOp')[-1]
+        ## was it an Add op
+        has_add = bool(bin_op_el.xpath('op/Add'))
+        if has_add:
+            has_string_addition = True
+            break
     if not has_string_addition:
         return None
-    return str_interpolation(line_dets)
+    return str_combination(STR_ADDITION, line_dets)

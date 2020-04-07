@@ -109,13 +109,15 @@ myint = 666
 myfloat = 6.667
 myscinot = 1.23E-7
 my_tup = ('alpha', 'beta')
+greeting = f"Hi {names[0]}!"
+greeting = "Hi " + names[0] + "!"
 """
 TEST_SNIPPET = """\
 named = []
 for name in ['Noor', 'Grant']:
     named.append(name)
 """
-STR_COMB_SNIPPET = """\
+"""\
 name = 'Grant'
 greeting = f"1) Hi {name} there!"
 greeting = "2) Hi {} there!".format(name)
@@ -123,6 +125,11 @@ greeting = "3) Hi {name} there!".format(name=name)
 greeting = "4) Hi %(name)s there!" % {'name': name}
 greeting = "5) Hi %s there!" % name
 greeting = "6) Hi " + name + " there!"
+"""
+
+STR_COMB_SNIPPET = """\
+name = 'Grant'
+greeting = "Hmmmm " + f"1) Hi {name} there!" + " Sausage!"
 """
 BROKEN_TEST_SNIPPET = """\
 meals = [['weetbix', 'toast'], ]
