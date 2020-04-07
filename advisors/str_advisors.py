@@ -12,7 +12,7 @@ STR_ADDITION = 'string addition'
 @type_advisor(element_type=conf.STR_ELEMENT_TYPE,
     xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
 def str_overview(line_dets):
-    name = advisors.get_name(line_dets.element)
+    name = advisors.get_assigned_name(line_dets.element)
     if not name:
         return None
     val = advisors.get_val(
@@ -63,7 +63,7 @@ def str_overview(line_dets):
     return message
 
 def str_combination(combination_type, line_dets):
-    name = advisors.get_name(line_dets.element)
+    name = advisors.get_assigned_name(line_dets.element)
     if not name:
         return None
     combination_type2comment = {

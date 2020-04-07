@@ -7,7 +7,7 @@ import conf, utils
 @type_advisor(element_type=conf.LISTCOMP_ELEMENT_TYPE,
     xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
 def listcomp_overview(line_dets):
-    name = advisors.get_name(line_dets.element)
+    name = advisors.get_assigned_name(line_dets.element)
     items = advisors.get_val(
         line_dets.pre_line_code_str, line_dets.line_code_str, name)
     message = {

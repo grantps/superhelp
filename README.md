@@ -17,7 +17,6 @@ Python 3.6+ and requirements.txt
 Assuming users find value in the tool, and there is no specific direction arising from discount usability testing, I'll add coverage of:
 
 * packing and unpacking
-* function parameters (inc forced keywords)
 * sets
 * if-elif-else (always else - even if to raise an exception)
 * exceptions (specific is best)

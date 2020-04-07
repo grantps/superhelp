@@ -66,7 +66,7 @@ AllLineAdvisorDets.advisor.__doc__ = ('Functions which take line dets '
     '(including element and line code string) and return message')
 
 def name_style_check(line_dets):
-    name = get_name(line_dets.element)
+    name = get_assigned_name(line_dets.element)
     if not name:
         return None
     all_lower_case = (name.lower() == name)
@@ -312,7 +312,7 @@ SET_COMPREHENSION_COMMENT = (
     ))
 )
 
-def get_name(element):
+def get_assigned_name(element):
     """
     Python AST explorer: https://python-ast-explorer.com/
 
@@ -354,10 +354,8 @@ def type_advisor(*, element_type, xml_root, warning=False):
     TYPE_ADVISORS.
 
     :param str element_type: e.g. conf.LIST_ELEMENT_TYPE
-    :param str xml_root: Used by xpath on the line element being examined. Set
-     to None if the element type we are filtering by is not under the line
-     element but _is_ the line element (e.g. when looking for For sitting
-     directly under body).
+    :param str xml_root: Used by xpath on the line element being examined. Can
+     use XPath 1.0 syntax.
     :param bool warning: tags messages as warning or not - up to displayer
      e.g. HTML to decide what to do with that information, if anything.
     """

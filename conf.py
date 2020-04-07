@@ -27,8 +27,9 @@ DICT_ELEMENT_TYPE = 'Dict'
 NUM_ELEMENT_TYPE = 'Num'
 STR_ELEMENT_TYPE = 'Str'
 JOINED_STR_ELEMENT_TYPE = 'JoinedStr'
-FUNC_ELEMENT_TYPE = 'func'
+FUNC_ELEMENT_TYPE = 'func'  ## not a function definition - .format() is called via func in AST
 FOR_ELEMENT_TYPE = 'For'
+FUNC_DEF_ELEMENT_TYPE = 'FunctionDef'
 
 INT_TYPE = 'int'
 FLOAT_TYPE = 'float'
@@ -56,6 +57,8 @@ EXAMPLES_OF_TYPES = {
         datetime.datetime.today(), ],
     BOOLEAN_TYPE: [True, False],
 }
+
+MAX_BRIEF_FUNC_LOC = 35
 
 ## scraped from https://docs.python.org/3/py-modindex.html 2020-04-02
 STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',
@@ -112,12 +115,16 @@ my_tup = ('alpha', 'beta')
 greeting = f"Hi {names[0]}!"
 greeting = "Hi " + names[0] + "!"
 """
-TEST_SNIPPET = """\
-named = []
-for name in ['Noor', 'Grant']:
-    named.append(name)
+
+## ast_path fails if we have def immediately after a line continuation. Probably a bug in it. Nothing else fails.
+FUNC_SNIPPET = """\
+
+def power_me(num, power):
+    powered = num ** power
+    return powered
 """
-"""\
+
+BITS_AND_PIECES = """\
 name = 'Grant'
 greeting = f"1) Hi {name} there!"
 greeting = "2) Hi {} there!".format(name)
@@ -125,6 +132,12 @@ greeting = "3) Hi {name} there!".format(name=name)
 greeting = "4) Hi %(name)s there!" % {'name': name}
 greeting = "5) Hi %s there!" % name
 greeting = "6) Hi " + name + " there!"
+"""
+
+TEST_SNIPPET = """\
+named = []
+for name in ['Noor', 'Grant']:
+    named.append(name)
 """
 
 STR_COMB_SNIPPET = """\

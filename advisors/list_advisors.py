@@ -18,7 +18,7 @@ def get_item_type_names(items):
 @type_advisor(element_type=conf.LIST_ELEMENT_TYPE,
     xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
 def list_overview(line_dets):
-    name = advisors.get_name(line_dets.element)
+    name = advisors.get_assigned_name(line_dets.element)
     items = advisors.get_val(
         line_dets.pre_line_code_str, line_dets.line_code_str, name)
     item_type_names, _item_type_nice_names = get_item_type_names(items)
@@ -150,7 +150,7 @@ def mixed_list_types(line_dets):
     """
     Warns about lists containing a mix of data types.
     """
-    name = advisors.get_name(line_dets.element)
+    name = advisors.get_assigned_name(line_dets.element)
     items = advisors.get_val(
         line_dets.pre_line_code_str, line_dets.line_code_str, name)
     _item_type_names, item_type_nice_names = get_item_type_names(items)
