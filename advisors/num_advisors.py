@@ -2,7 +2,7 @@ from textwrap import dedent
 
 import advisors
 from advisors import type_advisor
-import conf
+import code_execution, conf
 
 def int_message(name, val):
     message = {
@@ -48,7 +48,7 @@ def num_overview(line_dets):
     name = advisors.get_assigned_name(line_dets.element)
     if not name:
         return None
-    val = advisors.get_val(
+    val = code_execution.get_val(
         line_dets.pre_line_code_str, line_dets.line_code_str, name)
     val_type = type(val).__name__
     message_func = TYPE2FUNC[val_type]

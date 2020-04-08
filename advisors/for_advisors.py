@@ -1,7 +1,6 @@
 from textwrap import dedent
 
-import advisors
-from advisors import type_advisor
+from advisors import shared, type_advisor
 import conf
 
 @type_advisor(element_type=conf.FOR_ELEMENT_TYPE, xml_root='..')
@@ -20,13 +19,13 @@ def for_overview(line_dets):  #@UnusedVariable (Ctrl 1 to identify what to suppr
     comp_comment = ''
     if 'append' in line_dets.line_code_str:
         comp_type = 'List Comprehension'
-        comp_comment = advisors.LIST_COMPREHENSION_COMMENT
+        comp_comment = shared.LIST_COMPREHENSION_COMMENT
     elif len(line_dets.element.cssselect('Subscript')):  ## Seems a reasonable indicator
         comp_type = 'Dictionary Comprehension'
-        comp_comment = advisors.DICT_COMPREHENSION_COMMENT
+        comp_comment = shared.DICT_COMPREHENSION_COMMENT
     elif 'set' in line_dets.line_code_str:
         comp_type = 'Set Comprehension'
-        comp_comment = advisors.SET_COMPREHENSION_COMMENT
+        comp_comment = shared.SET_COMPREHENSION_COMMENT
     message = {
         conf.BRIEF: dedent(f"""\
             Simple for loops can sometimes be replaced with comprehensions.
@@ -44,6 +43,6 @@ def for_overview(line_dets):  #@UnusedVariable (Ctrl 1 to identify what to suppr
             your code easier to understand.
             """)
             +
-            advisors.GENERAL_COMPREHENSION_COMMENT + '\n\n' + comp_comment),
+            shared.GENERAL_COMPREHENSION_COMMENT + '\n\n' + comp_comment),
     }
     return message

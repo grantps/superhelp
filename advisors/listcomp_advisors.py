@@ -1,14 +1,14 @@
 from textwrap import dedent
 
 import advisors
-from advisors import type_advisor
-import conf, utils
+from advisors import shared, type_advisor
+import code_execution, conf, utils
 
 @type_advisor(element_type=conf.LISTCOMP_ELEMENT_TYPE,
     xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
 def listcomp_overview(line_dets):
     name = advisors.get_assigned_name(line_dets.element)
-    items = advisors.get_val(
+    items = code_execution.get_val(
         line_dets.pre_line_code_str, line_dets.line_code_str, name)
     message = {
         conf.BRIEF: dedent(f"""
@@ -20,7 +20,7 @@ def listcomp_overview(line_dets):
             #### Other "comprehensions"
 
             """)
-            + advisors.GENERAL_COMPREHENSION_COMMENT
+            + shared.GENERAL_COMPREHENSION_COMMENT
             + dedent("""\
 
 
@@ -28,9 +28,9 @@ def listcomp_overview(line_dets):
             make. Python also lets you write Dictionary and Set Comprehensions:
 
             """)
-            + advisors.DICT_COMPREHENSION_COMMENT
+            + shared.DICT_COMPREHENSION_COMMENT
             + '\n\n'
-            + advisors.SET_COMPREHENSION_COMMENT
+            + shared.SET_COMPREHENSION_COMMENT
             + '\n\n'
             + dedent("""\
             Pro tip: don't make comprehension *in*comprehensions ;-). If it is

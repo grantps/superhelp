@@ -2,13 +2,13 @@ from textwrap import dedent
 
 import advisors
 from advisors import type_advisor
-import conf, utils
+import code_execution, conf, utils
 
 @type_advisor(element_type=conf.DICT_ELEMENT_TYPE,
     xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
 def dict_overview(line_dets):
     name = advisors.get_assigned_name(line_dets.element)
-    items = advisors.get_val(
+    items = code_execution.get_val(
         line_dets.pre_line_code_str, line_dets.line_code_str, name)
     if not items:
         return None
@@ -106,7 +106,7 @@ def mixed_list_types(line_dets):
     Warns about dictionaries with mix of string and integer keys.
     """
     name = advisors.get_assigned_name(line_dets.element)
-    items = advisors.get_val(
+    items = code_execution.get_val(
         line_dets.pre_line_code_str, line_dets.line_code_str, name)
     key_type_names, _key_type_nice_names = get_key_type_names(items)
     bad_key_type_combo = (

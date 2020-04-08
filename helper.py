@@ -137,7 +137,12 @@ def display_messages(displayer, messages_dets, *, message_level=conf.BRIEF):
 
 def superhelp(snippet, displayer, *, message_level=conf.BRIEF, debug=False):
     """
-    Talk about the snippet supplied
+    Provide advice about the snippet supplied
+
+    :param bool debug: when True generates pretty-printed AST as XML file. Very
+     useful for working out how to find elements of interest in AST
+     (look in conf.AST_OUTPUT_XML after a run). Using
+     https://python-ast-explorer.com/ is another option
     """
     try:
         messages_dets = get_messages_dets(snippet, debug=debug)
@@ -156,7 +161,7 @@ if __name__ == '__main__':
         required=False, default='Extra',
         help="What level of help do you want? Brief, Main, or Extra?")
     parser.add_argument('-s', '--snippet', type=str,
-        required=False, default=conf.FUNC_SNIPPET,
+        required=False, default=conf.DEMO_SNIPPET,
         help="Supply a brief snippet of Python code")
     args = parser.parse_args()
     snippet = args.snippet

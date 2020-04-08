@@ -59,6 +59,8 @@ EXAMPLES_OF_TYPES = {
 }
 
 MAX_BRIEF_FUNC_LOC = 35
+MAX_BRIEF_FUNC_ARGS = 6
+MIN_BRIEF_DOCSTRING = 3
 
 ## scraped from https://docs.python.org/3/py-modindex.html 2020-04-02
 STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',
@@ -114,15 +116,30 @@ myscinot = 1.23E-7
 my_tup = ('alpha', 'beta')
 greeting = f"Hi {names[0]}!"
 greeting = "Hi " + names[0] + "!"
+def powerMe(num, *, power=2):
+    poweredVal = num ** power
+    return poweredVal
 """
 
 ## ast_path fails if we have def immediately after a line continuation. Probably a bug in it. Nothing else fails.
-FUNC_SNIPPET = """\
+FUNC_SNIPPET = '''\
 
-def power_me(num, power):
-    powered = num ** power
-    return powered
-"""
+def powerMe(num, power=False, age=666, *, msg_only=True):
+    poweredVal = num ** power
+    if msg_only:
+        print(f"poweredVal is {poweredVal}")
+        return None
+    if power > 10:
+        return
+    elif power > 100:
+        return 666
+    elif power > 1000:
+        return True
+    """
+    Hmmmm
+    """
+    return poweredVal
+'''
 
 BITS_AND_PIECES = """\
 name = 'Grant'

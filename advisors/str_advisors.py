@@ -2,7 +2,7 @@ from textwrap import dedent
 
 import advisors
 from advisors import gen_advisor, type_advisor
-import conf
+import code_execution, conf
 
 F_STR = 'f-string'
 STR_FORMAT_FUNC = 'str_format'
@@ -15,7 +15,7 @@ def str_overview(line_dets):
     name = advisors.get_assigned_name(line_dets.element)
     if not name:
         return None
-    val = advisors.get_val(
+    val = code_execution.get_val(
         line_dets.pre_line_code_str, line_dets.line_code_str, name)
     black_heart = "\N{BLACK HEART}"
     message = {
