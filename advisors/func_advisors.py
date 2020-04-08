@@ -2,7 +2,6 @@ from textwrap import dedent
 
 from advisors import type_advisor, code_indent
 import code_execution, conf, utils
-from pydoc import doc
 
 def get_func_name(element):
     """
@@ -13,20 +12,19 @@ def get_func_name(element):
     return name
 
 def _get_arg_comment(line_dets):
-    args = line_dets.element.xpath('args/arguments/args')
-    kwonlyargs = line_dets.element.xpath('args/arguments/kwonlyargs')
+    args = line_dets.element.xpath('args/arguments/args/arg')
+    kwonlyargs = line_dets.element.xpath('args/arguments/kwonlyargs/arg')
     all_args_n = len(args + kwonlyargs)
     if all_args_n:
         nice_n_args = utils.int2nice(all_args_n)
-        arg_comment = (f"It receives {nice_n_args} argument")
+        arg_comment = (f"receives {nice_n_args} argument")
         if all_args_n > 1:
             arg_comment += 's'
     else:
-        arg_comment = "It doesn't take any arguments"
+        arg_comment = "doesn't take any arguments"
     return arg_comment
 
-def _get_returns_comment(line_dets, name):
-    return_elements = line_dets.element.xpath('descendant-or-self::Return')
+def _get_return_comment(return_elements, name):
     implicit_return_els = [return_element for return_element in return_elements
         if not return_element.getchildren()]
     implicit_returns_n = len(implicit_return_els)
@@ -44,10 +42,10 @@ def _get_returns_comment(line_dets, name):
                 val_returns_n += 1
     keyword_returns_n = none_returns_n + val_returns_n + implicit_returns_n
     if not keyword_returns_n:
-        returns_comment = (f"`{name}` does not explicitly return anything. "
+        returns_comment = (f"It does not explicitly return anything. "
             "In which case it implicitly returns None")
     else:
-        returns_comment = (f"`{name}` exits via an explicit returns statement "
+        returns_comment = (f"It exits via an explicit returns statement "
             f"{utils.int2nice(keyword_returns_n)} time")
         if keyword_returns_n > 1:
             returns_comment += ("s. Some people prefer functions to have one, "
@@ -59,15 +57,31 @@ def _get_returns_comment(line_dets, name):
                 "and where it exits")
     return returns_comment
 
+def _get_exit_comment(line_dets, name):
+    """
+    Look for 'return' and 'yield'.
+    """
+    return_elements = line_dets.element.xpath('descendant-or-self::Return')
+    yield_elements = line_dets.element.xpath('descendant-or-self::Yield')
+    if yield_elements:
+        if return_elements:
+            exit_comment = (f"It has both return and yield. "
+                "That probably doesn't make any sense.")
+        else:
+            exit_comment = f"It is a generator function."
+    else:
+        exit_comment = _get_return_comment(return_elements, name)
+    return exit_comment
+
 @type_advisor(element_type=conf.FUNC_DEF_ELEMENT_TYPE,
     xml_root=conf.XML_ROOT_BODY)
 def func_overview(line_dets):
     name = get_func_name(line_dets.element)
     arg_comment = _get_arg_comment(line_dets)
-    returns_comment = _get_returns_comment(line_dets, name)
+    exit_comment = _get_exit_comment(line_dets, name)
     message = {
         conf.BRIEF: dedent(f"""\
-            The function is named `{name}`. {arg_comment}. {returns_comment}.
+            The function named `{name}` {arg_comment}. {exit_comment}.
             """),
         conf.EXTRA: dedent(f"""\
             There is often confusion about the difference between arguments and
@@ -84,12 +98,8 @@ def func_overview(line_dets):
 def func_len_check(line_dets):
     name = get_func_name(line_dets.element)
     crude_loc = len(line_dets.line_code_str.split('\n'))
-    
-    if crude_loc <= 3: #conf.MAX_BRIEF_FUNC_LOC:
+    if crude_loc <= conf.MAX_BRIEF_FUNC_LOC:
         return None
-    
-    print("reset crude_loc to conf.MAX_BRIEF_FUNC_LOC")
-    
     message = {
         conf.BRIEF: dedent(f"""\
             #### Function possibly too long
@@ -113,11 +123,8 @@ def get_n_args(line_dets):
 def func_excess_parameters(line_dets):
     name = get_func_name(line_dets.element)
     n_args = get_n_args(line_dets)
-    if n_args <= 2:  #conf.MAX_BRIEF_FUNC_ARGS:
+    if n_args <= conf.MAX_BRIEF_FUNC_ARGS:
         return None
-    
-    print("reset n_args to conf.MAX_BRIEF_FUNC_ARGS")
-
     message = {
         conf.BRIEF: dedent(f"""\
             #### Possibly too many function parameters
@@ -167,7 +174,7 @@ def positional_boolean(line_dets):
     args_and_danger_statuses = zip(arg_names_reversed, danger_statuses_reversed)
     danger_args = [(arg, danger_status)
         for arg, danger_status in args_and_danger_statuses
-        if danger_status is None]
+        if danger_status is not None]
     if not danger_args:
         return None
     danger_args = '; '.join([
@@ -252,7 +259,17 @@ def docstring_issues(line_dets):
                 #### Function missing doc string
 
                 `{name}` lacks a doc string - you should probably add one.
-                Here is an example using one of several valid formats:
+
+                Note - # comments at the top of the function do not work as
+                doc strings.
+                Python completely ignores them.
+                If you add a proper doc string, however, it can be accessed by
+                running help({name}) or {name}.\_\_doc\_\_. Which is useful when
+                using this function in bigger projects
+                e.g. in an IDE (Integrated Development Environment).
+
+                Here is an example doc string using one of several
+                valid formats:
 
                 """)
             +

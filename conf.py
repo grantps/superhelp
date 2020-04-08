@@ -94,6 +94,8 @@ STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',
 'winsound', 'wsgiref', 'xdrlib', 'xml', 'xmlrpc', 'zipapp', 'zipfile',
 'zipimport', 'zlib']
 
+## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
+
 DEMO_SNIPPET = """\
 import datetime
 from math import pi as π
@@ -119,6 +121,24 @@ greeting = "Hi " + names[0] + "!"
 def powerMe(num, *, power=2):
     poweredVal = num ** power
     return poweredVal
+"""
+
+USER_FUNC_DEF_SNIPPET = """\
+def quadratic_interpolation(x_value, x, y):
+    # "x" and "y" are lists of the "x" and "y" coordinates respectively of 3 points
+    # through which the curve passes.
+    min_x = min(x[0], x[1], x[2])
+    max_x = max(x[0], x[1], x[2])
+    coeff = [y[0] / ((x[0] - x[1]) * (x[0] - x[2])),
+             y[1] / ((x[1] - x[0]) * (x[1] - x[2])),
+             y[2] / ((x[2] - x[0]) * (x[2] - x[1]))]
+    while True:
+        x_value = max(x_value, min_x)
+        x_value = min(x_value, max_x)
+        x_value = yield    # value for which interpolation is to be done
+        yield (x_value - x[1]) * (x_value - x[2]) * coeff[0] \
+            + (x_value - x[0]) * (x_value - x[2]) * coeff[1] \
+            + (x_value - x[0]) * (x_value - x[1]) * coeff[2]
 """
 
 ## ast_path fails if we have def immediately after a line continuation. Probably a bug in it. Nothing else fails.
