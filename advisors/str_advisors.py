@@ -1,22 +1,21 @@
 from textwrap import dedent
 
-import advisors
-from advisors import gen_advisor, type_advisor
-import code_execution, conf
+from advisors import any_block_advisor, type_block_advisor
+import ast_funcs, code_execution, conf, utils
 
 F_STR = 'f-string'
 STR_FORMAT_FUNC = 'str_format'
 SPRINTF = 'sprintf'
 STR_ADDITION = 'string addition'
 
-@type_advisor(element_type=conf.STR_ELEMENT_TYPE,
+@type_block_advisor(element_type=conf.STR_ELEMENT_TYPE,
     xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
-def str_overview(line_dets):
-    name = advisors.get_assigned_name(line_dets.element)
+def str_overview(block_dets):
+    name = ast_funcs.get_assigned_name(block_dets.element)
     if not name:
         return None
     val = code_execution.get_val(
-        line_dets.pre_line_code_str, line_dets.line_code_str, name)
+        block_dets.pre_block_code_str, block_dets.block_code_str, name)
     black_heart = "\N{BLACK HEART}"
     message = {
         conf.BRIEF: dedent(f"""\
@@ -62,8 +61,8 @@ def str_overview(line_dets):
     }
     return message
 
-def str_combination(combination_type, line_dets):
-    name = advisors.get_assigned_name(line_dets.element)
+def str_combination(combination_type, block_dets):
+    name = ast_funcs.get_assigned_name(block_dets.element)
     if not name:
         return None
     combination_type2comment = {
@@ -100,7 +99,7 @@ def str_combination(combination_type, line_dets):
 
                 """)
             +
-            advisors.code_indent(dedent("""\
+            utils.code_indent(dedent("""\
                 cost = 10_550
                 print(f"Cost is ${cost:,}")
                 # >>> 'Cost is $10,550'
@@ -112,7 +111,7 @@ def str_combination(combination_type, line_dets):
 
                 """)
             +
-            advisors.code_indent(dedent("""\
+            utils.code_indent(dedent("""\
                 people = ['Bart', 'Lisa']
                 print(f"There are {len(people)} people")
                 # >>> 'There are 2 people'
@@ -124,7 +123,7 @@ def str_combination(combination_type, line_dets):
 
                 """)
             +
-            advisors.code_indent(dedent("""\
+            utils.code_indent(dedent("""\
                 num = 525
                 print(f"{num:0>4}")
                 # >>> '0525'
@@ -132,23 +131,23 @@ def str_combination(combination_type, line_dets):
         )
     return message
 
-@type_advisor(element_type=conf.JOINED_STR_ELEMENT_TYPE,
+@type_block_advisor(element_type=conf.JOINED_STR_ELEMENT_TYPE,
     xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
-def f_str_interpolation(line_dets):
-    return str_combination(F_STR, line_dets)
+def f_str_interpolation(block_dets):
+    return str_combination(F_STR, block_dets)
 
-@type_advisor(element_type=conf.FUNC_ELEMENT_TYPE,
+@type_block_advisor(element_type=conf.FUNC_ELEMENT_TYPE,
     xml_root='body/Assign/value/Call')
-def format_str_interpolation(line_dets):
+def format_str_interpolation(block_dets):
     was_a_format_func = (
-        line_dets.element.xpath('//Attribute')[0].get('attr') == 'format')
+        block_dets.element.xpath('//Attribute')[0].get('attr') == 'format')
     if not was_a_format_func:
         return None
-    return str_combination(STR_FORMAT_FUNC, line_dets)
+    return str_combination(STR_FORMAT_FUNC, block_dets)
 
-@gen_advisor()
-def sprintf(line_dets):
-    code_str = line_dets.line_code_str
+@any_block_advisor()
+def sprintf(block_dets):
+    code_str = block_dets.block_code_str
     conversion_types = ['d', 'i', 'o', 'u', 'x', 'X', 'e', 'E', 'f', 'F',
         'g', 'G', 'c', 'r', 's', 'a', '%']  ## https://docs.python.org/3/library/stdtypes.html#old-string-formatting
     format_specifiers = [
@@ -158,15 +157,15 @@ def sprintf(line_dets):
          for format_specifier in format_specifiers])
     if not has_sprintf:
         return None
-    return str_combination(SPRINTF, line_dets)
+    return str_combination(SPRINTF, block_dets)
 
-@gen_advisor()
-def string_addition(line_dets):
+@any_block_advisor()
+def string_addition(block_dets):
     """
     Look inside for any (possibly nested) BinOp with op = Add and either a left
     being a Str or right being a Str.
     """
-    element = line_dets.element
+    element = block_dets.element
     left_strs = 'descendant-or-self::BinOp/left/Str'
     right_strs = 'descendant-or-self::BinOp/right/Str'
     str_elements_being_combined = element.xpath(f'{left_strs} | {right_strs}')
@@ -183,4 +182,4 @@ def string_addition(line_dets):
             break
     if not has_string_addition:
         return None
-    return str_combination(STR_ADDITION, line_dets)
+    return str_combination(STR_ADDITION, block_dets)

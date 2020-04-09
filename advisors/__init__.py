@@ -2,7 +2,7 @@
 Add advisors modules inside this folder.
 
 To add more advice, just declare more advisor functions inside the advisors
-modules with the @type_advisor decorator :-).
+modules with the @..._advisor decorators :-).
 
 Advisors return None if a selected element doesn't match.
 
@@ -44,78 +44,77 @@ from textwrap import dedent
 
 import conf
 
-## TYPE-specific advisors e.g. for list, or numbers etc
+TYPE_BLOCK_ADVISORS = []  ## block-based advisors which only apply to blocks filtered to contain specified element types
 
-TYPE_ADVISORS = []
 TypeAdvisorDets = namedtuple('ElementTypeAdvisorDets',
-    'element_type, xml_root, warning, advisor_name, advisor')
-TypeAdvisorDets.__doc__ += ('\n\nDetails for advisors which only work on '
-    'specific element types')
-TypeAdvisorDets.xml_root.__doc__ = ('XML starting point for xpath filtering to '
-    'get specified element type e.g. body/Assign/value')
+    'warning, advisor_name, advisor, element_type, xml_root')
+TypeAdvisorDets.__doc__ += ('\n\nDetails for block-based advisors that only '
+    'apply to blocks filtered to contain specified element types')
 TypeAdvisorDets.advisor.__doc__ = ('Functions which takes prefiltered elements '
     'of the required type and return message')
+TypeAdvisorDets.xml_root.__doc__ = ('XML starting point for xpath filtering to '
+    'get specified element type e.g. body/Assign/value')
 
-## ALL Line advisors
+ANY_BLOCK_ADVISORS = []  ## block-based advisors which apply to all blocks
 
-ALL_LINE_ADVISORS = []
-AllLineAdvisorDets = namedtuple(
-    'AllLineAdvisorDets', 'warning, advisor_name, advisor')
-AllLineAdvisorDets.__doc__ += ('\n\nDetails for advisors which only work on '
-    'specific element types')
-AllLineAdvisorDets.advisor.__doc__ = ('Functions which take line dets '
-    '(including element and line code string) and return message')
+AnyBlockAdvisorDets = namedtuple(
+    'AnyBlockAdvisorDets', 'advisor_name, advisor, warning')
+AnyBlockAdvisorDets.__doc__ += (
+    '\n\nDetails for block-based advisors that work on each block')
+AnyBlockAdvisorDets.advisor.__doc__ = ('Functions which take block dets '
+    '(including element and block code string) and return message')
 
+SNIPPET_ADVISORS = []  ## snippet-based advisors (have to look at multiple blocks at once)
+SnippetAdvisorDets = namedtuple(
+    'SnippetAdvisorDets', 'advisor_name, advisor, warning')
+SnippetAdvisorDets.__doc__ += (
+    '\n\nDetails for advisors that work on all blocks together')
+SnippetAdvisorDets.advisor.__doc__ = ('Functions which take blocks dets '
+    '(multiple) and return message')
 
-def code_indent(text):
-    lines = [conf.PYTHON_CODE_START] + text.split('\n') + [conf.PYTHON_CODE_END]
-    indented_lines = [f"{' ' * 4}{line}" for line in lines]
-    return f'\n'.join(indented_lines)
-
-def get_assigned_name(element):
-    """
-    :return: None if no name (perhaps an incomplete expression) e.g.
-      5, 1.123, in the middle of a multi-line list definition
-    :rtype: str
-    """
-    ## Get the name of the element if we can.
-    name_elements = element.xpath('targets/Name')
-    if len(name_elements) == 1 and name_elements[0].get('id'):
-        name_id = name_elements[0].get('id')
-        name = name_id
-    else:
-        name = None
-    return name
-
-def type_advisor(*, element_type, xml_root, warning=False):
+def type_block_advisor(*, element_type, xml_root, warning=False):
     """
     Simple decorator that registers an unchanged advisor function in the list of
-    TYPE_ADVISORS.
+    TYPE_BLOCK_ADVISORS.
 
     :param str element_type: e.g. conf.LIST_ELEMENT_TYPE
-    :param str xml_root: Used by xpath on the line element being examined. Can
+    :param str xml_root: Used by xpath on the block element being examined. Can
      use XPath 1.0 syntax.
     :param bool warning: tags messages as warning or not - up to displayer
      e.g. HTML to decide what to do with that information, if anything.
     """
     def decorator(func):
-        TYPE_ADVISORS.append(
+        TYPE_BLOCK_ADVISORS.append(
             TypeAdvisorDets(
-                element_type, xml_root, warning, func.__name__, func))
+                warning, func.__name__, func, element_type, xml_root))
         return func
     return decorator
 
-def gen_advisor(*, warning=False):
+def any_block_advisor(*, warning=False):
     """
     Simple decorator that registers an unchanged advisor function in the list of
-    ALL_LINE_ADVISORS.
+    ANY_BLOCK_ADVISORS.
 
     :param bool warning: tags messages as warning or not - up to displayer
      e.g. HTML to decide what to do with that information, if anything.
     """
     def decorator(func):
-        ALL_LINE_ADVISORS.append(
-            AllLineAdvisorDets(warning, func.__name__, func))
+        ANY_BLOCK_ADVISORS.append(
+            AnyBlockAdvisorDets(func.__name__, func, warning))
+        return func
+    return decorator
+
+def snippet_advisor(*, warning=False):
+    """
+    Simple decorator that registers an unchanged advisor function in the list of
+    ANY_BLOCK_ADVISORS.
+
+    :param bool warning: tags messages as warning or not - up to displayer
+     e.g. HTML to decide what to do with that information, if anything.
+    """
+    def decorator(func):
+        SNIPPET_ADVISORS.append(
+            SnippetAdvisorDets(func.__name__, func, warning))
         return func
     return decorator
 

@@ -9,13 +9,13 @@ from displayers import cli_displayer, html_displayer
 
 advisors.load_advisors()
 
-LineDets = namedtuple(
-    'LineDets', 'element, pre_line_code_str, line_code_str, first_line_no')
-LineDets.pre_line_code_str.__doc__ = ("The code up until the line we are "
+BlockDets = namedtuple(
+    'BlockDets', 'element, pre_block_code_str, block_code_str, first_line_no')
+BlockDets.pre_block_code_str.__doc__ = ("The code up until the line we are "
     "interested in needs to be run - it may depend on names from earlier")
 
 MessageDets = namedtuple('MessageDets',
-    'code_str, line_no, advisor_name, warning, message')
+    'code_str, first_line_no, advisor_name, warning, message')
 MessageDets.__doc__ += ("All the bits and pieces that might be needed to craft "
     "a message")
 
@@ -27,29 +27,29 @@ def get_tree(snippet):
             f"Oops - something is wrong with what you wrote - details: {e}")
     return tree
 
-def get_lines_dets(xml, snippet_lines):
+def get_blocks_dets(xml, snippet_lines):
     """
     Returning a list of all the details needed to process a line
-    (namely LineDets named tuples)
+    (namely BlockDets named tuples)
 
     Note - lines in the XML sit immediately under body.
 
-    :return: list of LineDets named tuples
+    :return: list of BlockDets named tuples
     :rtype: list
     """
-    lines_dets = []
+    blocks_dets = []
     all_elements = xml.xpath('body')[0].getchildren()  ## [0] because there is only one body under root
     for element in all_elements:
         line_nos = ast_funcs.get_xml_element_line_no_range(element)
         first_line_no, last_line_no = line_nos
-        line_code_str = (
+        block_code_str = (
             '\n'.join(snippet_lines[first_line_no - 1: last_line_no]).strip())
-        pre_line_code_str = (
+        pre_block_code_str = (
             '\n'.join(snippet_lines[0: first_line_no - 1]).strip()
             + '\n')
-        lines_dets.append(LineDets(
-            element, pre_line_code_str, line_code_str, first_line_no))
-    return lines_dets
+        blocks_dets.append(BlockDets(
+            element, pre_block_code_str, block_code_str, first_line_no))
+    return blocks_dets
 
 def fix_message(message, advisor_name):
     try:
@@ -66,24 +66,25 @@ def fix_message(message, advisor_name):
         message[conf.EXTRA] = ''
     return message
 
-def get_message_dets(advisor_dets, line_dets):
-    message = advisor_dets.advisor(line_dets)
+def get_message_dets_from_input(advisor_dets, advisor_input,
+        code_str, *, first_line_no):
+    message = advisor_dets.advisor(advisor_input)
     if message is None:
         return None
     message = fix_message(message, advisor_dets.advisor_name)
     message_dets = MessageDets(
-        line_dets.line_code_str, line_dets.first_line_no,
+        code_str, first_line_no,
         advisor_dets.advisor_name, advisor_dets.warning,
         message
     )
     return message_dets
 
-def get_filtered_lines_dets(advisor_dets, xml, lines_dets):
+def get_filtered_blocks_dets(advisor_dets, xml, blocks_dets):
     """
     Identify first line numbers for matching element types. Then filter
-    lines_dets accordingly.
+    blocks_dets accordingly.
 
-    :return: filtered_lines_dets
+    :return: filtered_blocks_dets
     :rtype: list
     """
     xml_path = f"{advisor_dets.xml_root}/{advisor_dets.element_type}"
@@ -91,31 +92,53 @@ def get_filtered_lines_dets(advisor_dets, xml, lines_dets):
     filt_first_line_nos = set(
         ast_funcs.get_xml_element_first_line_no(element)
         for element in matching_elements)
-    filtered_lines_dets = [line_dets for line_dets in lines_dets
-        if line_dets.first_line_no in filt_first_line_nos]
-    return filtered_lines_dets
+    filtered_blocks_dets = [block_dets for block_dets in blocks_dets
+        if block_dets.first_line_no in filt_first_line_nos]
+    return filtered_blocks_dets
 
-def get_messages_dets_from_xml(xml, snippet_lines):
+def get_messages_dets_from_blocks(blocks_dets, xml):
     """
-    For each advisor, get advice on every relevant line. Element type specific
-    advisors process filtered lines_dets; all line advisors process all lines
+    For each advisor, get advice on every relevant block. Element type specific
+    advisors process filtered blocks_dets; all block advisors process all blocks
     (as you'd expect ;-)).
     """
     messages_dets = []
-    all_advisors_dets = advisors.TYPE_ADVISORS + advisors.ALL_LINE_ADVISORS
-    lines_dets = get_lines_dets(xml, snippet_lines)
+    all_advisors_dets = (
+        advisors.TYPE_BLOCK_ADVISORS + advisors.ANY_BLOCK_ADVISORS)
     for advisor_dets in all_advisors_dets:
         type_filtering = hasattr(advisor_dets, 'xml_root')
         if type_filtering:
-            filtered_lines_dets = get_filtered_lines_dets(
-                advisor_dets, xml, lines_dets)
-            lines_dets2use = filtered_lines_dets
-        else:  ## no filtering by element type so process all lines
-            lines_dets2use = lines_dets
-        for line_dets in lines_dets2use:
-            message_dets = get_message_dets(advisor_dets, line_dets)
+            filtered_blocks_dets = get_filtered_blocks_dets(
+                advisor_dets, xml, blocks_dets)
+            blocks_dets2use = filtered_blocks_dets
+        else:  ## no filtering by element type so process all blocks
+            blocks_dets2use = blocks_dets
+        for block_dets in blocks_dets2use:
+            message_dets = get_message_dets_from_input(advisor_dets, block_dets,
+                block_dets.block_code_str,
+                first_line_no=block_dets.first_line_no)
             if message_dets:
                 messages_dets.append(message_dets)
+    return messages_dets
+
+def get_messages_dets_from_snippet(snippet, blocks_dets):
+    messages_dets = []
+    for advisor_dets in advisors.SNIPPET_ADVISORS:
+        message_dets = get_message_dets_from_input(advisor_dets, blocks_dets,
+                snippet, first_line_no=None)
+        if message_dets:
+            messages_dets.append(message_dets)
+    return messages_dets
+
+def get_messages_dets_from_xml(xml, snippet):
+    messages_dets = []
+    snippet_lines = snippet.split('\n')
+    blocks_dets = get_blocks_dets(xml, snippet_lines)
+    messages_dets_from_blocks = get_messages_dets_from_blocks(blocks_dets, xml)
+    messages_dets.extend(messages_dets_from_blocks)
+    messages_dets_from_snippet = get_messages_dets_from_snippet(
+        snippet, blocks_dets)
+    messages_dets.extend(messages_dets_from_snippet)
     return messages_dets
 
 def get_messages_dets(snippet, *, debug=False):
@@ -125,17 +148,30 @@ def get_messages_dets(snippet, *, debug=False):
     """
     tree = get_tree(snippet)
     ast_funcs.check_tree(tree)
-    snippet_lines = snippet.split('\n')
     xml = astpath.asts.convert_to_xml(tree)
     if debug:
         xml.getroottree().write(conf.AST_OUTPUT_XML, pretty_print=True)
-    messages_dets = get_messages_dets_from_xml(xml, snippet_lines)
-    return messages_dets
+    messages_dets = get_messages_dets_from_xml(xml, snippet)
+    if None in messages_dets:
+        raise Exception("messages_dets in meant to be a list of MessageDets "
+            "named tuples yet a None item was found")
+    overall_messages_dets = []
+    block_messages_dets = []
+    for message_dets in messages_dets:
+        if message_dets.first_line_no is None:
+            overall_messages_dets.append(message_dets)
+        else:
+            block_messages_dets.append(message_dets)
+    return overall_messages_dets, block_messages_dets
 
-def display_messages(displayer, messages_dets, *, message_level=conf.BRIEF):
-    displayer.display(messages_dets, message_level=message_level)
+def display_messages(displayer, snippet,
+        overall_messages_dets, block_messages_dets, *,
+        message_level=conf.BRIEF):
+    displayer.display(snippet, overall_messages_dets, block_messages_dets,
+        message_level=message_level)
 
-def superhelp(snippet, displayer, *, message_level=conf.BRIEF, debug=False):
+def superhelp(snippet, *,
+        displayer=None, message_level=conf.BRIEF, debug=False):
     """
     Provide advice about the snippet supplied
 
@@ -145,8 +181,15 @@ def superhelp(snippet, displayer, *, message_level=conf.BRIEF, debug=False):
      https://python-ast-explorer.com/ is another option
     """
     try:
-        messages_dets = get_messages_dets(snippet, debug=debug)
-        display_messages(displayer, messages_dets, message_level=message_level)
+        overall_messages_dets, block_messages_dets = get_messages_dets(
+            snippet, debug=debug)
+        if displayer is None:
+            print("Display is currently suppressed - please supply a displayer "
+                "if you want advice displayed")
+        else:
+            display_messages(displayer, snippet,
+                overall_messages_dets, block_messages_dets,
+                message_level=message_level)
     except Exception:
         raise Exception("Sorry Dave - I can't help you with that")
 
@@ -161,7 +204,7 @@ if __name__ == '__main__':
         required=False, default='Extra',
         help="What level of help do you want? Brief, Main, or Extra?")
     parser.add_argument('-s', '--snippet', type=str,
-        required=False, default=conf.USER_FUNC_DEF_SNIPPET,
+        required=False, default=conf.TEST_SNIPPET,
         help="Supply a brief snippet of Python code")
     args = parser.parse_args()
     snippet = args.snippet
@@ -169,6 +212,13 @@ if __name__ == '__main__':
         'html': html_displayer,
         'cli': cli_displayer,
     }
-    displayer = ARG2DISPLAYER[args.displayer]
+
+    t = True
+    f = False
+
+    do_displayer = t
+
+    displayer = ARG2DISPLAYER[args.displayer] if do_displayer else None
     message_level = args.level
-    superhelp(snippet, displayer, message_level=message_level, debug=True)
+    superhelp(snippet, displayer=displayer, message_level=message_level,
+        debug=True)

@@ -1,5 +1,5 @@
 
-def get_val(pre_line_code_str, line_code_str, name):
+def get_val(pre_block_code_str, block_code_str, name):
     """
     Executing supplied code from end users - nope - nothing to see here from a
     security point of view ;-) Needs addressing if this code is ever used as a
@@ -9,13 +9,13 @@ def get_val(pre_line_code_str, line_code_str, name):
     function).
     """
     exp_dets = {}
-    exec(pre_line_code_str + line_code_str, exp_dets)
+    exec(pre_block_code_str + block_code_str, exp_dets)
     try:
         val = exp_dets[name]
     except KeyError:
         val = None
 #         raise KeyError(
-#             f"Unable to find name '{name}' in code_str\n{line_code_str}")
+#             f"Unable to find name '{name}' in code_str\n{block_code_str}")
     return val
 
 def get_docstring(def_func_code_str, name):

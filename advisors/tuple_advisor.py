@@ -1,15 +1,16 @@
 from textwrap import dedent
 
-import advisors
-from advisors import type_advisor
-import code_execution, conf, utils
+from advisors import type_block_advisor
+import ast_funcs, code_execution, conf, utils
 
-@type_advisor(element_type=conf.TUPLE_ELEMENT_TYPE,
+@type_block_advisor(element_type=conf.TUPLE_ELEMENT_TYPE,
     xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
-def tuple_overview(line_dets):
-    name = advisors.get_assigned_name(line_dets.element)
+def tuple_overview(block_dets):
+    name = ast_funcs.get_assigned_name(block_dets.element)
+    if not name:
+        return None
     my_tuple = code_execution.get_val(
-        line_dets.pre_line_code_str, line_dets.line_code_str, name)
+        block_dets.pre_block_code_str, block_dets.block_code_str, name)
     if my_tuple:
         tuple_replaced = list(my_tuple)
         tuple_replaced[0] = 100
@@ -91,7 +92,7 @@ def tuple_overview(line_dets):
 
                 """)
             +
-            advisors.code_indent(dedent(f"""\
+            utils.code_indent(dedent(f"""\
                 friends = {friends}
                 family = {family}
                 guests = (friends, family)
@@ -107,7 +108,7 @@ def tuple_overview(line_dets):
 
                 """)
             +
-            advisors.code_indent(dedent(f"""\
+            utils.code_indent(dedent(f"""\
                 friends.append('Lenny')
 
                 """))
@@ -141,7 +142,7 @@ def tuple_overview(line_dets):
 
                 """)
             +
-            advisors.code_indent(dedent(f"""\
+            utils.code_indent(dedent(f"""\
 
                 from collections import namedtuple
                 Coord = namedtuple('Coordinate', 'x, y')

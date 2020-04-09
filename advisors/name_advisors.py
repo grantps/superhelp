@@ -1,12 +1,12 @@
 from textwrap import dedent
 
-from advisors import gen_advisor
-import conf
+from advisors import any_block_advisor
+import conf, utils
 
 def _get_shamed_names_comment(shamed_names):
     multiple_shamed_names = len(shamed_names) > 1
     if multiple_shamed_names:
-        names_listed = ', '.join([f"`{name}`" for name in shamed_names[:-1]])
+        names_listed = utils.get_nice_str_list(shamed_names, quoter='`')
         names_listed += f" and `{shamed_names[-1]}`"
         shamed_names_comment = f"{names_listed} are un-pythonic."
     else:
@@ -33,12 +33,12 @@ def _get_shamed_names_title(bad_names, dubious_names):
             title = 'Possibly un-pythonic names'
     return title
 
-@gen_advisor(warning=True)
-def name_style_check(line_dets):
-    assigned_name_elements = line_dets.element.xpath(
+@any_block_advisor(warning=True)
+def name_style_check(block_dets):
+    assigned_name_elements = block_dets.element.xpath(
         'descendant-or-self::Assign/targets/Name')
     assigned_names = [name_el.get('id') for name_el in assigned_name_elements]
-    def_func_elements = line_dets.element.xpath(
+    def_func_elements = block_dets.element.xpath(
         'descendant-or-self::FunctionDef')
     def_func_names = [name_el.get('name') for name_el in def_func_elements]
     names = assigned_names + def_func_names

@@ -2,6 +2,20 @@ import ast
 
 import conf
 
+def get_assigned_name(element):
+    """
+    :return: None if no name
+    :rtype: str
+    """
+    ## Get the name of the element if we can.
+    name_elements = element.xpath('targets/Name')
+    if len(name_elements) == 1 and name_elements[0].get('id'):
+        name_id = name_elements[0].get('id')
+        name = name_id
+    else:
+        name = None
+    return name
+
 def get_xml_element_first_line_no(element):
     element_line_nos = element.xpath(
         './ancestor-or-self::*[@lineno][1]/@lineno')

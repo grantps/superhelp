@@ -1,8 +1,7 @@
 from textwrap import dedent
 
-import advisors
-from advisors import type_advisor
-import code_execution, conf, utils
+from advisors import type_block_advisor
+import ast_funcs, code_execution, conf, utils
 
 def get_item_type_names(items):
     item_type_names = sorted(set(
@@ -15,12 +14,12 @@ def get_item_type_names(items):
 
 ## only interested in lists when being assigned as a value
 ## (i.e. <body><Assign><value><List> so we're looking for List under value only)
-@type_advisor(element_type=conf.LIST_ELEMENT_TYPE,
+@type_block_advisor(element_type=conf.LIST_ELEMENT_TYPE,
     xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
-def list_overview(line_dets):
-    name = advisors.get_assigned_name(line_dets.element)
+def list_overview(block_dets):
+    name = ast_funcs.get_assigned_name(block_dets.element)
     items = code_execution.get_val(
-        line_dets.pre_line_code_str, line_dets.line_code_str, name)
+        block_dets.pre_block_code_str, block_dets.block_code_str, name)
     item_type_names, _item_type_nice_names = get_item_type_names(items)
     try:
         type4example = item_type_names.pop()
@@ -62,7 +61,7 @@ def list_overview(line_dets):
                 e.g.
                 """)
             +
-            advisors.code_indent(dedent(f"""\
+            utils.code_indent(dedent(f"""\
                 {name}.append({listable_example_item})
                 """))
             +
@@ -81,7 +80,7 @@ def list_overview(line_dets):
 
                 """)
             +
-            advisors.code_indent(dedent(f"""\
+            utils.code_indent(dedent(f"""\
                 {name}.extend({items2extend})
                 """))
             +
@@ -98,7 +97,7 @@ def list_overview(line_dets):
 
                 """)
             +
-            advisors.code_indent(dedent(f"""\
+            utils.code_indent(dedent(f"""\
 
                 coordinates.append((x, y))  ## Correct
 
@@ -112,7 +111,7 @@ def list_overview(line_dets):
 
                 """)
             +
-            advisors.code_indent(dedent(f"""\
+            utils.code_indent(dedent(f"""\
                 friends = {friends}
                 family = {family}
                 guests = friends + family
@@ -128,7 +127,7 @@ def list_overview(line_dets):
 
                 """)
             +
-            advisors.code_indent(dedent(f"""\
+            utils.code_indent(dedent(f"""\
                 workmate = 'Carl'
                 guests = {friends} + {family} + workmate  ## Oops - can only add lists
                 guests = {friends} + {family} + [workmate]  ## That's better
@@ -144,15 +143,15 @@ def list_overview(line_dets):
     }
     return message
 
-@type_advisor(element_type=conf.LIST_ELEMENT_TYPE,
+@type_block_advisor(element_type=conf.LIST_ELEMENT_TYPE,
     xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE, warning=True)
-def mixed_list_types(line_dets):
+def mixed_list_types(block_dets):
     """
     Warns about lists containing a mix of data types.
     """
-    name = advisors.get_assigned_name(line_dets.element)
+    name = ast_funcs.get_assigned_name(block_dets.element)
     items = code_execution.get_val(
-        line_dets.pre_line_code_str, line_dets.line_code_str, name)
+        block_dets.pre_block_code_str, block_dets.block_code_str, name)
     _item_type_names, item_type_nice_names = get_item_type_names(items)
     if len(item_type_nice_names) <= 1:
         ## No explanation needed if there aren't multiple types.

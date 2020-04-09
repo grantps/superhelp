@@ -258,53 +258,76 @@ def get_html_strs(message, message_type, *, warning=False):
     str_html_list.append("</div>")
     return str_html_list
 
-def _get_all_html_strs(messages_dets):
+def get_message_html_strs(message_dets):
+    """
+    Process message.
+    """
+    message_html_strs = []
+    for message_type in conf.MESSAGE_TYPES:
+        try:
+            message = message_dets.message[message_type]
+        except KeyError:
+            if message_type != conf.EXTRA:
+                raise Exception(
+                    f"Missing required message type {message_type}")
+        except TypeError:
+            raise TypeError(
+                f"Missing message in message_dets {message_dets}")
+        else:
+            message = (
+                message
+                .replace(conf.PYTHON_CODE_START, conf.MD_PYTHON_CODE_START)
+                .replace(f"\n    {conf.PYTHON_CODE_END}", '')
+            )
+            message_level_html_strs = get_html_strs(
+                message, message_type, warning=message_dets.warning)
+            message_html_strs.extend(message_level_html_strs)
+    return message_html_strs
+
+def _get_all_html_strs(snippet, overall_messages_dets, block_messages_dets):
     """
     Display all message types - eventually will show brief and, if the user
     clicks to expand, main instead with the option of expanding to show Extra.
     """
     all_html_strs = []
-    messages_dets.sort(key=lambda nt: (nt.line_no))
+    ## overall messages
+    all_html_strs.append("<h2>Overall Snippet</h2>")
+    overall_code_str = indent(
+        f"{conf.MD_PYTHON_CODE_START}\n{snippet}",
+        ' '*4)
+    overall_code_str_highlighted = markdown(
+        overall_code_str, extensions=['codehilite'])
+    all_html_strs.append(overall_code_str_highlighted)
+    for message_dets in overall_messages_dets:
+        message_html_strs = get_message_html_strs(message_dets)
+        all_html_strs.extend(message_html_strs)
+    ## block messages
+    block_messages_dets.sort(key=lambda nt: (nt.first_line_no))
     prev_line_no = None
-    for message_dets in messages_dets:
+    for message_dets in block_messages_dets:
         ## display code for line number (once ;-)) Each line might have one or more messages but it will always have the one code_str starting on that line
-        line_no = message_dets.line_no
+        line_no = message_dets.first_line_no
         if line_no != prev_line_no:
             all_html_strs.append(f'<h2>Line {line_no:,}</h2>')
-            code_str = indent(
+            block_code_str = indent(
                 f"{conf.MD_PYTHON_CODE_START}\n{message_dets.code_str}",
                 ' '*4)
-            code_str_highlighted = markdown(code_str, extensions=['codehilite'])
-            all_html_strs.append(code_str_highlighted)
+            block_code_str_highlighted = markdown(
+                block_code_str, extensions=['codehilite'])
+            all_html_strs.append(block_code_str_highlighted)
             prev_line_no = line_no
-        ## process messages
-        for message_type in conf.MESSAGE_TYPES:
-            try:
-                message = message_dets.message[message_type]
-            except KeyError:
-                if message_type != conf.EXTRA:
-                    raise Exception(
-                        f"Missing required message type {message_type}")
-            except TypeError:
-                raise TypeError(
-                    f"Missing message in message_dets {message_dets}")
-            else:
-                message = (
-                    message
-                    .replace(conf.PYTHON_CODE_START, conf.MD_PYTHON_CODE_START)
-                    .replace(f"\n    {conf.PYTHON_CODE_END}", '')
-                )
-                message_html_strs = get_html_strs(
-                    message, message_type, warning=message_dets.warning)
-                all_html_strs.extend(message_html_strs)
+        message_html_strs = get_message_html_strs(message_dets)
+        all_html_strs.extend(message_html_strs)
     return all_html_strs
 
-def display(messages_dets, *, message_level=conf.BRIEF):
+def display(snippet, overall_messages_dets, block_messages_dets, *,
+        message_level=conf.BRIEF):
     """
-    Show by lines and then by list_rules within line.
+    Show by blocks.
     """
     radio_buttons = _get_radio_buttons(message_level=message_level)
-    all_html_strs = _get_all_html_strs(messages_dets)
+    all_html_strs = _get_all_html_strs(snippet,
+        overall_messages_dets, block_messages_dets)
     body_inner = '\n'.join(all_html_strs)
     html2write = HTML_WRAPPER.format(
         head=HTML_HEAD, radio_buttons=radio_buttons, body_inner=body_inner,

@@ -1,6 +1,67 @@
 from textwrap import dedent
 
-from advisors import code_indent
+from utils import code_indent
+
+UNPACKING_COMMENT = (
+    dedent(f"""\
+        Unpacking is much more pythonic than using indexes to pull a
+        sequence apart into names (variables). For example:
+
+        """)
+    +
+    code_indent(dedent(f"""\
+        ##### Un-pythonic :-(
+
+        location = (-37, 174, 'Auckland', 'Mt Albert')
+        lat = location[0]
+        lon = location[1]
+        city = location[2]
+        suburb = location[3]
+
+        ##### Pythonic :-)
+        lat, lon, city, suburb = location
+        """))
+    +
+    dedent(f"""\
+
+        If you don't need all the values you can indicate which you want
+        to ignore or even mop up multiple unused values into a single
+        value using an asterisk. 
+
+        For example:
+
+        """)
+    +
+    code_indent(dedent(f"""\
+        lat, lon, _city, _suburb = location
+        """))
+    +
+    dedent(f"""\
+
+        or:
+
+        """)
+    +
+    code_indent(dedent(f"""\
+        lat, lon, *_ = location
+        """))
+    +
+    dedent(f"""\
+
+        or:
+
+        """)
+    +
+    code_indent(dedent(f"""\
+        lat, lon, *unused = location
+        """))
+    +
+    dedent(f"""\
+
+        Note - unused, in this case, would be ['Auckland', 'Mt Albert']
+
+        """)
+)
 
 GENERAL_COMPREHENSION_COMMENT = dedent(f"""\
     Comprehensions are one the great things about Python. To see why,

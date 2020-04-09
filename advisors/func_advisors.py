@@ -1,6 +1,6 @@
 from textwrap import dedent
 
-from advisors import type_advisor, code_indent
+from advisors import type_block_advisor
 import code_execution, conf, utils
 
 def get_func_name(element):
@@ -11,9 +11,9 @@ def get_func_name(element):
     name = element.get('name')
     return name
 
-def _get_arg_comment(line_dets):
-    args = line_dets.element.xpath('args/arguments/args/arg')
-    kwonlyargs = line_dets.element.xpath('args/arguments/kwonlyargs/arg')
+def _get_arg_comment(block_dets):
+    args = block_dets.element.xpath('args/arguments/args/arg')
+    kwonlyargs = block_dets.element.xpath('args/arguments/kwonlyargs/arg')
     all_args_n = len(args + kwonlyargs)
     if all_args_n:
         nice_n_args = utils.int2nice(all_args_n)
@@ -24,7 +24,7 @@ def _get_arg_comment(line_dets):
         arg_comment = "doesn't take any arguments"
     return arg_comment
 
-def _get_return_comment(return_elements, name):
+def _get_return_comment(return_elements):
     implicit_return_els = [return_element for return_element in return_elements
         if not return_element.getchildren()]
     implicit_returns_n = len(implicit_return_els)
@@ -57,12 +57,12 @@ def _get_return_comment(return_elements, name):
                 "and where it exits")
     return returns_comment
 
-def _get_exit_comment(line_dets, name):
+def _get_exit_comment(block_dets):
     """
     Look for 'return' and 'yield'.
     """
-    return_elements = line_dets.element.xpath('descendant-or-self::Return')
-    yield_elements = line_dets.element.xpath('descendant-or-self::Yield')
+    return_elements = block_dets.element.xpath('descendant-or-self::Return')
+    yield_elements = block_dets.element.xpath('descendant-or-self::Yield')
     if yield_elements:
         if return_elements:
             exit_comment = (f"It has both return and yield. "
@@ -70,15 +70,15 @@ def _get_exit_comment(line_dets, name):
         else:
             exit_comment = f"It is a generator function."
     else:
-        exit_comment = _get_return_comment(return_elements, name)
+        exit_comment = _get_return_comment(return_elements)
     return exit_comment
 
-@type_advisor(element_type=conf.FUNC_DEF_ELEMENT_TYPE,
+@type_block_advisor(element_type=conf.FUNC_DEF_ELEMENT_TYPE,
     xml_root=conf.XML_ROOT_BODY)
-def func_overview(line_dets):
-    name = get_func_name(line_dets.element)
-    arg_comment = _get_arg_comment(line_dets)
-    exit_comment = _get_exit_comment(line_dets, name)
+def func_overview(block_dets):
+    name = get_func_name(block_dets.element)
+    arg_comment = _get_arg_comment(block_dets)
+    exit_comment = _get_exit_comment(block_dets)
     message = {
         conf.BRIEF: dedent(f"""\
             The function named `{name}` {arg_comment}. {exit_comment}.
@@ -93,11 +93,11 @@ def func_overview(line_dets):
     }
     return message
 
-@type_advisor(element_type=conf.FUNC_DEF_ELEMENT_TYPE,
+@type_block_advisor(element_type=conf.FUNC_DEF_ELEMENT_TYPE,
     xml_root=conf.XML_ROOT_BODY, warning=True)
-def func_len_check(line_dets):
-    name = get_func_name(line_dets.element)
-    crude_loc = len(line_dets.line_code_str.split('\n'))
+def func_len_check(block_dets):
+    name = get_func_name(block_dets.element)
+    crude_loc = len(block_dets.block_code_str.split('\n'))
     if crude_loc <= conf.MAX_BRIEF_FUNC_LOC:
         return None
     message = {
@@ -112,17 +112,17 @@ def func_len_check(line_dets):
     }
     return message
 
-def get_n_args(line_dets):
-    arg_els = line_dets.element.xpath('args/arguments/args')
-    kwonlyarg_els = line_dets.element.xpath('args/arguments/kwonlyargs')
+def get_n_args(block_dets):
+    arg_els = block_dets.element.xpath('args/arguments/args')
+    kwonlyarg_els = block_dets.element.xpath('args/arguments/kwonlyargs')
     n_args = len(arg_els + kwonlyarg_els)
     return n_args
 
-@type_advisor(element_type=conf.FUNC_DEF_ELEMENT_TYPE,
+@type_block_advisor(element_type=conf.FUNC_DEF_ELEMENT_TYPE,
     xml_root=conf.XML_ROOT_BODY, warning=True)
-def func_excess_parameters(line_dets):
-    name = get_func_name(line_dets.element)
-    n_args = get_n_args(line_dets)
+def func_excess_parameters(block_dets):
+    name = get_func_name(block_dets.element)
+    n_args = get_n_args(block_dets)
     if n_args <= conf.MAX_BRIEF_FUNC_ARGS:
         return None
     message = {
@@ -147,17 +147,17 @@ def func_excess_parameters(line_dets):
     }
     return message
 
-@type_advisor(element_type=conf.FUNC_DEF_ELEMENT_TYPE,
+@type_block_advisor(element_type=conf.FUNC_DEF_ELEMENT_TYPE,
     xml_root=conf.XML_ROOT_BODY, warning=True)
-def positional_boolean(line_dets):
+def positional_boolean(block_dets):
     """
     Defaults apply from the rightmost backwards (within their group - either
     defaults or kw_defaults (related to kwonlyargs)).
     """
-    name = get_func_name(line_dets.element)
-    arg_els = line_dets.element.xpath('args/arguments/args')  ## not kwonlyargs so potentially supplied positionally only
+    name = get_func_name(block_dets.element)
+    arg_els = block_dets.element.xpath('args/arguments/args')  ## not kwonlyargs so potentially supplied positionally only
     arg_names = [arg_el.get('arg') for arg_el in arg_els]
-    arg_default_els = line_dets.element.xpath('args/arguments/defaults')
+    arg_default_els = block_dets.element.xpath('args/arguments/defaults')
     danger_statuses = []
     for arg_default_el in arg_default_els:
         if arg_default_el.get('value') in ['True', 'False']:
@@ -201,7 +201,7 @@ def positional_boolean(line_dets):
 
             """)
         +
-        code_indent(dedent(f"""\
+        utils.code_indent(dedent(f"""\
             def greeting(name, *, formal=False):
                 ...
             """)
@@ -228,15 +228,15 @@ def positional_boolean(line_dets):
     }
     return message
 
-@type_advisor(element_type=conf.FUNC_DEF_ELEMENT_TYPE,
+@type_block_advisor(element_type=conf.FUNC_DEF_ELEMENT_TYPE,
     xml_root=conf.XML_ROOT_BODY, warning=True)
-def docstring_issues(line_dets):
+def docstring_issues(block_dets):
     """
     No doc string, not enough lines to cover params, return etc.
     """
-    name = get_func_name(line_dets.element)
-    docstring = code_execution.get_docstring(line_dets.line_code_str, name)
-    example_docstring = code_indent(dedent(f'''\
+    name = get_func_name(block_dets.element)
+    docstring = code_execution.get_docstring(block_dets.block_code_str, name)
+    example_docstring = utils.code_indent(dedent(f'''\
         def greet(name, *, formal=False):
             """
             Get a greeting for the supplied person with the appropriate
@@ -276,7 +276,7 @@ def docstring_issues(line_dets):
             example_docstring
         )
     else:
-        n_args = get_n_args(line_dets)
+        n_args = get_n_args(block_dets)
         n_doc_lines = len(docstring.split('\n'))
         too_short = n_doc_lines < (conf.MIN_BRIEF_DOCSTRING + n_args)
         if too_short:
