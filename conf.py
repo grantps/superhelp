@@ -17,12 +17,13 @@ AST_OUTPUT_XML = 'ast_output.xml'
 ## don't include trailing slash (unless you don't want matches ;-))
 XML_ROOT_BODY = 'body'
 XML_ROOT_BODY_ASSIGN_VALUE = 'body/Assign/value'  ## where assignment to names occurs e.g. name = value; or age = 21
-
+XML_ROOT_BODY_ASSIGN_VALUE_CALL = 'body/Assign/value/Call'
 ## To see what elements are named look in AST_OUTPUT_XML
 ## e.g. <For lineno="3" col_offset="0"> is "For"
 LIST_ELEMENT_TYPE = 'List'
 LISTCOMP_ELEMENT_TYPE = 'ListComp'
 TUPLE_ELEMENT_TYPE = 'Tuple'
+SET_ELEMENT_TYPE = 'Set'
 DICT_ELEMENT_TYPE = 'Dict'
 NUM_ELEMENT_TYPE = 'Num'
 STR_ELEMENT_TYPE = 'Str'
@@ -98,14 +99,11 @@ STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 
 TEST_SNIPPET = """\
-coord = ('lat', 'lon')
-latitude = coord[0]
-longitude = coord[1]
+people = set(['Sam', 'Avi', 'Terri', 'Noor'])
+no_email = set(['Sam', 'Terri'])
+people2email = people - no_email
+empty_set = set()
 """
-
-'''
-x, y = coord
-'''
 
 DEMO_SNIPPET = """\
 import datetime
@@ -132,5 +130,12 @@ greeting = "Hi " + names[0] + "!"
 def powerMe(num, *, power=2):
     poweredVal = num ** power
     return poweredVal
+coord = ('lat', 'lon')
+latitude = coord[0]
+longitude = coord[1]
+x, y = coord
+people = set(['Sam', 'Avi', 'Terri', 'Noor'])
+no_email = set(['Sam', 'Terri'])
+people2email = people - no_email
+empty_set = set()
 """
-

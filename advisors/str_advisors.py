@@ -137,10 +137,14 @@ def f_str_interpolation(block_dets):
     return str_combination(F_STR, block_dets)
 
 @type_block_advisor(element_type=conf.FUNC_ELEMENT_TYPE,
-    xml_root='body/Assign/value/Call')
+    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE_CALL)
 def format_str_interpolation(block_dets):
-    was_a_format_func = (
-        block_dets.element.xpath('//Attribute')[0].get('attr') == 'format')
+    try:
+        was_a_format_func = (
+            block_dets.element.xpath('value/Call/func/Attribute')[0]
+            .get('attr') == 'format')
+    except IndexError:
+        was_a_format_func = False
     if not was_a_format_func:
         return None
     return str_combination(STR_FORMAT_FUNC, block_dets)

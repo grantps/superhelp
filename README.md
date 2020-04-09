@@ -16,7 +16,6 @@ Python 3.6+ and requirements.txt
 
 Assuming users find value in the tool, and there is no specific direction arising from discount usability testing, I'll add coverage of:
 
-* sets
 * if-elif-else (always else - even if to raise an exception)
 * exceptions (specific is best)
 * sorting (sort() vs sorted() and sort(reverse=True) vs reversed)
