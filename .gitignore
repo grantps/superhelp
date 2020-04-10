@@ -1,0 +1,50 @@
+*.py[cod]
+
+# C extensions
+*.so
+
+# pycharm
+.idea/
+.idea
+
+# Packages
+*.egg
+*.egg-info
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+
+# Complexity
+output/*.html
+output/*/index.html
+
+# Sphinx
+docs/_build
+
+# Cookiecutter
+output/
+
+env
+.project
+.pydevproject
+__pycache__
+
+superhelp/ast_output.xml
+superhelp/explained.html
+superhelp/store/*
+

@@ -99,10 +99,16 @@ STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 
 TEST_SNIPPET = """\
-people = set(['Sam', 'Avi', 'Terri', 'Noor'])
-no_email = set(['Sam', 'Terri'])
-people2email = people - no_email
-empty_set = set()
+word = 'Incomprehensibilities'
+len_word = len(word)
+if len_word == 1:
+    status = 'single-letter'
+elif len_word < 4:
+    status = 'short'
+elif len_word > 12:
+    status = 'long'
+else:
+    status = 'typical'
 """
 
 DEMO_SNIPPET = """\

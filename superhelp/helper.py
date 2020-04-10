@@ -2,10 +2,10 @@ import argparse
 import ast
 from collections import namedtuple
 
-import astpath
+import astpath  # @UnresolvedImport
 
-import advisors, ast_funcs, conf
-from displayers import cli_displayer, html_displayer
+import advisors, ast_funcs, conf  # @UnresolvedImport
+from displayers import cli_displayer, html_displayer  # @UnresolvedImport
 
 advisors.load_advisors()
 
@@ -204,7 +204,7 @@ if __name__ == '__main__':
         required=False, default='Extra',
         help="What level of help do you want? Brief, Main, or Extra?")
     parser.add_argument('-s', '--snippet', type=str,
-        required=False, default=conf.DEMO_SNIPPET,
+        required=False, default=conf.TEST_SNIPPET,
         help="Supply a brief snippet of Python code")
     args = parser.parse_args()
     snippet = args.snippet
