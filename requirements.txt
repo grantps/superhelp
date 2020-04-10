@@ -3,12 +3,12 @@ cssselect==1.1.0
 lxml==4.5.0
 Markdown==3.2.1
 mdv==1.7.4
-pkg-resources==0.0.0
 Pygments==2.6.1
 PyYAML==5.3.1
 tabulate==0.8.7
+## numerous others because I installed cookiecutter in same env - not needed for superhelp itself
 
-# Dev/Deployment
+## Dev/Deployment
 #sphinx
 #sphinx_rtd_theme
 #nose
