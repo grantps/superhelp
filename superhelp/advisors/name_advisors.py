@@ -6,9 +6,8 @@ from .. import conf, utils
 def _get_shamed_names_comment(shamed_names):
     multiple_shamed_names = len(shamed_names) > 1
     if multiple_shamed_names:
-        names_listed = utils.get_nice_str_list(shamed_names, quoter='`')
-        names_listed += f" and `{shamed_names[-1]}`"
-        shamed_names_comment = f"{names_listed} are un-pythonic."
+        shamed_names_listed = utils.get_nice_str_list(shamed_names, quoter='`')
+        shamed_names_comment = f"{shamed_names_listed} are un-pythonic."
     else:
         shamed_names_comment = f"`{shamed_names[0]}` is un-pythonic."
     return shamed_names_comment

@@ -1,7 +1,6 @@
-from textwrap import dedent
-
 from ..advisors import any_block_advisor, type_block_advisor
 from .. import ast_funcs, code_execution, conf, utils
+from ..utils import layout_comment
 
 F_STR = 'f-string'
 STR_FORMAT_FUNC = 'str_format'
@@ -18,12 +17,16 @@ def str_overview(block_dets):
         block_dets.pre_block_code_str, block_dets.block_code_str, name)
     black_heart = "\N{BLACK HEART}"
     message = {
-        conf.BRIEF: dedent(f"""\
+        conf.BRIEF: layout_comment(f"""\
+            ##### String Overview
+
             `{name}` is a string.
             Python makes it easy to do lots of cool things with strings.
             E.g. {name}.upper() returns {val.upper()}.
-        """),
-        conf.MAIN: dedent(f"""\
+            """),
+        conf.MAIN: layout_comment(f"""\
+            ##### String Overview
+
             `{name}` is a string.
             Python makes it easy to do lots of cool things with strings.\n\n
             Examples:\n\n
@@ -43,8 +46,8 @@ def str_overview(block_dets):
             (remember to count spaces - they are characters too)
 
             sorted({name}) returns {sorted(val)}
-        """),
-        conf.EXTRA: dedent("""\
+            """),
+        conf.EXTRA: layout_comment("""\
             .upper(), .center() etc
             are abilities available with all Python strings.
             Technically they are methods of string objects.
@@ -57,7 +60,7 @@ def str_overview(block_dets):
             string objects. It is not a method of the string object.
             Other functions that are not string-specific but are
             commonly used with strings include sorted() and print().
-        """),
+            """),
     }
     return message
 
@@ -73,21 +76,21 @@ def str_combination(combination_type, block_dets):
     }
     combination_comment = combination_type2comment[combination_type]
     message = {
-        conf.BRIEF: dedent(f"""\
+        conf.BRIEF: layout_comment(f"""\
             `{name}` is created using {combination_comment}.
             """),
-        conf.MAIN: dedent(f"""\
+        conf.MAIN: layout_comment(f"""\
             `{name}` is created using {combination_comment}.
             """),
     }
     if combination_type != F_STR:
-        message[conf.BRIEF] += dedent(f"""\
+        message[conf.BRIEF] += layout_comment(f"""\
 
             Have you considered using an f-string approach to constructing
             your `{name}`?
             """)
         message[conf.MAIN] += (
-            dedent(f"""\
+            layout_comment(f"""\
 
                 Have you considered using an f-string approach to constructing
                 your `{name}`?
@@ -99,35 +102,35 @@ def str_combination(combination_type, block_dets):
 
                 """)
             +
-            utils.code_indent(dedent("""\
+            layout_comment("""\
                 cost = 10_550
                 print(f"Cost is ${cost:,}")
                 # >>> 'Cost is $10,550'
-                """))
+                """, is_code=True)
             +
-            dedent(f"""\
+            layout_comment(f"""\
 
                 Or making small in-line calculations:
 
                 """)
             +
-            utils.code_indent(dedent("""\
+            layout_comment("""\
                 people = ['Bart', 'Lisa']
                 print(f"There are {len(people)} people")
                 # >>> 'There are 2 people'
-                """))
+                """, is_code=True)
             +
-            dedent(f"""\
+            layout_comment(f"""\
 
                 Or zero-padding numbers:
 
                 """)
             +
-            utils.code_indent(dedent("""\
+            layout_comment("""\
                 num = 525
                 print(f"{num:0>4}")
                 # >>> '0525'
-                """))
+                """, is_code=True)
         )
     return message
 
@@ -156,9 +159,22 @@ def sprintf(block_dets):
         'g', 'G', 'c', 'r', 's', 'a', '%']  ## https://docs.python.org/3/library/stdtypes.html#old-string-formatting
     format_specifiers = [
         f"%{conversion_type}" for conversion_type in conversion_types ]
+    
+    
+    
+    
+    
+    
+    ## TODO: distinguish between evidence of sprintf and datetime.datetime.strptime('2020-02-10', '%Y-%m-%d') etc
     has_sprintf = any(
         [format_specifier in code_str
          for format_specifier in format_specifiers])
+    
+    
+    
+    
+    
+    
     if not has_sprintf:
         return None
     return str_combination(SPRINTF, block_dets)

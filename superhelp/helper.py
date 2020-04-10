@@ -5,6 +5,7 @@ from collections import namedtuple
 import astpath  # @UnresolvedImport
 
 ## importing from superhelp only works properly after I've installed superhelp as a pip package (albeit as a link to this code using python3 -m pip install --user -e <path_to_proj_folder>)
+## Using this as a library etc works with . instead of superhelp but I want to be be able to run the helper module from within my IDE
 from superhelp import advisors, ast_funcs, conf  # @UnresolvedImport
 from superhelp.displayers import cli_displayer, html_displayer  # @UnresolvedImport
 
@@ -17,15 +18,15 @@ BlockDets.pre_block_code_str.__doc__ = ("The code up until the line we are "
 
 MessageDets = namedtuple('MessageDets',
     'code_str, first_line_no, advisor_name, warning, message')
-MessageDets.__doc__ += ("All the bits and pieces that might be needed to craft "
-    "a message")
+MessageDets.__doc__ += (
+    "All the bits and pieces that might be needed to craft a message")
 
 def get_tree(snippet):
     try:
         tree = ast.parse(snippet)
     except SyntaxError as e:
         raise SyntaxError(
-            f"Oops - something is wrong with what you wrote - details: {e}")
+            f"Oops - something seems broken in the snippet - details: {e}")
     return tree
 
 def get_blocks_dets(xml, snippet_lines):
@@ -80,9 +81,17 @@ def get_message_dets_from_input(advisor_dets, advisor_input,
     )
     return message_dets
 
-def get_filtered_blocks_dets(advisor_dets, xml, blocks_dets):
+def get_ancestor_block_element(element):
     """
-    Identify first line numbers for matching element types. Then filter
+    The item immediately under body that this element is under.
+    """
+    ancestor_elements = element.xpath('ancestor-or-self::*')
+    ancestor_block_element = ancestor_elements[2]  ## [0] will be Module, 1 is body, and blocks are the children of body
+    return ancestor_block_element
+
+def get_filtered_blocks_dets(advisor_dets, xml, blocks_dets, *, debug=False):
+    """
+    Identify source block elements for matching element types. Then filter
     blocks_dets accordingly.
 
     :return: filtered_blocks_dets
@@ -90,11 +99,20 @@ def get_filtered_blocks_dets(advisor_dets, xml, blocks_dets):
     """
     xml_path = f"{advisor_dets.xml_root}/{advisor_dets.element_type}"
     matching_elements = xml.xpath(xml_path)
-    filt_first_line_nos = set(
-        ast_funcs.get_xml_element_first_line_no(element)
-        for element in matching_elements)
+    if debug:
+        if matching_elements:
+            print(f"{advisor_dets.advisor_name} had at least one match")
+        else:
+            print(f"{advisor_dets.advisor_name} had no matches")
+    filt_block_elements = set(
+        [get_ancestor_block_element(element) for element in matching_elements])
     filtered_blocks_dets = [block_dets for block_dets in blocks_dets
-        if block_dets.first_line_no in filt_first_line_nos]
+        if block_dets.element in filt_block_elements]
+    if debug:
+        if filtered_blocks_dets:
+            print(f"{advisor_dets.advisor_name} had at least one block")
+        else:
+            print(f"{advisor_dets.advisor_name} had no blocks")
     return filtered_blocks_dets
 
 def get_messages_dets_from_blocks(blocks_dets, xml):
@@ -199,13 +217,13 @@ if __name__ == '__main__':
         description='Superhelp - Help for Humans!')
     ## don't use type=list ever https://stackoverflow.com/questions/15753701/argparse-option-for-passing-a-list-as-option
     parser.add_argument('-d', '--displayer', type=str,
-        required=False, default='cli',
+        required=False, default='html',
         help="Where do you want your help shown? html, cli, etc")
     parser.add_argument('-l', '--level', type=str,
         required=False, default='Extra',
         help="What level of help do you want? Brief, Main, or Extra?")
     parser.add_argument('-s', '--snippet', type=str,
-        required=False, default=conf.TEST_SNIPPET,
+        required=False, default=conf.DEMO_SNIPPET,
         help="Supply a brief snippet of Python code")
     args = parser.parse_args()
     snippet = args.snippet

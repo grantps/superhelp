@@ -30,6 +30,7 @@ STR_ELEMENT_TYPE = 'Str'
 JOINED_STR_ELEMENT_TYPE = 'JoinedStr'
 FUNC_ELEMENT_TYPE = 'func'  ## not a function definition - .format() is called via func in AST
 FOR_ELEMENT_TYPE = 'For'
+IF_ELEMENT_TYPE = 'If'
 FUNC_DEF_ELEMENT_TYPE = 'FunctionDef'
 SUBSCRIPT_ELEMENT_TYPE = 'Subscript'
 
@@ -107,8 +108,12 @@ elif len_word < 4:
     status = 'short'
 elif len_word > 12:
     status = 'long'
-else:
-    status = 'typical'
+elif len_word > 20:
+    status = 'very_long'
+# else:
+#     status = 'typical'
+if len('chicken') > 2:
+    print('cluck!')
 """
 
 DEMO_SNIPPET = """\
@@ -144,4 +149,17 @@ people = set(['Sam', 'Avi', 'Terri', 'Noor'])
 no_email = set(['Sam', 'Terri'])
 people2email = people - no_email
 empty_set = set()
+len_word = len(fullName)
+if len_word == 1:
+    status = 'single-letter'
+elif len_word < 4:
+    status = 'short'
+elif len_word > 12:
+    status = 'long'
+elif len_word > 20:
+    status = 'very_long'
+# else:
+#     status = 'typical'
+if len('chicken') > 2:
+    print('cluck!')
 """

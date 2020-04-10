@@ -1,7 +1,6 @@
-from textwrap import dedent
-
 from ..advisors import type_block_advisor
 from .. import ast_funcs, code_execution, conf, utils
+from ..utils import layout_comment
 
 @type_block_advisor(element_type=conf.DICT_ELEMENT_TYPE,
     xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
@@ -12,7 +11,7 @@ def dict_overview(block_dets):
     if not items:
         return None
     message = {
-        conf.BRIEF: dedent(f"""
+        conf.BRIEF: layout_comment(f"""
             Dictionaries map keys to values.
             `{name}` is a dictionary with {utils.int2nice(len(items))}
             items (i.e. {utils.int2nice(len(items))} mappings)
@@ -21,9 +20,9 @@ def dict_overview(block_dets):
 
             Dictionaries, along with lists, are the workhorses of Python
             data structures.
-        """),
+            """),
         conf.MAIN: (
-            dedent(f"""
+            layout_comment(f"""
                 Dictionaries, along with lists, are the workhorses of Python
                 data structures.
 
@@ -44,38 +43,38 @@ def dict_overview(block_dets):
 
                 """)
             +
-            utils.code_indent(dedent(f"""\
+            layout_comment(f"""\
                 ## k, v is conventional, and OK in a hurry, but readable names
                 ## are probably better for code you're going to maintain
                 for k, v in {name}.items():
                     print(f"key {{k}} maps to value {{v}}")
-                """))
+                """, is_code=True)
             +
-            dedent(f"""
+            layout_comment(f"""
                 
                 Keys are unique but values can be repeated. For example:
 
                 """)
             +
-            utils.code_indent(dedent(f"""
+            layout_comment(f"""
                 country2car = {{'Japan': 'Toyota', 'Sweden': 'Volvo'}}  ## OK - all keys are unique
                 country2car = {{'Japan': 'Toyota', 'Japan': 'Honda'}}  ## Oops - the 'Japan' key is repeated
 
-                """))
+                """, is_code=True)
             +
-            dedent(f"""
+            layout_comment(f"""
 
                 In which case a better structure might be to have each 'value'
                 being a list e.g.
 
                 """)
             +
-            utils.code_indent(dedent(f"""
+            layout_comment(f"""
                 country2cars = {{'Japan': ['Toyota', 'Honda'], 'Sweden': ['Volvo']}}  ## OK - all keys are unique
 
-                """))
+                """, is_code=True)
         ),
-        conf.EXTRA: dedent("""\
+        conf.EXTRA: layout_comment("""\
 
             Python dictionaries (now) keep the order in which items are added.
 
@@ -113,12 +112,12 @@ def mixed_list_types(block_dets):
     if not bad_key_type_combo:
         return None
     message = {
-        conf.BRIEF: dedent(f"""
+        conf.BRIEF: layout_comment(f"""
             #### Mix of integer and string keys in dictionary
             `{name}`'s keys include both strings and integers
             which is probably a bad idea.
             """),
-        conf.MAIN: dedent(f"""
+        conf.MAIN: layout_comment(f"""
             #### Mix of integer and string keys in dictionary
             `{name}`'s keys include both strings and integers
             which is probably a bad idea.

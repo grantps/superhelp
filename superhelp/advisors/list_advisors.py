@@ -2,6 +2,7 @@ from textwrap import dedent
 
 from ..advisors import type_block_advisor
 from .. import ast_funcs, code_execution, conf, utils
+from ..utils import layout_comment
 
 def get_item_type_names(items):
     item_type_names = sorted(set(
@@ -61,17 +62,17 @@ def list_overview(block_dets):
                 e.g.
                 """)
             +
-            utils.code_indent(dedent(f"""\
+            layout_comment(f"""\
                 {name}.append({listable_example_item})
-                """))
+                """, is_code=True)
             +
-            dedent(f"""\
+            layout_comment(f"""\
 
                 which results in {appended_list}
 
                 """)
             +
-            dedent("""\
+            layout_comment("""\
 
                 If you want to add multiple items at once, .extend() is useful.
 
@@ -80,45 +81,45 @@ def list_overview(block_dets):
 
                 """)
             +
-            utils.code_indent(dedent(f"""\
+            layout_comment(f"""\
                 {name}.extend({items2extend})
-                """))
+                """, is_code=True)
             +
-            dedent(f"""\
+            layout_comment(f"""\
 
                 which results in {extended_list}
 
                 """)
             +
-            dedent("""\
+            layout_comment("""\
    
                 GOTCHA: if you are adding tuples to your list it is easy to
                 forget the nested parentheses. E.g.
 
                 """)
             +
-            utils.code_indent(dedent(f"""\
+            layout_comment(f"""\
 
                 coordinates.append((x, y))  ## Correct
 
                 coordinates.append(x, y)  ## Oops - append only takes one item not two
 
-                """))
+                """, is_code=True)
             +
-            dedent("""\
+            layout_comment("""\
 
                 Lists can also be added together e.g.
 
                 """)
             +
-            utils.code_indent(dedent(f"""\
+            layout_comment(f"""\
                 friends = {friends}
                 family = {family}
                 guests = friends + family
 
-                """))
+                """, is_code=True)
             +
-            dedent(f"""\
+            layout_comment(f"""\
    
                 resulting in {guests}
 
@@ -127,14 +128,14 @@ def list_overview(block_dets):
 
                 """)
             +
-            utils.code_indent(dedent(f"""\
+            layout_comment(f"""\
                 workmate = 'Carl'
                 guests = {friends} + {family} + workmate  ## Oops - can only add lists
                 guests = {friends} + {family} + [workmate]  ## That's better
 
-                """))
+                """, is_code=True)
             +
-            dedent(f"""\
+            layout_comment(f"""\
 
                 resulting in {guests + ['Carl']}
 
@@ -157,12 +158,12 @@ def mixed_list_types(block_dets):
         ## No explanation needed if there aren't multiple types.
         return None
     message = {
-        conf.BRIEF: dedent(f"""
+        conf.BRIEF: layout_comment(f"""
             #### Mix of different data types in list
             `{name}` contains more than one data type -
             which is probably a bad idea.
             """),
-        conf.MAIN: dedent(f"""
+        conf.MAIN: layout_comment(f"""
             #### Mix of different data types in list
             `{name}` contains more than one data type -
             which is probably a bad idea. The data types found were:

@@ -1,7 +1,6 @@
-from textwrap import dedent
-
 from ..advisors import type_block_advisor
 from .. import ast_funcs, code_execution, conf, utils
+from ..utils import layout_comment
 
 @type_block_advisor(element_type=conf.TUPLE_ELEMENT_TYPE,
     xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
@@ -51,7 +50,9 @@ def tuple_overview(block_dets):
     original_guests = (friends, family)
     guests = (friends + ['Lenny'], family)
     message = {
-        conf.BRIEF: dedent(f"""\
+        conf.BRIEF: layout_comment(f"""\
+            ##### Tuple Overview
+
             `{name}` is a tuple with {utils.int2nice(len(my_tuple))} items.
 
             Tuples are like lists but the items inside cannot be replaced,
@@ -63,7 +64,9 @@ def tuple_overview(block_dets):
             Tuples have an order, and can contain duplicate items and items of
             different types (usually not advisable).
             """),
-        conf.MAIN: dedent(f"""\
+        conf.MAIN: layout_comment(f"""\
+            ##### Tuple Overview
+
             `{name}` is a tuple with {utils.int2nice(len(my_tuple))} items.
 
             Tuples are like lists but they are immutable.
@@ -80,7 +83,7 @@ def tuple_overview(block_dets):
             different types (usually not advisable).
             """),
         conf.EXTRA: (
-            dedent(f"""\
+            layout_comment(f"""\
 
                 ##### GOTCHA - immutable means 100% unchangeable right?
 
@@ -92,14 +95,14 @@ def tuple_overview(block_dets):
 
                 """)
             +
-            utils.code_indent(dedent(f"""\
+            layout_comment(f"""\
                 friends = {friends}
                 family = {family}
                 guests = (friends, family)
 
-                """))
+                """, is_code=True)
             +
-            dedent(f"""\
+            layout_comment(f"""\
 
                 `guests` is now {original_guests}. And because `guests` is
                 immutable we can't add, remove, or replace its items. But look
@@ -108,12 +111,12 @@ def tuple_overview(block_dets):
 
                 """)
             +
-            utils.code_indent(dedent(f"""\
+            layout_comment(f"""\
                 friends.append('Lenny')
 
-                """))
+                """, is_code=True)
             +
-            dedent(f"""\
+            layout_comment(f"""\
 
                 `guests` is now {guests}. An immutable data structure has
                 changed! In reality it is the references to individual items
@@ -142,16 +145,16 @@ def tuple_overview(block_dets):
 
                 """)
             +
-            utils.code_indent(dedent(f"""\
+            layout_comment(f"""\
 
                 from collections import namedtuple
                 Coord = namedtuple('Coordinate', 'x, y')
                 coord = Coord(-37, 174)
                 print(coord)
                 # >>> Coordinate(x=-37, y=174))
-                """))
+                """, is_code=True)
             +
-            dedent(f"""\
+            layout_comment(f"""\
 
                 ##### "Tupple" vs "Toople"
 

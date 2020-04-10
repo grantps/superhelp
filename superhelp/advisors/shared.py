@@ -1,6 +1,6 @@
 from textwrap import dedent
 
-from ..utils import code_indent
+from ..utils import layout_comment
 
 UNPACKING_COMMENT = (
     dedent(f"""\
@@ -9,7 +9,7 @@ UNPACKING_COMMENT = (
 
         """)
     +
-    code_indent(dedent(f"""\
+    layout_comment(f"""\
         ##### Un-pythonic :-(
 
         location = (-37, 174, 'Auckland', 'Mt Albert')
@@ -20,9 +20,9 @@ UNPACKING_COMMENT = (
 
         ##### Pythonic :-)
         lat, lon, city, suburb = location
-        """))
+        """, is_code=True)
     +
-    dedent(f"""\
+    layout_comment(f"""\
 
         If you don't need all the values you can indicate which you want
         to ignore or even mop up multiple unused values into a single
@@ -32,38 +32,38 @@ UNPACKING_COMMENT = (
 
         """)
     +
-    code_indent(dedent(f"""\
+    layout_comment(f"""\
         lat, lon, _city, _suburb = location
-        """))
+        """, is_code=True)
     +
-    dedent(f"""\
+    layout_comment(f"""\
 
         or:
 
         """)
     +
-    code_indent(dedent(f"""\
+    layout_comment(f"""\
         lat, lon, *_ = location
-        """))
+        """, is_code=True)
     +
-    dedent(f"""\
+    layout_comment(f"""\
 
         or:
 
         """)
     +
-    code_indent(dedent(f"""\
+    layout_comment(f"""\
         lat, lon, *unused = location
-        """))
+        """, is_code=True)
     +
-    dedent(f"""\
+    layout_comment(f"""\
 
         Note - unused, in this case, would be ['Auckland', 'Mt Albert']
 
         """)
 )
 
-GENERAL_COMPREHENSION_COMMENT = dedent(f"""\
+GENERAL_COMPREHENSION_COMMENT = layout_comment(f"""\
     Comprehensions are one the great things about Python. To see why,
     have a look at Raymond Hettinger's classic talk "Transforming Code
     into Beautiful, Idiomatic Python"
@@ -79,180 +79,165 @@ GENERAL_COMPREHENSION_COMMENT = dedent(f"""\
     """)
 
 LIST_COMPREHENSION_COMMENT = (
-    dedent("""\
-    ##### Example List Comprehension:
-    """)
+    layout_comment("""\
+        ##### Example List Comprehension:
+        """)
     +
-    code_indent(
-    dedent(f"""\
+    layout_comment(f"""\
         names_lengths = [
             len(name)
             for name in ['Tinky Winky', 'Dipsy', 'La La', 'Po']
         ]
+        """, is_code=True)
+    +
+    layout_comment("""\
+
+        produces an ordinary list:
+
         """)
-    )
     +
-    dedent("""\
-
-    produces an ordinary list:
-
-    """)
-    +
-    dedent(str(
+    layout_comment(str(
         {
             len(name)
             for name in ['Tinky Winky', 'Dipsy', 'La La', 'Po']
         }
-    ))
+        ))
     +
-    dedent("""\
+    layout_comment("""\
 
+        It is also possible to add a simple filter using `if`
 
-    It is also possible to add a simple filter using `if`
-
-    """)
+        """)
     +
-    code_indent(
-    dedent(f"""\
+    layout_comment(f"""\
         names_lengths = [
             len(name)
             for name in ['Tinky Winky', 'Dipsy', 'La La', 'Po']
             if not name.startswith('T')
         ]
+        """, is_code=True)
+    +
+    layout_comment("""\
+
+        produces an ordinary list:
+
         """)
-    )
     +
-    dedent("""\
-
-    produces an ordinary list:
-
-    """)
-    +
-    dedent(str(
+    layout_comment(str(
         {
             len(name)
             for name in ['Tinky Winky', 'Dipsy', 'La La', 'Po']
             if not name.startswith('T')
         }
-    ))
+        ))
 )
 
 DICT_COMPREHENSION_COMMENT = (
-    dedent("""\
+    layout_comment("""\
     ##### Example Dictionary Comprehension:
     """)
     +
-    code_indent(
-        dedent(f"""\
-            country2capital = {{
-                country: capital
-                for country, capital in [('NZ', 'Wellington'), ('Italy', 'Rome')]
-            }}
-            """)
-    )
+    layout_comment(f"""\
+        country2capital = {{
+            country: capital
+            for country, capital in [('NZ', 'Wellington'), ('Italy', 'Rome')]
+        }}
+        """, is_code=True)
     +
-    dedent("""\
+    layout_comment("""\
 
-    produces an ordinary dictionary:
+        produces an ordinary dictionary:
 
-    """)
+        """)
     +
-    dedent(str(
+    layout_comment(str(
         {
             country: capital
             for country, capital
             in [('NZ', 'Wellington'), ('Italy', 'Rome')]
         }
-    ))
+        ))
     +
-    dedent("""\
+    layout_comment("""\
 
+        It is also possible to add a simple filter using `if`
 
-    It is also possible to add a simple filter using `if`
-
-    """)
+        """)
     +
-    code_indent(
-        dedent(f"""\
-            country2capital = {{
-                country: capital
-                for country, capital in [('NZ', 'Wellington'), ('Italy', 'Rome')]
-                if country == 'NZ'
-            }}
-            """)
-    )
+    layout_comment(f"""\
+        country2capital = {{
+            country: capital
+            for country, capital in [('NZ', 'Wellington'), ('Italy', 'Rome')]
+            if country == 'NZ'
+        }}
+        """, is_code=True)
     +
-    dedent("""\
+    layout_comment("""\
 
-    produces an ordinary dictionary:
+        produces an ordinary dictionary:
 
-    """)
+        """)
     +
-    dedent(str(
+    layout_comment(str(
         {
             country: capital
             for country, capital
             in [('NZ', 'Wellington'), ('Italy', 'Rome')]
             if country == 'NZ'
         }
-    ))
+        ))
 )
 
 SET_COMPREHENSION_COMMENT = (
-    dedent("""\
-    ##### Example Set Comprehension
-    """)
+    layout_comment("""\
+        ##### Example Set Comprehension
+        """)
     +
-    code_indent(
-        dedent(f"""\
-            pets = {{
-                pet for _person, pet
-                in [('Rachel', 'cat'), ('Elliot', 'goat'), ('Giles', 'cat'),]
-            }}
-            """)
-    )
+    layout_comment(f"""\
+        pets = {{
+            pet for _person, pet
+            in [('Rachel', 'cat'), ('Elliot', 'goat'), ('Giles', 'cat'),]
+        }}
+        """, is_code=True)
     +
-    dedent("""\
+    layout_comment("""\
 
-    produces an ordinary set (i.e. unique members only):
+        produces an ordinary set (i.e. unique members only):
 
-    """)
+        """)
     +
-    dedent(str(
+    layout_comment(str(
         {
             pet for _person, pet
                 in [('Rachel', 'cat'), ('Elliot', 'goat'), ('Giles', 'cat'),]
         }
-    ))
+        ))
     +
-    dedent("""\
+    layout_comment("""\
 
+        It is also possible to add a simple filter using `if`
 
-    It is also possible to add a simple filter using `if`
-
-    """)
+        """)
     +
-    code_indent(
-        dedent(f"""\
-            pets = {{
-                pet for person, pet
-                in [('Rachel', 'cat'), ('Elliot', 'goat'), ('Giles', 'cat'),]
-                if person != 'Elliot'
-            }}
-            """)
-    )
+    layout_comment(f"""\
+        pets = {{
+            pet for person, pet
+            in [('Rachel', 'cat'), ('Elliot', 'goat'), ('Giles', 'cat'),]
+            if person != 'Elliot'
+        }}
+        """, is_code=True)
     +
-    dedent("""\
+    layout_comment("""\
 
-    produces an ordinary set (i.e. unique members only):
+        produces an ordinary set (i.e. unique members only):
 
-    """)
+        """)
     +
-    dedent(str(
+    layout_comment(str(
         {
             pet for person, pet
                 in [('Rachel', 'cat'), ('Elliot', 'goat'), ('Giles', 'cat'),]
                 if person != 'Elliot'
         }
-    ))
+        ))
 )

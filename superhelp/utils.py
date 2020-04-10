@@ -1,3 +1,5 @@
+from textwrap import dedent
+
 from . import conf
 
 def get_nice_str_list(items, *, quoter='`'):
@@ -21,7 +23,7 @@ def int2nice(num):
     :rtype: str
     """
     nice = {
-        0: 'zero',
+        0: 'no',
         1: 'one',
         2: 'two',
         3: 'three',
@@ -37,7 +39,15 @@ def int2nice(num):
     }
     return nice.get(num, num)
 
-def code_indent(text):
-    lines = [conf.PYTHON_CODE_START] + text.split('\n') + [conf.PYTHON_CODE_END]
-    indented_lines = [f"{' ' * 4}{line}" for line in lines]
-    return f'\n'.join(indented_lines)
+def layout_comment(raw_comment, *, is_code=False):
+    if is_code:
+        lines = (
+            [conf.PYTHON_CODE_START]
+            + dedent(raw_comment).split('\n')
+            + [conf.PYTHON_CODE_END]
+        )
+        indented_lines = [f"{' ' * 4}{line}" for line in lines]
+        comment = f'\n'.join(indented_lines)
+    else:
+        comment = dedent(raw_comment)
+    return comment

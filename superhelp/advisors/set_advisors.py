@@ -2,6 +2,7 @@ from textwrap import dedent
 
 from ..advisors import type_block_advisor
 from .. import ast_funcs, code_execution, conf, utils
+from ..utils import layout_comment
 
 @type_block_advisor(element_type=conf.FUNC_ELEMENT_TYPE,
     xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE_CALL)
@@ -32,10 +33,10 @@ def set_overview(block_dets):
 
             """)
             +
-            utils.code_indent(dedent(f"""\
+            layout_comment(f"""\
                 {name}.add({set_item})
                 ## >>> {my_set}
-                """))
+                """, is_code=True)
         )
     else:
         brief_comment = dedent(f"""\
@@ -56,12 +57,12 @@ def set_overview(block_dets):
             For example:
         """)
         +
-        utils.code_indent(dedent("""\
+        layout_comment("""\
             people = set(['Sam', 'Avi', 'Terri', 'Noor', 'Hyeji'])
             no_email = set(['Sam', 'Terri'])
             people2email = people - no_email
             ## >>> {'Noor', 'Hyeji', 'Avi'}
-            """))
+            """, is_code=True)
         )
     message = {
         conf.BRIEF: brief_comment,
@@ -83,7 +84,7 @@ def set_overview(block_dets):
                 - the list simply repeats the item. For example:
                 """)
             +
-            utils.code_indent(dedent("""\
+            layout_comment("""\
                 my_list = [1, 2, 3]
                 my_list.append(4)
                 my_list.append(4)
@@ -94,7 +95,7 @@ def set_overview(block_dets):
                 my_set.add(4)
                 my_set.add(4)
                 ## >>> {1, 2, 3, 4}
-                """))
+                """, is_code=True)
         ),
         conf.EXTRA: (
             dedent("""\
@@ -108,13 +109,13 @@ def set_overview(block_dets):
                 '|' not '+'.
                 """)
             +
-            utils.code_indent(dedent("""\
+            layout_comment("""\
                 badminton_players = set(['Grant', 'Charlotte', 'Aravind'])
                 tennis_players = set(['Giles', 'Grant'])
                 squash_players = set(['Grzegorz'])
                 racquet_players = badminton_players | tennis_players | squash_players
                 ## >>> {'Grzegorz', 'Giles', 'Grant', 'Aravind', 'Charlotte'}
-                """))
+                """, is_code=True)
         )
     }
     return message

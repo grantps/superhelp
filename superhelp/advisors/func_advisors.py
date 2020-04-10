@@ -1,7 +1,6 @@
-from textwrap import dedent
-
 from ..advisors import type_block_advisor
 from .. import code_execution, conf, utils
+from ..utils import layout_comment
 
 def get_func_name(element):
     """
@@ -80,10 +79,10 @@ def func_overview(block_dets):
     arg_comment = _get_arg_comment(block_dets)
     exit_comment = _get_exit_comment(block_dets)
     message = {
-        conf.BRIEF: dedent(f"""\
+        conf.BRIEF: layout_comment(f"""\
             The function named `{name}` {arg_comment}. {exit_comment}.
             """),
-        conf.EXTRA: dedent(f"""\
+        conf.EXTRA: layout_comment(f"""\
             There is often confusion about the difference between arguments and
             parameters. Functions define parameters but receive arguments. You
             can think of parameters as being like car parks and arguments as the
@@ -101,7 +100,7 @@ def func_len_check(block_dets):
     if crude_loc <= conf.MAX_BRIEF_FUNC_LOC:
         return None
     message = {
-        conf.BRIEF: dedent(f"""\
+        conf.BRIEF: layout_comment(f"""\
             #### Function possibly too long
 
             `{name}` has {utils.int2nice(crude_loc)} lines of code
@@ -126,7 +125,7 @@ def func_excess_parameters(block_dets):
     if n_args <= conf.MAX_BRIEF_FUNC_ARGS:
         return None
     message = {
-        conf.BRIEF: dedent(f"""\
+        conf.BRIEF: layout_comment(f"""\
             #### Possibly too many function parameters
 
             `{name}` has {n_args:,} parameters. Sometimes it is OK for a
@@ -135,7 +134,7 @@ def func_excess_parameters(block_dets):
             instead of receiving image size arguments separately perhaps you
             could receive a dictionary of image size argument details.
             """),
-        conf.MAIN: dedent(f"""\
+        conf.MAIN: layout_comment(f"""\
             #### Possibly too many function parameters
 
             `{name}` has {n_args:,} parameters. Sometimes it is OK for a
@@ -181,7 +180,7 @@ def positional_boolean(block_dets):
         f"{arg} - {danger_status}"
         for arg, danger_status in args_and_danger_statuses])
     brief_message = (
-        dedent(f"""\
+        layout_comment(f"""\
             #### Risky positional arguments expected
 
             Functions which expect numbers or booleans (True/False) without
@@ -201,13 +200,12 @@ def positional_boolean(block_dets):
 
             """)
         +
-        utils.code_indent(dedent(f"""\
+        layout_comment(f"""\
             def greeting(name, *, formal=False):
                 ...
-            """)
-        )
+            """, is_code=True)
         +
-        dedent(f"""\
+        layout_comment(f"""\
 
             In this example you couldn't now call the function
             greeting('Jo', True) - it would need to be
@@ -216,7 +214,7 @@ def positional_boolean(block_dets):
     )
     message = {
         conf.BRIEF: brief_message,
-        conf.EXTRA: dedent(f"""\
+        conf.EXTRA: layout_comment(f"""\
             Putting an asterisk in the parameters has the effect of forcing all
             parameters to the right to be keyword parameters because the
             asterisk mops up any remaining positional arguments supplied
@@ -236,7 +234,7 @@ def docstring_issues(block_dets):
     """
     name = get_func_name(block_dets.element)
     docstring = code_execution.get_docstring(block_dets.block_code_str, name)
-    example_docstring = utils.code_indent(dedent(f'''\
+    example_docstring = layout_comment(f'''\
         def greet(name, *, formal=False):
             """
             Get a greeting for the supplied person with the appropriate
@@ -252,10 +250,10 @@ def docstring_issues(block_dets):
             else:
                 greeting = f"Hello {{name}}"
             return greeting
-        '''))
+        ''', is_code=True)
     if docstring is None:
         comment = (
-            dedent(f"""\
+            layout_comment(f"""\
                 #### Function missing doc string
 
                 `{name}` lacks a doc string - you should probably add one.
@@ -281,14 +279,14 @@ def docstring_issues(block_dets):
         too_short = n_doc_lines < (conf.MIN_BRIEF_DOCSTRING + n_args)
         if too_short:
             comment = (
-                dedent("""\
+                layout_comment("""\
                     #### Function doc string too brief?
 
                     Your doc string seems a little short given the number
                     of parameters. You might want to rework it.
                     Here is an example using one of several valid formats:
 
-                """)
+                    """)
                 +
                 example_docstring
             )
