@@ -1,7 +1,7 @@
 from textwrap import dedent
 
-from advisors import type_block_advisor
-import ast_funcs, code_execution, conf, utils
+from ..advisors import type_block_advisor
+from .. import ast_funcs, code_execution, conf, utils
 
 def get_item_type_names(items):
     item_type_names = sorted(set(

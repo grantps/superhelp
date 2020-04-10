@@ -1,6 +1,6 @@
 import ast
 
-import conf
+from . import conf
 
 def get_assigned_name(element):
     """

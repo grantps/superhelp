@@ -4,8 +4,9 @@ from collections import namedtuple
 
 import astpath  # @UnresolvedImport
 
-import advisors, ast_funcs, conf  # @UnresolvedImport
-from displayers import cli_displayer, html_displayer  # @UnresolvedImport
+## importing from superhelp only works properly after I've installed superhelp as a pip package (albeit as a link to this code using python3 -m pip install --user -e <path_to_proj_folder>)
+from superhelp import advisors, ast_funcs, conf  # @UnresolvedImport
+from superhelp.displayers import cli_displayer, html_displayer  # @UnresolvedImport
 
 advisors.load_advisors()
 

@@ -1,7 +1,7 @@
 from textwrap import dedent
 
-from advisors import type_block_advisor
-import ast_funcs, code_execution, conf
+from ..advisors import type_block_advisor
+from .. import ast_funcs, code_execution, conf
 
 def int_message(name, val):
     message = {

@@ -1,6 +1,6 @@
 from textwrap import dedent
 
-from utils import code_indent
+from ..utils import code_indent
 
 UNPACKING_COMMENT = (
     dedent(f"""\

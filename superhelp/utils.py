@@ -1,4 +1,4 @@
-import conf
+from . import conf
 
 def get_nice_str_list(items, *, quoter='`'):
     """

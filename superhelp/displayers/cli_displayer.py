@@ -1,12 +1,12 @@
 from textwrap import dedent
 
-import mdv_fixed as mdv
+from superhelp import mdv_fixed as mdv
 
 """
 Note - displays properly in the terminal but not necessarily in other output
 """
 
-import conf
+from .. import conf
 
 TERMINAL_WIDTH = 220
 

@@ -2,20 +2,24 @@ from pathlib import Path  #@UnresovedImport
 from textwrap import dedent, indent
 import webbrowser
 
-import conf
+import superhelp
 
-from markdown import markdown  ## https://coderbook.com/@marcus/how-to-render-markdown-syntax-as-html-using-python/
+from .. import conf
+
+from markdown import markdown  ## https://coderbook.com/@marcus/how-to-render-markdown-syntax-as-html-using-python/ @UnresolvedImport
 
 MESSAGE_TYPE2CLASS = {
     message_type: f"help help-{message_type}"
     for message_type in conf.MESSAGE_TYPES}
+
+cwd = Path(superhelp.__file__).parents[0]
 
 HTML_WRAPPER = """\
 <!DOCTYPE html>
 <html lang="en">
 {head}
 <body>
-<img src='superhelp_logo.svg' float='left' width=70px>
+<img src='{cwd}/superhelp_logo.svg' float='left' width=70px>
 <h1>SuperHELP - Help for Humans!</h1>
 <p>Help is provided for each line of your snippet.
 Toggle between different levels of detail.</p>
@@ -330,7 +334,8 @@ def display(snippet, overall_messages_dets, block_messages_dets, *,
         overall_messages_dets, block_messages_dets)
     body_inner = '\n'.join(all_html_strs)
     html2write = HTML_WRAPPER.format(
-        head=HTML_HEAD, radio_buttons=radio_buttons, body_inner=body_inner,
+        head=HTML_HEAD, cwd=cwd,
+        radio_buttons=radio_buttons, body_inner=body_inner,
         visibility_script=VISIBILITY_SCRIPT)
     explained_fpath = Path.cwd() / 'explained.html'
     with open(explained_fpath, 'w') as f:

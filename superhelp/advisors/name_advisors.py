@@ -1,7 +1,7 @@
 from textwrap import dedent
 
-from advisors import any_block_advisor
-import conf, utils
+from ..advisors import any_block_advisor
+from .. import conf, utils
 
 def _get_shamed_names_comment(shamed_names):
     multiple_shamed_names = len(shamed_names) > 1

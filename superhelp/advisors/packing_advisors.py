@@ -1,8 +1,8 @@
 from collections import defaultdict
 from textwrap import dedent
 
-from advisors import shared, snippet_advisor, type_block_advisor
-import conf, utils
+from ..advisors import shared, snippet_advisor, type_block_advisor
+from .. import conf, utils
 
 @type_block_advisor(element_type=conf.TUPLE_ELEMENT_TYPE,
     xml_root='body/Assign/targets')

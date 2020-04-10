@@ -1,7 +1,7 @@
 from textwrap import dedent
 
-from advisors import type_block_advisor
-import code_execution, conf, utils
+from ..advisors import type_block_advisor
+from .. import code_execution, conf, utils
 
 def get_func_name(element):
     """

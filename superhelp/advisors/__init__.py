@@ -42,7 +42,7 @@ from pkgutil import iter_modules
 import sys
 from textwrap import dedent
 
-import conf
+from .. import conf
 
 TYPE_BLOCK_ADVISORS = []  ## block-based advisors which only apply to blocks filtered to contain specified element types
 
