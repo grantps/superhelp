@@ -48,11 +48,11 @@ def display(snippet, overall_messages_dets, block_messages_dets, *,
     for message_dets in overall_messages_dets:
         message = get_message(message_dets, message_level)
         text.append(message)
-    block_messages_dets.sort(key=lambda nt: (nt.line_no))
+    block_messages_dets.sort(key=lambda nt: (nt.first_line_no))
     prev_line_no = None
     for message_dets in block_messages_dets:
         ## display code for line number (once ;-))
-        line_no = message_dets.line_no
+        line_no = message_dets.first_line_no
         if line_no != prev_line_no:
             text.append(mdv.main(f'{LONG_LINE}\n## Line {line_no:,}'))
             text.append(mdv.main(dedent(

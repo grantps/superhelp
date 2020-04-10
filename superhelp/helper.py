@@ -199,7 +199,7 @@ if __name__ == '__main__':
         description='Superhelp - Help for Humans!')
     ## don't use type=list ever https://stackoverflow.com/questions/15753701/argparse-option-for-passing-a-list-as-option
     parser.add_argument('-d', '--displayer', type=str,
-        required=False, default='html',
+        required=False, default='cli',
         help="Where do you want your help shown? html, cli, etc")
     parser.add_argument('-l', '--level', type=str,
         required=False, default='Extra',
