@@ -100,13 +100,7 @@ STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 
 TEST_SNIPPET = """\
-import datetime
-from math import pi as π
-phrase = "His age is %i" % 21
-mixedTypes = [
-    datetime.datetime.strptime('2020-02-10', '%Y-%m-%d'),
-    π, 5, 1.234, 'Noor', False,
-]
+
 """
 
 DEMO_SNIPPET = """\
@@ -155,4 +149,24 @@ elif len_word > 20:
 #     status = 'typical'
 if len('chicken') > 2:
     print('cluck!')
+phrase = "His age is %i" % 21
+
+fruit = ['banana']
+try:
+    lunch = fruit[100]
+except (IndexError, TypeError):
+    print("No lunch for you!")
+except Exception as e:
+    print(f"Unknown error - details: {e}")
+
+try:
+    float('boat')
+except ValueError:
+    print("You can't float a boat! Only a number of some sort!")
+
+try:
+    names[100]
+except Exception:
+    print(names)
+
 """

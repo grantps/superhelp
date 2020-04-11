@@ -14,7 +14,9 @@ def get_nice_str_list(items, *, quoter='`'):
     """
     nice_str_list = ', '.join(
         [f"{quoter}{item}{quoter}" for item in items[:-1]])
-    nice_str_list += f" and {quoter}{items[-1]}{quoter}"
+    if nice_str_list:
+        nice_str_list += " and "
+    nice_str_list += f"{quoter}{items[-1]}{quoter}"
     return nice_str_list
 
 def int2nice(num):
