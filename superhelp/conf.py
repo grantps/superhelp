@@ -33,6 +33,7 @@ FOR_ELEMENT_TYPE = 'For'
 IF_ELEMENT_TYPE = 'If'
 FUNC_DEF_ELEMENT_TYPE = 'FunctionDef'
 SUBSCRIPT_ELEMENT_TYPE = 'Subscript'
+ATTRIBUTE_ELEMENT_TYPE = 'Attribute'
 
 INT_TYPE = 'int'
 FLOAT_TYPE = 'float'
@@ -169,4 +170,6 @@ try:
 except Exception:
     print(names)
 
+sorted_names = sorted(names)
+faulty_val = names.sort()
 """

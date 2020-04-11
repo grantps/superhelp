@@ -49,7 +49,7 @@ def layout_comment(raw_comment, *, is_code=False):
             + [conf.PYTHON_CODE_END]
         )
         indented_lines = [f"{' ' * 4}{line}" for line in lines]
-        comment = f'\n'.join(indented_lines)
+        comment = f'\n'.join(indented_lines) + '\n'  ## new line at end needed otherwise content of next str (if any) becomes part of code highlighting
     else:
         comment = dedent(raw_comment)
     return comment

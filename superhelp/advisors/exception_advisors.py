@@ -1,7 +1,6 @@
 from ..advisors import snippet_advisor
 from .. import conf
 from ..utils import get_nice_str_list, int2nice, layout_comment
-from build.lib.superhelp.conf import BRIEF
 
 UNSPECIFIC_EXCEPTION = 'Exception'
 
