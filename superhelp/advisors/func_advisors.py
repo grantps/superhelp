@@ -1,4 +1,7 @@
-from ..advisors import type_block_advisor
+import builtins
+import keyword
+
+from ..advisors import filt_block_advisor
 from .. import code_execution, conf, utils
 from ..utils import layout_comment
 
@@ -11,16 +14,44 @@ def get_func_name(element):
     return name
 
 def _get_arg_comment(block_dets):
+    """
+    Must cope with positional arguments, keyword arguments, keyword-only
+    arguments, packed positional arguments, and packed keyword arguments.
+    Trivial really ;-).
+
+    Comment should end without a full stop because calling code adds that to
+    make the sentence structure more explicit.
+    """
     args = block_dets.element.xpath('args/arguments/args/arg')
+    vararg = block_dets.element.xpath('args/arguments/vararg/arg')
+    kwarg = block_dets.element.xpath('args/arguments/kwarg/arg')
     kwonlyargs = block_dets.element.xpath('args/arguments/kwonlyargs/arg')
-    all_args_n = len(args + kwonlyargs)
-    if all_args_n:
-        nice_n_args = utils.int2nice(all_args_n)
-        arg_comment = (f"receives {nice_n_args} argument")
-        if all_args_n > 1:
-            arg_comment += 's'
+    has_packing = (vararg or kwarg)
+    if has_packing:
+        arg_comment = 'receives a variable number of arguments'
+        if vararg:
+            vararg_name = vararg[0].get('arg')
+            arg_comment += (". All positional arguments received are packed "
+                f"together into a list called {vararg_name} "
+                f"using the \*{vararg_name} syntax. If there is no better name"
+                " in a particular case the Python convention is to call that "
+                "list 'args'")
+        if kwarg:
+            kwarg_name = kwarg[0].get('arg')
+            arg_comment += (". All keyword arguments received are packed "
+                f"together into a dictionary called {kwarg_name} "
+                f"using the \*\*{kwarg_name} syntax. If there is no better name"
+                " in a particular case the Python convention is to call that "
+                "dictionary 'kwargs'")
     else:
-        arg_comment = "doesn't take any arguments"
+        all_args_n = len(args + kwonlyargs)
+        if all_args_n:
+            nice_n_args = utils.int2nice(all_args_n)
+            arg_comment = (f"receives {nice_n_args} argument")
+            if all_args_n > 1:
+                arg_comment += 's'
+        else:
+            arg_comment = "doesn't take any arguments"
     return arg_comment
 
 def _get_return_comment(return_elements):
@@ -41,10 +72,11 @@ def _get_return_comment(return_elements):
                 val_returns_n += 1
     keyword_returns_n = none_returns_n + val_returns_n + implicit_returns_n
     if not keyword_returns_n:
-        returns_comment = (f"It does not explicitly return anything. "
-            "In which case it implicitly returns None")
+        returns_comment = (f"The function does not explicitly return anything. "
+            "In which case, in Python, it implicitly returns None")
     else:
-        returns_comment = (f"It exits via an explicit returns statement "
+        returns_comment = (
+            f"The function exits via an explicit `return` statement "
             f"{utils.int2nice(keyword_returns_n)} time")
         if keyword_returns_n > 1:
             returns_comment += ("s. Some people prefer functions to have one, "
@@ -64,7 +96,7 @@ def _get_exit_comment(block_dets):
     yield_elements = block_dets.element.xpath('descendant-or-self::Yield')
     if yield_elements:
         if return_elements:
-            exit_comment = (f"It has both return and yield. "
+            exit_comment = (f"It has both `return` and `yield`. "
                 "That probably doesn't make any sense.")
         else:
             exit_comment = f"It is a generator function."
@@ -72,8 +104,7 @@ def _get_exit_comment(block_dets):
         exit_comment = _get_return_comment(return_elements)
     return exit_comment
 
-@type_block_advisor(element_type=conf.FUNC_DEF_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY)
+@filt_block_advisor(xpath='body/FunctionDef')
 def func_overview(block_dets):
     name = get_func_name(block_dets.element)
     arg_comment = _get_arg_comment(block_dets)
@@ -92,8 +123,7 @@ def func_overview(block_dets):
     }
     return message
 
-@type_block_advisor(element_type=conf.FUNC_DEF_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY, warning=True)
+@filt_block_advisor(xpath='body/FunctionDef', warning=True)
 def func_len_check(block_dets):
     name = get_func_name(block_dets.element)
     crude_loc = len(block_dets.block_code_str.split('\n'))
@@ -111,14 +141,35 @@ def func_len_check(block_dets):
     }
     return message
 
+def is_reserved_name(name):
+    is_reserved = name in set(keyword.kwlist + dir(builtins) + conf.STD_LIBS)
+    return is_reserved
+
+@filt_block_advisor(xpath='body/FunctionDef', warning=True)
+def func_name_check(block_dets):
+    name = get_func_name(block_dets.element)
+    reserved_name = is_reserved_name(name)
+    if not reserved_name:
+        return None
+    message = {
+        conf.BRIEF: layout_comment(f"""\
+            #### Function name clashes with a reserved Python name
+
+            Naming your function `{name}` is a bad idea as it will replace a
+            reserved Python name. Reserved names can be keywords such as
+            `False`, builtins such as `any`, or standard library module names
+            such as `random`.
+            """)
+    }
+    return message
+
 def get_n_args(block_dets):
     arg_els = block_dets.element.xpath('args/arguments/args')
     kwonlyarg_els = block_dets.element.xpath('args/arguments/kwonlyargs')
     n_args = len(arg_els + kwonlyarg_els)
     return n_args
 
-@type_block_advisor(element_type=conf.FUNC_DEF_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY, warning=True)
+@filt_block_advisor(xpath='body/FunctionDef', warning=True)
 def func_excess_parameters(block_dets):
     name = get_func_name(block_dets.element)
     n_args = get_n_args(block_dets)
@@ -146,8 +197,7 @@ def func_excess_parameters(block_dets):
     }
     return message
 
-@type_block_advisor(element_type=conf.FUNC_DEF_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY, warning=True)
+@filt_block_advisor(xpath='body/FunctionDef', warning=True)
 def positional_boolean(block_dets):
     """
     Defaults apply from the rightmost backwards (within their group - either
@@ -226,8 +276,7 @@ def positional_boolean(block_dets):
     }
     return message
 
-@type_block_advisor(element_type=conf.FUNC_DEF_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY, warning=True)
+@filt_block_advisor(xpath='body/FunctionDef', warning=True)
 def docstring_issues(block_dets):
     """
     No doc string, not enough lines to cover params, return etc.

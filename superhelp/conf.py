@@ -14,32 +14,13 @@ ANON_NAME = 'Anonymous'
 
 AST_OUTPUT_XML = 'ast_output.xml'
 
-## don't include trailing slash (unless you don't want matches ;-))
-XML_ROOT_BODY = 'body'
-XML_ROOT_BODY_ASSIGN_VALUE = 'body/Assign/value'  ## where assignment to names occurs e.g. name = value; or age = 21
-XML_ROOT_BODY_ASSIGN_VALUE_CALL = 'body/Assign/value/Call'
-## To see what elements are named look in AST_OUTPUT_XML
-## e.g. <For lineno="3" col_offset="0"> is "For"
-LIST_ELEMENT_TYPE = 'List'
-LISTCOMP_ELEMENT_TYPE = 'ListComp'
-TUPLE_ELEMENT_TYPE = 'Tuple'
-SET_ELEMENT_TYPE = 'Set'
-DICT_ELEMENT_TYPE = 'Dict'
-NUM_ELEMENT_TYPE = 'Num'
-STR_ELEMENT_TYPE = 'Str'
-JOINED_STR_ELEMENT_TYPE = 'JoinedStr'
-FUNC_ELEMENT_TYPE = 'func'  ## not a function definition - .format() is called via func in AST
-FOR_ELEMENT_TYPE = 'For'
-IF_ELEMENT_TYPE = 'If'
-FUNC_DEF_ELEMENT_TYPE = 'FunctionDef'
-SUBSCRIPT_ELEMENT_TYPE = 'Subscript'
-ATTRIBUTE_ELEMENT_TYPE = 'Attribute'
-
 INT_TYPE = 'int'
 FLOAT_TYPE = 'float'
 STR_TYPE = 'str'
 DATETIME_TYPE = 'datetime'
 BOOLEAN_TYPE = 'bool'
+LIST_TYPE = 'list'
+DICT_TYPE = 'dict'
 TUPLE_TYPE = 'tuple'
 
 TYPE2NAME = {
@@ -48,10 +29,12 @@ TYPE2NAME = {
     STR_TYPE: 'string',
     DATETIME_TYPE: 'datetime object',
     BOOLEAN_TYPE: 'boolean',
+    LIST_TYPE: 'list',
+    DICT_TYPE: 'dict',
     TUPLE_TYPE: 'tuple',
 }
 
-EXAMPLES_OF_TYPES = {
+EXAMPLES_OF_TYPES = {  ## best to include at least three so we have enough to append one and from what is left extend multiple
     INT_TYPE: [123, 9, 17, 20, 100, 2020, 16],
     FLOAT_TYPE: [1.2345, 0.667, 0.1, 0.001, 10.0],
     STR_TYPE: ['apple', 'banana', 'kiwifruit', 'Auckland, New Zealand'],
@@ -60,6 +43,9 @@ EXAMPLES_OF_TYPES = {
         datetime.date(1066, 10, 14),
         datetime.datetime.today(), ],
     BOOLEAN_TYPE: [True, False],
+    LIST_TYPE: [[10, 2], [-3, 20], [44, -180]],
+    DICT_TYPE: [{'x': 10, 'y': 2}, {'x': -3, 'y': 20}, {'x': 44, 'y': -180}],
+    TUPLE_TYPE: [(10, 2), (-3, 20), (44, -180)],
 }
 
 MAX_BRIEF_FUNC_LOC = 35
@@ -101,7 +87,15 @@ STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 
 TEST_SNIPPET = """\
-
+## modified and given more problems and features, from https://stackoverflow.com/questions/61154079/sorting-using-list-built-in-method-and-user-defined-function-sorts-the-list-with
+def sorted(*G, **kwargs):
+    for i in range(len(G)):
+        for j in range(1,len(G)):
+            if G[j-1]<G[j]:
+                G[j-1],G[j]=G[j],G[j-1]
+G = [['Ahmad', 3.8], ['Rizwan', 3.68], ['Bilal', 3.9]]
+sorted(G)
+print(G)
 """
 
 DEMO_SNIPPET = """\
@@ -172,4 +166,14 @@ except Exception:
 
 sorted_names = sorted(names)
 faulty_val = names.sort()
+
+## modified and given more problems and features, from https://stackoverflow.com/questions/61154079/sorting-using-list-built-in-method-and-user-defined-function-sorts-the-list-with
+def sorted(*G, **kwargs):
+    for i in range(len(G)):
+        for j in range(1,len(G)):
+            if G[j-1]<G[j]:
+                G[j-1],G[j]=G[j],G[j-1]
+G = [['Ahmad', 3.8], ['Rizwan', 3.68], ['Bilal', 3.9]]
+sorted(G)
+print(G)
 """

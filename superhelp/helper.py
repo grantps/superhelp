@@ -91,14 +91,13 @@ def get_ancestor_block_element(element):
 
 def get_filtered_blocks_dets(advisor_dets, xml, blocks_dets, *, debug=False):
     """
-    Identify source block elements for matching element types. Then filter
+    Identify source block elements according to xpath supplied. Then filter
     blocks_dets accordingly.
 
     :return: filtered_blocks_dets
     :rtype: list
     """
-    xml_path = f"{advisor_dets.xml_root}/{advisor_dets.element_type}"
-    matching_elements = xml.xpath(xml_path)
+    matching_elements = xml.xpath(advisor_dets.xpath)
     if debug:
         if matching_elements:
             print(f"{advisor_dets.advisor_name} had at least one match")
@@ -115,7 +114,7 @@ def get_filtered_blocks_dets(advisor_dets, xml, blocks_dets, *, debug=False):
             print(f"{advisor_dets.advisor_name} had no blocks")
     return filtered_blocks_dets
 
-def get_messages_dets_from_blocks(blocks_dets, xml):
+def get_messages_dets_from_blocks(blocks_dets, xml, *, debug=False):
     """
     For each advisor, get advice on every relevant block. Element type specific
     advisors process filtered blocks_dets; all block advisors process all blocks
@@ -123,13 +122,18 @@ def get_messages_dets_from_blocks(blocks_dets, xml):
     """
     messages_dets = []
     all_advisors_dets = (
-        advisors.TYPE_BLOCK_ADVISORS + advisors.ANY_BLOCK_ADVISORS)
+        advisors.FILT_BLOCK_ADVISORS + advisors.ANY_BLOCK_ADVISORS)
     for advisor_dets in all_advisors_dets:
-        type_filtering = hasattr(advisor_dets, 'xml_root')
-        if type_filtering:
+        if debug:
+            print(f"About to process '{advisor_dets.advisor_name}'")
+        element_filtering = hasattr(advisor_dets, 'xpath')
+        if element_filtering:
             filtered_blocks_dets = get_filtered_blocks_dets(
-                advisor_dets, xml, blocks_dets)
+                advisor_dets, xml, blocks_dets, debug=debug)
             blocks_dets2use = filtered_blocks_dets
+            if debug:
+                print(f"'{advisor_dets.advisor_name}' has element filtering "
+                    f"for {len(blocks_dets2use)} matching blocks")
         else:  ## no filtering by element type so process all blocks
             blocks_dets2use = blocks_dets
         for block_dets in blocks_dets2use:

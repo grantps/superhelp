@@ -1,11 +1,10 @@
 from textwrap import dedent
 
-from ..advisors import type_block_advisor
+from ..advisors import filt_block_advisor
 from .. import ast_funcs, code_execution, conf, utils
 from ..utils import layout_comment
 
-@type_block_advisor(element_type=conf.FUNC_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE_CALL)
+@filt_block_advisor(xpath='body/Assign/value/Call/func')
 def set_overview(block_dets):
     el = block_dets.element
     name = ast_funcs.get_assigned_name(el)

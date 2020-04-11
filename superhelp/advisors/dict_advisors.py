@@ -1,9 +1,8 @@
-from ..advisors import type_block_advisor
+from ..advisors import filt_block_advisor
 from .. import ast_funcs, code_execution, conf, utils
 from ..utils import layout_comment
 
-@type_block_advisor(element_type=conf.DICT_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
+@filt_block_advisor(xpath='body/Assign/value/Dict')
 def dict_overview(block_dets):
     name = ast_funcs.get_assigned_name(block_dets.element)
     items = code_execution.get_val(
@@ -96,9 +95,7 @@ def get_key_type_names(items):
         for key_type in key_type_names]
     return key_type_names, key_type_nice_names
 
-@type_block_advisor(
-    element_type=conf.DICT_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE, warning=True)
+@filt_block_advisor(xpath='body/Assign/value/Dict', warning=True)
 def mixed_list_types(block_dets):
     """
     Warns about dictionaries with mix of string and integer keys.

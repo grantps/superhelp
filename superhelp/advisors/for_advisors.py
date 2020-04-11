@@ -1,9 +1,9 @@
 from textwrap import dedent
 
-from ..advisors import shared, type_block_advisor
+from ..advisors import shared, filt_block_advisor
 from .. import conf
 
-@type_block_advisor(element_type=conf.FOR_ELEMENT_TYPE, xml_root='..')
+@filt_block_advisor(xpath='body/For')
 def for_overview(block_dets):  #@UnusedVariable (Ctrl 1 to identify what to suppress)
     """
     Don't try to properly understand the for loop or make a built comprehension.

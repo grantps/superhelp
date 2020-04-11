@@ -9,7 +9,11 @@ def _get_exception_block_comment(exception_block):
     comment = f"The following exception handlers were detected: {handlers}"
     return comment
 
-def _get_exception_blocks(blocks_dets):
+def get_exception_blocks(blocks_dets):
+    """
+    There can be multiple try-except statements in a snippet so we have to
+    handle each of them.
+    """
     exception_blocks = []
     for block_dets in blocks_dets:
         block_exception_types = []
@@ -27,7 +31,7 @@ def _get_exception_blocks(blocks_dets):
 
 @snippet_advisor()
 def exception_overview(blocks_dets):
-    exception_blocks = _get_exception_blocks(blocks_dets)
+    exception_blocks = get_exception_blocks(blocks_dets)
     if not exception_blocks:
         return None
     brief_comment = ''
@@ -46,7 +50,7 @@ def exception_overview(blocks_dets):
 
 @snippet_advisor(warning=True)
 def unspecific_exception(blocks_dets):
-    exception_blocks = _get_exception_blocks(blocks_dets)
+    exception_blocks = get_exception_blocks(blocks_dets)
     if not exception_blocks:
         return None
     brief_comment = ''

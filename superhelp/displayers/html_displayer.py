@@ -312,7 +312,8 @@ def _get_all_html_strs(snippet, overall_messages_dets, block_messages_dets):
         ## display code for line number (once ;-)) Each line might have one or more messages but it will always have the one code_str starting on that line
         line_no = message_dets.first_line_no
         if line_no != prev_line_no:
-            all_html_strs.append(f'<h2>Line {line_no:,}</h2>')
+            all_html_strs.append(
+                f'<h2>Code block starting line {line_no:,}</h2>')
             block_code_str = indent(
                 f"{conf.MD_PYTHON_CODE_START}\n{message_dets.code_str}",
                 ' '*4)

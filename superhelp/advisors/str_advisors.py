@@ -1,4 +1,4 @@
-from ..advisors import any_block_advisor, type_block_advisor
+from ..advisors import any_block_advisor, filt_block_advisor
 from .. import ast_funcs, code_execution, conf, utils
 from ..utils import layout_comment
 
@@ -7,8 +7,7 @@ STR_FORMAT_FUNC = 'str_format'
 SPRINTF = 'sprintf'
 STR_ADDITION = 'string addition'
 
-@type_block_advisor(element_type=conf.STR_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
+@filt_block_advisor(xpath='body/Assign/value/Str')
 def str_overview(block_dets):
     name = ast_funcs.get_assigned_name(block_dets.element)
     if not name:
@@ -134,13 +133,11 @@ def str_combination(combination_type, block_dets):
         )
     return message
 
-@type_block_advisor(element_type=conf.JOINED_STR_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
+@filt_block_advisor(xpath='body/Assign/value/JoinedStr')
 def f_str_interpolation(block_dets):
     return str_combination(F_STR, block_dets)
 
-@type_block_advisor(element_type=conf.FUNC_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE_CALL)
+@filt_block_advisor(xpath='body/Assign/value/Call/func')
 def format_str_interpolation(block_dets):
     try:
         was_a_format_func = (

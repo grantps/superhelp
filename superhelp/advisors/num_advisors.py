@@ -1,6 +1,6 @@
 from textwrap import dedent
 
-from ..advisors import type_block_advisor
+from ..advisors import filt_block_advisor
 from .. import ast_funcs, code_execution, conf
 
 def int_message(name, val):
@@ -41,8 +41,7 @@ TYPE2FUNC = {
     conf.FLOAT_TYPE: float_message,
 }
 
-@type_block_advisor(element_type=conf.NUM_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
+@filt_block_advisor(xpath='body/Assign/value/Num')
 def num_overview(block_dets):
     name = ast_funcs.get_assigned_name(block_dets.element)
     if not name:

@@ -1,10 +1,9 @@
 from textwrap import dedent
 
-from ..advisors import shared, type_block_advisor
+from ..advisors import shared, filt_block_advisor
 from .. import ast_funcs, code_execution, conf, utils
 
-@type_block_advisor(element_type=conf.LISTCOMP_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
+@filt_block_advisor(xpath='body/Assign/value/ListComp')
 def listcomp_overview(block_dets):
     name = ast_funcs.get_assigned_name(block_dets.element)
     items = code_execution.get_val(

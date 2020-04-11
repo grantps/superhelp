@@ -1,6 +1,6 @@
 from textwrap import dedent
 
-from ..advisors import type_block_advisor
+from ..advisors import filt_block_advisor
 from .. import ast_funcs, code_execution, conf, utils
 from ..utils import layout_comment
 
@@ -15,8 +15,7 @@ def get_item_type_names(items):
 
 ## only interested in lists when being assigned as a value
 ## (i.e. <body><Assign><value><List> so we're looking for List under value only)
-@type_block_advisor(element_type=conf.LIST_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE)
+@filt_block_advisor(xpath='body/Assign/value/List')
 def list_overview(block_dets):
     name = ast_funcs.get_assigned_name(block_dets.element)
     items = code_execution.get_val(
@@ -26,7 +25,10 @@ def list_overview(block_dets):
         type4example = item_type_names.pop()
     except IndexError:
         type4example = conf.STR_TYPE
-    example_items = conf.EXAMPLES_OF_TYPES[type4example]
+    try:
+        example_items = conf.EXAMPLES_OF_TYPES[type4example]
+    except KeyError:
+        example_items = conf.EXAMPLES_OF_TYPES[conf.STR_TYPE]
     example_item = example_items[0]
     listable_example_item = (
         f"'{example_item}'" if type4example == conf.STR_TYPE else example_item)
@@ -144,8 +146,7 @@ def list_overview(block_dets):
     }
     return message
 
-@type_block_advisor(element_type=conf.LIST_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY_ASSIGN_VALUE, warning=True)
+@filt_block_advisor(xpath='body/Assign/value/List', warning=True)
 def mixed_list_types(block_dets):
     """
     Warns about lists containing a mix of data types.

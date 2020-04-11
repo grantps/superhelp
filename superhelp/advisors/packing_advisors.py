@@ -1,11 +1,10 @@
 from collections import defaultdict
 from textwrap import dedent
 
-from ..advisors import shared, snippet_advisor, type_block_advisor
+from ..advisors import shared, snippet_advisor, filt_block_advisor
 from .. import conf, utils
 
-@type_block_advisor(element_type=conf.TUPLE_ELEMENT_TYPE,
-    xml_root='body/Assign/targets')
+@filt_block_advisor(xpath='body/Assign/targets/Tuple')
 def unpacking(block_dets):
     """
     x, y = coord

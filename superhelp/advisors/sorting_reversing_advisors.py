@@ -1,45 +1,64 @@
-from ..advisors import any_block_advisor, type_block_advisor
+from ..advisors import any_block_advisor, filt_block_advisor
 
 from ..ast_funcs import get_assigned_name
 from .. import conf
 from ..utils import layout_comment
 
-def _get_has_sorting_or_reversing(code_str):
-    sort_or_reverse_patterns = ['.sort(', 'sorted(', 'reversed(']
-    has_sorting_or_reversing = False
-    for pattern in sort_or_reverse_patterns:
-        if pattern in code_str:
-            has_sorting_or_reversing = True
-            break
-    return has_sorting_or_reversing
+def _get_sorting_or_reversing_comment(block_dets):
+    """
+    Get a comment on any sorting or reversing identified.
+
+    :return: string describing type of reversing/sorting or None
+    :rtype: str
+    """
+    element = block_dets.element
+    comment = None
+    func_attr_els = element.xpath('descendant-or-self::Call/func/Attribute')
+    sort_els = [func_attr_el for func_attr_el in func_attr_els
+        if func_attr_el.get('attr') == 'sort']
+    func_name_els = element.xpath('descendant-or-self::Call/func/Name')
+    sorted_els = [func_name_el for func_name_el in func_name_els
+        if func_name_el.get('id') == 'sorted']
+    reversed_els = [func_name_el for func_name_el in func_name_els
+        if func_name_el.get('id') == 'reversed']
+    if sort_els:
+        comment = "has list sorting (`.sort()`)"
+    if comment and (sorted_els or reversed_els):
+        comment = ' and ' + comment
+    if sorted_els and reversed_els:
+        comment = "uses both the `sorted` and `reversed` functions"
+    elif sorted_els:
+        comment = "uses the `sorted` function"
+    elif reversed_els:
+        comment = "uses the `reversed` function"
+    return comment
 
 @any_block_advisor()
 def sorting_reversing_overview(block_dets):
-    code_str = block_dets.block_code_str
-    has_sorting_or_reversing = _get_has_sorting_or_reversing(code_str)
-    if not has_sorting_or_reversing:
+    sorting_or_reversing_comment = _get_sorting_or_reversing_comment(block_dets)
+    if not sorting_or_reversing_comment:
         return None
     message = {
-        conf.BRIEF: layout_comment("""\
+        conf.BRIEF: layout_comment(f"""\
             #### Sorting / reversing
 
-            This block of code has sorting or reversing. Sorting and, to a
+            This block of code {sorting_or_reversing_comment}. Sorting and, to a
             lesser extent, reversing are very common needs in programming. Two
             key points:
 
-            1) reversing is not the same as sorting with reverse=True
+            1) reversing is not the same as sorting with `reverse=True`
 
-            2) the list sort method e.g. my_list.sort() returns None, not the sorted list
+            2) the list sort method e.g. my_list.`sort()` returns `None`, not the sorted list
             """),
         conf.MAIN: (
-            layout_comment("""\
+            layout_comment(f"""\
                 #### Sorting / reversing
 
-                This block of code has sorting or reversing. Sorting and, to a
-                lesser extent, reversing are very common needs in programming. Two
-                key points:
+                This block of code {sorting_or_reversing_comment}. Sorting and,
+                to a lesser extent, reversing are very common needs in
+                programming. Two key points:
     
-                1) reversing is not the same as sorting with reverse=True
+                1) reversing is not the same as sorting with `reverse=True`
 
                 To illustrate:
 
@@ -62,15 +81,15 @@ def sorting_reversing_overview(block_dets):
                 sequence being reversed - it merely flips the (possibly)
                 unordered sequence the other way.
 
-                2) the list sort method e.g. my_list.sort() returns None, not the sorted list
+                2) the list sort method e.g. `my_list.sort()` returns `None`, not the sorted list
 
-                sorted(my_list) returns a sorted list but my_list.sort() is an
-                in-place process. It mutates something rather than returning a
-                separate thing.
+                `sorted(my_list)` returns a sorted list but `my_list.sort()` is
+                an in-place process. It mutates something rather than returning
+                a separate thing.
 
                 To illustrate:
 
-                i) sorted() returning a result and leaving its input unchanged
+                i) `sorted()` returning a result and leaving its input unchanged
 
                 """)
             +
@@ -86,7 +105,7 @@ def sorting_reversing_overview(block_dets):
             +
             layout_comment("""\
 
-                ii) .sort() returning None and changing its input in-place
+                ii) `.sort()` returning `None` and changing its input in-place
 
                 """)
             +
@@ -103,8 +122,7 @@ def sorting_reversing_overview(block_dets):
     }
     return message
 
-@type_block_advisor(element_type=conf.ATTRIBUTE_ELEMENT_TYPE,
-    xml_root='body/Assign/value/Call/func', warning=True)
+@filt_block_advisor(xpath='body/Assign/value/Call/func/Attribute', warning=True)
 def list_sort_as_value(block_dets):
     element = block_dets.element
     func_attr_els = element.xpath('value/Call/func/Attribute')

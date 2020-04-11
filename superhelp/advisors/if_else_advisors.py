@@ -1,11 +1,16 @@
-from ..advisors import type_block_advisor
+from collections import namedtuple
+
+from ..advisors import filt_block_advisor
 from .. import conf
 from ..utils import int2nice, layout_comment
+
+IfDets = namedtuple('IfDetails',
+    'multiple_conditions, missing_else, if_clauses')
 
 ELIF = 'elif'
 ELSE = 'else'
 
-def add_if_details(if_element, if_details):
+def add_if_details(if_element, if_clauses):
     """
     If under our <If>s <orelse> we have another <If> store an 'elif' in if_details
     and send the <If> under <orelse> through again; otherwise store an 'else'
@@ -23,41 +28,61 @@ def add_if_details(if_element, if_details):
     except IndexError:
         has_elif = False
     if has_elif:
-        if_details.append(ELIF)
-        add_if_details(if_element_under_if, if_details)
+        if_clauses.append(ELIF)
+        add_if_details(if_element_under_if, if_clauses)
     else:
-        if_details.append(ELSE)
+        if_clauses.append(ELSE)
     return
 
-def get_if_details(block_dets):
-    if_element = block_dets.element
-    if_details = []
-    add_if_details(if_element, if_details)
-    multiple_conditions = bool(if_details)
-    if multiple_conditions:
-        last_sub_if = if_details[-1]
-        missing_else = (last_sub_if != ELSE)
-    else:
-        missing_else = False
-    return multiple_conditions, missing_else, if_details
-
-@type_block_advisor(element_type=conf.IF_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY)
-def if_else_overview(block_dets):
-    multiple_conditions, missing_else, if_details = get_if_details(block_dets)
-    if multiple_conditions:
-        n_elifs = if_details.count(ELIF)
-        brief_comment = (f"""\
-            Detected an `If` statement with {int2nice(n_elifs)} `elif` clauses
-            """)
-        if missing_else:
-            brief_comment += " and no `else` clause."
+def get_ifs_details(block_dets):
+    """
+    There can be multiple if statements in a snippet so we have to handle each
+    of them.
+    """
+    if_elements = block_dets.element.xpath('If')
+    ifs_details = []
+    for if_element in if_elements:
+        if_clauses = []
+        add_if_details(if_element, if_clauses)
+        multiple_conditions = bool(if_clauses)
+        if multiple_conditions:
+            last_sub_if = if_clauses[-1]
+            missing_else = (last_sub_if != ELSE)
         else:
-            brief_comment += " and an `else` clause."
-    else:
-        brief_comment = ("""\
-            Simple `If` statement detected.
-            """)
+            missing_else = False
+        ifs_details.append(IfDets(multiple_conditions, missing_else, if_clauses))
+    return ifs_details
+
+def _get_if_comment(ifs_details):
+    """
+    Have to cope with multiple if statements and make it nice (unnumbered) when
+    only one.
+    """
+    brief_comment = ''
+    for n, if_details in enumerate(ifs_details, 1):
+        counter = '' if len(ifs_details) == 1 else f" {int2nice(n)}"
+        if if_details.multiple_conditions:
+            n_elifs = if_details.if_clauses.count(ELIF)
+            brief_comment += (f"""\
+
+                `if` statement{counter} has {int2nice(n_elifs)} `elif`
+                clauses
+                """)
+            if if_details.missing_else:
+                brief_comment += " and no `else` clause."
+            else:
+                brief_comment += " and an `else` clause."
+        else:
+            brief_comment += (f"""\
+
+                `if` statement{counter} has no extra conditions.
+                """)
+    return brief_comment
+
+@filt_block_advisor(xpath='//If')
+def if_else_overview(block_dets):
+    ifs_details = get_ifs_details(block_dets)
+    brief_comment = _get_if_comment(ifs_details)
     message = {
         conf.BRIEF: (
             layout_comment(f"""\
@@ -104,31 +129,33 @@ def if_else_overview(block_dets):
     }
     return message
 
-@type_block_advisor(element_type=conf.IF_ELEMENT_TYPE,
-    xml_root=conf.XML_ROOT_BODY, warning=True)
+@filt_block_advisor(xpath='//If', warning=True)
 def missing_else(block_dets):
-    _multiple_conditions, missing_else, _if_details = get_if_details(block_dets)
-    if not missing_else:
+    ifs_details = get_ifs_details(block_dets)
+    brief_comment = ''
+    for n, if_details in enumerate(ifs_details, 1):
+        counter = '' if len(ifs_details) == 1 else f" {int2nice(n)}"
+        if if_details.missing_else:
+            brief_comment += (f"`if` block{counter} has `elif` clauses but "
+                "lacks an `else` clause. It is usually best to include an "
+                "`else` clause when there are `elif` clauses.")
+    if not brief_comment:
         return None
+    brief_comment = "#### Missing `else` clause\n\n" + brief_comment
     message = {
-        conf.BRIEF: layout_comment("""\
-            #### Missing else clause
-
-            It is almost best to include an else clause if there are elif
-            clauses.
-            """),
+        conf.BRIEF: layout_comment(brief_comment),
         conf.MAIN: (
+            layout_comment(brief_comment)
+            +
             layout_comment("""\
-                #### Missing else clause
 
-                It is almost best to include an `else` clause if there are
-                `elif` clauses. You may have left out the `else` because it is
-                currently impossible that this branch will ever be called. You
-                know that you can only receive the items currently handled by
-                the `elif`s so `else` can logically never be called. And that it
-                true - until it isn't later ;-) - for example, if the calling
-                code starts supplying more types of whatever is being evaluated
-                in the `elif`s. This problem happens surprisingly often and can
+                You may have left out the `else` because it is currently
+                impossible that this branch will ever be called. You know that
+                you can only receive the items currently handled by the `elif`s
+                so `else` can logically never be called. And that it true -
+                until it isn't later ;-) - for example, if the calling code
+                starts supplying more types of whatever is being evaluated in
+                the `elif`s. This problem happens surprisingly often and can
                 create nasty bugs that are hard to trace. If you add an `else`
                 clause that raises an exception you will instantly know if the
                 expected conditions for your conditional are breached and
