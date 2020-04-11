@@ -213,17 +213,28 @@ def superhelp(snippet, *,
         raise Exception("Sorry Dave - I can't help you with that")
 
 if __name__ == '__main__':
+
+    t = True
+    f = False
+
+    do_displayer = t
+    do_html = t
+    do_test = t
+
+    default_displayer = 'html' if do_html else 'cli'
+    default_snippet = conf.TEST_SNIPPET if do_test else conf.DEMO_SNIPPET
+
     parser = argparse.ArgumentParser(
         description='Superhelp - Help for Humans!')
     ## don't use type=list ever https://stackoverflow.com/questions/15753701/argparse-option-for-passing-a-list-as-option
     parser.add_argument('-d', '--displayer', type=str,
-        required=False, default='html',
+        required=False, default=default_displayer,
         help="Where do you want your help shown? html, cli, etc")
     parser.add_argument('-l', '--level', type=str,
         required=False, default='Extra',
         help="What level of help do you want? Brief, Main, or Extra?")
     parser.add_argument('-s', '--snippet', type=str,
-        required=False, default=conf.DEMO_SNIPPET,
+        required=False, default=default_snippet,
         help="Supply a brief snippet of Python code")
     args = parser.parse_args()
     snippet = args.snippet
@@ -231,12 +242,6 @@ if __name__ == '__main__':
         'html': html_displayer,
         'cli': cli_displayer,
     }
-
-    t = True
-    f = False
-
-    do_displayer = t
-
     displayer = ARG2DISPLAYER[args.displayer] if do_displayer else None
     message_level = args.level
     superhelp(snippet, displayer=displayer, message_level=message_level,

@@ -120,7 +120,7 @@ def missing_else(block_dets):
         conf.MAIN: (
             layout_comment("""\
                 #### Missing else clause
-    
+
                 It is almost best to include an `else` clause if there are
                 `elif` clauses. You may have left out the `else` because it is
                 currently impossible that this branch will ever be called. You
@@ -133,9 +133,9 @@ def missing_else(block_dets):
                 clause that raises an exception you will instantly know if the
                 expected conditions for your conditional are breached and
                 exactly what to fix.
-    
+
                 For example:
-    
+
                 """)
             +
             layout_comment("""\

@@ -152,29 +152,23 @@ def format_str_interpolation(block_dets):
         return None
     return str_combination(STR_FORMAT_FUNC, block_dets)
 
-@any_block_advisor()
-def sprintf(block_dets):
-    code_str = block_dets.block_code_str
+def _get_has_sprintf_format_specifiers(block_dets):
+    block_code_str = block_dets.block_code_str
     conversion_types = ['d', 'i', 'o', 'u', 'x', 'X', 'e', 'E', 'f', 'F',
         'g', 'G', 'c', 'r', 's', 'a', '%']  ## https://docs.python.org/3/library/stdtypes.html#old-string-formatting
     format_specifiers = [
         f"%{conversion_type}" for conversion_type in conversion_types ]
-    
-    
-    
-    
-    
-    
-    ## TODO: distinguish between evidence of sprintf and datetime.datetime.strptime('2020-02-10', '%Y-%m-%d') etc
-    has_sprintf = any(
-        [format_specifier in code_str
+    has_sprintf_format_specifiers = any(
+        [format_specifier in block_code_str
          for format_specifier in format_specifiers])
-    
-    
-    
-    
-    
-    
+    return has_sprintf_format_specifiers
+
+@any_block_advisor()
+def sprintf(block_dets):
+    has_str_modification = bool(block_dets.element.xpath('value/BinOp/op/Mod'))
+    has_sprintf_format_specifiers = _get_has_sprintf_format_specifiers(
+        block_dets)
+    has_sprintf = has_str_modification and has_sprintf_format_specifiers
     if not has_sprintf:
         return None
     return str_combination(SPRINTF, block_dets)
