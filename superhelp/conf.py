@@ -87,10 +87,8 @@ STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 
 TEST_SNIPPET = """\
-from collections import namedtuple
-PersonDets = namedtuple('PersonDetails', 'name, age, sex')
-PetDets = namedtuple('PetDetails', 'name, age, species')
-personName = 'Grant'
+arr = [(5,5), (6,7)]
+listOfFirstItems, listOfSecondItems = zip(*arr)
 """
 
 DEMO_SNIPPET = """\

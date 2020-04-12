@@ -53,13 +53,21 @@ def get_relevant_assigned_names(block_dets):
         assigned_names.append(name)
     return assigned_names
 
+def get_unpacked_names(block_dets):
+    unpacked_name_els = block_dets.element.xpath(
+        'descendant-or-self::Assign/targets/Tuple/elts/Name')
+    unpacked_names = [unpacked_name_el.get('id')
+        for unpacked_name_el in unpacked_name_els]
+    return unpacked_names
+
 @any_block_advisor(warning=True)
 def name_style_check(block_dets):
     assigned_names = get_relevant_assigned_names(block_dets)
+    unpacked_names = get_unpacked_names(block_dets)
     def_func_elements = block_dets.element.xpath(
         'descendant-or-self::FunctionDef')
     def_func_names = [name_el.get('name') for name_el in def_func_elements]
-    names = assigned_names + def_func_names
+    names = assigned_names + unpacked_names + def_func_names
     bad_names = []
     dubious_names = []
     for name in names:

@@ -15,7 +15,7 @@ def unpacking(block_dets):
     nice_str_list = utils.get_nice_str_list(unpacked_names, quoter='`')
     message = {
         conf.BRIEF: dedent(f"""\
-            Your code uses unpacking to assign names from {nice_str_list}
+            Your code uses unpacking to assign names {nice_str_list}
             """),
         conf.EXTRA: shared.UNPACKING_COMMENT,
     }
