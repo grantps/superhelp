@@ -1,4 +1,9 @@
 import datetime
+import logging
+
+LOG_LEVEL = logging.DEBUG
+DEV_MODE = LOG_LEVEL == logging.DEBUG
+AST_OUTPUT_XML = 'ast_output.xml'
 
 PYTHON_CODE_START = '__python_code_start__'
 PYTHON_CODE_END = '__python_code_end__'
@@ -12,7 +17,6 @@ MESSAGE_TYPES = [BRIEF, MAIN, EXTRA]
 
 ANON_NAME = 'Anonymous'
 
-AST_OUTPUT_XML = 'ast_output.xml'
 
 INT_TYPE = 'int'
 FLOAT_TYPE = 'float'

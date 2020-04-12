@@ -1,13 +1,19 @@
 import argparse
 import ast
 from collections import namedtuple
+import logging
+from superhelp import conf
+logging.basicConfig(
+    level=conf.LOG_LEVEL,
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S')
 
 import astpath  # @UnresolvedImport
 
 ## importing from superhelp only works properly after I've installed superhelp as a pip package (albeit as a link to this code using python3 -m pip install --user -e <path_to_proj_folder>)
 ## Using this as a library etc works with . instead of superhelp but I want to be be able to run the helper module from within my IDE
-from superhelp import advisors, ast_funcs, conf  # @UnresolvedImport
-from superhelp.displayers import cli_displayer, html_displayer  # @UnresolvedImport
+from superhelp import advisors, ast_funcs
+from superhelp.displayers import cli_displayer, html_displayer
 
 advisors.load_advisors()
 
@@ -89,7 +95,7 @@ def get_ancestor_block_element(element):
     ancestor_block_element = ancestor_elements[2]  ## [0] will be Module, 1 is body, and blocks are the children of body
     return ancestor_block_element
 
-def get_filtered_blocks_dets(advisor_dets, xml, blocks_dets, *, debug=False):
+def get_filtered_blocks_dets(advisor_dets, xml, blocks_dets):
     """
     Identify source block elements according to xpath supplied. Then filter
     blocks_dets accordingly.
@@ -98,23 +104,21 @@ def get_filtered_blocks_dets(advisor_dets, xml, blocks_dets, *, debug=False):
     :rtype: list
     """
     matching_elements = xml.xpath(advisor_dets.xpath)
-    if debug:
-        if matching_elements:
-            print(f"{advisor_dets.advisor_name} had at least one match")
-        else:
-            print(f"{advisor_dets.advisor_name} had no matches")
+    if matching_elements:
+        logging.debug(f"{advisor_dets.advisor_name} had at least one match")
+    else:
+        logging.debug(f"{advisor_dets.advisor_name} had no matches")
     filt_block_elements = set(
         [get_ancestor_block_element(element) for element in matching_elements])
     filtered_blocks_dets = [block_dets for block_dets in blocks_dets
         if block_dets.element in filt_block_elements]
-    if debug:
-        if filtered_blocks_dets:
-            print(f"{advisor_dets.advisor_name} had at least one block")
-        else:
-            print(f"{advisor_dets.advisor_name} had no blocks")
+    if filtered_blocks_dets:
+        logging.debug(f"{advisor_dets.advisor_name} had at least one block")
+    else:
+        logging.debug(f"{advisor_dets.advisor_name} had no blocks")
     return filtered_blocks_dets
 
-def get_messages_dets_from_blocks(blocks_dets, xml, *, debug=False):
+def get_messages_dets_from_blocks(blocks_dets, xml):
     """
     For each advisor, get advice on every relevant block. Element type specific
     advisors process filtered blocks_dets; all block advisors process all blocks
@@ -124,16 +128,15 @@ def get_messages_dets_from_blocks(blocks_dets, xml, *, debug=False):
     all_advisors_dets = (
         advisors.FILT_BLOCK_ADVISORS + advisors.ANY_BLOCK_ADVISORS)
     for advisor_dets in all_advisors_dets:
-        if debug:
-            print(f"About to process '{advisor_dets.advisor_name}'")
+        logging.debug(f"About to process '{advisor_dets.advisor_name}'")
         element_filtering = hasattr(advisor_dets, 'xpath')
         if element_filtering:
             filtered_blocks_dets = get_filtered_blocks_dets(
-                advisor_dets, xml, blocks_dets, debug=debug)
+                advisor_dets, xml, blocks_dets)
             blocks_dets2use = filtered_blocks_dets
-            if debug:
-                print(f"'{advisor_dets.advisor_name}' has element filtering "
-                    f"for {len(blocks_dets2use)} matching blocks")
+            logging.debug(
+                f"'{advisor_dets.advisor_name}' has element filtering for "
+                f"{len(blocks_dets2use)} matching blocks")
         else:  ## no filtering by element type so process all blocks
             blocks_dets2use = blocks_dets
         for block_dets in blocks_dets2use:
@@ -164,7 +167,7 @@ def get_messages_dets_from_xml(xml, snippet):
     messages_dets.extend(messages_dets_from_snippet)
     return messages_dets
 
-def get_messages_dets(snippet, *, debug=False):
+def get_messages_dets(snippet):
     """
     Break snippet up into syntactical parts and blocks of code.
     Apply matching advisor functions and get message details.
@@ -177,7 +180,7 @@ def get_messages_dets(snippet, *, debug=False):
     tree = get_tree(snippet)
     ast_funcs.check_tree(tree)
     xml = astpath.asts.convert_to_xml(tree)
-    if debug:
+    if conf.DEV_MODE:
         xml.getroottree().write(conf.AST_OUTPUT_XML, pretty_print=True)
     messages_dets = get_messages_dets_from_xml(xml, snippet)
     if None in messages_dets:
@@ -199,18 +202,16 @@ def display_messages(displayer, snippet, messages_dets, *,
         message_level=conf.BRIEF):
     displayer.display(snippet, messages_dets, message_level=message_level)
 
-def superhelp(snippet, *,
-        displayer=None, message_level=conf.BRIEF, debug=False):
+def superhelp(snippet, *, displayer=None, message_level=conf.BRIEF):
     """
     Provide advice about the snippet supplied
 
-    :param bool debug: when True generates pretty-printed AST as XML file. Very
-     useful for working out how to find elements of interest in AST
-     (look in conf.AST_OUTPUT_XML after a run). Using
-     https://python-ast-explorer.com/ is another option
+    :param str snippet: snippet of valid Python code to provide advice on
+    :param str displayer: displayer to use e.g. 'html' or 'cli'
+    :param str message_level: e.g. conf.BRIEF
     """
     try:
-        messages_dets = get_messages_dets(snippet, debug=debug)
+        messages_dets = get_messages_dets(snippet)
         if displayer is None:
             print("Display is currently suppressed - please supply a displayer "
                 "if you want advice displayed")
@@ -252,5 +253,4 @@ if __name__ == '__main__':
     }
     displayer = ARG2DISPLAYER[args.displayer] if do_displayer else None
     message_level = args.level
-    superhelp(snippet, displayer=displayer, message_level=message_level,
-        debug=True)
+    superhelp(snippet, displayer=displayer, message_level=message_level)
