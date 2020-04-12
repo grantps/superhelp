@@ -11,34 +11,32 @@ def dict_overview(block_dets):
         return None
     message = {
         conf.BRIEF: layout_comment(f"""
-            Dictionaries map keys to values.
-            `{name}` is a dictionary with {utils.int2nice(len(items))}
-            items (i.e. {utils.int2nice(len(items))} mappings)
+            Dictionaries map keys to values. `{name}` is a dictionary with
+            {utils.int2nice(len(items))} items (i.e.
+            {utils.int2nice(len(items))} mappings)
 
             Keys are unique but values can be repeated.
 
-            Dictionaries, along with lists, are the workhorses of Python
-            data structures.
+            Dictionaries, along with lists, are the workhorses of Python data
+            structures.
             """),
         conf.MAIN: (
             layout_comment(f"""
                 Dictionaries, along with lists, are the workhorses of Python
                 data structures.
 
-                Dictionaries map keys to values.
-                `{name}` is a dictionary with {utils.int2nice(len(items))}
-                items (i.e. {utils.int2nice(len(items))} mappings)
+                Dictionaries map keys to values. `{name}` is a dictionary with
+                {utils.int2nice(len(items))} items (i.e.
+                {utils.int2nice(len(items))} mappings)
 
-                In this case, the keys are: {list(items.keys())}
-                (we can get the keys using the .keys() method
-                e.g. `{name}`.keys())
-                and the values are {list(items.values())}
-                (we can get the values using the .values() method
-                e.g. `{name}`.values())
+                In this case, the keys are: {list(items.keys())} (we can get the
+                keys using the .keys() method e.g. `{name}`.keys()) and the
+                values are {list(items.values())} (we can get the values using
+                the .values() method e.g. `{name}`.values())
 
                 It is common to iterate through the key-value pairs of a
-                dictionary.
-                This can be achieved using the dictionary's .items() method. E.g.
+                dictionary. This can be achieved using the dictionary's .items()
+                method. E.g.
 
                 """)
             +
@@ -111,13 +109,15 @@ def mixed_list_types(block_dets):
     message = {
         conf.BRIEF: layout_comment(f"""
             #### Mix of integer and string keys in dictionary
-            `{name}`'s keys include both strings and integers
-            which is probably a bad idea.
+
+            `{name}`'s keys include both strings and integers which is probably
+            a bad idea.
             """),
         conf.MAIN: layout_comment(f"""
             #### Mix of integer and string keys in dictionary
-            `{name}`'s keys include both strings and integers
-            which is probably a bad idea.
+
+            `{name}`'s keys include both strings and integers which is probably
+            a bad idea.
 
             For example, if you have both 1 and "1" as keys in a dictionary
             (which is allowed because they are not the same key) it is very easy

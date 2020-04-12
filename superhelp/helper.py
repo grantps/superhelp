@@ -148,7 +148,7 @@ def get_messages_dets_from_snippet(snippet, blocks_dets):
     messages_dets = []
     for advisor_dets in advisors.SNIPPET_ADVISORS:
         message_dets = get_message_dets_from_input(advisor_dets, blocks_dets,
-                snippet, first_line_no=None)
+            snippet, first_line_no=None)
         if message_dets:
             messages_dets.append(message_dets)
     return messages_dets
@@ -168,6 +168,11 @@ def get_messages_dets(snippet, *, debug=False):
     """
     Break snippet up into syntactical parts and blocks of code.
     Apply matching advisor functions and get message details.
+
+    :param str snippet: code snippet
+    :return: a tuple of two MessageDets lists
+     (overall_messages_dets, block_messages_dets) or None if no messages
+    :rtype: tuple (or None)
     """
     tree = get_tree(snippet)
     ast_funcs.check_tree(tree)
@@ -185,13 +190,14 @@ def get_messages_dets(snippet, *, debug=False):
             overall_messages_dets.append(message_dets)
         else:
             block_messages_dets.append(message_dets)
-    return overall_messages_dets, block_messages_dets
+    if overall_messages_dets or block_messages_dets:
+        return overall_messages_dets, block_messages_dets
+    else:
+        return None
 
-def display_messages(displayer, snippet,
-        overall_messages_dets, block_messages_dets, *,
+def display_messages(displayer, snippet, messages_dets, *,
         message_level=conf.BRIEF):
-    displayer.display(snippet, overall_messages_dets, block_messages_dets,
-        message_level=message_level)
+    displayer.display(snippet, messages_dets, message_level=message_level)
 
 def superhelp(snippet, *,
         displayer=None, message_level=conf.BRIEF, debug=False):
@@ -204,14 +210,12 @@ def superhelp(snippet, *,
      https://python-ast-explorer.com/ is another option
     """
     try:
-        overall_messages_dets, block_messages_dets = get_messages_dets(
-            snippet, debug=debug)
+        messages_dets = get_messages_dets(snippet, debug=debug)
         if displayer is None:
             print("Display is currently suppressed - please supply a displayer "
                 "if you want advice displayed")
         else:
-            display_messages(displayer, snippet,
-                overall_messages_dets, block_messages_dets,
+            display_messages(displayer, snippet, messages_dets,
                 message_level=message_level)
     except Exception:
         raise Exception("Sorry Dave - I can't help you with that")
@@ -221,7 +225,7 @@ if __name__ == '__main__':
     t = True
     f = False
 
-    do_test = t
+    do_test = f
     do_html = t
     do_displayer = t
 

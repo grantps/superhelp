@@ -124,21 +124,20 @@ def tuple_overview(block_dets):
 
                 ##### Named tuples
 
-                Tuples are a light-weight way of defining and storing data.
-                It is easier, for example, to write `coord` = (-37, 174)
-                than it is to write `coord` = {{'lat': -37, 'lon': 174}}.
-                But it can be risky consuming data from tuples in later code
-                if the order or number of items changes.
-                What if the tuples you are processing change
-                from (lat, lon) to (lon, lat)?
-                References to coord[0] would have changed meaning without it
-                being obvious. There can be a high risk of bugs.
+                Tuples are a light-weight way of defining and storing data. It
+                is easier, for example, to write `coord` = (-37, 174) than it is
+                to write `coord` = {{'lat': -37, 'lon': 174}}. But it can be
+                risky consuming data from tuples in later code if the order or
+                number of items changes. What if the tuples you are processing
+                change from (lat, lon) to (lon, lat)? References to coord[0]
+                would have changed meaning without it being obvious. There can
+                be a high risk of bugs.
 
                 Named tuples retain the light-weight advantages of plain vanilla
                 tuples but enable us to use a dot notation to reference internal
-                items e.g. house_lat = coord.lat.
-                Named tuples also contain information on their contents when
-                printed / logged which can make debugging much easier.
+                items e.g. house_lat = coord.lat. Named tuples also contain
+                information on their contents when printed / logged which can
+                make debugging much easier.
 
                 Example syntax:
 
@@ -157,10 +156,10 @@ def tuple_overview(block_dets):
 
                 ##### "Tupple" vs "Toople"
 
-                There is no consensus on how to pronounce tuple.
-                Should it rhyme with cup or with hoop?
-                People from a more mathematical background often prefer "toople".
-                Others prefer to follow the spelling and say "tupple".
+                There is no consensus on how to pronounce tuple. Should it rhyme
+                with cup or with hoop? People from a more mathematical
+                background often prefer "toople". Others prefer to follow the
+                spelling and say "tupple".
                 """)
         ),
     }

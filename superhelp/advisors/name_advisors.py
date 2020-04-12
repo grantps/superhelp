@@ -90,9 +90,9 @@ def name_style_check(block_dets):
 
         {bad_names_comment}
 
-        Generally speaking Python variables should be snake case -
-        that is lower case, with multiple words joined by underscores
-        e.g. `high_scores` (not `highScores` or `HighScores`)
+        Generally speaking Python variables should be snake case - that is lower
+        case, with multiple words joined by underscores e.g. `high_scores` (not
+        `highScores` or `HighScores`)
         """)
     if dubious_names:
         dubious_names_comment = _get_shamed_names_comment(dubious_names)
@@ -100,9 +100,9 @@ def name_style_check(block_dets):
 
         {dubious_names_comment}
 
-        Generally speaking Python variables should be snake case -
-        that is lower case, with multiple words joined by underscores
-        e.g. `high_scores` (not `highScores` or `HighScores`)
+        Generally speaking Python variables should be snake case - that is lower
+        case, with multiple words joined by underscores e.g. `high_scores` (not
+        `highScores` or `HighScores`)
         """)
     message = {
         conf.BRIEF: comment,

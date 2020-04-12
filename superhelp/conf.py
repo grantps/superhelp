@@ -52,6 +52,11 @@ MAX_BRIEF_FUNC_LOC = 35
 MAX_BRIEF_FUNC_ARGS = 6
 MIN_BRIEF_DOCSTRING = 3
 
+NO_ADVICE_MESSAGE = ("No advice to give - looks fine :-). But if you think "
+    "there should have been some advice given, contact grant@sofastatistics.com"
+    " with the subject line 'Advice' and explain. Include a snippet to test as "
+    "well.")
+
 ## scraped from https://docs.python.org/3/py-modindex.html 2020-04-02
 STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',
 'argparse', 'array', 'ast', 'asynchat', 'asyncio', 'asyncore', 'atexit',
@@ -87,8 +92,7 @@ STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 
 TEST_SNIPPET = """\
-arr = [(5,5), (6,7)]
-listOfFirstItems, listOfSecondItems = zip(*arr)
+var = alo
 """
 
 DEMO_SNIPPET = """\

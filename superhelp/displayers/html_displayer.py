@@ -325,15 +325,18 @@ def _get_all_html_strs(snippet, overall_messages_dets, block_messages_dets):
         all_html_strs.extend(message_html_strs)
     return all_html_strs
 
-def display(snippet, overall_messages_dets, block_messages_dets, *,
-        message_level=conf.BRIEF):
+def display(snippet, messages_dets, *, message_level=conf.BRIEF):
     """
-    Show by blocks.
+    Show for overall snippet and then by code blocks as appropriate.
     """
     radio_buttons = _get_radio_buttons(message_level=message_level)
-    all_html_strs = _get_all_html_strs(snippet,
-        overall_messages_dets, block_messages_dets)
-    body_inner = '\n'.join(all_html_strs)
+    if messages_dets is None:
+        body_inner = f"<p>{conf.NO_ADVICE_MESSAGE}</p>"
+    else:
+        overall_messages_dets, block_messages_dets = messages_dets
+        all_html_strs = _get_all_html_strs(snippet,
+            overall_messages_dets, block_messages_dets)
+        body_inner = '\n'.join(all_html_strs)
     html2write = HTML_WRAPPER.format(
         head=HTML_HEAD, cwd=cwd,
         radio_buttons=radio_buttons, body_inner=body_inner,

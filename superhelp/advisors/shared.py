@@ -4,8 +4,8 @@ from ..utils import layout_comment
 
 UNPACKING_COMMENT = (
     dedent(f"""\
-        Unpacking is much more pythonic than using indexes to pull a
-        sequence apart into names (variables). For example:
+        Unpacking is much more pythonic than using indexes to pull a sequence
+        apart into names (variables). For example:
 
         """)
     +
@@ -24,9 +24,9 @@ UNPACKING_COMMENT = (
     +
     layout_comment(f"""\
 
-        If you don't need all the values you can indicate which you want
-        to ignore or even mop up multiple unused values into a single
-        value using an asterisk. 
+        If you don't need all the values you can indicate which you want to
+        ignore or even mop up multiple unused values into a single value using
+        an asterisk.
 
         For example:
 
@@ -64,18 +64,17 @@ UNPACKING_COMMENT = (
 )
 
 GENERAL_COMPREHENSION_COMMENT = layout_comment(f"""\
-    Comprehensions are one the great things about Python. To see why,
-    have a look at Raymond Hettinger's classic talk "Transforming Code
-    into Beautiful, Idiomatic Python"
-    <https://youtu.be/OSGv2VnC0go?t=2738> where he explains the
-    rationale. In short, if the goal of your code can be expressed as a
-    single English sentence then it might belong on one line. The code
-    should say what it is doing more than how it is doing it.
-    Comprehensions are declarative and that is A Very Good Thing™.
+    Comprehensions are one the great things about Python. To see why, have a
+    look at Raymond Hettinger's classic talk "Transforming Code into Beautiful,
+    Idiomatic Python" <https://youtu.be/OSGv2VnC0go?t=2738> where he explains
+    the rationale. In short, if the goal of your code can be expressed as a
+    single English sentence then it might belong on one line. The code should
+    say what it is doing more than how it is doing it. Comprehensions are
+    declarative and that is A Very Good Thing™.
 
-    Pro tip: don't make comprehensions *in*comprehensions ;-).
-    If your comprehension is hard to read it is probably better rewritten as a
-    looping structure.
+    Pro tip: don't make comprehensions *in*comprehensions ;-). If your
+    comprehension is hard to read it is probably better rewritten as a looping
+    structure.
     """)
 
 LIST_COMPREHENSION_COMMENT = (

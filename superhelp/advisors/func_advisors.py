@@ -33,16 +33,16 @@ def _get_arg_comment(block_dets):
             vararg_name = vararg[0].get('arg')
             arg_comment += (". All positional arguments received are packed "
                 f"together into a list called {vararg_name} "
-                f"using the \*{vararg_name} syntax. If there is no better name"
-                " in a particular case the Python convention is to call that "
-                "list 'args'")
+                f"using the &ast;{vararg_name} syntax. If there is no better "
+                "name in a particular case the Python convention is to call "
+                "that list 'args'")
         if kwarg:
             kwarg_name = kwarg[0].get('arg')
             arg_comment += (". All keyword arguments received are packed "
                 f"together into a dictionary called {kwarg_name} "
-                f"using the \*\*{kwarg_name} syntax. If there is no better name"
-                " in a particular case the Python convention is to call that "
-                "dictionary 'kwargs'")
+                f"using the &ast;&ast;{kwarg_name} syntax. If there is no "
+                "better name in a particular case the Python convention is to "
+                "call that dictionary 'kwargs'")
     else:
         all_args_n = len(args + kwonlyargs)
         if all_args_n:
@@ -133,10 +133,9 @@ def func_len_check(block_dets):
         conf.BRIEF: layout_comment(f"""\
             #### Function possibly too long
 
-            `{name}` has {utils.int2nice(crude_loc)} lines of code
-            (including comments). Sometimes it is OK for a function to be that
-            long but you should consider refactoring the code into smaller
-            units.
+            `{name}` has {utils.int2nice(crude_loc)} lines of code (including
+            comments). Sometimes it is OK for a function to be that long but you
+            should consider refactoring the code into smaller units.
             """)
     }
     return message
@@ -234,18 +233,16 @@ def positional_boolean(block_dets):
             #### Risky positional arguments expected
 
             Functions which expect numbers or booleans (True/False) without
-            requiring keywords are risky.
-            They are risky when if the function is changed later to have
-            different parameters.
-            For example, greeting(formal=True) is more intelligible than
-            greeting(True).
-            And intelligible code is safer to alter / maintain over time than
+            requiring keywords are risky. They are risky when if the function is
+            changed later to have different parameters. For example,
+            greeting(formal=True) is more intelligible than greeting(True). And
+            intelligible code is safer to alter / maintain over time than
             mysterious code.
 
             A partial analysis of `{name}` found the following risky non-keyword
             (positional) parameters: {danger_args}.
 
-            Using an asterisk as a pseudo-parameter forces all paramaters to the
+            Using an asterisk as a pseudo-parameter forces all parameters to the
             right to be keywords e.g.
 
             """)
@@ -267,11 +264,10 @@ def positional_boolean(block_dets):
         conf.EXTRA: layout_comment(f"""\
             Putting an asterisk in the parameters has the effect of forcing all
             parameters to the right to be keyword parameters because the
-            asterisk mops up any remaining positional arguments supplied
-            (if any) when the function is called.
-            There can't be any other positional arguments, because they have all
-            been handled already, so only keyword parameters are allowed
-            thereafter.
+            asterisk mops up any remaining positional arguments supplied (if
+            any) when the function is called. There can't be any other
+            positional arguments, because they have all been handled already, so
+            only keyword parameters are allowed thereafter.
             """),
     }
     return message
@@ -307,16 +303,15 @@ def docstring_issues(block_dets):
 
                 `{name}` lacks a doc string - you should probably add one.
 
-                Note - # comments at the top of the function do not work as
-                doc strings.
-                Python completely ignores them.
-                If you add a proper doc string, however, it can be accessed by
-                running help({name}) or {name}.\_\_doc\_\_. Which is useful when
-                using this function in bigger projects
-                e.g. in an IDE (Integrated Development Environment).
+                Note - # comments at the top of the function do not work as doc
+                strings. Python completely ignores them. If you add a proper doc
+                string, however, it can be accessed by running help({name}) or
+                {name}.\_\_doc\_\_. Which is useful when using this function in
+                bigger projects e.g. in an IDE (Integrated Development
+                Environment).
 
-                Here is an example doc string using one of several
-                valid formats:
+                Here is an example doc string using one of several valid
+                formats:
 
                 """)
             +
@@ -331,9 +326,9 @@ def docstring_issues(block_dets):
                 layout_comment("""\
                     #### Function doc string too brief?
 
-                    Your doc string seems a little short given the number
-                    of parameters. You might want to rework it.
-                    Here is an example using one of several valid formats:
+                    Your doc string seems a little short given the number of
+                    parameters. You might want to rework it. Here is an example
+                    using one of several valid formats:
 
                     """)
                 +

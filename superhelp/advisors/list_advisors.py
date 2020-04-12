@@ -161,14 +161,15 @@ def mixed_list_types(block_dets):
     message = {
         conf.BRIEF: layout_comment(f"""
             #### Mix of different data types in list
-            `{name}` contains more than one data type -
-            which is probably a bad idea.
+
+            `{name}` contains more than one data type - which is probably a bad
+            idea.
             """),
         conf.MAIN: layout_comment(f"""
             #### Mix of different data types in list
-            `{name}` contains more than one data type -
-            which is probably a bad idea. The data types found were:
-            {", ".join(item_type_nice_names)}.
+
+            `{name}` contains more than one data type - which is probably a bad
+            idea. The data types found were: {", ".join(item_type_nice_names)}.
             """),
     }
     return message
