@@ -87,15 +87,10 @@ STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 
 TEST_SNIPPET = """\
-## modified and given more problems and features, from https://stackoverflow.com/questions/61154079/sorting-using-list-built-in-method-and-user-defined-function-sorts-the-list-with
-def sorted(*G, **kwargs):
-    for i in range(len(G)):
-        for j in range(1,len(G)):
-            if G[j-1]<G[j]:
-                G[j-1],G[j]=G[j],G[j-1]
-G = [['Ahmad', 3.8], ['Rizwan', 3.68], ['Bilal', 3.9]]
-sorted(G)
-print(G)
+from collections import namedtuple
+PersonDets = namedtuple('PersonDetails', 'name, age, sex')
+PetDets = namedtuple('PetDetails', 'name, age, species')
+personName = 'Grant'
 """
 
 DEMO_SNIPPET = """\

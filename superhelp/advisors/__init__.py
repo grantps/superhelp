@@ -50,8 +50,8 @@ FiltAdvisorDets = namedtuple('FilteredAdvisorDets',
     'advisor_name, advisor, xpath, warning')
 FiltAdvisorDets.__doc__ += ('\n\nDetails for block-based advisors that only '
     'apply to blocks filtered to contain specified elements')
-FiltAdvisorDets.advisor.__doc__ = ('Functions which takes prefiltered elements '
-    'of the required type and return message')
+FiltAdvisorDets.advisor.__doc__ = ('Functions which takes prefiltered '
+    'block dets containing the required elements and return message')
 FiltAdvisorDets.xpath.__doc__ = ('xpath filtering to get specified elements '
     'e.g. body/Assign/value/Str')
 
@@ -83,6 +83,9 @@ def filt_block_advisor(*, xpath, warning=False):
      e.g. HTML to decide what to do with that information, if anything.
     """
     def decorator(func):
+        """
+        :param func func: func expecting block_dets
+        """
         FILT_BLOCK_ADVISORS.append(
             FiltAdvisorDets(func.__name__, func, xpath, warning))
         return func
@@ -97,6 +100,9 @@ def any_block_advisor(*, warning=False):
      e.g. HTML to decide what to do with that information, if anything.
     """
     def decorator(func):
+        """
+        :param func func: func expecting block_dets
+        """
         ANY_BLOCK_ADVISORS.append(
             AnyBlockAdvisorDets(func.__name__, func, warning))
         return func
@@ -111,6 +117,9 @@ def snippet_advisor(*, warning=False):
      e.g. HTML to decide what to do with that information, if anything.
     """
     def decorator(func):
+        """
+        :param func func: func expecting blocks_dets (note plural)
+        """
         SNIPPET_ADVISORS.append(
             SnippetAdvisorDets(func.__name__, func, warning))
         return func

@@ -32,11 +32,30 @@ def _get_shamed_names_title(bad_names, dubious_names):
             title = 'Possibly un-pythonic names'
     return title
 
+def get_relevant_assigned_names(block_dets):
+    """
+    Ignore named tuple names. Classes are already excluded because I haven't
+    explicitly included them. They are stored differently e.g.
+    <ClassDef ... name="ActuallyGoodName">
+    """
+    assigned_name_els = block_dets.element.xpath(
+        'descendant-or-self::Assign/targets/Name')
+    assigned_names = []
+    for name_el in assigned_name_els:
+        assign_el = name_el.xpath('ancestor::Assign')[0]
+        func_name_els = assign_el.xpath('value/Call/func/Name')
+        if func_name_els:
+            func_names = [
+                func_name_el.get('id') for func_name_el in func_name_els]
+            if 'namedtuple' in func_names:
+                continue  ## skip named tuples - they are allowed "un-Pythonic" names
+        name = name_el.get('id')
+        assigned_names.append(name)
+    return assigned_names
+
 @any_block_advisor(warning=True)
 def name_style_check(block_dets):
-    assigned_name_elements = block_dets.element.xpath(
-        'descendant-or-self::Assign/targets/Name')
-    assigned_names = [name_el.get('id') for name_el in assigned_name_elements]
+    assigned_names = get_relevant_assigned_names(block_dets)
     def_func_elements = block_dets.element.xpath(
         'descendant-or-self::FunctionDef')
     def_func_names = [name_el.get('name') for name_el in def_func_elements]
