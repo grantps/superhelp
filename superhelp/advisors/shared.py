@@ -1,6 +1,13 @@
+import builtins
+import keyword
 from textwrap import dedent
 
+from ..conf import STD_LIBS
 from ..utils import layout_comment
+
+def is_reserved_name(name):
+    is_reserved = name in set(keyword.kwlist + dir(builtins) + STD_LIBS)
+    return is_reserved
 
 UNPACKING_COMMENT = (
     dedent(f"""\

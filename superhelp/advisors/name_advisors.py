@@ -2,6 +2,34 @@ from textwrap import dedent
 
 from ..advisors import any_block_advisor
 from .. import conf, utils
+from .shared import is_reserved_name
+from build.lib.superhelp.utils import layout_comment
+
+def _get_shamed_names_title(reserved_names, bad_names, dubious_names):
+    if not (reserved_names or bad_names or dubious_names):
+        raise Exception(f"No shamed names supplied to {__name__}")
+    n_reserved_names = len(reserved_names)
+    n_bad_names = len(bad_names)
+    n_dubious_names = len(dubious_names)
+    if reserved_names:
+        if n_reserved_names == 1:
+            title = "Bad naming - use of reserved name."
+        else:
+            title = "Bad naming - use of reserved names."
+    if bad_names:
+        if n_bad_names == 1:
+            if n_dubious_names < 1:
+                title += ' Also un-pythonic name'
+            else:
+                title += ' Also un-pythonic name(s)'
+        else:
+            title += ' Also un-pythonic names'
+    elif dubious_names:
+        if n_dubious_names == 1:
+            title += ' Also a possibly un-pythonic name'
+        else:
+            title += ' Also other possibly un-pythonic names'
+    return title
 
 def _get_shamed_names_comment(shamed_names):
     multiple_shamed_names = len(shamed_names) > 1
@@ -11,26 +39,6 @@ def _get_shamed_names_comment(shamed_names):
     else:
         shamed_names_comment = f"`{shamed_names[0]}` is un-pythonic."
     return shamed_names_comment
-
-def _get_shamed_names_title(bad_names, dubious_names):
-    if not (bad_names or dubious_names):
-        raise Exception(f"No shamed names supplied to {__name__}")
-    n_bad_names = len(bad_names)
-    n_dubious_names = len(dubious_names)
-    if bad_names:
-        if n_bad_names == 1:
-            if n_dubious_names < 1:
-                title = 'Un-pythonic name'
-            else:
-                title = 'Un-pythonic name(s)'
-        else:
-            title = 'Un-pythonic names'
-    else:
-        if n_dubious_names == 1:
-            title = 'Possibly un-pythonic name'
-        else:
-            title = 'Possibly un-pythonic names'
-    return title
 
 def get_relevant_assigned_names(block_dets):
     """
@@ -68,9 +76,12 @@ def name_style_check(block_dets):
         'descendant-or-self::FunctionDef')
     def_func_names = [name_el.get('name') for name_el in def_func_elements]
     names = assigned_names + unpacked_names + def_func_names
+    reserved_names = []
     bad_names = []
     dubious_names = []
     for name in names:
+        if is_reserved_name(name):
+            reserved_names.append(name)
         all_lower_case = (name.lower() == name)
         all_upper_case = (name.upper() == name)
         bad_name = not (all_lower_case or all_upper_case)
@@ -78,38 +89,45 @@ def name_style_check(block_dets):
             bad_names.append(name)
         elif all_upper_case:
             dubious_names.append(name)
-    if not bad_names or dubious_names:
+    if not (reserved_names or bad_names or dubious_names):
         return None
-    title = _get_shamed_names_title(bad_names, dubious_names)
-    comment = dedent(f"""\
+    title = _get_shamed_names_title(reserved_names, bad_names, dubious_names)
+    brief_comment = layout_comment(f"""\
         #### {title}
+
         """)
+    if reserved_names:
+        reserved_names_listed = utils.get_nice_str_list(
+            reserved_names, quoter='`')
+        brief_comment += layout_comment(f"""\
+            Reserved name(s): {reserved_names_listed}
+            """)
     if bad_names:
-        bad_names_comment = _get_shamed_names_comment(bad_names)
-        comment += dedent(f"""\
-
-        {bad_names_comment}
-
-        Generally speaking Python variables should be snake case - that is lower
-        case, with multiple words joined by underscores e.g. `high_scores` (not
-        `highScores` or `HighScores`)
-        """)
+        bad_names_listed = utils.get_nice_str_list(bad_names, quoter='`')
+        brief_comment += layout_comment(f"""\
+            Un-pythonic name(s): {bad_names_listed}
+            """)
     if dubious_names:
-        dubious_names_comment = _get_shamed_names_comment(dubious_names)
-        comment += dedent(f"""\
+        dubious_names_listed = utils.get_nice_str_list(
+            dubious_names, quoter='`')
+        brief_comment += layout_comment(f"""\
+            Possibly un-pythonic name(s): {dubious_names_listed}
+            """)
+    brief_comment += layout_comment("""\
 
-        {dubious_names_comment}
+        Python variables should not named using reserved words e.g.
+        `collections` or `sorted`.
 
         Generally speaking Python variables should be snake case - that is lower
         case, with multiple words joined by underscores e.g. `high_scores` (not
         `highScores` or `HighScores`)
         """)
     message = {
-        conf.BRIEF: comment,
+        conf.BRIEF: brief_comment,
         conf.MAIN: (
-            comment
-            + '\n\n'
-            + dedent("""\
+            brief_comment
+            +
+            layout_comment("""\
                 In Python class names and named tuples are expected to be in
                 Pascal Case (also known as upper camel case) rather than the
                 usual snake case. E.g. `collections.ChainMap`

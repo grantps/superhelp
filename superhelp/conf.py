@@ -97,20 +97,13 @@ STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 
 TEST_SNIPPET = """\
-def random():
-    '''
-    This is line 1
-    Line 2
-    Line 3
-    '''
-    pass
-def camelCase(a, b, c, d, f, *, g):
-    '''
-    This is line 1
-    Line 2
-    Line 3
-    '''
-    pass
+list = [
+
+        {'name': 'title1', 'description': 'text1'},
+        {'name': '[test] title2', 'description': 'text2'},
+        {'name': 'title3', 'description': 'text3'},
+        {'name': '[test] title4', 'description': 'text4'}
+]
 """
 
 DEMO_SNIPPET = """\
@@ -220,4 +213,18 @@ def lacks_any_docstring():
     '''
     Ho
     '''
+def random():
+    '''
+    This is line 1
+    Line 2
+    Line 3
+    '''
+    pass
+def camelCase(a, b, c, d, f, *, g):
+    '''
+    This is line 1
+    Line 2
+    Line 3
+    '''
+    pass
 """

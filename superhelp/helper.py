@@ -266,8 +266,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Superhelp - Help for Humans!')
     parser.add_argument('-s', '--snippet', type=str,
-        required=False, default=default_snippet,
-        help="Supply a brief snippet of Python code")
+        required=False,
+        help="Supply a line or brief snippet of Python code")
+    parser.add_argument('-f', '--file-path', type=str,
+        required=False,
+        help="File location of a line or brief snippet of Python code")
     parser.add_argument('-l', '--level', type=str,
         required=False, default='Extra',
         help="What level of help do you want? Brief, Main, or Extra?")
@@ -275,7 +278,16 @@ if __name__ == '__main__':
         required=False, default=default_displayer,
         help="Where do you want your help shown? html, cli, etc")
     args = parser.parse_args()
+    file_path = args.file_path
     snippet = args.snippet
+    if snippet and file_path:
+        raise Exception("Either set snippet or file-path, not both")
+    elif file_path:
+        with open(file_path) as f:
+            snippet = f.read()
+    else:
+        snippet = default_snippet
+        logging.info("Using default snippet because no snippet provided")
     ARG2DISPLAYER = {
         'html': html_displayer,
         'cli': cli_displayer,

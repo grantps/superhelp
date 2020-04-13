@@ -39,6 +39,9 @@ def get_ifs_details(block_dets):
     There can be multiple if statements in a snippet so we have to handle each
     of them.
     """
+    ## skip when if __name__ == '__main__'
+    if block_dets.block_code_str.startswith("if __name__ == "):
+        return []
     if_elements = block_dets.element.xpath('If')
     ifs_details = []
     for if_element in if_elements:
@@ -81,6 +84,9 @@ def _get_if_comment(ifs_details):
 
 @filt_block_advisor(xpath='//If')
 def if_else_overview(block_dets):
+    ## skip when if __name__ == '__main__'
+    if block_dets.block_code_str.startswith("if __name__ == "):
+        return None
     ifs_details = get_ifs_details(block_dets)
     brief_comment = _get_if_comment(ifs_details)
     message = {
@@ -137,7 +143,7 @@ def missing_else(block_dets):
         counter = '' if len(ifs_details) == 1 else f" {int2nice(n)}"
         if if_details.missing_else:
             brief_comment += (f"`if` block{counter} has `elif` clauses but "
-                "lacks an `else` clause. It is usually best to include an "
+                "lacks an `else` clause. It is often best to include an "
                 "`else` clause when there are `elif` clauses.")
     if not brief_comment:
         return None

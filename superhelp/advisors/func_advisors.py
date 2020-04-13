@@ -1,9 +1,7 @@
-import builtins
-import keyword
-
 from ..advisors import filt_block_advisor
 from .. import conf, utils
 from ..utils import layout_comment
+from .shared import is_reserved_name
 
 def _get_arg_comment(func_el):
     """
@@ -158,10 +156,6 @@ def func_len_check(block_dets):
         conf.BRIEF: brief_comment,
     }
     return message
-
-def is_reserved_name(name):
-    is_reserved = name in set(keyword.kwlist + dir(builtins) + conf.STD_LIBS)
-    return is_reserved
 
 @filt_block_advisor(xpath='body/FunctionDef', warning=True)
 def func_name_check(block_dets):
