@@ -14,6 +14,7 @@ import astpath  # @UnresolvedImport
 ## Using this as a library etc works with . instead of superhelp but I want to be be able to run the helper module from within my IDE
 from superhelp import advisors, ast_funcs
 from superhelp.displayers import cli_displayer, html_displayer
+from superhelp.utils import layout_comment
 
 advisors.load_advisors()
 
@@ -23,7 +24,7 @@ BlockDets.pre_block_code_str.__doc__ = ("The code up until the line we are "
     "interested in needs to be run - it may depend on names from earlier")
 
 MessageDets = namedtuple('MessageDets',
-    'code_str, first_line_no, advisor_name, warning, message')
+    'code_str, message, first_line_no, warning')
 MessageDets.__doc__ += (
     "All the bits and pieces that might be needed to craft a message")
 
@@ -59,15 +60,25 @@ def get_blocks_dets(xml, snippet_lines):
             element, pre_block_code_str, block_code_str, first_line_no))
     return blocks_dets
 
-def fix_message(message, advisor_name):
+def complete_message(message, *, source):
+    """
+    Ensure a complete message with all levels is available.
+
+    :param dict message: a dict with as many as three levels
+     e.g. conf.BRIEF, MAIN, EXTRA.
+    :param str source: usually advisor name but might be the system sending the
+     message e.g. if no advice given or a bug happened.
+    :return: fixed version of original dict with all levels populated
+    :rtype: dict
+    """
     try:
         message_keys = message.keys()
     except TypeError:
         raise TypeError(f"message had no keys - message: {message} "
             f"(type {type(message).__name__})")
     if conf.BRIEF not in message_keys:
-        raise Exception(f"'{advisor_name}' gave advice but didn't "
-            f"include a '{conf.BRIEF}' message")
+        raise Exception(f"'{source}' gave a message lacking the mandatory "
+            f"'{conf.BRIEF}' level")
     if conf.MAIN not in message_keys:
         message[conf.MAIN] = message[conf.BRIEF]
     if conf.EXTRA not in message_keys:
@@ -79,11 +90,9 @@ def get_message_dets_from_input(advisor_dets, advisor_input,
     message = advisor_dets.advisor(advisor_input)
     if message is None:
         return None
-    message = fix_message(message, advisor_dets.advisor_name)
+    message = complete_message(message, source=advisor_dets.advisor_name)
     message_dets = MessageDets(
-        code_str, first_line_no,
-        advisor_dets.advisor_name, advisor_dets.warning,
-        message
+        code_str, message, first_line_no, advisor_dets.warning
     )
     return message_dets
 
@@ -193,14 +202,34 @@ def get_messages_dets(snippet):
             overall_messages_dets.append(message_dets)
         else:
             block_messages_dets.append(message_dets)
-    if overall_messages_dets or block_messages_dets:
-        return overall_messages_dets, block_messages_dets
-    else:
-        return None
+    if not (overall_messages_dets or block_messages_dets):
+        message = {
+            conf.BRIEF: conf.NO_ADVICE_MESSAGE,
+        }
+        message = complete_message(message, source=conf.SYSTEM_MESSAGE)
+        overall_messages_dets = [MessageDets(snippet, message, None, False)]
+    return overall_messages_dets, block_messages_dets
 
 def display_messages(displayer, snippet, messages_dets, *,
         message_level=conf.BRIEF):
     displayer.display(snippet, messages_dets, message_level=message_level)
+
+def get_error_messages_dets(e):
+    message = {
+        conf.BRIEF: layout_comment(f"""\
+            #### No advice sorry :-(
+
+            Unable to provide advice - some sort of problem.
+
+            Details: {e}
+            """),
+    }
+    message = complete_message(message, source=conf.SYSTEM_MESSAGE)
+    overall_messages_dets = [
+        MessageDets(snippet, message, first_line_no=None, warning=True)]
+    block_messages_dets = []
+    messages_dets = (overall_messages_dets, block_messages_dets)
+    return messages_dets
 
 def superhelp(snippet, *, displayer=None, message_level=conf.BRIEF):
     """
@@ -210,23 +239,23 @@ def superhelp(snippet, *, displayer=None, message_level=conf.BRIEF):
     :param str displayer: displayer to use e.g. 'html' or 'cli'
     :param str message_level: e.g. conf.BRIEF
     """
+    if displayer is None:
+        logging.info("Display is currently suppressed - please supply "
+            "a displayer if you want advice displayed")
     try:
         messages_dets = get_messages_dets(snippet)
-        if displayer is None:
-            print("Display is currently suppressed - please supply a displayer "
-                "if you want advice displayed")
-        else:
-            display_messages(displayer, snippet, messages_dets,
-                message_level=message_level)
-    except Exception:
-        raise Exception("Sorry Dave - I can't help you with that")
+    except Exception as e:
+        messages_dets = get_error_messages_dets(e)
+    if displayer:
+        display_messages(displayer, snippet, messages_dets,
+            message_level=message_level)
 
 if __name__ == '__main__':
 
     t = True
     f = False
 
-    do_test = f
+    do_test = t
     do_html = t
     do_displayer = t
 

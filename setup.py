@@ -25,7 +25,7 @@ setup(
     long_description_content_type='text/markdown',
     url='https://github.com/grantps/superhelp',
     download_url='https://github.com/grantps/superhelp/tarball/' + __version__,
-    license='BSD',
+    license='MIT',
     classifiers=[
       'Development Status :: 3 - Alpha',
       'Intended Audience :: Developers',

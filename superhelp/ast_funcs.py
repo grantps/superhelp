@@ -71,8 +71,8 @@ class Analyser(ast.NodeVisitor):
     def check_module(self, module):
         if module not in conf.STD_LIBS:
             raise Exception("Only modules from the Python standard library can "
-                f"be imported. {module} is not in the current list of standard "
-                "modules.")
+                f"be imported. `{module}` is not in the current list of "
+                "standard modules.")
 
     def visit_Import(self, node):
         for alias in node.names:

@@ -13,10 +13,9 @@ MD_PYTHON_CODE_START = '::python'
 BRIEF = 'Brief'  ## no spaces; used as labels and as parts of class names in CSS
 MAIN = 'Main'
 EXTRA = 'Extra'
-MESSAGE_TYPES = [BRIEF, MAIN, EXTRA]
+MESSAGE_LEVELS = [BRIEF, MAIN, EXTRA]
 
 ANON_NAME = 'Anonymous'
-
 
 INT_TYPE = 'int'
 FLOAT_TYPE = 'float'
@@ -57,9 +56,11 @@ MAX_BRIEF_FUNC_ARGS = 6
 MIN_BRIEF_DOCSTRING = 3
 
 NO_ADVICE_MESSAGE = ("No advice to give - looks fine :-). But if you think "
-    "there should have been some advice given, contact grant@sofastatistics.com"
-    " with the subject line 'Advice' and explain. Include a snippet to test as "
-    "well.")
+    "there should have been some advice given, contact grant@p-s.co.nz with "
+    "the subject line 'Advice' and explain. Include a snippet to test as well.")
+SYSTEM_MESSAGE = 'System message'
+
+LINE_FEED = '&#10;'
 
 ## scraped from https://docs.python.org/3/py-modindex.html 2020-04-02
 STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',
@@ -96,7 +97,20 @@ STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 
 TEST_SNIPPET = """\
-var = alo
+def random():
+    '''
+    This is line 1
+    Line 2
+    Line 3
+    '''
+    pass
+def camelCase(a, b, c, d, f, *, g):
+    '''
+    This is line 1
+    Line 2
+    Line 3
+    '''
+    pass
 """
 
 DEMO_SNIPPET = """\
@@ -177,4 +191,33 @@ def sorted(*G, **kwargs):
 G = [['Ahmad', 3.8], ['Rizwan', 3.68], ['Bilal', 3.9]]
 sorted(G)
 print(G)
+
+from functools import wraps
+def tweet(func):
+    @wraps(func)
+    def wrapper(message):
+        func(message)
+        print(f"I'm tweeting the message {message}")
+    return wrapper
+
+@tweet
+def say(message):
+    print(message)
+
+say("sausage!")
+
+def has_docstring():
+    '''
+    Hi
+    '''
+    pass
+def lacks_proper_docstring():
+    # Not a doc string
+    pass
+def lacks_any_docstring():
+    666
+    name = 'Grant'
+    '''
+    Ho
+    '''
 """

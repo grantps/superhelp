@@ -17,10 +17,3 @@ def get_val(pre_block_code_str, block_code_str, name):
 #         raise KeyError(
 #             f"Unable to find name '{name}' in code_str\n{block_code_str}")
     return val
-
-def get_docstring(def_func_code_str, name):
-    exp_dets = {}
-    exec(def_func_code_str, exp_dets)
-    func = exp_dets[name]
-    docstring = func.__doc__
-    return docstring

@@ -8,9 +8,9 @@ from .. import conf
 
 from markdown import markdown  ## https://coderbook.com/@marcus/how-to-render-markdown-syntax-as-html-using-python/ @UnresolvedImport
 
-MESSAGE_TYPE2CLASS = {
-    message_type: f"help help-{message_type}"
-    for message_type in conf.MESSAGE_TYPES}
+MESSAGE_LEVEL2CLASS = {
+    message_level: f"help help-{message_level}"
+    for message_level in conf.MESSAGE_LEVELS}
 
 cwd = Path(superhelp.__file__).parents[0]
 
@@ -201,7 +201,7 @@ IS_CODE = 'is_code'
 
 def _get_radio_buttons(*, message_level=conf.BRIEF):
     radio_buttons_dets = []
-    for message_type in conf.MESSAGE_TYPES:
+    for message_type in conf.MESSAGE_LEVELS:
         checked = ' checked' if message_type == message_level else ''
         radio_button_dets = f"""\
             <input type="radio"
@@ -247,7 +247,7 @@ def get_separate_code_message_parts(message):
 def get_html_strs(message, message_type, *, warning=False):
     if not message:
         return []
-    div_class = MESSAGE_TYPE2CLASS[message_type]
+    div_class = MESSAGE_LEVEL2CLASS[message_type]
     warning_class = ' warning' if warning else ''
     str_html_list = [f"<div class='{div_class}{warning_class}'>", ]
     message_parts = get_separate_code_message_parts(message)
@@ -267,13 +267,13 @@ def get_message_html_strs(message_dets):
     Process message.
     """
     message_html_strs = []
-    for message_type in conf.MESSAGE_TYPES:
+    for message_level in conf.MESSAGE_LEVELS:
         try:
-            message = message_dets.message[message_type]
+            message = message_dets.message[message_level]
         except KeyError:
-            if message_type != conf.EXTRA:
+            if message_level != conf.EXTRA:
                 raise Exception(
-                    f"Missing required message type {message_type}")
+                    f"Missing required message level {message_level}")
         except TypeError:
             raise TypeError(
                 f"Missing message in message_dets {message_dets}")
@@ -284,7 +284,7 @@ def get_message_html_strs(message_dets):
                 .replace(f"\n    {conf.PYTHON_CODE_END}", '')
             )
             message_level_html_strs = get_html_strs(
-                message, message_type, warning=message_dets.warning)
+                message, message_level, warning=message_dets.warning)
             message_html_strs.extend(message_level_html_strs)
     return message_html_strs
 
@@ -330,13 +330,10 @@ def display(snippet, messages_dets, *, message_level=conf.BRIEF):
     Show for overall snippet and then by code blocks as appropriate.
     """
     radio_buttons = _get_radio_buttons(message_level=message_level)
-    if messages_dets is None:
-        body_inner = f"<p>{conf.NO_ADVICE_MESSAGE}</p>"
-    else:
-        overall_messages_dets, block_messages_dets = messages_dets
-        all_html_strs = _get_all_html_strs(snippet,
-            overall_messages_dets, block_messages_dets)
-        body_inner = '\n'.join(all_html_strs)
+    overall_messages_dets, block_messages_dets = messages_dets
+    all_html_strs = _get_all_html_strs(snippet,
+        overall_messages_dets, block_messages_dets)
+    body_inner = '\n'.join(all_html_strs)
     html2write = HTML_WRAPPER.format(
         head=HTML_HEAD, cwd=cwd,
         radio_buttons=radio_buttons, body_inner=body_inner,
