@@ -1,9 +1,7 @@
-from textwrap import dedent
-
 from ..advisors import any_block_advisor
 from .. import conf, utils
 from .shared import is_reserved_name
-from build.lib.superhelp.utils import layout_comment
+from ..utils import layout_comment
 
 def _get_shamed_names_title(reserved_names, bad_names, dubious_names):
     if not (reserved_names or bad_names or dubious_names):

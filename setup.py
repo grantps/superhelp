@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 here = path.abspath(path.dirname(__file__))
 
@@ -24,7 +24,7 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://git.nzoss.org.nz/pyGrant/superhelp',
-    download_url='https://git.nzoss.org.nz/pyGrant/superhelp/dist/superhelp-0.0.1.tar.gz',
+    download_url=f'https://git.nzoss.org.nz/pyGrant/superhelp/dist/superhelp-{__version__}.tar.gz',
     license='MIT',
     classifiers=[
       'Development Status :: 3 - Alpha',
