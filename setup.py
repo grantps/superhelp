@@ -23,7 +23,8 @@ setup(
     description='SuperHELP - Help for Humans!',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/grantps/superhelp',
+    url='https://git.nzoss.org.nz/pyGrant/superhelp',
+    download_url='https://git.nzoss.org.nz/pyGrant/superhelp/dist/superhelp-0.0.1.tar.gz',
     license='MIT',
     classifiers=[
       'Development Status :: 3 - Alpha',
