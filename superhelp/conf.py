@@ -97,13 +97,7 @@ STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 
 TEST_SNIPPET = """\
-list = [
-
-        {'name': 'title1', 'description': 'text1'},
-        {'name': '[test] title2', 'description': 'text2'},
-        {'name': 'title3', 'description': 'text3'},
-        {'name': '[test] title4', 'description': 'text4'}
-]
+name = "SuperHELP"
 """
 
 DEMO_SNIPPET = """\
