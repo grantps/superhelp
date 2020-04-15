@@ -281,8 +281,8 @@ def _get_displayer_module(displayer):
             "a displayer if you want advice displayed")
     return displayer_module
 
-def superhelp(snippet=None, *,
-        file_path=None, displayer='html', message_level=conf.EXTRA):
+def superhelp(snippet=None, *, file_path=None,
+        displayer='html', message_level=conf.EXTRA, in_notebook=False):
     """
     Provide advice about the snippet supplied
 
@@ -293,6 +293,8 @@ def superhelp(snippet=None, *,
     :param str displayer: displayer to use e.g. 'html' or 'cli'. Defaults to
      'html'.
     :param str message_level: e.g. 'Brief', 'Main', 'Extra'
+    :param bool in_notebook: if True might change way display happens e.g. HTML
+     not sent to browser but returned for display by notebook itself
     """
     snippet = _get_snippet(snippet, file_path)
     displayer_module = _get_displayer_module(displayer)
@@ -302,7 +304,7 @@ def superhelp(snippet=None, *,
         messages_dets = get_error_messages_dets(e, snippet)
     if displayer_module:
         display_messages(displayer_module, snippet, messages_dets,
-            message_level=message_level.title())
+            message_level=message_level, in_notebook=in_notebook)
 
 def shelp():
     """

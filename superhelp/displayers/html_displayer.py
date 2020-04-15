@@ -325,9 +325,13 @@ def _get_all_html_strs(snippet, overall_messages_dets, block_messages_dets):
         all_html_strs.extend(message_html_strs)
     return all_html_strs
 
-def display(snippet, messages_dets, *, message_level=conf.BRIEF):
+def display(snippet, messages_dets, *,
+        message_level=conf.BRIEF, in_notebook=False):
     """
     Show for overall snippet and then by code blocks as appropriate.
+
+    :param bool in_notebook: if True, return HTML as string; else open browser
+     and display
     """
     radio_buttons = _get_radio_buttons(message_level=message_level)
     overall_messages_dets, block_messages_dets = messages_dets
@@ -338,8 +342,11 @@ def display(snippet, messages_dets, *, message_level=conf.BRIEF):
         head=HTML_HEAD, cwd=cwd,
         radio_buttons=radio_buttons, body_inner=body_inner,
         visibility_script=VISIBILITY_SCRIPT)
-    explained_fpath = Path.cwd() / 'explained.html'
-    with open(explained_fpath, 'w') as f:
-        f.write(html2write)
-    url = explained_fpath.as_uri()
-    webbrowser.open_new_tab(url)
+    if in_notebook:
+        return html2write
+    else:
+        explained_fpath = Path.cwd() / 'explained.html'
+        with open(explained_fpath, 'w') as f:
+            f.write(html2write)
+        url = explained_fpath.as_uri()
+        webbrowser.open_new_tab(url)

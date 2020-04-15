@@ -27,7 +27,8 @@ def get_message(message_dets, message_level):
     message = mdv.main(md=message)
     return message
 
-def display(snippet, messages_dets, *, message_level=conf.BRIEF):
+def display(snippet, messages_dets, *,
+        message_level=conf.BRIEF, in_notebook=False):
     """
     Show by code blocks.
     """
