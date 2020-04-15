@@ -238,8 +238,10 @@ def get_messages_dets(snippet):
 
 def display_messages(displayer, snippet, messages_dets, *,
         message_level=conf.BRIEF, in_notebook=False):
-    displayer.display(snippet,
+    res = displayer.display(snippet,
         messages_dets, message_level=message_level, in_notebook=in_notebook)
+    if in_notebook:
+        return res
 
 def get_error_messages_dets(e, snippet):
     message = {
