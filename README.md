@@ -13,6 +13,11 @@ to supplement it for basic Python code structures. Superhelp will also be
 opinionated. Help can be provided in a variety of contexts including the
 terminal and web browsers (perhaps as part of on-line tutorials).
 
+Quick Start
+-----------
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/https%3A%2F%2Fgit.nzoss.org.nz%2FpyGrant%2Fsuperhelp/master?filepath=notebooks%2FSuperhelpDemo.ipynb)
+
 Installation
 ------------
 
