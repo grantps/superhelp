@@ -140,7 +140,7 @@ def camelCase(a, b, c, d, f, *, g):
     pass
 """
 
-DEV_MODE = LOG_LEVEL == logging.DEBUG
+DEV_MODE = (LOG_LEVEL == logging.DEBUG)  ## updates AST output each run
 AST_OUTPUT_XML = 'ast_output.xml'
 
 PYTHON_CODE_START = '__python_code_start__'

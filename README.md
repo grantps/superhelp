@@ -1,7 +1,7 @@
 https://git.nzoss.org.nz/pyGrant/superhelp
 ==========================================
 
-version number: 0.0.3
+version number: 0.0.4
 author: Grant Paton-Simpson
 
 Overview
@@ -20,16 +20,16 @@ To install
 
 1) Use pip e.g.
 
-    $ pip install superhelp
+    $ pip3 install superhelp
 
 or similar
 
-    $ pip3 -m install superhelp
+    $ python3 -m pip install superhelp
 
 2) Or clone the repo
 
     $ git clone https://git.nzoss.org.nz/pyGrant/superhelp.git
-    $ python setup.py install
+    $ python3 setup.py install
 
 Example Use Cases
 -----------------

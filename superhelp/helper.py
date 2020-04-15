@@ -3,7 +3,6 @@ import ast
 from collections import namedtuple
 import logging
 from superhelp import conf
-from build.lib.superhelp.utils import layout_comment
 logging.basicConfig(
     level=conf.LOG_LEVEL,
     format='%(asctime)s %(levelname)-8s %(message)s',
