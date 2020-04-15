@@ -304,8 +304,10 @@ def superhelp(snippet=None, *, file_path=None,
     except Exception as e:
         messages_dets = get_error_messages_dets(e, snippet)
     if displayer_module:
-        display_messages(displayer_module, snippet, messages_dets,
+        res = display_messages(displayer_module, snippet, messages_dets,
             message_level=message_level, in_notebook=in_notebook)
+        if in_notebook:
+            return res
 
 def shelp():
     """
