@@ -237,8 +237,9 @@ def get_messages_dets(snippet):
     return overall_messages_dets, block_messages_dets
 
 def display_messages(displayer, snippet, messages_dets, *,
-        message_level=conf.BRIEF):
-    displayer.display(snippet, messages_dets, message_level=message_level)
+        message_level=conf.BRIEF, in_notebook=False):
+    displayer.display(snippet,
+        messages_dets, message_level=message_level, in_notebook=in_notebook)
 
 def get_error_messages_dets(e, snippet):
     message = {
