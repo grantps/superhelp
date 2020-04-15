@@ -5,6 +5,10 @@ from .. import ast_funcs, code_execution, conf, utils
 
 @filt_block_advisor(xpath='body/Assign/value/ListComp')
 def listcomp_overview(block_dets):
+    """
+    Provide advice on list comprehensions and explain other types of
+    comprehension available in Python.
+    """
     name = ast_funcs.get_assigned_name(block_dets.element)
     items = code_execution.get_val(
         block_dets.pre_block_code_str, block_dets.block_code_str, name)

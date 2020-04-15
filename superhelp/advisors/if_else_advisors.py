@@ -84,6 +84,10 @@ def _get_if_comment(ifs_details):
 
 @filt_block_advisor(xpath='//If')
 def if_else_overview(block_dets):
+    """
+    Look at conditional statements using if (apart from if __name__ ==
+    '__main__").
+    """
     ## skip when if __name__ == '__main__'
     if block_dets.block_code_str.startswith("if __name__ == "):
         return None
@@ -137,6 +141,9 @@ def if_else_overview(block_dets):
 
 @filt_block_advisor(xpath='//If', warning=True)
 def missing_else(block_dets):
+    """
+    Warn about benefits in many cases of adding else clause if missing.
+    """
     ifs_details = get_ifs_details(block_dets)
     brief_comment = ''
     for n, if_details in enumerate(ifs_details, 1):

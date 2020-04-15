@@ -34,6 +34,9 @@ def get_named_tuples_dets(blocks_dets):
 
 @snippet_advisor()
 def named_tuple_overview(blocks_dets):
+    """
+    Look for named tuples and explain how they can be enhanced.
+    """
     named_tuples_dets = get_named_tuples_dets(blocks_dets)
     if not named_tuples_dets:
         return None

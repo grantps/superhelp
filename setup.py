@@ -1,8 +1,8 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages  # @UnresolvedImport
 from codecs import open
 from os import path
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 
 here = path.abspath(path.dirname(__file__))
 
@@ -37,5 +37,11 @@ setup(
     author='Grant Paton-Simpson',
     install_requires=install_requires,
     dependency_links=dependency_links,
-    author_email='grant@p-s.co.nz'
+    author_email='grant@p-s.co.nz',
+    python_requires='>=3',
+    entry_points = {
+        'console_scripts': [
+            'shelp=superhelp.helper:shelp',  ## using argparse to allow arguments
+        ]
+    },
 )

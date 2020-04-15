@@ -17,6 +17,9 @@ def get_item_type_names(items):
 ## (i.e. <body><Assign><value><List> so we're looking for List under value only)
 @filt_block_advisor(xpath='body/Assign/value/List')
 def list_overview(block_dets):
+    """
+    General overview of list taking content details into account.
+    """
     name = ast_funcs.get_assigned_name(block_dets.element)
     items = code_execution.get_val(
         block_dets.pre_block_code_str, block_dets.block_code_str, name)

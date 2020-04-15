@@ -6,6 +6,9 @@ from ..utils import layout_comment
 
 @filt_block_advisor(xpath='body/Assign/value/Call/func')
 def set_overview(block_dets):
+    """
+    Look for sets and provide general advice on using them and finding out more.
+    """
     el = block_dets.element
     name = ast_funcs.get_assigned_name(el)
     if not name:

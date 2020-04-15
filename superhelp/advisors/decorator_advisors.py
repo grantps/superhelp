@@ -4,6 +4,9 @@ from ..utils import get_nice_str_list, layout_comment
 
 @filt_block_advisor(xpath='//decorator_list/Name')
 def decorator_overview(block_dets):
+    """
+    Look for decorators and explain some options for improving them.
+    """
     decorator_els = block_dets.element.xpath('decorator_list/Name')
     if not decorator_els:
         return None

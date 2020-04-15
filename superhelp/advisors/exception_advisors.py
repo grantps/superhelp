@@ -31,6 +31,9 @@ def get_exception_blocks(blocks_dets):
 
 @snippet_advisor()
 def exception_overview(blocks_dets):
+    """
+    Provide overview of exception handling.
+    """
     exception_blocks = get_exception_blocks(blocks_dets)
     if not exception_blocks:
         return None
@@ -50,6 +53,9 @@ def exception_overview(blocks_dets):
 
 @snippet_advisor(warning=True)
 def unspecific_exception(blocks_dets):
+    """
+    Look for unspecific exceptions.
+    """
     exception_blocks = get_exception_blocks(blocks_dets)
     if not exception_blocks:
         return None

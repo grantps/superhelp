@@ -35,6 +35,10 @@ def _get_sorting_or_reversing_comment(block_dets):
 
 @any_block_advisor()
 def sorting_reversing_overview(block_dets):
+    """
+    Provide an overview of sorting and/or reversing. Advise on common
+    confusions.
+    """
     sorting_or_reversing_comment = _get_sorting_or_reversing_comment(block_dets)
     if not sorting_or_reversing_comment:
         return None
@@ -124,6 +128,9 @@ def sorting_reversing_overview(block_dets):
 
 @filt_block_advisor(xpath='body/Assign/value/Call/func/Attribute', warning=True)
 def list_sort_as_value(block_dets):
+    """
+    Warn about assigning a name to the result using .sort() on a list.
+    """
     element = block_dets.element
     func_attr_els = element.xpath('value/Call/func/Attribute')
     name = get_assigned_name(element)

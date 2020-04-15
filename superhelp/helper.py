@@ -3,6 +3,7 @@ import ast
 from collections import namedtuple
 import logging
 from superhelp import conf
+from build.lib.superhelp.utils import layout_comment
 logging.basicConfig(
     level=conf.LOG_LEVEL,
     format='%(asctime)s %(levelname)-8s %(message)s',
@@ -87,13 +88,33 @@ def complete_message(message, *, source):
 
 def get_message_dets_from_input(advisor_dets, advisor_input,
         code_str, *, first_line_no):
-    message = advisor_dets.advisor(advisor_input)
-    if message is None:
-        return None
+    name = advisor_dets.advisor_name
+    docstring = advisor_dets.advisor.__doc__
+    if not docstring:
+        raise Exception(f'Advisor "{name}" lacks a docstring - add one!')
+    try:
+        message = advisor_dets.advisor(advisor_input)
+    except Exception as e:
+        message = {
+            conf.BRIEF: (
+                layout_comment(f"""\
+                    #### Advisor "`{name}`" unable to run
+
+                    Advisor {name} unable to run. Advisor description:
+                    """)
+                +  ## show first line of docstring (subsequent lines might have more technical, internally-oriented comments)
+                layout_comment(docstring.lstrip('\n').split('\n')[0] + '\n')
+                +
+                layout_comment(str(e))
+            )
+        }
+        warning = True
+    else:
+        warning = advisor_dets.warning
+        if message is None:
+            return None
     message = complete_message(message, source=advisor_dets.advisor_name)
-    message_dets = MessageDets(
-        code_str, message, first_line_no, advisor_dets.warning
-    )
+    message_dets = MessageDets(code_str, message, first_line_no, warning)
     return message_dets
 
 def get_ancestor_block_element(element):
@@ -187,7 +208,6 @@ def get_messages_dets(snippet):
     :rtype: tuple (or None)
     """
     tree = get_tree(snippet)
-    ast_funcs.check_tree(tree)
     xml = astpath.asts.convert_to_xml(tree)
     if conf.DEV_MODE:
         xml.getroottree().write(conf.AST_OUTPUT_XML, pretty_print=True)
@@ -214,7 +234,7 @@ def display_messages(displayer, snippet, messages_dets, *,
         message_level=conf.BRIEF):
     displayer.display(snippet, messages_dets, message_level=message_level)
 
-def get_error_messages_dets(e):
+def get_error_messages_dets(e, snippet):
     message = {
         conf.BRIEF: layout_comment(f"""\
             #### No advice sorry :-(
@@ -245,13 +265,12 @@ def superhelp(snippet, *, displayer=None, message_level=conf.BRIEF):
     try:
         messages_dets = get_messages_dets(snippet)
     except Exception as e:
-        messages_dets = get_error_messages_dets(e)
+        messages_dets = get_error_messages_dets(e, snippet)
     if displayer:
         display_messages(displayer, snippet, messages_dets,
             message_level=message_level)
 
-if __name__ == '__main__':
-
+def shelp():
     t = True
     f = False
 
@@ -285,6 +304,8 @@ if __name__ == '__main__':
     elif file_path:
         with open(file_path) as f:
             snippet = f.read()
+    elif snippet:
+        pass
     else:
         snippet = default_snippet
         logging.info("Using default snippet because no snippet provided")
@@ -295,3 +316,6 @@ if __name__ == '__main__':
     displayer = ARG2DISPLAYER[args.displayer] if do_displayer else None
     message_level = args.level
     superhelp(snippet, displayer=displayer, message_level=message_level)
+
+if __name__ == '__main__':
+    shelp()

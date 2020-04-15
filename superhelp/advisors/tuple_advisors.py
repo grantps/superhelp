@@ -4,6 +4,9 @@ from ..utils import layout_comment
 
 @filt_block_advisor(xpath='body/Assign/value/Tuple')
 def tuple_overview(block_dets):
+    """
+    Explain usage of tuples.
+    """
     name = ast_funcs.get_assigned_name(block_dets.element)
     if not name:
         return None

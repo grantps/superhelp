@@ -6,6 +6,9 @@ from .. import conf
 @filt_block_advisor(xpath='body/For')
 def for_overview(block_dets):  #@UnusedVariable (Ctrl 1 to identify what to suppress)
     """
+    Provide overview of for loop to see if simple enough to be a possible
+    candidate for a comprehension.
+
     Don't try to properly understand the for loop or make a built comprehension.
     It is enough to detect whether a loop is simple enough to consider making a
     comprehension or not. And to see whether appending, key setting, or adding

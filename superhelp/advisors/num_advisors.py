@@ -43,6 +43,9 @@ TYPE2FUNC = {
 
 @filt_block_advisor(xpath='body/Assign/value/Num')
 def num_overview(block_dets):
+    """
+    Get general advice about assigned numbers e.g. var = 123
+    """
     name = ast_funcs.get_assigned_name(block_dets.element)
     if not name:
         return None

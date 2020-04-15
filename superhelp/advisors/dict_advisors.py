@@ -4,6 +4,10 @@ from ..utils import layout_comment
 
 @filt_block_advisor(xpath='body/Assign/value/Dict')
 def dict_overview(block_dets):
+    """
+    Look at assigned dictionaries e.g. location = {'country' 'New Zealand',
+    'city': 'Auckland'}
+    """
     name = ast_funcs.get_assigned_name(block_dets.element)
     items = code_execution.get_val(
         block_dets.pre_block_code_str, block_dets.block_code_str, name)

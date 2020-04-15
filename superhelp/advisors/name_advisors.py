@@ -14,6 +14,8 @@ def _get_shamed_names_title(reserved_names, bad_names, dubious_names):
             title = "Bad naming - use of reserved name."
         else:
             title = "Bad naming - use of reserved names."
+    else:
+        title = ''
     if bad_names:
         if n_bad_names == 1:
             if n_dubious_names < 1:
@@ -68,6 +70,9 @@ def get_unpacked_names(block_dets):
 
 @any_block_advisor(warning=True)
 def name_style_check(block_dets):
+    """
+    Check names used for use of reserved words and camel case.
+    """
     assigned_names = get_relevant_assigned_names(block_dets)
     unpacked_names = get_unpacked_names(block_dets)
     def_func_elements = block_dets.element.xpath(

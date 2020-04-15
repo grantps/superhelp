@@ -7,7 +7,7 @@ from .. import conf, utils
 @filt_block_advisor(xpath='body/Assign/targets/Tuple')
 def unpacking(block_dets):
     """
-    x, y = coord
+    Identify name unpacking e.g. x, y = coord
     """
     unpacked_items = block_dets.element.xpath('targets/Tuple/elts/Name')
     unpacked_names = [
@@ -24,6 +24,9 @@ def unpacking(block_dets):
 @snippet_advisor()
 def unpacking_opportunity(blocks_dets):
     """
+    Look for opportunities to unpack values into multiple names instead of
+    repeated and un-pythonic extraction using indexes.
+
     Signs of an unpacking opportunity - something is repeatedly sliced with
     different slice numbers e.g.
 

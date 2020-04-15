@@ -96,6 +96,9 @@ def _get_exit_comment(func_el):
 
 @filt_block_advisor(xpath='body/FunctionDef')
 def func_overview(block_dets):
+    """
+    Advise on function definition statements. e.g. def greeting(): ...
+    """
     func_els = block_dets.element.xpath('descendant-or-self::FunctionDef')
     brief_comment = layout_comment("""\
         #### Function Details
@@ -128,6 +131,9 @@ def get_func_lines_n(func_el):
 
 @filt_block_advisor(xpath='body/FunctionDef', warning=True)
 def func_len_check(block_dets):
+    """
+    Warn about functions that might be too long.
+    """
     func_els = block_dets.element.xpath('descendant-or-self::FunctionDef')
     brief_comment = ''
     has_short_comment = False
@@ -157,38 +163,6 @@ def func_len_check(block_dets):
     }
     return message
 
-@filt_block_advisor(xpath='body/FunctionDef', warning=True)
-def func_name_check(block_dets):
-    func_els = block_dets.element.xpath('descendant-or-self::FunctionDef')
-    brief_comment = ''
-    has_reserved_comment = False
-    for func_el in func_els:
-        name = func_el.get('name')
-        reserved_name = is_reserved_name(name)
-        if reserved_name:
-            if not has_reserved_comment:
-                brief_comment += layout_comment("""\
-                    #### Function name clashes with a reserved Python name
-
-                    """)
-            brief_comment += layout_comment(f"""\
-                Naming your function `{name}` is a bad idea as it will replace a
-                reserved Python name.
-                """)
-            if not has_reserved_comment:
-                brief_comment += layout_comment("""\
-                    Reserved names can be keywords such as `False`, builtins
-                    such as `any`, or standard library module names such as
-                    `random`.
-                    """)
-            has_reserved_comment = True
-    if not has_reserved_comment:
-        return None
-    message = {
-        conf.BRIEF: brief_comment,
-    }
-    return message
-
 def get_n_args(func_el):
     arg_els = func_el.xpath('args/arguments/args/arg')
     kwonlyarg_els = func_el.xpath('args/arguments/kwonlyargs/arg')
@@ -197,6 +171,9 @@ def get_n_args(func_el):
 
 @filt_block_advisor(xpath='body/FunctionDef', warning=True)
 def func_excess_parameters(block_dets):
+    """
+    Warn about functions that might have too many parameters.
+    """
     func_els = block_dets.element.xpath('descendant-or-self::FunctionDef')
     brief_comment = ''
     has_high_comment = False
@@ -256,6 +233,9 @@ def get_danger_args(func_el):
 @filt_block_advisor(xpath='body/FunctionDef', warning=True)
 def positional_boolean(block_dets):
     """
+    Look for any obvious candidates for forced keyword use e.g. where a
+    parameter is a boolean or a number.
+
     Defaults apply from the rightmost backwards (within their group - either
     defaults or kw_defaults (related to kwonlyargs)).
     """
@@ -359,7 +339,8 @@ def get_funcs_dets_and_docstring(func_els):
 @filt_block_advisor(xpath='body/FunctionDef', warning=True)
 def docstring_issues(block_dets):
     """
-    No doc string, not enough lines to cover params, return etc.
+    Check over function doc strings. Missing doc string, not enough lines to
+    cover params, return etc.
     """
     example_docstring = layout_comment(f'''\
         def greet(name, *, formal=False):

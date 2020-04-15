@@ -1,5 +1,5 @@
 from ..advisors import any_block_advisor, filt_block_advisor
-from .. import ast_funcs, code_execution, conf, utils
+from .. import ast_funcs, code_execution, conf
 from ..utils import layout_comment
 
 F_STR = 'f-string'
@@ -9,6 +9,9 @@ STR_ADDITION = 'string addition'
 
 @filt_block_advisor(xpath='body/Assign/value/Str')
 def str_overview(block_dets):
+    """
+    Provide overview of assigned strings e.g. name = 'Hamish'.
+    """
     name = ast_funcs.get_assigned_name(block_dets.element)
     if not name:
         return None
@@ -135,10 +138,16 @@ def str_combination(combination_type, block_dets):
 
 @filt_block_advisor(xpath='body/Assign/value/JoinedStr')
 def f_str_interpolation(block_dets):
+    """
+    Examine f-string interpolation.
+    """
     return str_combination(F_STR, block_dets)
 
 @filt_block_advisor(xpath='body/Assign/value/Call/func')
 def format_str_interpolation(block_dets):
+    """
+    Look at use of .format() to interpolate into strings.
+    """
     try:
         was_a_format_func = (
             block_dets.element.xpath('value/Call/func/Attribute')[0]
@@ -162,6 +171,10 @@ def _get_has_sprintf_format_specifiers(block_dets):
 
 @any_block_advisor()
 def sprintf(block_dets):
+    """
+    Look at use of sprintf for string interpolation e.g. greeting = "Hi %s" %
+    name
+    """
     has_str_modification = bool(block_dets.element.xpath('value/BinOp/op/Mod'))
     has_sprintf_format_specifiers = _get_has_sprintf_format_specifiers(
         block_dets)
@@ -173,8 +186,8 @@ def sprintf(block_dets):
 @any_block_advisor()
 def string_addition(block_dets):
     """
-    Look inside for any (possibly nested) BinOp with op = Add and either a left
-    being a Str or right being a Str.
+    Advise on string combination using +. Explain how f-string alternative
+    works.
     """
     element = block_dets.element
     left_strs = 'descendant-or-self::BinOp/left/Str'
