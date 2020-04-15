@@ -282,7 +282,7 @@ def _get_displayer_module(displayer):
     return displayer_module
 
 def superhelp(snippet=None, *,
-        file_path=None, displayer=None, message_level=conf.EXTRA):
+        file_path=None, displayer='html', message_level=conf.EXTRA):
     """
     Provide advice about the snippet supplied
 
@@ -290,7 +290,8 @@ def superhelp(snippet=None, *,
      advice on. If None will try the file_path and if that is None will use the
      default snippet
     :param str file_path: (optional) file path containing snippet
-    :param str displayer: displayer to use e.g. 'html' or 'cli'
+    :param str displayer: displayer to use e.g. 'html' or 'cli'. Defaults to
+     'html'.
     :param str message_level: e.g. 'Brief', 'Main', 'Extra'
     """
     snippet = _get_snippet(snippet, file_path)
