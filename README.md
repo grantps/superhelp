@@ -1,6 +1,6 @@
 # https://git.nzoss.org.nz/pyGrant/superhelp
 
-version number: 0.0.10
+version number: 0.0.11
 author: Grant Paton-Simpson
 
 ## Overview
@@ -19,6 +19,9 @@ e.g. get advice on a line or snippet of Python
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/git/https%3A%2F%2Fgit.nzoss.org.nz%2FpyGrant%2Fsuperhelp.git/master?filepath=notebooks%2FSuperhelpDemo.ipynb)
 
 ## Installation
+
+Note - Python 3.6+ only. If you have an older version of Python use the Binder
+Jupyter Notebook button instead (see higher up)
 
 To install
 
