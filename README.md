@@ -1,11 +1,9 @@
-https://git.nzoss.org.nz/pyGrant/superhelp
-==========================================
+# https://git.nzoss.org.nz/pyGrant/superhelp
 
-version number: 0.0.7
+version number: 0.0.8
 author: Grant Paton-Simpson
 
-Overview
---------
+## Overview
 
 Superhelp is Help for Humans! The goal is to provide customised help for simple
 code snippets. Superhelp is not intended to replace the built-in Python help but
@@ -13,13 +11,11 @@ to supplement it for basic Python code structures. Superhelp will also be
 opinionated. Help can be provided in a variety of contexts including the
 terminal and web browsers (perhaps as part of on-line tutorials).
 
-Quick Start
------------
+## Quick Start
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/git/https%3A%2F%2Fgit.nzoss.org.nz%2FpyGrant%2Fsuperhelp.git/master?filepath=notebooks%2FSuperhelpDemo.ipynb)
 
-Installation
-------------
+## Installation
 
 To install
 
@@ -36,8 +32,7 @@ or similar
     $ git clone https://git.nzoss.org.nz/pyGrant/superhelp.git
     $ python3 setup.py install
 
-Example Use Cases
------------------
+## Example Use Cases
 
 * Charlotte is a Python beginner and wants to get advice on a five-line function
 she wrote to display greetings to a list of people. She learns about Python
@@ -59,8 +54,21 @@ example provided.
 strings in his functions. He learns a standard approach and starts using it more
 often.
 
-Example Usage
--------------
+# Example Usage
+
+## Notebook
+
+Add new cell at end with content like:
+
+    show(superhelp("""\
+    def sorted(my_list):
+        sorted_list = my_list.sort()
+        return sorted_list
+    """))
+
+and run it to get advice.
+
+## Local Installation
 
     $ shelp -h  ## get help on usage
 
@@ -73,8 +81,7 @@ Example Usage
     $ shelp  ## to see advice on an example snippet displayed (level Extra)
 
     
-TODO Options
-------------
+## TODO Options
 
 1) Extend advice further to encourage sound practice
 

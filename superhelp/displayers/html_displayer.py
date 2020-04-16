@@ -334,7 +334,7 @@ CODE_CSS = """\
 INTERNAL_CSS = """\
 body {
   background-color: white;
-  margin: 60px 80px 80px 80px;
+  %(margin_css)s
 }
 h1, h2 {
   color: #3b3f74;
@@ -385,8 +385,8 @@ svg {
 .help.help-visible {
   display: inherit;
 }
-%s
-""" % CODE_CSS
+%(code_css)s
+"""
 
 HTML_HEAD = f"""\
 <head>
@@ -394,7 +394,7 @@ HTML_HEAD = f"""\
 <meta content="IE=edge" http-equiv="X-UA-Compatible">
 <title>SuperHELP - Help for Humans!</title>
 <style type="text/css">
-{INTERNAL_CSS}
+%(internal_css)s
 </style>
 </head>"""
 
@@ -558,6 +558,15 @@ def _get_all_html_strs(snippet, overall_messages_dets, block_messages_dets):
         all_html_strs.extend(message_html_strs)
     return all_html_strs
 
+def _get_head(*, in_notebook=False):
+    internal_css = INTERNAL_CSS % {
+        'code_css': CODE_CSS,
+        'margin_css': '' if in_notebook else 'margin: 60px 80px 80px 80px;',
+    }
+    head = HTML_HEAD % {
+        'internal_css': internal_css}
+    return head
+
 def display(snippet, messages_dets, *,
         message_level=conf.BRIEF, in_notebook=False):
     """
@@ -571,8 +580,9 @@ def display(snippet, messages_dets, *,
     all_html_strs = _get_all_html_strs(snippet,
         overall_messages_dets, block_messages_dets)
     body_inner = '\n'.join(all_html_strs)
+    head = _get_head(in_notebook=in_notebook)
     html2write = HTML_WRAPPER.format(
-        head=HTML_HEAD, logo_svg=LOGO_SVG,
+        head=head, logo_svg=LOGO_SVG,
         radio_buttons=radio_buttons, body_inner=body_inner,
         visibility_script=VISIBILITY_SCRIPT)
     if in_notebook:
