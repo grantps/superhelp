@@ -1,6 +1,6 @@
 # https://git.nzoss.org.nz/pyGrant/superhelp
 
-version number: 0.0.9
+version number: 0.0.10
 author: Grant Paton-Simpson
 
 ## Overview
@@ -12,6 +12,9 @@ opinionated. Help can be provided in a variety of contexts including the
 terminal and web browsers (perhaps as part of on-line tutorials).
 
 ## Quick Start
+
+Click the button below to open a Binder Jupyter Notebook you can play around in
+e.g. get advice on a line or snippet of Python
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/git/https%3A%2F%2Fgit.nzoss.org.nz%2FpyGrant%2Fsuperhelp.git/master?filepath=notebooks%2FSuperhelpDemo.ipynb)
 
@@ -60,11 +63,11 @@ often.
 
 Add new cell at end with content like:
 
-    show(superhelp("""\
+    %%shelp
+    
     def sorted(my_list):
         sorted_list = my_list.sort()
         return sorted_list
-    """))
 
 and run it to get advice.
 
