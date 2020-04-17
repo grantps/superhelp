@@ -1,5 +1,6 @@
 import datetime
 import logging
+from pathlib import Path
 
 LOG_LEVEL = logging.INFO
 
@@ -12,9 +13,24 @@ def sorted(my_list):
 """
 
 TEST_SNIPPET = """\
-def sorted(my_list):
-    sorted_list = my_list.sort()
-    return sorted_list
+for i in range(2):
+    try:
+        names = ['Noor', ]
+        name_2 = names[1]
+    except Exception:
+        pass
+for i in range(2):
+    try:
+        names = ['Noor', ]
+        name_2 = names[1]
+    except Exception:
+        pass
+for i in range(2):
+    try:
+        names = ['Noor', ]
+        name_2 = names[1]
+    except IndexError:
+        pass
 """
 
 DEMO_SNIPPET = """\
@@ -141,7 +157,8 @@ def camelCase(a, b, c, d, f, *, g):
 """
 
 DEV_MODE = (LOG_LEVEL == logging.DEBUG)  ## updates AST output each run
-AST_OUTPUT_XML = 'ast_output.xml'
+
+AST_OUTPUT_XML = Path(__file__).parent / 'ast_output.xml'
 
 PYTHON_CODE_START = '__python_code_start__'
 PYTHON_CODE_END = '__python_code_end__'

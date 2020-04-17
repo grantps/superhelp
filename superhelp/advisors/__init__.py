@@ -87,7 +87,8 @@ def filt_block_advisor(*, xpath, warning=False):
         :param func func: func expecting block_dets
         """
         FILT_BLOCK_ADVISORS.append(
-            FiltAdvisorDets(func.__name__, func, xpath, warning))
+            FiltAdvisorDets(
+                f"{func.__module__}.{func.__name__}", func, xpath, warning))
         return func
     return decorator
 
@@ -104,7 +105,8 @@ def any_block_advisor(*, warning=False):
         :param func func: func expecting block_dets
         """
         ANY_BLOCK_ADVISORS.append(
-            AnyBlockAdvisorDets(func.__name__, func, warning))
+            AnyBlockAdvisorDets(
+                f"{func.__module__}.{func.__name__}", func, warning))
         return func
     return decorator
 
@@ -121,7 +123,8 @@ def snippet_advisor(*, warning=False):
         :param func func: func expecting blocks_dets (note plural)
         """
         SNIPPET_ADVISORS.append(
-            SnippetAdvisorDets(func.__name__, func, warning))
+            SnippetAdvisorDets(
+                f"{func.__module__}.{func.__name__}", func, warning))
         return func
     return decorator
 

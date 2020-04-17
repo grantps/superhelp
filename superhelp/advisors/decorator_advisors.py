@@ -2,12 +2,18 @@ from ..advisors import filt_block_advisor
 from .. import conf
 from ..utils import get_nice_str_list, layout_comment
 
-@filt_block_advisor(xpath='//decorator_list/Name')
+decorator_xpath = (
+    'descendant-or-self::decorator_list/Name '
+    '| '
+    'descendant-or-self::decorator_list/Call/func/Name'
+)
+
+@filt_block_advisor(xpath=decorator_xpath)
 def decorator_overview(block_dets):
     """
     Look for decorators and explain some options for improving them.
     """
-    decorator_els = block_dets.element.xpath('decorator_list/Name')
+    decorator_els = block_dets.element.xpath(decorator_xpath)
     if not decorator_els:
         return None
     decorator_names = [decorator_el.get('id') for decorator_el in decorator_els]

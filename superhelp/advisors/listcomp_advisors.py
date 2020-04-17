@@ -1,43 +1,58 @@
-from textwrap import dedent
-
 from ..advisors import shared, filt_block_advisor
-from .. import ast_funcs, code_execution, conf, utils
+from .. import code_execution, conf, utils
+from ..utils import layout_comment
 
-@filt_block_advisor(xpath='body/Assign/value/ListComp')
+ASSIGN_LISTCOMP_XPATH = 'descendant-or-self::Assign/value/ListComp'
+
+@filt_block_advisor(xpath=ASSIGN_LISTCOMP_XPATH)
 def listcomp_overview(block_dets):
     """
     Provide advice on list comprehensions and explain other types of
     comprehension available in Python.
     """
-    name = ast_funcs.get_assigned_name(block_dets.element)
-    items = code_execution.get_val(
-        block_dets.pre_block_code_str, block_dets.block_code_str, name)
-    message = {
-        conf.BRIEF: dedent(f"""
+    listcomp_els = block_dets.element.xpath(ASSIGN_LISTCOMP_XPATH)
+    brief_comment = ''
+    plural = 's' if len(listcomp_els) > 1 else ''
+    for i, dict_el in enumerate(listcomp_els):
+        first = (i == 0)
+        assign_el = dict_el.xpath('ancestor-or-self::Assign')[-1]
+        name = assign_el.xpath('targets/Name')[0].get('id')
+        items = code_execution.get_val(
+            block_dets.pre_block_code_str, block_dets.block_code_str, name)
+        if first:
+            title = layout_comment(f"""\
+
+                #### List comprehension{plural} used
+
+                """)
+            brief_comment += title
+        brief_comment += layout_comment(f"""
+
             `{name}` is a list comprehension returning a list
             with {utils.int2nice(len(items))} items: {items}
-        """),
+            """)
+    message = {
+        conf.BRIEF: brief_comment,
         conf.EXTRA: (
-            dedent(f"""\
-            #### Other "comprehensions"
+            layout_comment(f"""\
+                #### Other "comprehensions"
 
-            """)
+                """)
             + shared.GENERAL_COMPREHENSION_COMMENT
-            + dedent("""\
+            + layout_comment("""\
 
+                List comprehensions aren't the only type of comprehension you can
+                make. Python also lets you write Dictionary and Set Comprehensions:
 
-            List comprehensions aren't the only type of comprehension you can
-            make. Python also lets you write Dictionary and Set Comprehensions:
-
-            """)
+                """)
             + shared.DICT_COMPREHENSION_COMMENT
             + '\n\n'
             + shared.SET_COMPREHENSION_COMMENT
             + '\n\n'
-            + dedent("""\
-            Pro tip: don't make comprehension *in*comprehensions ;-). If it is
-            hard to read it is probably better written as a looping structure.
-            """)
+            + layout_comment("""\
+                Pro tip: don't make comprehension *in*comprehensions ;-). If it is
+                hard to read it is probably better written as a looping structure.
+                """)
         ),
     }
     return message

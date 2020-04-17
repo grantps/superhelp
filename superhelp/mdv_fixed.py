@@ -148,23 +148,25 @@ import sys
 
 PY3 = sys.version_info.major > 2
 
-
+from functools import partial
+import imp
 import io
+from json import loads
+import logging
 import os
-import textwrap
+from random import randint
+import re
 import shutil
+import textwrap
 import time
+
 import markdown
-import re, imp
 import markdown.util
 from markdown.util import etree
 from markdown.extensions.tables import TableExtension
-from random import randint
 from tabulate import tabulate
-from json import loads
 from markdown.treeprocessors import Treeprocessor
 from markdown.extensions import Extension, fenced_code
-from functools import partial
 
 errout, envget = partial(print, file=sys.stderr), os.environ.get
 
@@ -299,7 +301,7 @@ if not term_columns and not "-c" in sys.argv:
     except:  # pragma: no cover
         term_columns, term_rows = get_terminal_size()
         if "-" not in sys.argv and (term_columns, term_rows) == (0, 0):
-            errout("!! Could not derive your terminal width !!")
+            logging.debug("!! Could not derive your terminal width !!")
 term_columns, term_rows = int(term_columns or 80), int(term_rows or 200)
 
 

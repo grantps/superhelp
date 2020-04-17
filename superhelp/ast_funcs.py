@@ -1,6 +1,8 @@
 
 def get_assigned_name(element):
     """
+    TODO: remove - only works when Assign element the only one supplied
+
     :return: None if no name
     :rtype: str
     """

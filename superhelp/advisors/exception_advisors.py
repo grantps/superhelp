@@ -17,7 +17,8 @@ def get_exception_blocks(blocks_dets):
     exception_blocks = []
     for block_dets in blocks_dets:
         block_exception_types = []
-        except_handler_els = block_dets.element.xpath('handlers/ExceptHandler')
+        except_handler_els = block_dets.element.xpath(
+            'descendant-or-self::handlers/ExceptHandler')
         for except_handler_el in except_handler_els:
             exception_type_els = except_handler_el.xpath(
                 'type/Name | type/Tuple/elts/Name')
@@ -60,27 +61,45 @@ def unspecific_exception(blocks_dets):
     if not exception_blocks:
         return None
     brief_comment = ''
+    unspecific_block_ns = []
+    has_title = False
+    has_unspecific = False
     for n, exception_block in enumerate(exception_blocks, 1):
         only_unspecific = (len(exception_block) == 1
             and exception_block[0] == UNSPECIFIC_EXCEPTION)
         if not only_unspecific:
             continue
-        counter = '' if len(exception_blocks) == 1 else f" {int2nice(n)}"
-        brief_comment += f"""\
+        has_unspecific = True
+        unspecific_block_ns.append(n)
+        if not has_title:
+            brief_comment += layout_comment("""\
 
-            ##### Un-specific `Exception` only in `try`-`except` block{counter}
+                ##### Un-specific `Exception` only in `try`-`except` block(s)
 
-            """
-        brief_comment += (f"""\
-
-            Using the un-specific exception type `Exception` is often completely
-            appropriate. But if you are looking for specific exceptions you
-            should handle those separately.
-
-            For example:
-            """)
-    if not brief_comment:
+                """)
+        has_title = True
+    if not has_unspecific:
         return None
+    n_unspecific = len(unspecific_block_ns)
+    if n_unspecific == 1:
+        block_n_specific_text = ' has'
+    else:
+        unspecific_nice_block_ns = [
+            int2nice(unspecific_block_n)
+            for unspecific_block_n in unspecific_block_ns]
+        blocks_ns = get_nice_str_list(unspecific_nice_block_ns, quoter='')
+        block_n_specific_text = f"s {blocks_ns} have"
+    brief_comment += layout_comment(f"""\
+
+        `try`-`except` block{block_n_specific_text} an un-specific Exception
+        only.
+
+        Using the un-specific exception type `Exception` is often completely
+        appropriate. But if you are looking for specific exceptions you
+        should handle those separately.
+
+        For example:
+        """)
     message = {
         conf.BRIEF: layout_comment(brief_comment),
         conf.MAIN: (
