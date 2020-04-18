@@ -6,6 +6,15 @@ def test_misc():
     test_conf = [
         (
             dedent("""\
+            pet = 'cat'
+            """),
+            {
+                'superhelp.advisors.exception_advisors.exception_overview': 0,  ## one try block
+                'superhelp.advisors.exception_advisors.unspecific_exception': 0,
+            }
+        ),
+        (
+            dedent("""\
             try:
                 names = ['Noor', ]
                 name_2 = names[1]
@@ -75,4 +84,4 @@ def test_misc():
     ]
     check_as_expected(test_conf)
 
-test_misc()
+# test_misc()

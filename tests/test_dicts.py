@@ -6,6 +6,15 @@ def test_misc():
     test_conf = [
         (
             dedent("""\
+            pet = 'cat'
+            """),
+            {
+                'superhelp.advisors.dict_advisors.dict_overview': 0,
+                'superhelp.advisors.dict_advisors.mixed_key_types': 0,
+            }
+        ),
+        (
+            dedent("""\
             capitals = {
                 'NZ': 'Wellington',
                 'Australia': 'Canberra',

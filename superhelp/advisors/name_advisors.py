@@ -69,7 +69,7 @@ def get_unpacked_names(block_dets):
     return unpacked_names
 
 @any_block_advisor(warning=True)
-def name_style_check(block_dets):
+def name_check(block_dets):
     """
     Check names used for use of reserved words and camel case.
     """

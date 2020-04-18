@@ -42,7 +42,7 @@ def get_ifs_details(block_dets):
     ## skip when if __name__ == '__main__'
     if block_dets.block_code_str.startswith("if __name__ == "):
         return []
-    if_elements = block_dets.element.xpath('If')
+    if_elements = block_dets.element.xpath('descendant-or-self::If')
     ifs_details = []
     for if_element in if_elements:
         if_clauses = []

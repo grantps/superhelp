@@ -1,5 +1,5 @@
 from ..advisors import any_block_advisor, filt_block_advisor
-from .. import ast_funcs, code_execution, conf
+from .. import code_execution, conf
 from ..utils import layout_comment
 
 F_STR = 'f-string'
@@ -7,48 +7,76 @@ STR_FORMAT_FUNC = 'str_format'
 SPRINTF = 'sprintf'
 STR_ADDITION = 'string addition'
 
-@filt_block_advisor(xpath='body/Assign/value/Str')
+ASSIGN_STR_XPATH = 'descendant-or-self::Assign/value/Str'
+FUNC_ATTR_XPATH = 'descendant-or-self::value/Call/func/Attribute'
+JOINED_STR_XPATH = 'descendant-or-self::Assign/value/JoinedStr'
+SPRINTF_XPATH = 'descendant-or-self::value/BinOp/op/Mod'
+STR_ADDITION_XPATH = 'descendant-or-self::BinOp/left/Str'  ## each left has a right as well so only need to look at one to get at binop and assign ancestors etc
+
+@filt_block_advisor(xpath=ASSIGN_STR_XPATH)
 def str_overview(block_dets):
     """
     Provide overview of assigned strings e.g. name = 'Hamish'.
     """
-    name = ast_funcs.get_assigned_name(block_dets.element)
-    if not name:
-        return None
-    val = code_execution.get_val(
-        block_dets.pre_block_code_str, block_dets.block_code_str, name)
+    brief_comment = ''
+    main_comment = ''
+    str_els = block_dets.element.xpath(ASSIGN_STR_XPATH)
+    first_name = None
+    first_val = None
+    for i, str_el in enumerate(str_els):
+        assign_el = str_el.xpath('ancestor::Assign')[0]
+        first = (i == 0)
+        name = assign_el.xpath('targets/Name')[0].get('id')
+        val = code_execution.get_val(
+            block_dets.pre_block_code_str, block_dets.block_code_str, name)
+        if first:
+            first_name = name
+            first_val = val
+            title = layout_comment("""\
+
+                ##### String Overview
+
+                """)
+            brief_comment += title
+            main_comment += title
+        desc_comment = layout_comment(f"""\
+            `{name}` is a string.
+
+            """)
+        brief_comment += desc_comment
+        main_comment += desc_comment
+    brief_comment += layout_comment(f"""\
+        Python makes it easy to do lots of cool things with strings.
+        E.g. {first_name}.upper() returns {first_val.upper()}.
+
+        """)
     black_heart = "\N{BLACK HEART}"
-    message = {
-        conf.BRIEF: layout_comment(f"""\
-            ##### String Overview
-
-            `{name}` is a string.
+    main_comment += layout_comment(f"""\
             Python makes it easy to do lots of cool things with strings.
-            E.g. {name}.upper() returns {val.upper()}.
-            """),
-        conf.MAIN: layout_comment(f"""\
-            ##### String Overview
 
-            `{name}` is a string.
-            Python makes it easy to do lots of cool things with strings.\n\n
-            Examples:\n\n
-            {name}.upper() returns {val.upper()}.
+            Examples:
 
-            {name}.center(70, '=') returns {val.center(70, '=')}
+            {first_name}.upper() returns {first_val.upper()}.
 
-            {name}.endswith('chicken') returns {val.endswith('chicken')}
+            {first_name}.center(70, '=') returns {first_val.center(70, '=')}
 
-            {name} + ' is a string' returns {val + ' is a string'}
+            {first_name}.endswith('chicken') returns
+            {first_val.endswith('chicken')}
 
-            {name} + ' ' + '{{\\NBLACK HEART}}' + ' Python' returns
-            {val + ' ' + black_heart + ' Python'}
+            {first_name} + ' is a string' returns {first_val + ' is a string'}
 
-            len({name}) returns {len(val)} because that is how many characters
-            are in the {name} string
-            (remember to count spaces - they are characters too)
+            {first_name} + ' ' + '{{\\NBLACK HEART}}' + ' Python' returns
+            {first_val + ' ' + black_heart + ' Python'}
 
-            sorted({name}) returns {sorted(val)}
-            """),
+            len({first_name}) returns {len(first_val)} because that is how many
+            characters are in the {first_name} string (remember to count spaces
+            - they are characters too)
+
+            sorted({first_name}) returns {sorted(first_val)}
+        """)
+    message = {
+        conf.BRIEF: brief_comment,
+        conf.MAIN: main_comment,
         conf.EXTRA: layout_comment("""\
             .upper(), .center() etc
             are abilities available with all Python strings.
@@ -66,41 +94,50 @@ def str_overview(block_dets):
     }
     return message
 
-def str_combination(combination_type, block_dets):
-    name = ast_funcs.get_assigned_name(block_dets.element)
-    if not name:
-        return None
-    combination_type2comment = {
-        F_STR: "f-string interpolation",
-        STR_FORMAT_FUNC: "the format function",
-        SPRINTF: "sprintf string interpolation",
-        STR_ADDITION: "string addition (e.g. animal = 'jelly' + 'fish')",
-    }
-    combination_comment = combination_type2comment[combination_type]
+def str_combination(combination_type, assign_els):
+    brief_comment = ''
+    title = None
+    for assign_el in assign_els:
+        name = assign_el.xpath('targets/Name')[0].get('id')
+        combination_type2comment = {
+            F_STR: "f-string interpolation",
+            STR_FORMAT_FUNC: "the format function",
+            SPRINTF: "sprintf string interpolation",
+            STR_ADDITION: "string addition (e.g. animal = 'jelly' + 'fish')",
+        }
+        combination_comment = combination_type2comment[combination_type]
+        if not title:
+            title = layout_comment(f"""\
+
+            #### Strings created by combining or interpolating strings
+            """)
+            brief_comment += title
+        brief_comment += layout_comment(f"""\
+
+            `{name}` is created using {combination_comment}.
+            """)
     message = {
-        conf.BRIEF: layout_comment(f"""\
-            `{name}` is created using {combination_comment}.
-            """),
-        conf.MAIN: layout_comment(f"""\
-            `{name}` is created using {combination_comment}.
-            """),
+        conf.BRIEF: brief_comment,
+        conf.MAIN: brief_comment,
     }
     if combination_type != F_STR:
-        message[conf.BRIEF] += layout_comment(f"""\
+        message[conf.BRIEF] += layout_comment("""\
+
+            Your snippet uses a non-f-string approach to constructing a string.
 
             Have you considered using an f-string approach to constructing
-            your `{name}`?
+            your string?
             """)
         message[conf.MAIN] += (
-            layout_comment(f"""\
+            layout_comment("""\
 
                 Have you considered using an f-string approach to constructing
-                your `{name}`?
+                your string?
 
-                f-strings let you reference variables from earlier in your code and
-                allow very readable string construction. All the usual tricks of the
-                .format() approach also work. For example, comma separating
-                thousands in numbers:
+                f-strings let you reference variables from earlier in your code
+                and allow very readable string construction. All the usual
+                tricks of the .format() approach also work. For example, comma
+                separating thousands in numbers:
 
                 """)
             +
@@ -136,38 +173,36 @@ def str_combination(combination_type, block_dets):
         )
     return message
 
-@filt_block_advisor(xpath='body/Assign/value/JoinedStr')
+@filt_block_advisor(xpath=JOINED_STR_XPATH)
 def f_str_interpolation(block_dets):
     """
     Examine f-string interpolation.
     """
-    return str_combination(F_STR, block_dets)
+    joined_els = block_dets.element.xpath(JOINED_STR_XPATH)
+    assign_els = []
+    for joined_el in joined_els:
+        assign_el = joined_el.xpath('ancestor::Assign')[-1]
+        assign_els.append(assign_el)
+    return str_combination(F_STR, assign_els)
 
-@filt_block_advisor(xpath='body/Assign/value/Call/func')
+@filt_block_advisor(xpath=FUNC_ATTR_XPATH)
 def format_str_interpolation(block_dets):
     """
     Look at use of .format() to interpolate into strings.
     """
-    try:
-        was_a_format_func = (
-            block_dets.element.xpath('value/Call/func/Attribute')[0]
-            .get('attr') == 'format')
-    except IndexError:
-        was_a_format_func = False
-    if not was_a_format_func:
+    func_attr_els = block_dets.element.xpath(FUNC_ATTR_XPATH)
+    format_funcs = []
+    for func_attr_el in func_attr_els:
+        is_format_func = func_attr_el.get('attr') == 'format'
+        if is_format_func:
+            format_funcs.append(func_attr_el)
+    if not format_funcs:
         return None
-    return str_combination(STR_FORMAT_FUNC, block_dets)
-
-def _get_has_sprintf_format_specifiers(block_dets):
-    block_code_str = block_dets.block_code_str
-    conversion_types = ['d', 'i', 'o', 'u', 'x', 'X', 'e', 'E', 'f', 'F',
-        'g', 'G', 'c', 'r', 's', 'a', '%']  ## https://docs.python.org/3/library/stdtypes.html#old-string-formatting
-    format_specifiers = [
-        f"%{conversion_type}" for conversion_type in conversion_types ]
-    has_sprintf_format_specifiers = any(
-        [format_specifier in block_code_str
-         for format_specifier in format_specifiers])
-    return has_sprintf_format_specifiers
+    assign_els = []
+    for format_el in format_funcs:
+        assign_el = format_el.xpath('ancestor::Assign')[-1]
+        assign_els.append(assign_el)
+    return str_combination(STR_FORMAT_FUNC, assign_els)
 
 @any_block_advisor()
 def sprintf(block_dets):
@@ -175,13 +210,15 @@ def sprintf(block_dets):
     Look at use of sprintf for string interpolation e.g. greeting = "Hi %s" %
     name
     """
-    has_str_modification = bool(block_dets.element.xpath('value/BinOp/op/Mod'))
-    has_sprintf_format_specifiers = _get_has_sprintf_format_specifiers(
-        block_dets)
-    has_sprintf = has_str_modification and has_sprintf_format_specifiers
+    sprintf_els = block_dets.element.xpath(SPRINTF_XPATH)
+    has_sprintf = bool(sprintf_els)
     if not has_sprintf:
         return None
-    return str_combination(SPRINTF, block_dets)
+    assign_els = []
+    for sprintf_el in sprintf_els:
+        assign_el = sprintf_el.xpath('ancestor::Assign')[-1]
+        assign_els.append(assign_el)
+    return str_combination(SPRINTF, assign_els)
 
 @any_block_advisor()
 def string_addition(block_dets):
@@ -189,12 +226,10 @@ def string_addition(block_dets):
     Advise on string combination using +. Explain how f-string alternative
     works.
     """
-    element = block_dets.element
-    left_strs = 'descendant-or-self::BinOp/left/Str'
-    right_strs = 'descendant-or-self::BinOp/right/Str'
-    str_elements_being_combined = element.xpath(f'{left_strs} | {right_strs}')
+    str_els_being_combined = block_dets.element.xpath(STR_ADDITION_XPATH)
     has_string_addition = False
-    for str_el in str_elements_being_combined:
+    assign_els = []
+    for str_el in str_els_being_combined:
         ## Does their immediate ancestor BinOp have op of Add?
         ## Don't know if there any alternatives but let's be sure
         ## Ordered set of nodes, from parent to ancestor? https://stackoverflow.com/a/15645846
@@ -203,7 +238,9 @@ def string_addition(block_dets):
         has_add = bool(bin_op_el.xpath('op/Add'))
         if has_add:
             has_string_addition = True
-            break
+            assign_el = bin_op_el.xpath('ancestor::Assign')[-1]
+            assign_els.append(assign_el)
     if not has_string_addition:
         return None
-    return str_combination(STR_ADDITION, block_dets)
+    addition_message = str_combination(STR_ADDITION, assign_els)
+    return addition_message

@@ -1,18 +1,21 @@
 
-def get_assigned_name(element):
+def get_assign_name(element):
     """
-    TODO: remove - only works when Assign element the only one supplied
+    Get name assignment associated with the element. The element might be the
+    value or the target or something but we just want to identify the closest
+    Assign ancestor and get its Name.
 
-    :return: None if no name
-    :rtype: str
+    If Assign appears more than once in the ancestral chain e.g.
+    body-Assign-spam-eggs-Assign-targets-Name then we get a list like this:
+    [body-Assign, body-Assign-spam-eggs-Assign] and we want the closest one to
+    the element i.e. assign_els[-1]
+
+    Ordered set of nodes, from parent to ancestor?
+    https://stackoverflow.com/a/15645846
     """
-    ## Get the name of the element if we can.
-    name_elements = element.xpath('targets/Name')
-    if len(name_elements) == 1 and name_elements[0].get('id'):
-        name_id = name_elements[0].get('id')
-        name = name_id
-    else:
-        name = None
+    assign_els = element.xpath('ancestor::Assign')
+    assign_el = assign_els[-1]
+    name = assign_el.xpath('targets/Name')[0].get('id')
     return name
 
 def get_xml_element_first_line_no(element):

@@ -23,7 +23,8 @@ def get_named_tuple_dets(named_tuple_el):
 def get_named_tuples_dets(blocks_dets):
     all_named_tuples_dets = []
     for block_dets in blocks_dets:
-        func_name_els = block_dets.element.xpath('value/Call/func/Name')
+        func_name_els = block_dets.element.xpath(
+            'descendant-or-self::value/Call/func/Name')
         named_tuple_els = [func_name_el for func_name_el in func_name_els
             if func_name_el.get('id') == 'namedtuple']
         named_tuples_dets = [

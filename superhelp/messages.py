@@ -95,7 +95,7 @@ def get_message_dets_from_input(advisor_dets, *,
                     Advisor {name} unable to run. Advisor description:
                     """)
                 +  ## show first line of docstring (subsequent lines might have more technical, internally-oriented comments)
-                layout_comment(docstring.lstrip('\n').split('\n')[0] + '\n')
+                layout_comment(docstring.lstrip('\n').split('\n\n')[0] + '\n')
                 +
                 layout_comment(str(e))
             )

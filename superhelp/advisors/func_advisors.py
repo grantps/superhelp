@@ -1,7 +1,6 @@
 from ..advisors import filt_block_advisor
 from .. import conf, utils
 from ..utils import layout_comment
-from .shared import is_reserved_name
 
 def _get_arg_comment(func_el):
     """
@@ -208,18 +207,20 @@ def func_excess_parameters(block_dets):
     return message
 
 def get_danger_args(func_el):
-    arg_els = func_el.xpath('args/arguments/args')  ## not kwonlyargs so potentially supplied positionally only
+    arg_els = func_el.xpath('args/arguments/args/arg')  ## not kwonlyargs so potentially supplied positionally only
     arg_names = [arg_el.get('arg') for arg_el in arg_els]
     arg_default_els = func_el.xpath('args/arguments/defaults')
     danger_statuses = []
     for arg_default_el in arg_default_els:
-        if arg_default_el.get('value') in ['True', 'False']:
-            danger_status = 'Boolean'
-        elif arg_default_el.get('n'):
-            danger_status = 'Number'
-        else:
-            danger_status = None
-        danger_statuses.append(danger_status)
+        for child_el in arg_default_el.getchildren():
+            if (child_el.tag == 'NameConstant'
+                    and child_el.get('value') in ['True', 'False']):
+                danger_status = 'Boolean'
+            elif child_el.tag == 'Num' and child_el.get('n'):
+                danger_status = 'Number'
+            else:
+                danger_status = None
+            danger_statuses.append(danger_status)
     ## reversed because defaults are filled in rightwards e.g. a, b=1, c=2
     ## args = a,b,c and defaults=1,2 -> reversed c,b,a and 2,1 -> c: 2, b: 1
     arg_names_reversed = reversed(arg_names)

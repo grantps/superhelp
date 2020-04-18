@@ -3,20 +3,28 @@ from textwrap import dedent
 
 from ..advisors import shared, snippet_advisor, filt_block_advisor
 from .. import conf, utils
+from ..utils import layout_comment
 
-@filt_block_advisor(xpath='body/Assign/targets/Tuple')
+ASSIGN_UNPACKING_XPATH = 'descendant-or-self::Assign/targets/Tuple'
+
+@filt_block_advisor(xpath=ASSIGN_UNPACKING_XPATH)
 def unpacking(block_dets):
     """
     Identify name unpacking e.g. x, y = coord
     """
-    unpacked_items = block_dets.element.xpath('targets/Tuple/elts/Name')
-    unpacked_names = [
-        unpacked_item.get('id') for unpacked_item in unpacked_items]
-    nice_str_list = utils.get_nice_str_list(unpacked_names, quoter='`')
-    message = {
-        conf.BRIEF: dedent(f"""\
+    unpacked_els = block_dets.element.xpath(ASSIGN_UNPACKING_XPATH)
+    brief_comment = ''
+    for unpacked_el in unpacked_els:
+        unpacked_names = [
+            name_el.get('id') for name_el in unpacked_el.xpath('elts/Name')]
+        nice_str_list = utils.get_nice_str_list(unpacked_names, quoter='`')
+        unpacked_comment = layout_comment(f"""\
+
             Your code uses unpacking to assign names {nice_str_list}
-            """),
+            """)
+        brief_comment += unpacked_comment
+    message = {
+        conf.BRIEF: brief_comment,
         conf.EXTRA: shared.UNPACKING_COMMENT,
     }
     return message
@@ -37,15 +45,17 @@ def unpacking_opportunity(blocks_dets):
     """
     source_slices = defaultdict(set)
     for block_dets in blocks_dets:
-        el = block_dets.element
-        try:
-            slice_source = el.xpath('value/Subscript/value/Name')[0].get('id')
-            slice_n = el.xpath(
-                'value/Subscript/slice/Index/value/Num')[0].get('n')
-        except IndexError:
-            continue
-        else:
-            source_slices[slice_source].add(slice_n)
+        assign_els = block_dets.element.xpath('descendant-or-self::Assign')
+        for assign_el in assign_els:
+            try:
+                slice_source = assign_el.xpath(
+                    'value/Subscript/value/Name')[0].get('id')
+                slice_n = assign_el.xpath(
+                    'value/Subscript/slice/Index/value/Num')[0].get('n')
+            except IndexError:
+                continue
+            else:
+                source_slices[slice_source].add(slice_n)
     sources2unpack = [source
         for source, slice_ns in source_slices.items()
         if len(slice_ns) > 1]
@@ -54,16 +64,17 @@ def unpacking_opportunity(blocks_dets):
     multiple_items = len(sources2unpack) > 1
     if multiple_items:
         nice_sources_list = utils.get_nice_str_list(sources2unpack, quoter='`')
-        comment = (f"{nice_sources_list} have multiple items extracted by "
-            "indexing so might be suitable candidates for unpacking. ")
+        brief_comment = layout_comment(f"""\
+            {nice_sources_list} have multiple items extracted by
+            indexing so might be suitable candidates for unpacking.
+            """)
     else:
-        comment = (f"Name (variable) `{sources2unpack[0]}` has multiple items "
-            "extracted by indexing so might be a suitable candidate for "
-            "unpacking. ")
+        brief_comment = layout_comment(f"""\
+            Name (variable) `{sources2unpack[0]}` has multiple items extracted
+            by indexing so might be a suitable candidate for unpacking.
+            """)
     message = {
-        conf.BRIEF: dedent(f"""\
-            {comment}
-            """),
+        conf.BRIEF: brief_comment,
         conf.EXTRA: shared.UNPACKING_COMMENT,
     }
     return message

@@ -5,6 +5,13 @@ from tests import check_as_expected
 def test_misc():
     test_conf = [
         (
+            "pet = 'cat'",  ## snippet
+            {
+                'superhelp.advisors.list_advisors.list_overview': 0,
+                'superhelp.advisors.list_advisors.mixed_list_types': 0,  ## basically banned
+            }
+        ),
+        (
             "names = ['Noor', 'Grant', 'Hyeji', 'Vicky', 'Olek', ]",  ## snippet
             {
                 'superhelp.advisors.list_advisors.list_overview': 1,

@@ -1,8 +1,7 @@
 from ..advisors import any_block_advisor, filt_block_advisor
 
-from ..ast_funcs import get_assigned_name
 from .. import conf
-from ..utils import layout_comment
+from ..utils import get_nice_str_list, layout_comment
 
 def _get_sorting_or_reversing_comment(block_dets):
     """
@@ -126,27 +125,44 @@ def sorting_reversing_overview(block_dets):
     }
     return message
 
-@filt_block_advisor(xpath='body/Assign/value/Call/func/Attribute', warning=True)
+ASSIGN_FUNC_ATTRIBUTE_XPATH = 'descendant-or-self::Assign/value/Call/func/Attribute'
+
+@filt_block_advisor(xpath=ASSIGN_FUNC_ATTRIBUTE_XPATH, warning=True)
 def list_sort_as_value(block_dets):
     """
     Warn about assigning a name to the result using .sort() on a list.
     """
-    element = block_dets.element
-    func_attr_els = element.xpath('value/Call/func/Attribute')
-    name = get_assigned_name(element)
-    if not name:
+    func_attr_els = block_dets.element.xpath(ASSIGN_FUNC_ATTRIBUTE_XPATH)
+    names_assigned_to_sort = []
+    for func_attr_el in func_attr_els:
+        assign_el = func_attr_el.xpath('ancestor::Assign')[-1]
+        name = assign_el.xpath('targets/Name')[0].get('id')
+        is_sort = (func_attr_el.get('attr') == 'sort')
+        if is_sort:
+            names_assigned_to_sort.append(name)
+    if not names_assigned_to_sort:
         return None
-    sort_els = [func_attr_el for func_attr_el in func_attr_els
-        if func_attr_el.get('attr') == 'sort']
-    if not sort_els:
-        return None
-    message = {
-        conf.BRIEF: layout_comment(f"""\
-            #### Assignment of None result from in-place .sort() on list
+    multiple = len(names_assigned_to_sort) > 1
+    if multiple:
+        nice_str_list = get_nice_str_list(names_assigned_to_sort, quoter='`')
+        brief_comment = layout_comment(f"""\
+            #### Assignment of `None` result from in-place `.sort()` on list
+
+            {nice_str_list} are assigned to the results of in-place sort
+            operations. This is almost certainly a mistake as the intention is
+            probably not to set them each to `None` (the return value of the
+            `.sort()` method).
+            """)
+    else:
+        brief_comment = layout_comment(f"""\
+            #### Assignment of `None` result from in-place `.sort()` on list
 
             `{name}` is assigned to the result of an in-place sort operation.
-            This is probably a mistake as the intention is probably not to set
-            `{name}` to None.
-            """),
+            This is almost certainly a mistake as the intention is probably not
+            to set `{name}` to `None` (the return value of the `.sort()`
+            method).
+            """)
+    message = {
+        conf.BRIEF: brief_comment,
     }
     return message

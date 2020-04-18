@@ -6,6 +6,14 @@ def test_misc():
     test_conf = [
         (
             dedent("""\
+            pet = 'cat'
+            """),
+            {
+                'superhelp.advisors.decorator_advisors.decorator_overview': 0,
+            }
+        ),
+        (
+            dedent("""\
             from functools import wraps
             def tweet(func):
                 @wraps(func)
