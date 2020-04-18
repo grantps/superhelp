@@ -1,3 +1,4 @@
+## cd ~/projects/superhelp && superhelp/env/bin/python3 -m nose
 
 from nose.tools import assert_equal, assert_not_equal, assert_true, assert_false  # @UnusedImport @UnresolvedImport
 

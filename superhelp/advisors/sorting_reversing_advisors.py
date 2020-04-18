@@ -1,5 +1,5 @@
 from ..advisors import any_block_advisor, filt_block_advisor
-
+from ..ast_funcs import get_assign_name
 from .. import conf
 from ..utils import get_nice_str_list, layout_comment
 
@@ -135,8 +135,7 @@ def list_sort_as_value(block_dets):
     func_attr_els = block_dets.element.xpath(ASSIGN_FUNC_ATTRIBUTE_XPATH)
     names_assigned_to_sort = []
     for func_attr_el in func_attr_els:
-        assign_el = func_attr_el.xpath('ancestor::Assign')[-1]
-        name = assign_el.xpath('targets/Name')[0].get('id')
+        name = get_assign_name(func_attr_el)
         is_sort = (func_attr_el.get('attr') == 'sort')
         if is_sort:
             names_assigned_to_sort.append(name)

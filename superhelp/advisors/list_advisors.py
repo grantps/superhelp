@@ -1,4 +1,5 @@
 from ..advisors import filt_block_advisor
+from ..ast_funcs import get_assign_name
 from .. import code_execution, conf, utils
 from ..utils import layout_comment
 
@@ -142,8 +143,7 @@ def list_overview(block_dets):
     first_name = None
     first_list_items = None
     for i, list_el in enumerate(list_els):
-        assign_el = list_el.xpath('ancestor-or-self::Assign')[-1]
-        name = assign_el.xpath('targets/Name')[0].get('id')
+        name = get_assign_name(list_el)
         items = code_execution.get_val(
             block_dets.pre_block_code_str, block_dets.block_code_str, name)
         if i == 0:
@@ -188,8 +188,7 @@ def mixed_list_types(block_dets):
     main_comment = ''
     has_mixed = False
     for i, list_el in enumerate(list_els):
-        assign_el = list_el.xpath('ancestor-or-self::Assign')[-1]
-        name = assign_el.xpath('targets/Name')[0].get('id')
+        name = get_assign_name(list_el)
         items = code_execution.get_val(
             block_dets.pre_block_code_str, block_dets.block_code_str, name)
         _item_type_names, item_type_nice_names = get_item_type_names(items)

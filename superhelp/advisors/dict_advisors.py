@@ -60,8 +60,7 @@ def dict_overview(block_dets):
     first_name = None
     for i, dict_el in enumerate(dict_els):
         first = (i == 0)
-        assign_el = dict_el.xpath('ancestor-or-self::Assign')[-1]
-        name = assign_el.xpath('targets/Name')[0].get('id')
+        name = get_assign_name(dict_el)
         items = code_execution.get_val(
             block_dets.pre_block_code_str, block_dets.block_code_str, name)
         if first:

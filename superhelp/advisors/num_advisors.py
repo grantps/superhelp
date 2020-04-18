@@ -1,7 +1,7 @@
 from collections import defaultdict
-from textwrap import dedent
 
 from ..advisors import filt_block_advisor
+from ..ast_funcs import get_assign_name
 from .. import code_execution, conf
 from ..utils import get_nice_str_list, layout_comment
 
@@ -17,8 +17,7 @@ def num_overview(block_dets):
     has_num = False
     type_firsts = {}
     for num_el in num_els:
-        assign_el = num_el.xpath('ancestor-or-self::Assign')[-1]
-        name = assign_el.xpath('targets/Name')[0].get('id')
+        name = get_assign_name(num_el)
         val = code_execution.get_val(
             block_dets.pre_block_code_str, block_dets.block_code_str, name)
         val_type = type(val).__name__

@@ -48,3 +48,11 @@ superhelp/ast_output.xml
 superhelp/explained.html
 superhelp/store/*
 
+.settings/
+ast_output.xml
+dist/
+docs/
+explained.html
+notebooks/.ipynb_checkpoints/
+notebooks/explained.html
+

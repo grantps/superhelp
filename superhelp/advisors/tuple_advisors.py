@@ -1,4 +1,5 @@
 from ..advisors import filt_block_advisor
+from ..ast_funcs import get_assign_name
 from .. import code_execution, conf, utils
 from ..utils import layout_comment
 
@@ -19,8 +20,7 @@ def tuple_overview(block_dets):
     main_comment = title
     name_tups = []
     for tup_el in tup_els:
-        assign_el = tup_el.xpath('ancestor::Assign')[-1]
-        name = assign_el.xpath('targets/Name')[0].get('id')
+        name = get_assign_name(tup_el)
         tup = code_execution.get_val(
             block_dets.pre_block_code_str, block_dets.block_code_str, name)
         name_tups.append((name, tup))
