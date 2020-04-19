@@ -243,14 +243,28 @@ LOGO_SVG = """\
 </svg>
 """
 
-HTML_WRAPPER = """\
+BROWSER_HTML_WRAPPER = """\
 <!DOCTYPE html>
 <html lang="en">
 {head}
 <body>
 {logo_svg}
 <h1>SuperHELP - Help for Humans!</h1>
-<p>Help is provided for each line of your snippet.
+<p>Help is provided for each block of code in your snippet.
+Toggle between different levels of detail.</p>
+{radio_buttons}
+{body_inner}
+{visibility_script}
+</body>
+</html>"""
+
+NOTEBOOK_HTML_WRAPPER = """\
+<!DOCTYPE html>
+<html lang="en">
+{head}
+<body>
+<h1>Look here for some help on the snippet in the cell above</h1>
+<p>Help is provided for each block of code in your snippet.
 Toggle between different levels of detail.</p>
 {radio_buttons}
 {body_inner}
@@ -521,23 +535,38 @@ def get_message_html_strs(message_dets):
             message_html_strs.extend(message_level_html_strs)
     return message_html_strs
 
-def _get_all_html_strs(snippet, overall_messages_dets, block_messages_dets):
-    """
-    Display all message types - eventually will show brief and, if the user
-    clicks to expand, main instead with the option of expanding to show Extra.
-    """
-    all_html_strs = []
-    ## overall messages
-    all_html_strs.append("<h2>Overall Snippet</h2>")
+def repeat_overall_snippet(snippet):
+    html_strs = []
+    html_strs.append("<h2>Overall Snippet</h2>")
     overall_code_str = indent(
         f"{conf.MD_PYTHON_CODE_START}\n{snippet}",
         ' '*4)
     overall_code_str_highlighted = markdown(
         overall_code_str, extensions=['codehilite'])
-    all_html_strs.append(overall_code_str_highlighted)
+    html_strs.append(overall_code_str_highlighted)
+    return html_strs
+
+def _get_all_html_strs(snippet, overall_messages_dets, block_messages_dets, *,
+        in_notebook=False):
+    """
+    Display all message types - eventually will show brief and, if the user
+    clicks to expand, main instead with the option of expanding to show Extra.
+
+    Suppress overall snippet display if in notebook - it is right above already
+    and repeating it is confusing and obscures the feedback.
+    """
+    all_html_strs = []
+
+    ## overall snippet display
+    if not in_notebook:
+        overall_snippet_html_strs = repeat_overall_snippet(snippet)
+        all_html_strs.extend(overall_snippet_html_strs)
+
+    ## overall messages
     for message_dets in overall_messages_dets:
         message_html_strs = get_message_html_strs(message_dets)
         all_html_strs.extend(message_html_strs)
+
     ## block messages
     block_messages_dets.sort(key=lambda nt: (nt.first_line_no))
     prev_line_no = None
@@ -578,16 +607,20 @@ def display(snippet, messages_dets, *,
     radio_buttons = _get_radio_buttons(message_level=message_level)
     overall_messages_dets, block_messages_dets = messages_dets
     all_html_strs = _get_all_html_strs(snippet,
-        overall_messages_dets, block_messages_dets)
+        overall_messages_dets, block_messages_dets, in_notebook=in_notebook)
     body_inner = '\n'.join(all_html_strs)
     head = _get_head(in_notebook=in_notebook)
-    html2write = HTML_WRAPPER.format(
-        head=head, logo_svg=LOGO_SVG,
-        radio_buttons=radio_buttons, body_inner=body_inner,
-        visibility_script=VISIBILITY_SCRIPT)
     if in_notebook:
+        html2write = NOTEBOOK_HTML_WRAPPER.format(
+            head=head,
+            radio_buttons=radio_buttons, body_inner=body_inner,
+            visibility_script=VISIBILITY_SCRIPT)
         return html2write
     else:
+        html2write = BROWSER_HTML_WRAPPER.format(
+            head=head, logo_svg=LOGO_SVG,
+            radio_buttons=radio_buttons, body_inner=body_inner,
+            visibility_script=VISIBILITY_SCRIPT)
         explained_fpath = Path.cwd() / 'explained.html'
         with open(explained_fpath, 'w') as f:
             f.write(html2write)

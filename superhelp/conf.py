@@ -2,7 +2,7 @@ import datetime
 import logging
 from pathlib import Path
 
-DEV_MODE = True  ## updates AST output each run
+DEV_MODE = False  ## updates AST output each run
 
 if DEV_MODE:
     print("""\

@@ -1,6 +1,6 @@
 # https://git.nzoss.org.nz/pyGrant/superhelp
 
-version number: 0.0.11
+version number: 0.1.0
 author: Grant Paton-Simpson
 
 ## Overview
@@ -73,6 +73,8 @@ Add new cell at end with content like:
         return sorted_list
 
 and run it to get advice.
+
+The notebook has more detailed instructions at the top.
 
 ## Local Installation
 
