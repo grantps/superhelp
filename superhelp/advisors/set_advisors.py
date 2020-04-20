@@ -2,7 +2,6 @@ from ..advisors import filt_block_advisor
 from ..ast_funcs import get_assign_name
 from .. import code_execution, conf, utils
 from ..utils import layout_comment
-from build.lib.superhelp.displayers.html_displayer import repeat_overall_snippet
 
 ASSIGN_FUNC_NAME_XPATH = 'descendant-or-self::Assign/value/Call/func/Name'
 
