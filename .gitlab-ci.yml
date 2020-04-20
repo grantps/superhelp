@@ -1,0 +1,17 @@
+stages:
+  - build
+  - test
+
+image: python:3.8
+
+build_a:
+  stage: build
+  script:
+    - echo "This job builds something."
+
+test_a:
+  stage: test
+  script:
+    - echo "This job tests something. It will only run when all jobs in the"
+    - echo "build stage are complete."
+

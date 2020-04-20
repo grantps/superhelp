@@ -10,7 +10,7 @@ def _get_additional_main_comment(first_name):
         layout_comment(f"""
 
             It is common to iterate through the key-value pairs of a dictionary.
-            This can be achieved using the dictionary's .items() method. E.g.
+            This can be achieved using the dictionary's `.items()` method. E.g.
 
             """)
         +
@@ -101,17 +101,26 @@ def _get_full_dict_details(block_dets, dict_els, plural):
                 data structures.
 
                 """)
+        empty_dict = (len(items) == 0)
+        if empty_dict:
+            list_desc = layout_comment(f"""\
 
-        list_desc = layout_comment(f"""\
+                `{name}` is an empty dictionary.
 
-            `{name}` is a dictionary with {utils.int2nice(len(items))} items
-            (i.e. {utils.int2nice(len(items))} mappings). In this case, the keys
-            are: {list(items.keys())}. We can get the keys using the .keys()
-            method e.g. `{name}`.keys(). The values are {list(items.values())}.
-            We can get the values using the .values() method e.g.
-            `{name}`.values().
+                """)
+        else:
+            plural = '' if len(items) == 1 else 's'
+            list_desc = layout_comment(f"""\
 
-            """)
+                `{name}` is a dictionary with {utils.int2nice(len(items))}
+                item{plural} (i.e. {utils.int2nice(len(items))}
+                mapping{plural}). In this case, the keys are:
+                {list(items.keys())}. We can get the keys using the `.keys()`
+                method e.g. `{name}`.`keys()`. The values are
+                {list(items.values())}. We can get the values using the
+                `.values()` method e.g. `{name}`.`values()`.
+
+                """)
         brief_comment += list_desc
         main_comment += list_desc
    

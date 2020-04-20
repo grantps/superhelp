@@ -26,23 +26,7 @@ def sorted(my_list):
 """
 
 TEST_SNIPPET = """\
-fruit = ['banana']
-try:
-    lunch = fruit[100]
-except (IndexError, TypeError):
-    print("No lunch for you!")
-except Exception as e:
-    print(f"Unknown error - details: {e}")
-
-try:
-    float('boat')
-except ValueError:
-    print("You can't float a boat! Only a number of some sort!")
-
-try:
-    names[100]
-except Exception:
-    print(names)
+my_dict = {1: 1}
 """
 
 DEMO_SNIPPET = """\
