@@ -15,7 +15,11 @@ def get_assign_name(element):
     """
     assign_els = element.xpath('ancestor::Assign')
     assign_el = assign_els[-1]
-    name = assign_el.xpath('targets/Name')[0].get('id')
+    name_els = assign_el.xpath('targets/Name')
+    if len(name_els) == 1:
+        name = name_els[0].get('id')
+    else:
+        name = None
     return name
 
 def get_xml_element_first_line_no(element):

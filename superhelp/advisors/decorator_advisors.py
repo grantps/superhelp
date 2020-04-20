@@ -9,7 +9,7 @@ decorator_xpath = (
 )
 
 @filt_block_advisor(xpath=decorator_xpath)
-def decorator_overview(block_dets):
+def decorator_overview(block_dets, *, repeated_message=False):
     """
     Look for decorators and explain some options for improving them.
     """
@@ -24,9 +24,9 @@ def decorator_overview(block_dets):
 
             The code uses the decorator{plural}: {dec_name_list}.
             """)
-    message = {
-        conf.BRIEF: brief_comment,
-        conf.MAIN: (
+    main_comment = brief_comment
+    if not repeated_message:
+        main_comment += (
             brief_comment
             +
             layout_comment("""\
@@ -85,6 +85,9 @@ def decorator_overview(block_dets):
 
                 say("sausage!")
                 ''', is_code=True)
-        ),
+        )
+    message = {
+        conf.BRIEF: brief_comment,
+        conf.MAIN: main_comment,
     }
     return message

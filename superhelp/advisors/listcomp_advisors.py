@@ -6,7 +6,7 @@ from ..utils import layout_comment
 ASSIGN_LISTCOMP_XPATH = 'descendant-or-self::Assign/value/ListComp'
 
 @filt_block_advisor(xpath=ASSIGN_LISTCOMP_XPATH)
-def listcomp_overview(block_dets):
+def listcomp_overview(block_dets, *, repeated_message=False):
     """
     Provide advice on list comprehensions and explain other types of
     comprehension available in Python.
@@ -31,9 +31,10 @@ def listcomp_overview(block_dets):
             `{name}` is a list comprehension returning a list
             with {utils.int2nice(len(items))} items: {items}
             """)
-    message = {
-        conf.BRIEF: brief_comment,
-        conf.EXTRA: (
+    if repeated_message:
+        extra_comment = ''
+    else:
+        extra_comment = (
             layout_comment(f"""\
                 #### Other "comprehensions"
 
@@ -53,6 +54,9 @@ def listcomp_overview(block_dets):
                 Pro tip: don't make comprehension *in*comprehensions ;-). If it is
                 hard to read it is probably better written as a looping structure.
                 """)
-        ),
+        )
+    message = {
+        conf.BRIEF: brief_comment,
+        conf.EXTRA: extra_comment,
     }
     return message

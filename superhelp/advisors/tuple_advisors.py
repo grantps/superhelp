@@ -6,7 +6,7 @@ from ..utils import layout_comment
 ASSIGN_TUPLE_XPATH = 'descendant-or-self::Assign/value/Tuple'
 
 @filt_block_advisor(xpath=ASSIGN_TUPLE_XPATH)
-def tuple_overview(block_dets):
+def tuple_overview(block_dets, *, repeated_message=False):
     """
     Explain usage of tuples.
     """
@@ -21,6 +21,8 @@ def tuple_overview(block_dets):
     name_tups = []
     for tup_el in tup_els:
         name = get_assign_name(tup_el)
+        if name is None:  ## no names - e.g. just assignment to other tuples
+            continue
         tup = code_execution.get_val(
             block_dets.pre_block_code_str, block_dets.block_code_str, name)
         name_tups.append((name, tup))
@@ -31,77 +33,81 @@ def tuple_overview(block_dets):
             """)
         brief_comment += tup_desc
         main_comment += tup_desc
-    brief_comment += layout_comment("""\
-
-        Tuples are like lists but the items inside cannot be replaced, removed,
-        or added to. For example, if we have a list [1, 2] we can append a 3 to
-        it. But if we have a tuple (1, 2) we cannot.
-
-        """)
-    main_comment += layout_comment("""\
-
-        Tuples are like lists but they are immutable. That means unchangeable.
-
-        """)
-    why_immutability_comment = layout_comment("""
-        But why would we want a data structure with all those limitations -
-        wouldn't a list always be better? In practice it is often useful to know
-        that a data structure is not being mutated somewhere inside the program.
-        This guarantee makes it easier to reason about what the program is doing
-        and what it cannot be doing. We can also use named tuples to improve
-        readability.
-        """)
-    brief_comment += why_immutability_comment
-    main_comment += why_immutability_comment
-    brief_comment += layout_comment("""\
-
-        Tuples have an order, and can contain duplicate items and items of
-        different types (usually not advisable).
-
-        """)
-
-    non_empty_name_tups = [(name, tup) for name, tup in name_tups if tup] 
-    if non_empty_name_tups:
-        first_name, first_tup = non_empty_name_tups[0]
-        tup_replaced = list(first_tup)
-        tup_replaced[0] = 100
-        tup_replaced = tuple(tup_replaced)
-        tup_popped = list(first_tup)
-        tup_popped.pop()
-        tup_popped = tuple(tup_popped)
-        tup_appended = list(first_tup)
-        tup_appended.append(3)
-        tup_appended = tuple(tup_appended)
-        immutability_comment = layout_comment(f"""
-            * cannot be *replaced* -
-            so we can't run `{first_name}`[0] = 100 to get {tup_replaced}.
-            It will raise an exception -
-            TypeError: 'tuple' object does not support item assignment)
-            * cannot be *removed* -
-            so we can't run `{first_name}`.pop() to get {tup_popped}.
-            * cannot be *added* - so we can't run `{name}`.append(3) to
-            get {tup_appended}.
-            """)
+    if repeated_message:
+        extra_comment = ''
     else:
-        immutability_comment = layout_comment(f"""
-            * cannot be *replaced*. It will raise an exception - TypeError:
-            'tuple' object does not support item assignment)
-            * cannot be *removed*
-            * cannot be *added*
+        brief_comment += layout_comment("""\
+
+            Tuples are like lists but the items inside cannot be replaced,
+            removed, or added to. For example, if we have a list [1, 2] we can
+            append a 3 to it. But if we have a tuple (1, 2) we cannot.
+
             """)
-    main_comment += immutability_comment
-    main_comment += layout_comment("""\
+        main_comment += layout_comment("""\
 
-        Tuples have an order, and can contain duplicate items and items of
-        different types (usually not advisable).
+            Tuples are like lists but they are immutable. That means
+            unchangeable.
 
-        """)
+            """)
+        why_immutability_comment = layout_comment("""
+            But why would we want a data structure with all those limitations -
+            wouldn't a list always be better? In practice it is often useful to
+            know that a data structure is not being mutated somewhere inside the
+            program. This guarantee makes it easier to reason about what the
+            program is doing and what it cannot be doing. We can also use named
+            tuples to improve readability.
+            """)
+        brief_comment += why_immutability_comment
+        main_comment += why_immutability_comment
+        brief_comment += layout_comment("""\
 
-    friends = ['Selma', 'Willy', 'Principal Skinner']
-    family = ['Bart', 'Lisa', 'Marge', 'Homer']
-    original_guests = (friends, family)
-    guests = (friends + ['Lenny'], family)
-    extra_comment = (
+            Tuples have an order, and can contain duplicate items and items of
+            different types (usually not advisable).
+
+            """)
+
+        non_empty_name_tups = [(name, tup) for name, tup in name_tups if tup] 
+        if non_empty_name_tups:
+            first_name, first_tup = non_empty_name_tups[0]
+            tup_replaced = list(first_tup)
+            tup_replaced[0] = 100
+            tup_replaced = tuple(tup_replaced)
+            tup_popped = list(first_tup)
+            tup_popped.pop()
+            tup_popped = tuple(tup_popped)
+            tup_appended = list(first_tup)
+            tup_appended.append(3)
+            tup_appended = tuple(tup_appended)
+            immutability_comment = layout_comment(f"""
+                * cannot be *replaced* -
+                so we can't run `{first_name}`[0] = 100 to get {tup_replaced}.
+                It will raise an exception -
+                TypeError: 'tuple' object does not support item assignment)
+                * cannot be *removed* -
+                so we can't run `{first_name}`.pop() to get {tup_popped}.
+                * cannot be *added* - so we can't run `{name}`.append(3) to
+                get {tup_appended}.
+                """)
+        else:
+            immutability_comment = layout_comment(f"""
+                * cannot be *replaced*. It will raise an exception - TypeError:
+                'tuple' object does not support item assignment)
+                * cannot be *removed*
+                * cannot be *added*
+                """)
+        main_comment += immutability_comment
+        main_comment += layout_comment("""\
+
+            Tuples have an order, and can contain duplicate items and items of
+            different types (usually not advisable).
+
+            """)
+
+        friends = ['Selma', 'Willy', 'Principal Skinner']
+        family = ['Bart', 'Lisa', 'Marge', 'Homer']
+        original_guests = (friends, family)
+        guests = (friends + ['Lenny'], family)
+        extra_comment = (
             layout_comment(f"""\
 
                 ##### GOTCHA - immutable means 100% unchangeable right?

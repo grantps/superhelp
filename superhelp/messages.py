@@ -79,13 +79,20 @@ def complete_message(message, *, source):
     return message
 
 def get_message_dets_from_input(advisor_dets, *,
-        advisor_input, code_str, first_line_no):
+        advisor_input, code_str, first_line_no, repeated_message):
     name = advisor_dets.advisor_name
     docstring = advisor_dets.advisor.__doc__
     if not docstring:
         raise Exception(f'Advisor "{name}" lacks a docstring - add one!')
     try:
-        message = advisor_dets.advisor(advisor_input)
+        try:
+            message = advisor_dets.advisor(advisor_input,
+                repeated_message=repeated_message)
+        except TypeError as e:
+            if "unexpected keyword argument 'repeated_message'" in str(e):
+                message = advisor_dets.advisor(advisor_input)
+            else:
+                raise
     except Exception as e:
         message = {
             conf.BRIEF: (
@@ -146,6 +153,9 @@ def get_block_level_messages_dets(blocks_dets, xml):
     For each advisor, get advice on every relevant block. Element type specific
     advisors process filtered blocks_dets; all block advisors process all blocks
     (as you'd expect ;-)).
+
+    As we iterate through the blocks, only the first block under an advisor
+    should get the full message.
     """
     messages_dets = []
     all_advisors_dets = (
@@ -162,12 +172,15 @@ def get_block_level_messages_dets(blocks_dets, xml):
                 f"{len(blocks_dets2use)} matching blocks")
         else:  ## no filtering by element type so process all blocks
             blocks_dets2use = blocks_dets
+        repeated_message = False
         for block_dets in blocks_dets2use:
             message_dets = get_message_dets_from_input(advisor_dets,
                 advisor_input=block_dets, code_str=block_dets.block_code_str,
-                first_line_no=block_dets.first_line_no)
+                first_line_no=block_dets.first_line_no,
+                repeated_message=repeated_message)
             if message_dets:
                 messages_dets.append(message_dets)
+                repeated_message = True
     return messages_dets
 
 def get_overall_snippet_messages_dets(snippet, blocks_dets):
@@ -178,7 +191,8 @@ def get_overall_snippet_messages_dets(snippet, blocks_dets):
     messages_dets = []
     for advisor_dets in advisors.SNIPPET_ADVISORS:
         message_dets = get_message_dets_from_input(advisor_dets,
-            advisor_input=blocks_dets, code_str=snippet, first_line_no=None)
+            advisor_input=blocks_dets, code_str=snippet, first_line_no=None,
+            repeated_message=False)
         if message_dets:
             messages_dets.append(message_dets)
     return messages_dets
@@ -201,9 +215,9 @@ def get_separated_messages_dets(snippet):
         xml.getroottree().write(str(conf.AST_OUTPUT_XML), pretty_print=True)
     snippet_lines = snippet.split('\n')
     blocks_dets = get_blocks_dets(xml, snippet_lines)
-    block_level_messages_dets = get_block_level_messages_dets(blocks_dets, xml)
     overall_snippet_messages_dets = get_overall_snippet_messages_dets(
         snippet, blocks_dets)
+    block_level_messages_dets = get_block_level_messages_dets(blocks_dets, xml)
     for messages_dets in [
             overall_snippet_messages_dets, block_level_messages_dets]:
         if None in messages_dets:

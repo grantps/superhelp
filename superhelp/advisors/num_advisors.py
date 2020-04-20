@@ -8,7 +8,7 @@ from ..utils import get_nice_str_list, layout_comment
 ASSIGN_NUM_XPATH = 'descendant-or-self::Assign/value/Num'
 
 @filt_block_advisor(xpath=ASSIGN_NUM_XPATH)
-def num_overview(block_dets):
+def num_overview(block_dets, *, repeated_message=False):
     """
     Get general advice about assigned numbers e.g. var = 123
     """
@@ -41,35 +41,38 @@ def num_overview(block_dets):
                 {names_text} are numbers - specific type `{val_type}`.
                 """)
         brief_comment += names_msg
-    for val_type, names in val_types.items():
-        first_name = names[0]
-        val = type_firsts[val_type]
-        specific_comment = None
-        if val_type == conf.INT_TYPE:
-            specific_comment = layout_comment(f"""\
+    if not repeated_message:
+        for val_type, names in val_types.items():
+            first_name = names[0]
+            val = type_firsts[val_type]
+            specific_comment = None
+            if val_type == conf.INT_TYPE:
+                specific_comment = layout_comment(f"""\
 
-                Integers are counting numbers and include 0 and negative numbers
-                e.g. -2
+                    Integers are counting numbers and include 0 and negative
+                    numbers e.g. -2
 
-                If you need a float instead of an integer use the float function
+                    If you need a float instead of an integer use the float
+                    function.
 
-                e.g. float({first_name}) which returns {float(val)}
-                """)
-        elif val_type == conf.FLOAT_TYPE:
-            specific_comment = layout_comment(f"""\
+                    e.g. float({first_name}) which returns {float(val)}
+                    """)
+            elif val_type == conf.FLOAT_TYPE:
+                specific_comment = layout_comment(f"""\
 
-                Floats are used when decimal places are required.
+                    Floats are used when decimal places are required.
 
-                If you need an integer instead of a float use the int function
+                    If you need an integer instead of a float use the int
+                    function.
 
-                e.g. int({name}) which returns {int(val)}
-                """)
-        if specific_comment:
-            brief_comment += specific_comment
+                    e.g. int({name}) which returns {int(val)}
+                    """)
+            if specific_comment:
+                brief_comment += specific_comment
     message = {
         conf.BRIEF: brief_comment,
     }
-    if conf.FLOAT_TYPE in val_types:
+    if conf.FLOAT_TYPE in val_types and not repeated_message:
         message[conf.EXTRA] = layout_comment(f"""\
             Floats, or floating point numbers, are stored in computers as binary
             fractions. "Unfortunately, most decimal fractions cannot be

@@ -69,7 +69,7 @@ def get_unpacked_names(block_dets):
     return unpacked_names
 
 @any_block_advisor(warning=True)
-def name_check(block_dets):
+def name_check(block_dets, *, repeated_message=False):
     """
     Check names used for use of reserved words and camel case.
     """
@@ -116,29 +116,29 @@ def name_check(block_dets):
         brief_comment += layout_comment(f"""\
             Possibly un-pythonic name(s): {dubious_names_listed}
             """)
-    brief_comment += layout_comment("""\
+    if not repeated_message:
+        brief_comment += layout_comment("""\
 
-        Python variables should not named using reserved words e.g.
-        `collections` or `sorted`.
+            Python variables should not named using reserved words e.g.
+            `collections` or `sorted`.
 
-        Generally speaking Python variables should be snake case - that is lower
-        case, with multiple words joined by underscores e.g. `high_scores` (not
-        `highScores` or `HighScores`)
-        """)
+            Generally speaking Python variables should be snake case - that is
+            lower case, with multiple words joined by underscores e.g.
+            `high_scores` (not `highScores` or `HighScores`)
+            """)
+    main_comment = brief_comment
+    if not repeated_message:
+        main_comment += layout_comment("""\
+            In Python class names and named tuples are expected to be in Pascal
+            Case (also known as upper camel case) rather than the usual snake
+            case. E.g. `collections.ChainMap`
+
+            Exceptions can also be made when a higher priority is consistency
+            with other code e.g. a library the Python is ported from, or the
+            non-Python code that Python is wrapping.
+            """)
     message = {
         conf.BRIEF: brief_comment,
-        conf.MAIN: (
-            brief_comment
-            +
-            layout_comment("""\
-                In Python class names and named tuples are expected to be in
-                Pascal Case (also known as upper camel case) rather than the
-                usual snake case. E.g. `collections.ChainMap`
-
-                Exceptions can also be made when a higher priority is
-                consistency with other code e.g. a library the Python is ported
-                from, or the non-Python code that Python is wrapping.
-                """)
-        ),
+        conf.MAIN: main_comment,
     }
     return message

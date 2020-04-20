@@ -132,7 +132,7 @@ def _get_additional_main_comment(first_name, first_list_items):
 ## only interested in lists when being assigned as a value
 ## (i.e. <body><Assign><value><List> so we're looking for List under value only)
 @filt_block_advisor(xpath=ASSIGN_LIST_XPATH)
-def list_overview(block_dets):
+def list_overview(block_dets, *, repeated_message=False):
     """
     General overview of list taking content details into account.
     """
@@ -143,10 +143,11 @@ def list_overview(block_dets):
     first_name = None
     first_list_items = None
     for i, list_el in enumerate(list_els):
+        first = (i == 0)
         name = get_assign_name(list_el)
         items = code_execution.get_val(
             block_dets.pre_block_code_str, block_dets.block_code_str, name)
-        if i == 0:
+        if first:
             first_name = name
             first_list_items = items
             title = layout_comment(f"""\
@@ -163,15 +164,17 @@ def list_overview(block_dets):
             """)
         brief_comment += list_desc
         main_comment += list_desc
-    brief_comment += layout_comment("""\
+    if not repeated_message:
+        brief_comment += layout_comment("""\
 
-        Lists, along with dictionaries, are the workhorses of Python data
-        structures.
+            Lists, along with dictionaries, are the workhorses of Python data
+            structures.
 
-        Lists have an order, and can contain duplicate items and items of
-        different types (usually not advisable).
-        """)
-    main_comment += _get_additional_main_comment(first_name, first_list_items)
+            Lists have an order, and can contain duplicate items and items of
+            different types (usually not advisable).
+            """)
+        main_comment += _get_additional_main_comment(
+            first_name, first_list_items)
     message = {
         conf.BRIEF: brief_comment,
         conf.MAIN: main_comment,
@@ -179,7 +182,7 @@ def list_overview(block_dets):
     return message
 
 @filt_block_advisor(xpath=ASSIGN_LIST_XPATH, warning=True)
-def mixed_list_types(block_dets):
+def mixed_list_types(block_dets, *, repeated_message=False):  # @UnusedVariable
     """
     Warns about lists containing a mix of data types.
     """
@@ -188,6 +191,7 @@ def mixed_list_types(block_dets):
     main_comment = ''
     has_mixed = False
     for i, list_el in enumerate(list_els):
+        first = (i == 0)
         name = get_assign_name(list_el)
         items = code_execution.get_val(
             block_dets.pre_block_code_str, block_dets.block_code_str, name)
@@ -196,7 +200,7 @@ def mixed_list_types(block_dets):
             ## No explanation needed if there aren't multiple types.
             continue
         has_mixed = True
-        if i == 0:
+        if first:
             title = layout_comment(f"""\
                 #### List(s) with mix of different data types
     

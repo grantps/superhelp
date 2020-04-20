@@ -2,11 +2,12 @@ from ..advisors import filt_block_advisor
 from ..ast_funcs import get_assign_name
 from .. import code_execution, conf, utils
 from ..utils import layout_comment
+from build.lib.superhelp.displayers.html_displayer import repeat_overall_snippet
 
 ASSIGN_FUNC_NAME_XPATH = 'descendant-or-self::Assign/value/Call/func/Name'
 
 @filt_block_advisor(xpath=ASSIGN_FUNC_NAME_XPATH)
-def set_overview(block_dets):
+def set_overview(block_dets, *, repeated_message=False):
     """
     Look for sets and provide general advice on using them and finding out more.
     """
@@ -38,7 +39,7 @@ def set_overview(block_dets):
                 {members}
                 """)
             set_item = list(my_set)[0]
-            if not no_duplicates_demo:  ## only want one demo even if multiple sets defined in block
+            if not no_duplicates_demo and not repeated_message:  ## only want one demo even if multiple sets defined in block
                 no_duplicates_demo = (
                     layout_comment(f"""\
 
@@ -55,30 +56,32 @@ def set_overview(block_dets):
             brief_comment += layout_comment(f"""\
                 `{name}` is an empty set.
                 """)
-    brief_comment += (
-        layout_comment("""\
+    if not repeated_message:
+        brief_comment += (
+            layout_comment("""\
 
-            Python sets are brilliant.
-            There are often cases in programming where
-            you need some sort of set operation
-            e.g. you need everything in one set that is not in another.
-            In Python you can express that idea directly and semantically
-            with set concepts instead of having to build the operations yourself
-            in code which needs explaining and testing.
+                Python sets are brilliant. There are often cases in programming
+                where you need some sort of set operation e.g. you need
+                everything in one set that is not in another. In Python you can
+                express that idea directly and semantically with set concepts
+                instead of having to build the operations yourself in code which
+                needs explaining and testing.
 
-            For example:
-        """)
-        +
-        layout_comment("""\
-            people = set(['Sam', 'Avi', 'Terri', 'Noor', 'Hyeji'])
-            no_email = set(['Sam', 'Terri'])
-            people2email = people - no_email
-            ## >>> {'Noor', 'Hyeji', 'Avi'}
-            """, is_code=True)
+                For example:
+            """)
+            +
+            layout_comment("""\
+                people = set(['Sam', 'Avi', 'Terri', 'Noor', 'Hyeji'])
+                no_email = set(['Sam', 'Terri'])
+                people2email = people - no_email
+                ## >>> {'Noor', 'Hyeji', 'Avi'}
+                """, is_code=True)
         )
-    message = {
-        conf.BRIEF: brief_comment,
-        conf.MAIN: (
+    if repeated_message:
+        main_comment = brief_comment
+        extra_comment = ''
+    else:
+        main_comment = (
             brief_comment
             +
             layout_comment(f"""\
@@ -86,7 +89,7 @@ def set_overview(block_dets):
                 Being a set, all members are unique by definition
                 so if you add something to a set that is already a member
                 the set doesn't change.
-            """)
+                """)
             +
             no_duplicates_demo
             +
@@ -108,8 +111,8 @@ def set_overview(block_dets):
                 my_set.add(4)
                 ## >>> {1, 2, 3, 4}
                 """, is_code=True)
-        ),
-        conf.EXTRA: (
+        )
+        extra_comment = (
             layout_comment("""\
                 Set operations can be expressed with operators such as
                 '-' (minus) or with methods such as .difference().
@@ -129,5 +132,9 @@ def set_overview(block_dets):
                 ## >>> {'Grzegorz', 'Giles', 'Grant', 'Aravind', 'Charlotte'}
                 """, is_code=True)
         )
+    message = {
+        conf.BRIEF: brief_comment,
+        conf.MAIN: main_comment,
+        conf.EXTRA: extra_comment,
     }
     return message

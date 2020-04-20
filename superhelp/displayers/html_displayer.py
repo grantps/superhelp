@@ -525,11 +525,14 @@ def get_message_html_strs(message_dets):
             raise TypeError(
                 f"Missing message in message_dets {message_dets}")
         else:
-            message = (
-                message
-                .replace(conf.PYTHON_CODE_START, conf.MD_PYTHON_CODE_START)
-                .replace(f"\n    {conf.PYTHON_CODE_END}", '')
-            )
+            try:
+                message = (
+                    message
+                    .replace(conf.PYTHON_CODE_START, conf.MD_PYTHON_CODE_START)
+                    .replace(f"\n    {conf.PYTHON_CODE_END}", '')
+                )
+            except Exception as e:
+                pass
             message_level_html_strs = get_html_strs(
                 message, message_level, warning=message_dets.warning)
             message_html_strs.extend(message_level_html_strs)

@@ -2,7 +2,7 @@ from ..advisors import filt_block_advisor
 from .. import conf, utils
 from ..utils import layout_comment
 
-def _get_arg_comment(func_el):
+def _get_arg_comment(func_el, *, repeated_message=False):
     """
     Must cope with positional arguments, keyword arguments, keyword-only
     arguments, packed positional arguments, and packed keyword arguments.
@@ -18,20 +18,23 @@ def _get_arg_comment(func_el):
     has_packing = (vararg or kwarg)
     if has_packing:
         arg_comment = 'receives a variable number of arguments'
-        if vararg:
-            vararg_name = vararg[0].get('arg')
-            arg_comment += (". All positional arguments received are packed "
-                f"together into a list called {vararg_name} "
-                f"using the &ast;{vararg_name} syntax. If there is no better "
-                "name in a particular case the Python convention is to call "
-                "that list 'args'")
-        if kwarg:
-            kwarg_name = kwarg[0].get('arg')
-            arg_comment += (". All keyword arguments received are packed "
-                f"together into a dictionary called {kwarg_name} "
-                f"using the &ast;&ast;{kwarg_name} syntax. If there is no "
-                "better name in a particular case the Python convention is to "
-                "call that dictionary 'kwargs'")
+        if repeated_message:
+            arg_comment += '.'
+        else:
+            if vararg:
+                vararg_name = vararg[0].get('arg')
+                arg_comment += (". All positional arguments received are packed"
+                    f" together into a list called {vararg_name} using "
+                    f"the &ast;{vararg_name} syntax. If there is no better name"
+                    " in a particular case the Python convention is to call "
+                    "that list 'args'")
+            if kwarg:
+                kwarg_name = kwarg[0].get('arg')
+                arg_comment += (". All keyword arguments received are packed "
+                    f"together into a dictionary called {kwarg_name} "
+                    f"using the &ast;&ast;{kwarg_name} syntax. If there is no "
+                    "better name in a particular case the Python convention is "
+                    "to call that dictionary 'kwargs'")
     else:
         all_args_n = len(args + kwonlyargs)
         if all_args_n:
@@ -43,7 +46,7 @@ def _get_arg_comment(func_el):
             arg_comment = "doesn't take any arguments"
     return arg_comment
 
-def _get_return_comment(return_elements):
+def _get_return_comment(return_elements, *, repeated_message=False):
     implicit_return_els = [return_element for return_element in return_elements
         if not return_element.getchildren()]
     implicit_returns_n = len(implicit_return_els)
@@ -61,23 +64,31 @@ def _get_return_comment(return_elements):
                 val_returns_n += 1
     keyword_returns_n = none_returns_n + val_returns_n + implicit_returns_n
     if not keyword_returns_n:
-        returns_comment = (f"The function does not explicitly return anything. "
-            "In which case, in Python, it implicitly returns None")
+        returns_comment = "The function does not explicitly return anything."
+        if not repeated_message:
+            returns_comment += (
+                " In which case, in Python, it implicitly returns None")
     else:
         returns_comment = (
-            f"The function exits via an explicit `return` statement "
+            "The function exits via an explicit `return` statement "
             f"{utils.int2nice(keyword_returns_n)} time")
-        if keyword_returns_n > 1:
-            returns_comment += ("s. Some people prefer functions to have one, "
-                "and only one exit point for clarity. Others disagree e.g. "
-                "using early returns to short-circuit functions if initial "
-                "validation of some sort makes it possible to avoid the bulk "
-                "of the function. Whatever approach you take make sure your "
-                "function is easy to reason about in terms of what it returns "
-                "and where it exits")
+        if repeated_message:
+            returns_comment += '.'
+        else:
+            if keyword_returns_n > 1:
+                returns_comment += (
+                    "s. Some people prefer functions to have one, "
+                    "and only one exit point for clarity. Others disagree e.g. "
+                    "using early returns to short-circuit functions if initial "
+                    "validation of some sort makes it possible to avoid the "
+                    "bulk of the function. Whatever approach you take make sure"
+                    " your function is easy to reason about in terms of what it"
+                    " returns and where it exits")
+            else:
+                returns_comment += '.'
     return returns_comment
 
-def _get_exit_comment(func_el):
+def _get_exit_comment(func_el, *, repeated_message=False):
     """
     Look for 'return' and 'yield'.
     """
@@ -85,16 +96,17 @@ def _get_exit_comment(func_el):
     yield_elements = func_el.xpath('descendant-or-self::Yield')
     if yield_elements:
         if return_elements:
-            exit_comment = (f"It has both `return` and `yield`. "
+            exit_comment = ("It has both `return` and `yield`. "
                 "That probably doesn't make any sense.")
         else:
-            exit_comment = f"It is a generator function."
+            exit_comment = "It is a generator function."
     else:
-        exit_comment = _get_return_comment(return_elements)
+        exit_comment = _get_return_comment(
+            return_elements, repeated_message=repeated_message)
     return exit_comment
 
 @filt_block_advisor(xpath='body/FunctionDef')
-def func_overview(block_dets):
+def func_overview(block_dets, *, repeated_message=False):
     """
     Advise on function definition statements. e.g. def greeting(): ...
     """
@@ -104,21 +116,27 @@ def func_overview(block_dets):
         """)
     for func_el in func_els:
         name = func_el.get('name')
-        arg_comment = _get_arg_comment(func_el)
-        exit_comment = _get_exit_comment(func_el)
+        arg_comment = _get_arg_comment(
+            func_el, repeated_message=repeated_message)
+        exit_comment = _get_exit_comment(
+            func_el, repeated_message=repeated_message)
         brief_comment += layout_comment(f"""\
 
             The function named `{name}` {arg_comment}. {exit_comment}.
             """)
-    message = {
-        conf.BRIEF: brief_comment,
-        conf.EXTRA: layout_comment(f"""\
+    if repeated_message:
+        extra_comment = ''
+    else:
+        extra_comment = layout_comment("""\
             There is often confusion about the difference between arguments and
             parameters. Functions define parameters but receive arguments. You
             can think of parameters as being like car parks and arguments as the
             cars that fill them. You supply arguments to a function depending on
             its parameters.
             """)
+    message = {
+        conf.BRIEF: brief_comment,
+        conf.EXTRA: extra_comment,
     }
     return message
 
@@ -129,7 +147,7 @@ def get_func_lines_n(func_el):
     return func_lines_n
 
 @filt_block_advisor(xpath='body/FunctionDef', warning=True)
-def func_len_check(block_dets):
+def func_len_check(block_dets, *, repeated_message=False):
     """
     Warn about functions that might be too long.
     """
@@ -151,10 +169,12 @@ def func_len_check(block_dets):
             brief_comment += layout_comment(f"""\
 
             `{name}` has {utils.int2nice(func_lines_n)} lines of code
-            (including comments). Sometimes it is OK for a function to be that
-            long but you should consider refactoring the code into smaller
-            units.
+            (including comments).
             """)
+            if not repeated_message:
+                brief_comment += (" Sometimes it is OK for a function to be "
+                    "that long but you should consider refactoring the code "
+                    "into smaller units.")
     if not brief_comment:
         return None
     message = {
@@ -169,13 +189,13 @@ def get_n_args(func_el):
     return n_args
 
 @filt_block_advisor(xpath='body/FunctionDef', warning=True)
-def func_excess_parameters(block_dets):
+def func_excess_parameters(block_dets, *, repeated_message=False):
     """
     Warn about functions that might have too many parameters.
     """
     func_els = block_dets.element.xpath('descendant-or-self::FunctionDef')
     brief_comment = ''
-    has_high_comment = False
+    has_high = False
     for func_el in func_els:
         name = func_el.get('name')
         n_args = get_n_args(func_el)
@@ -190,7 +210,7 @@ def func_excess_parameters(block_dets):
             `{name}` has {n_args:,} parameters.
 
             """)
-            if not has_high_comment:
+            if not (has_high or repeated_message):
                 brief_comment += layout_comment("""\
                     Sometimes it is OK for a function to have that many but you
                     should consider refactoring the code or collecting related
@@ -198,8 +218,8 @@ def func_excess_parameters(block_dets):
                     image size arguments separately perhaps you could receive a
                     dictionary of image size argument details.
                     """)
-            has_high_comment = True
-    if not has_high_comment:
+            has_high = True
+    if not has_high:
         return None
     message = {
         conf.BRIEF: brief_comment,
@@ -232,7 +252,7 @@ def get_danger_args(func_el):
     return danger_args
 
 @filt_block_advisor(xpath='body/FunctionDef', warning=True)
-def positional_boolean(block_dets):
+def positional_boolean(block_dets, *, repeated_message=False):
     """
     Look for any obvious candidates for forced keyword use e.g. where a
     parameter is a boolean or a number.
@@ -249,7 +269,11 @@ def positional_boolean(block_dets):
         if danger_args:
             if not has_positional_comment:
                 brief_comment += layout_comment("""\
-                    #### Risky positional arguments expected
+
+                    #### Function expects risky positional arguments
+                    """)
+                if not repeated_message:
+                    brief_comment += layout_comment("""\
 
                     Functions which expect numbers or booleans (True/False)
                     without requiring keywords are risky. They are risky when if
@@ -262,7 +286,7 @@ def positional_boolean(block_dets):
                 A partial analysis of `{name}` found the following risky non-
                 keyword (positional) parameters: {danger_args}.
                 """)
-            if not has_positional_comment:
+            if not (has_positional_comment) or repeated_message:
                 brief_comment += (
                     layout_comment("""\
 
@@ -285,16 +309,20 @@ def positional_boolean(block_dets):
             has_positional_comment = True
     if not has_positional_comment:
         return None
-    message = {
-        conf.BRIEF: brief_comment,
-        conf.EXTRA: layout_comment(f"""\
+    if repeated_message:
+        extra_comment = ''
+    else:
+        extra_comment = layout_comment(f"""\
             Putting an asterisk in the parameters has the effect of forcing all
             parameters to the right to be keyword parameters because the
             asterisk mops up any remaining positional arguments supplied (if
             any) when the function is called. There can't be any other
             positional arguments, because they have all been handled already, so
             only keyword parameters are allowed thereafter.
-            """),
+            """)
+    message = {
+        conf.BRIEF: brief_comment,
+        conf.EXTRA: extra_comment,
     }
     return message
 
@@ -338,7 +366,7 @@ def get_funcs_dets_and_docstring(func_els):
     return funcs_dets_and_docstring
 
 @filt_block_advisor(xpath='body/FunctionDef', warning=True)
-def docstring_issues(block_dets):
+def docstring_issues(block_dets, *, repeated_message=False):
     """
     Check over function doc strings. Missing doc string, not enough lines to
     cover params, return etc.
@@ -367,7 +395,7 @@ def docstring_issues(block_dets):
     inadequate_commented = False
     for func_el, func_name, docstring in funcs_dets_and_docstring:
         if docstring is None:
-            if not missing_commented:
+            if not (missing_commented or repeated_message):
                 brief_comment += (
                     layout_comment(f"""\
                         #### Function missing doc string
@@ -402,7 +430,7 @@ def docstring_issues(block_dets):
             too_short = n_doc_lines < (conf.MIN_BRIEF_DOCSTRING + n_args)
             param_str = ' given the number of parameters' if n_args > 1 else ''
             if too_short:
-                if not inadequate_commented:
+                if not (inadequate_commented or repeated_message):
                     brief_comment += (
                         layout_comment(f"""\
                             #### Function doc string too brief?

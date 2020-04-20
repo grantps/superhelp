@@ -1,10 +1,9 @@
-from textwrap import dedent
-
 from ..advisors import shared, filt_block_advisor
 from .. import conf
+from ..utils import layout_comment
 
 @filt_block_advisor(xpath='body/For')
-def for_overview(block_dets):  #@UnusedVariable (Ctrl 1 to identify what to suppress)
+def for_overview(block_dets, *, repeated_message=False):
     """
     Provide overview of for loop to see if simple enough to be a possible
     candidate for a comprehension.
@@ -14,6 +13,8 @@ def for_overview(block_dets):  #@UnusedVariable (Ctrl 1 to identify what to supp
     comprehension or not. And to see whether appending, key setting, or adding
     is happening and suggesting the right comprehension accordingly.
     """
+    if repeated_message:
+        return None
     loop_blocks = block_dets.block_code_str.split('\n')
     short_enough = len(loop_blocks) < 3
     if not short_enough:
@@ -29,23 +30,18 @@ def for_overview(block_dets):  #@UnusedVariable (Ctrl 1 to identify what to supp
     elif 'set' in block_dets.block_code_str:
         comp_type = 'Set Comprehension'
         comp_comment = shared.SET_COMPREHENSION_COMMENT
+    brief_comment = layout_comment(f"""\
+        Simple for loops can sometimes be replaced with comprehensions. In this
+        case a simple reading of the code suggests a {comp_type} might be
+        possible. Of course, only use a comprehension if it makes your code
+        easier to understand.
+        """)
     message = {
-        conf.BRIEF: dedent(f"""\
-            Simple for loops can sometimes be replaced with comprehensions.
-            In this case a simple reading of the code suggests a {comp_type}
-            might be possible.
-
-            Of course, only use a comprehension if it makes your code easier to
-            understand.
-            """),
+        conf.BRIEF: brief_comment,
         conf.MAIN: (
-            dedent(f"""\
-            Simple for loops can sometimes be replaced with comprehensions.
-            In this case a simple reading of the code suggests a {comp_type}
-            might be possible. Of course, only use a comprehension if it makes
-            your code easier to understand.
-            """)
+            brief_comment
             +
-            shared.GENERAL_COMPREHENSION_COMMENT + '\n\n' + comp_comment),
+            shared.GENERAL_COMPREHENSION_COMMENT + '\n\n' + comp_comment
+        ),
     }
     return message

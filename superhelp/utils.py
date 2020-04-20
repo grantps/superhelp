@@ -1,3 +1,4 @@
+import logging
 from textwrap import dedent
 
 from . import conf
@@ -42,6 +43,8 @@ def int2nice(num):
     return nice.get(num, num)
 
 def layout_comment(raw_comment, *, is_code=False):
+    if '`' in raw_comment and is_code:
+        logging.debug("Backtick detected in code which is probably a mistake")
     if is_code:
         lines = (
             [conf.PYTHON_CODE_START]

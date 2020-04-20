@@ -12,7 +12,7 @@ ELSE = 'else'
 
 def add_if_details(if_element, if_clauses):
     """
-    If under our <If>s <orelse> we have another <If> store an 'elif' in if_details
+    If under our <If>'s <orelse> we have another <If> store an 'elif' in if_details
     and send the <If> under <orelse> through again; otherwise store an 'else'
     in if_details and return.
 
@@ -42,7 +42,13 @@ def get_ifs_details(block_dets):
     ## skip when if __name__ == '__main__'
     if block_dets.block_code_str.startswith("if __name__ == "):
         return []
-    if_elements = block_dets.element.xpath('descendant-or-self::If')
+    raw_if_els = block_dets.element.xpath('descendant-or-self::If')
+    if_elements = []
+    for raw_if_el in raw_if_els:
+        ## ignore if really an elif
+        has_or_else_parent = raw_if_el.getparent().tag == 'orelse'
+        if not has_or_else_parent:
+            if_elements.append(raw_if_el)
     ifs_details = []
     for if_element in if_elements:
         if_clauses = []
@@ -53,7 +59,8 @@ def get_ifs_details(block_dets):
             missing_else = (last_sub_if != ELSE)
         else:
             missing_else = False
-        ifs_details.append(IfDets(multiple_conditions, missing_else, if_clauses))
+        ifs_details.append(
+            IfDets(multiple_conditions, missing_else, if_clauses))
     return ifs_details
 
 def _get_if_comment(ifs_details):
@@ -61,12 +68,12 @@ def _get_if_comment(ifs_details):
     Have to cope with multiple if statements and make it nice (unnumbered) when
     only one.
     """
-    brief_comment = ''
+    brief_comment = '##### Conditional statement detected'
     for n, if_details in enumerate(ifs_details, 1):
         counter = '' if len(ifs_details) == 1 else f" {int2nice(n)}"
         if if_details.multiple_conditions:
             n_elifs = if_details.if_clauses.count(ELIF)
-            brief_comment += (f"""\
+            brief_comment += layout_comment(f"""\
 
                 `if` statement{counter} has {int2nice(n_elifs)} `elif`
                 clauses
@@ -76,14 +83,14 @@ def _get_if_comment(ifs_details):
             else:
                 brief_comment += " and an `else` clause."
         else:
-            brief_comment += (f"""\
+            brief_comment += layout_comment(f"""\
 
                 `if` statement{counter} has no extra conditions.
                 """)
     return brief_comment
 
 @filt_block_advisor(xpath='//If')
-def if_else_overview(block_dets):
+def if_else_overview(block_dets, *, repeated_message=False):
     """
     Look at conditional statements using if (apart from if __name__ ==
     '__main__").
@@ -93,23 +100,9 @@ def if_else_overview(block_dets):
         return None
     ifs_details = get_ifs_details(block_dets)
     brief_comment = _get_if_comment(ifs_details)
-    message = {
-        conf.BRIEF: (
-            layout_comment(f"""\
-                ##### Conditional statement detected
-
-                """)
-            +
-            layout_comment(brief_comment)
-        ),
-        conf.MAIN: (
-            layout_comment(f"""\
-                ##### Conditional statement detected
-
-                """)
-            +
-            layout_comment(brief_comment)
-            +
+    main_comment = brief_comment
+    if not repeated_message:
+        main_comment += (
             layout_comment("""\
 
                 When using `if`, `elif`, or `else`, the item evaluated can
@@ -135,30 +128,46 @@ def if_else_overview(block_dets):
                 if too_long:
                     phrase = chop(phrase)
                 """, is_code=True)
-        ),
+        )
+    message = {
+        conf.BRIEF: brief_comment,
+        conf.MAIN: main_comment,
     }
     return message
 
 @filt_block_advisor(xpath='//If', warning=True)
-def missing_else(block_dets):
+def missing_else(block_dets, *, repeated_message=False):
     """
     Warn about benefits in many cases of adding else clause if missing.
     """
     ifs_details = get_ifs_details(block_dets)
     brief_comment = ''
-    for n, if_details in enumerate(ifs_details, 1):
-        counter = '' if len(ifs_details) == 1 else f" {int2nice(n)}"
-        if if_details.missing_else:
-            brief_comment += (f"`if` block{counter} has `elif` clauses but "
-                "lacks an `else` clause. It is often best to include an "
-                "`else` clause when there are `elif` clauses.")
-    if not brief_comment:
+    has_missing_else = False
+    ifs_dets_missing_else = [
+        if_details for if_details in ifs_details if if_details.missing_else]
+    for n, if_details in enumerate(ifs_dets_missing_else, 1):
+        first = (n == 1)
+        counter = '' if len(ifs_dets_missing_else) == 1 else f" {int2nice(n)}"
+        if first:
+            brief_comment += layout_comment(f"""\
+
+                #### Missing `else` clause
+
+                """)
+        if first and not repeated_message:
+            brief_comment += layout_comment(f"""\
+                `if` block{counter} has `elif` clauses but lacks an `else`
+                clause. It is often best to include an `else` clause when there
+                are `elif` clauses.
+                """)
+        has_missing_else = True
+    if not has_missing_else:
         return None
-    brief_comment = "#### Missing `else` clause\n\n" + brief_comment
-    message = {
-        conf.BRIEF: layout_comment(brief_comment),
-        conf.MAIN: (
-            layout_comment(brief_comment)
+    if repeated_message:
+        main_comment = brief_comment
+    else:
+        main_comment = (
+            brief_comment
             +
             layout_comment("""\
 
@@ -209,5 +218,8 @@ def missing_else(block_dets):
                     raise Exception(f"Unexpected user: '{user}'")
                 """, is_code=True)
         )
+    message = {
+        conf.BRIEF: brief_comment,
+        conf.MAIN: main_comment,
     }
     return message

@@ -13,8 +13,10 @@ JOINED_STR_XPATH = 'descendant-or-self::Assign/value/JoinedStr'
 SPRINTF_XPATH = 'descendant-or-self::value/BinOp/op/Mod'
 STR_ADDITION_XPATH = 'descendant-or-self::BinOp/left/Str'  ## each left has a right as well so only need to look at one to get at binop and assign ancestors etc
 
+F_STR_REMINDER = False
+
 @filt_block_advisor(xpath=ASSIGN_STR_XPATH)
-def str_overview(block_dets):
+def str_overview(block_dets, *, repeated_message=False):
     """
     Provide overview of assigned strings e.g. name = 'Hamish'.
     """
@@ -45,56 +47,61 @@ def str_overview(block_dets):
             """)
         brief_comment += desc_comment
         main_comment += desc_comment
-    brief_comment += layout_comment(f"""\
-        Python makes it easy to do lots of cool things with strings.
-        E.g. {first_name}.upper() returns {first_val.upper()}.
-
-        """)
-    black_heart = "\N{BLACK HEART}"
-    main_comment += layout_comment(f"""\
+    if repeated_message:
+        extra_comment = ''
+    else:
+        brief_comment += layout_comment(f"""\
             Python makes it easy to do lots of cool things with strings.
+            E.g. {first_name}.upper() returns {first_val.upper()}.
 
-            Examples:
+            """)
+        black_heart = "\N{BLACK HEART}"
+        main_comment += layout_comment(f"""\
+                Python makes it easy to do lots of cool things with strings.
 
-            {first_name}.upper() returns {first_val.upper()}.
+                Examples:
 
-            {first_name}.center(70, '=') returns {first_val.center(70, '=')}
+                {first_name}.upper() returns {first_val.upper()}.
 
-            {first_name}.endswith('chicken') returns
-            {first_val.endswith('chicken')}
+                {first_name}.center(70, '=') returns {first_val.center(70, '=')}
 
-            {first_name} + ' is a string' returns {first_val + ' is a string'}
+                {first_name}.endswith('chicken') returns
+                {first_val.endswith('chicken')}
 
-            {first_name} + ' ' + '{{\\NBLACK HEART}}' + ' Python' returns
-            {first_val + ' ' + black_heart + ' Python'}
+                {first_name} + ' is a string' returns
+                {first_val + ' is a string'}
 
-            len({first_name}) returns {len(first_val)} because that is how many
-            characters are in the {first_name} string (remember to count spaces
-            - they are characters too)
+                {first_name} + ' ' + '{{\\NBLACK HEART}}' + ' Python' returns
+                {first_val + ' ' + black_heart + ' Python'}
 
-            sorted({first_name}) returns {sorted(first_val)}
-        """)
+                len({first_name}) returns {len(first_val)} because that is how
+                many characters are in the {first_name} string (remember to
+                count spaces - they are characters too)
+
+                sorted({first_name}) returns {sorted(first_val)}
+            """)
+        extra_comment = layout_comment("""\
+            .upper(), .center() etc are abilities available with all Python
+            strings. Technically they are methods of string objects. They start
+            with a dot and are on the end of the object.
+
+            To see the full list of string methods enter dir(str) into a Python
+            command line.
+
+            len() is a function which can be used on lots of things - not just
+            string objects. It is not a method of the string object. Other
+            functions that are not string-specific but are commonly used with
+            strings include sorted() and print().
+            """)
     message = {
         conf.BRIEF: brief_comment,
         conf.MAIN: main_comment,
-        conf.EXTRA: layout_comment("""\
-            .upper(), .center() etc
-            are abilities available with all Python strings.
-            Technically they are methods of string objects.
-            They start with a dot and are on the end of the object.
-
-            To see the full list of string methods enter dir(str)
-            into a Python command line.
-
-            len() is a function which can be used on lots of things - not just
-            string objects. It is not a method of the string object.
-            Other functions that are not string-specific but are
-            commonly used with strings include sorted() and print().
-            """),
+        conf.EXTRA: extra_comment,
     }
     return message
 
-def str_combination(combination_type, assign_els):
+def str_combination(combination_type, assign_els, *, repeated_message=False):
+    global F_STR_REMINDER
     brief_comment = ''
     title = None
     for assign_el in assign_els:
@@ -120,61 +127,64 @@ def str_combination(combination_type, assign_els):
         conf.BRIEF: brief_comment,
         conf.MAIN: brief_comment,
     }
-    if combination_type != F_STR:
-        message[conf.BRIEF] += layout_comment("""\
-
-            Your snippet uses a non-f-string approach to constructing a string.
-
-            Have you considered using an f-string approach to constructing
-            your string?
-            """)
-        message[conf.MAIN] += (
-            layout_comment("""\
+    if combination_type != F_STR and not repeated_message:
+        if not F_STR_REMINDER:
+            F_STR_REMINDER = True
+            message[conf.BRIEF] += layout_comment("""\
+    
+                Your snippet uses a non-f-string approach to constructing a
+                string.
 
                 Have you considered using an f-string approach to constructing
                 your string?
-
-                f-strings let you reference variables from earlier in your code
-                and allow very readable string construction. All the usual
-                tricks of the .format() approach also work. For example, comma
-                separating thousands in numbers:
-
                 """)
-            +
-            layout_comment("""\
-                cost = 10_550
-                print(f"Cost is ${cost:,}")
-                # >>> 'Cost is $10,550'
-                """, is_code=True)
-            +
-            layout_comment(f"""\
+            message[conf.MAIN] += (
+                layout_comment("""\
 
-                Or making small in-line calculations:
+                    Have you considered using an f-string approach to
+                    constructing your string?
 
-                """)
-            +
-            layout_comment("""\
-                people = ['Bart', 'Lisa']
-                print(f"There are {len(people)} people")
-                # >>> 'There are 2 people'
-                """, is_code=True)
-            +
-            layout_comment(f"""\
+                    f-strings let you reference variables from earlier in your
+                    code and allow very readable string construction. All the
+                    usual tricks of the .format() approach also work. For
+                    example, comma separating thousands in numbers:
 
-                Or zero-padding numbers:
+                    """)
+                +
+                layout_comment("""\
+                    cost = 10_550
+                    print(f"Cost is ${cost:,}")
+                    # >>> 'Cost is $10,550'
+                    """, is_code=True)
+                +
+                layout_comment(f"""\
 
-                """)
-            +
-            layout_comment("""\
-                num = 525
-                print(f"{num:0>4}")
-                # >>> '0525'
-                """, is_code=True)
-        )
+                    Or making small in-line calculations:
+
+                    """)
+                +
+                layout_comment("""\
+                    people = ['Bart', 'Lisa']
+                    print(f"There are {len(people)} people")
+                    # >>> 'There are 2 people'
+                    """, is_code=True)
+                +
+                layout_comment(f"""\
+
+                    Or zero-padding numbers:
+
+                    """)
+                +
+                layout_comment("""\
+                    num = 525
+                    print(f"{num:0>4}")
+                    # >>> '0525'
+                    """, is_code=True)
+            )
     return message
 
 @filt_block_advisor(xpath=JOINED_STR_XPATH)
-def f_str_interpolation(block_dets):
+def f_str_interpolation(block_dets, *, repeated_message=False):
     """
     Examine f-string interpolation.
     """
@@ -183,10 +193,11 @@ def f_str_interpolation(block_dets):
     for joined_el in joined_els:
         assign_el = joined_el.xpath('ancestor::Assign')[-1]
         assign_els.append(assign_el)
-    return str_combination(F_STR, assign_els)
+    return str_combination(F_STR,
+        assign_els, repeated_message=repeated_message)
 
 @filt_block_advisor(xpath=FUNC_ATTR_XPATH)
-def format_str_interpolation(block_dets):
+def format_str_interpolation(block_dets, repeated_message=False):
     """
     Look at use of .format() to interpolate into strings.
     """
@@ -202,10 +213,11 @@ def format_str_interpolation(block_dets):
     for format_el in format_funcs:
         assign_el = format_el.xpath('ancestor::Assign')[-1]
         assign_els.append(assign_el)
-    return str_combination(STR_FORMAT_FUNC, assign_els)
+    return str_combination(STR_FORMAT_FUNC,
+        assign_els, repeated_message=repeated_message)
 
 @any_block_advisor()
-def sprintf(block_dets):
+def sprintf(block_dets, *, repeated_message=False):
     """
     Look at use of sprintf for string interpolation e.g. greeting = "Hi %s" %
     name
@@ -218,10 +230,11 @@ def sprintf(block_dets):
     for sprintf_el in sprintf_els:
         assign_el = sprintf_el.xpath('ancestor::Assign')[-1]
         assign_els.append(assign_el)
-    return str_combination(SPRINTF, assign_els)
+    return str_combination(SPRINTF,
+        assign_els, repeated_message=repeated_message)
 
 @any_block_advisor()
-def string_addition(block_dets):
+def string_addition(block_dets, *, repeated_message=False):
     """
     Advise on string combination using +. Explain how f-string alternative
     works.
@@ -242,5 +255,6 @@ def string_addition(block_dets):
             assign_els.append(assign_el)
     if not has_string_addition:
         return None
-    addition_message = str_combination(STR_ADDITION, assign_els)
+    addition_message = str_combination(STR_ADDITION,
+        assign_els, repeated_message=repeated_message)
     return addition_message

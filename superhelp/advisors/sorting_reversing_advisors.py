@@ -33,7 +33,7 @@ def _get_sorting_or_reversing_comment(block_dets):
     return comment
 
 @any_block_advisor()
-def sorting_reversing_overview(block_dets):
+def sorting_reversing_overview(block_dets, *, repeated_message=False):
     """
     Provide an overview of sorting and/or reversing. Advise on common
     confusions.
@@ -41,8 +41,15 @@ def sorting_reversing_overview(block_dets):
     sorting_or_reversing_comment = _get_sorting_or_reversing_comment(block_dets)
     if not sorting_or_reversing_comment:
         return None
-    message = {
-        conf.BRIEF: layout_comment(f"""\
+    if repeated_message:
+        brief_comment = layout_comment(f"""\
+            #### Sorting / reversing
+
+            This block of code {sorting_or_reversing_comment}.
+            """)
+        main_comment = brief_comment
+    else:
+        brief_comment = layout_comment(f"""\
             #### Sorting / reversing
 
             This block of code {sorting_or_reversing_comment}. Sorting and, to a
@@ -52,8 +59,8 @@ def sorting_reversing_overview(block_dets):
             1) reversing is not the same as sorting with `reverse=True`
 
             2) the list sort method e.g. my_list.`sort()` returns `None`, not the sorted list
-            """),
-        conf.MAIN: (
+            """)
+        main_comment = (
             layout_comment(f"""\
                 #### Sorting / reversing
 
@@ -121,14 +128,17 @@ def sorting_reversing_overview(block_dets):
                 ## >>> fruit
                 ## >>> ['apple', 'banana', 'cranberry']
                 """, is_code=True)
-            ),
+            )
+    message = {
+        conf.BRIEF: brief_comment,
+        conf.MAIN: main_comment,
     }
     return message
 
 ASSIGN_FUNC_ATTRIBUTE_XPATH = 'descendant-or-self::Assign/value/Call/func/Attribute'
 
 @filt_block_advisor(xpath=ASSIGN_FUNC_ATTRIBUTE_XPATH, warning=True)
-def list_sort_as_value(block_dets):
+def list_sort_as_value(block_dets, *, repeated_message=False):
     """
     Warn about assigning a name to the result using .sort() on a list.
     """
@@ -141,26 +151,28 @@ def list_sort_as_value(block_dets):
             names_assigned_to_sort.append(name)
     if not names_assigned_to_sort:
         return None
+    brief_comment = layout_comment(f"""\
+        #### Assignment of `None` result from in-place `.sort()` on list
+
+        """)
     multiple = len(names_assigned_to_sort) > 1
     if multiple:
         nice_str_list = get_nice_str_list(names_assigned_to_sort, quoter='`')
-        brief_comment = layout_comment(f"""\
-            #### Assignment of `None` result from in-place `.sort()` on list
-
+        if not repeated_message:
+            brief_comment += layout_comment(f"""\
             {nice_str_list} are assigned to the results of in-place sort
             operations. This is almost certainly a mistake as the intention is
             probably not to set them each to `None` (the return value of the
             `.sort()` method).
             """)
     else:
-        brief_comment = layout_comment(f"""\
-            #### Assignment of `None` result from in-place `.sort()` on list
-
-            `{name}` is assigned to the result of an in-place sort operation.
-            This is almost certainly a mistake as the intention is probably not
-            to set `{name}` to `None` (the return value of the `.sort()`
-            method).
-            """)
+        if not repeated_message:
+            brief_comment += layout_comment(f"""\
+                `{name}` is assigned to the result of an in-place sort
+                operation. This is almost certainly a mistake as the intention
+                is probably not to set `{name}` to `None` (the return value of
+                the `.sort()` method).
+                """)
     message = {
         conf.BRIEF: brief_comment,
     }

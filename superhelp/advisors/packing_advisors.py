@@ -1,5 +1,4 @@
 from collections import defaultdict
-from textwrap import dedent
 
 from ..advisors import shared, snippet_advisor, filt_block_advisor
 from .. import conf, utils
@@ -8,7 +7,7 @@ from ..utils import layout_comment
 ASSIGN_UNPACKING_XPATH = 'descendant-or-self::Assign/targets/Tuple'
 
 @filt_block_advisor(xpath=ASSIGN_UNPACKING_XPATH)
-def unpacking(block_dets):
+def unpacking(block_dets, *, repeated_message=False):
     """
     Identify name unpacking e.g. x, y = coord
     """
@@ -17,15 +16,18 @@ def unpacking(block_dets):
     for unpacked_el in unpacked_els:
         unpacked_names = [
             name_el.get('id') for name_el in unpacked_el.xpath('elts/Name')]
+        if not unpacked_names:
+            continue
         nice_str_list = utils.get_nice_str_list(unpacked_names, quoter='`')
         unpacked_comment = layout_comment(f"""\
 
             Your code uses unpacking to assign names {nice_str_list}
             """)
         brief_comment += unpacked_comment
+    extra_comment = '' if repeated_message else shared.UNPACKING_COMMENT
     message = {
         conf.BRIEF: brief_comment,
-        conf.EXTRA: shared.UNPACKING_COMMENT,
+        conf.EXTRA: extra_comment,
     }
     return message
 
