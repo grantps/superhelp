@@ -1,4 +1,4 @@
-from collections import namedtuple
+from collections import defaultdict, namedtuple, Counter
 
 from ..advisors import filt_block_advisor
 from .. import conf
@@ -9,6 +9,11 @@ IfDets = namedtuple('IfDetails',
 
 ELIF = 'elif'
 ELSE = 'else'
+
+STRING = 'string'
+NUMBER = 'number'
+
+IF_XPATH = 'descendant-or-self::If'
 
 def add_if_details(if_element, if_clauses):
     """
@@ -42,7 +47,7 @@ def get_ifs_details(block_dets):
     ## skip when if __name__ == '__main__'
     if block_dets.block_code_str.startswith("if __name__ == "):
         return []
-    raw_if_els = block_dets.element.xpath('descendant-or-self::If')
+    raw_if_els = block_dets.element.xpath(IF_XPATH)
     if_elements = []
     for raw_if_el in raw_if_els:
         ## ignore if really an elif
@@ -68,7 +73,7 @@ def _get_if_comment(ifs_details):
     Have to cope with multiple if statements and make it nice (unnumbered) when
     only one.
     """
-    brief_comment = '##### Conditional statement detected'
+    brief_comment = '#### Conditional statement detected'
     for n, if_details in enumerate(ifs_details, 1):
         counter = '' if len(ifs_details) == 1 else f" {int2nice(n)}"
         if if_details.multiple_conditions:
@@ -89,7 +94,7 @@ def _get_if_comment(ifs_details):
                 """)
     return brief_comment
 
-@filt_block_advisor(xpath='//If')
+@filt_block_advisor(xpath=IF_XPATH)
 def if_else_overview(block_dets, *, repeated_message=False):
     """
     Look at conditional statements using if (apart from if __name__ ==
@@ -119,12 +124,15 @@ def if_else_overview(block_dets, *, repeated_message=False):
             +
             layout_comment("""\
 
-                vs
+                is shorter but more complex than:
 
                 """)
             +
             layout_comment("""\
-                too_long = length_matters and len(phrase) > conf.MAX_SANE_LENGTH
+                too_long = (
+                    length_matters
+                    and len(phrase) > conf.MAX_SANE_LENGTH
+                )
                 if too_long:
                     phrase = chop(phrase)
                 """, is_code=True)
@@ -135,7 +143,7 @@ def if_else_overview(block_dets, *, repeated_message=False):
     }
     return message
 
-@filt_block_advisor(xpath='//If', warning=True)
+@filt_block_advisor(xpath=IF_XPATH, warning=True)
 def missing_else(block_dets, *, repeated_message=False):
     """
     Warn about benefits in many cases of adding else clause if missing.
@@ -221,5 +229,225 @@ def missing_else(block_dets, *, repeated_message=False):
     message = {
         conf.BRIEF: brief_comment,
         conf.MAIN: main_comment,
+    }
+    return message
+
+def get_split_membership_dets(if_el):
+    """
+    if x == 'a' or x == 'b' or x == 'c':
+        print(x)
+
+    If/test/BoolOp/values/Compare
+                                 left/Name id 'x'
+                                 comparators/Str s 'a'
+                                 comparators/Num n  etc
+
+    Only provide message using content if all items are of the same type and are
+    either numbers or strings.
+    """
+    compare_els = if_el.xpath('test/BoolOp/values/Compare')
+    if not compare_els:
+        return None
+    left_name_comp_vals = defaultdict(list)
+    basic_types = set()
+    for compare_el in compare_els:
+        left_name_els = compare_el.xpath('left/Name')
+        if not left_name_els:
+            continue
+        left_name = left_name_els[0].get('id')
+        if not left_name:
+            continue
+        comparators_els = compare_el.xpath('comparators')
+        if not comparators_els:
+            continue
+        comparators_el = comparators_els[0]
+        comparison_els = comparators_el.getchildren()  ## e.g. Strs, Nums, NameConstants etc
+        if not comparison_els:
+            continue
+        comparison_el = comparison_els[0]  ## Str or Num etc
+        comp_val = comparison_el.get('s')
+        if comp_val is not None:
+            basic_types.add(STRING)
+            if len(basic_types) > 1:
+                return None
+        else:
+            comp_val = comparison_el['n']
+            if comp_val is not None:
+                basic_types.add(NUMBER)
+                if len(basic_types) > 1:
+                    return None
+            else:
+                return None  ## Give up - something is not right
+        left_name_comp_vals[left_name].append(comp_val)
+    c = Counter(left_name_comp_vals.keys())
+    comp_var = c.most_common(1)[0][0]
+    comp_vals = left_name_comp_vals[comp_var]
+    comp_val_strs = []
+    basic_type = basic_types.pop()
+    for comp_val in comp_vals:
+        if basic_type == STRING:
+            quoter = "'" if '"' in comp_val else "'"
+            comp_val_strs.append(f"{quoter}{comp_val}{quoter}")
+        elif basic_type == NUMBER:
+            comp_val_strs.append(str(comp_val))
+        else:
+            raise ValueError(f"Unexpected basic type: '{basic_type}'")
+    comp_vals_gp_str = '[' + ', '.join(comp_val_strs) + ']'
+    return comp_var, comp_vals_gp_str
+
+@filt_block_advisor(xpath=IF_XPATH)
+def split_group_membership(block_dets, *, repeated_message=False):
+    """
+    Explain how to use in group and not in group rather than multiple
+    comparisons.
+
+    if x == 'a' or x == 'b' or x == 'c':
+        print(x)
+    ==>
+    if x in ['a', 'b', 'c']:
+        print(x)
+    """
+    if_els = block_dets.element.xpath(IF_XPATH)
+    has_split = False
+    for if_el in if_els:
+        try:
+            comp_var, comp_vals_gp_str = get_split_membership_dets(if_el)
+        except TypeError:
+            continue
+        else:
+            has_split = True
+            break
+    if not has_split:
+        return None
+    brief_comment = layout_comment(f"""\
+
+            #### Possible option of evaluating group membership
+
+            It looks like `{comp_var}` has been in multiple separate
+            comparisons. In Python it is possible to do a simple check of group
+            membership instead.
+        """)
+    if not repeated_message:
+        brief_comment += (
+            layout_comment(f"""\
+
+                For example:
+
+            """)
+            +
+            layout_comment(f"""\
+                if {comp_var} in {comp_vals_gp_str}:
+                    ...
+                """, is_code=True)
+        )
+    main_comment = brief_comment
+    if not repeated_message:
+        main_comment += (
+            layout_comment(f"""\
+
+                Or to check if a variable is NOT in a group:
+
+                """)
+            +
+            layout_comment(f"""\
+                if {comp_var} not in {comp_vals_gp_str}:
+                    ...
+                """, is_code=True)
+        )
+    message = {
+        conf.BRIEF: brief_comment,
+        conf.MAIN: main_comment,
+    }
+    return message
+
+def get_has_explicit_count(if_el):
+    compare_els = if_el.xpath('test/Compare')
+    if not compare_els:
+        return False
+    compare_el = compare_els[0]
+    func_name_els = compare_el.xpath('left/Call/func/Name')
+    if not func_name_els:
+        return False
+    len_func = (func_name_els[0].get('id') == 'len')
+    if not len_func:
+        return False
+    ops_els = compare_el.xpath('ops')
+    if not ops_els:
+        return False
+    ops_el = ops_els[0]
+    operator_els = ops_el.getchildren()
+    if not operator_els:
+        return False
+    operator_type = operator_els[0].tag  ## e.g. Gt
+    comparators_els = compare_el.xpath('comparators')
+    if not comparators_els:
+        return False
+    comparator_el = comparators_els[0]
+    comparison_els = comparator_el.getchildren()
+    if not comparison_els:
+        return False
+    comparison_el = comparison_els[0]
+    n = comparison_el.get('n')
+    if n is None:
+        return False
+    explicit_booleans = [
+        ('Gt', '0'),
+        ('GtE', '1'),
+        ('Eq', '0'),
+        ('LtE', '0'),
+        ('Lt', '1'),
+    ]
+    has_explicit_boolean = ((operator_type, n) in explicit_booleans)
+    return has_explicit_boolean
+
+@filt_block_advisor(xpath=IF_XPATH)
+def implicit_boolean_enough(block_dets, *, repeated_message=False):
+    """
+    Look for cases where an implicit boolean comparison is enough.
+    """
+    if repeated_message:
+        return None
+    if_els = block_dets.element.xpath(IF_XPATH)
+    implicit_boolean_possible = False
+    for if_el in if_els:
+        has_explicit_count = get_has_explicit_count(if_el)
+        if has_explicit_count:
+            implicit_boolean_possible = True
+        else:
+            continue
+    if not implicit_boolean_possible:
+        return None
+    brief_comment = (
+        layout_comment("""\
+
+            #### Possible option of using an implicit boolean
+
+            In Python, "", 0, [], {}, (), `None` all evaluate to False when we
+            ask if they are `True` or `False`. And they all evaluate to `True`
+            if they contain something. WAT?!
+
+            Well, if we have a list `my_list` we can replace:
+
+            """)
+        +
+        layout_comment("""\
+            if len(my_list) > 0:
+                ...
+
+            """, is_code=True)
+        +
+        layout_comment("""\
+            with:
+
+            """)
+        +
+        layout_comment("""\
+            if my_list:  ## if empty, evaluates to False otherwise True
+                ...
+
+            """, is_code=True)
+    )
+    message = {
+        conf.BRIEF: brief_comment,
     }
     return message

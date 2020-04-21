@@ -26,7 +26,16 @@ def sorted(my_list):
 """
 
 TEST_SNIPPET = """\
-my_dict = {1: 1}
+if len(mylist) > 0:
+    print(my_list)
+if len(mylist) >= 0:
+    print(my_list)
+if len(mylist) == 1:
+    print(my_list)
+if len(mylist) <= 1:
+    print(my_list)
+if len(mylist) < 1:
+    print(my_list)
 """
 
 DEMO_SNIPPET = """\

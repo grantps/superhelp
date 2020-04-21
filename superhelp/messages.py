@@ -42,8 +42,8 @@ def get_blocks_dets(xml, snippet_lines):
     blocks_dets = []
     all_elements = xml.xpath('body')[0].getchildren()  ## [0] because there is only one body under root
     for element in all_elements:
-        line_nos = ast_funcs.get_xml_element_line_no_range(element)
-        first_line_no, last_line_no = line_nos
+        first_line_no, last_line_no, _el_lines_n = ast_funcs.get_el_lines_dets(
+            element)
         block_code_str = (
             '\n'.join(snippet_lines[first_line_no - 1: last_line_no]).strip())
         pre_block_code_str = (

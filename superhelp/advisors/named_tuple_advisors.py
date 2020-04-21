@@ -43,8 +43,7 @@ def named_tuple_overview(blocks_dets):
         return None
     example_dets = named_tuples_dets[0]
     first_field = example_dets.fields_list[0]
-    message = {
-        conf.BRIEF: (
+    brief_comment = (
             layout_comment("""\
 
                 #### Named Tuple Enhancements
@@ -65,7 +64,29 @@ def named_tuple_overview(blocks_dets):
                 {example_dets.name}.{first_field}.__doc__ = "Specific comment for {first_field}"
                 ## etc
                 """, is_code=True)
-        ),
+        )
+    main_comment = (
+        brief_comment
+        +
+        layout_comment("""\
+
+            Default arguments are another nice option (added in Python 3.7). For
+            example the following named tuple has a default IQ of 100:
+            """)
+        +
+        layout_comment("""\
+
+            People = namedtuple('PeopleDets', 'name, IQ', defaults=(100, ))
+            """, is_code=True)
+        +
+        layout_comment("""\
+
+            The official documentation has more details.
+            """)
+    )
+    message = {
+        conf.BRIEF: brief_comment,
+        conf.MAIN: main_comment,
     }
     return message
     

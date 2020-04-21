@@ -1,4 +1,5 @@
 from ..advisors import filt_block_advisor
+from ..ast_funcs import get_el_lines_dets
 from .. import conf, utils
 from ..utils import layout_comment
 
@@ -140,12 +141,6 @@ def func_overview(block_dets, *, repeated_message=False):
     }
     return message
 
-def get_func_lines_n(func_el):
-    line_no_strs = func_el.xpath('descendant-or-self::*[@lineno]/@lineno')
-    line_nos = [int(line_no_str) for line_no_str in line_no_strs]
-    func_lines_n = max(line_nos) - min(line_nos) + 1
-    return func_lines_n
-
 @filt_block_advisor(xpath='body/FunctionDef', warning=True)
 def func_len_check(block_dets, *, repeated_message=False):
     """
@@ -156,7 +151,7 @@ def func_len_check(block_dets, *, repeated_message=False):
     has_short_comment = False
     for func_el in func_els:
         name = func_el.get('name')
-        func_lines_n = get_func_lines_n(func_el)
+        _first_line_no, _last_line_no, func_lines_n = get_el_lines_dets(func_el)
         if func_lines_n <= conf.MAX_BRIEF_FUNC_LOC:
             continue
         else:
@@ -372,20 +367,16 @@ def docstring_issues(block_dets, *, repeated_message=False):
     cover params, return etc.
     """
     example_docstring = layout_comment(f'''\
-        def greet(name, *, formal=False):
+        def greet(name, greet_word='Hi'):
             """
-            Get a greeting for the supplied person with the appropriate
-            formality.
+            Get a greeting for the supplied person.
 
             :param str name: person being greeted
-            :param bool formal: set the formality of the greeting
-            :return: a greeting to the person
+            :param str greet_word: the word to start the greeting
+            :return: a greeting message to the person
             :rtype: str
             """
-            if formal:
-                greeting = f"Hi {{name}}"
-            else:
-                greeting = f"Hello {{name}}"
+            greeting = f"{{greet_word}} {{name}} - how are you?"
             return greeting
         ''', is_code=True)
     func_els = block_dets.element.xpath('descendant-or-self::FunctionDef')

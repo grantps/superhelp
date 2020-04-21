@@ -531,7 +531,7 @@ def get_message_html_strs(message_dets):
                     .replace(conf.PYTHON_CODE_START, conf.MD_PYTHON_CODE_START)
                     .replace(f"\n    {conf.PYTHON_CODE_END}", '')
                 )
-            except Exception as e:
+            except Exception:
                 pass
             message_level_html_strs = get_html_strs(
                 message, message_level, warning=message_dets.warning)
@@ -561,7 +561,11 @@ def _get_all_html_strs(snippet, overall_messages_dets, block_messages_dets, *,
     all_html_strs = []
 
     ## overall snippet display
-    if not in_notebook:
+    first_lines = {
+        message_dets.first_line_no for message_dets in block_messages_dets}
+    multi_block = (len(first_lines) > 1)
+    in_browser = not in_notebook
+    if in_browser and multi_block:
         overall_snippet_html_strs = repeat_overall_snippet(snippet)
         all_html_strs.extend(overall_snippet_html_strs)
 
