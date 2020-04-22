@@ -66,9 +66,9 @@ def display(snippet, messages_dets, *,
                 + f"\n{MDV_CODE_BOUNDARY}")))
             prev_line_no = line_no
         if message_dets.warning and not block_has_warning_header:
-            text.append("\n### Warnings")
-            text.append("\nThere are some potential issues with this code block"
-                " you might want to fix.")
+            text.append("\n### Questions / Warnings")
+            text.append("\nThere may be some issues with this code "
+                "block you want to address.")
             block_has_warning_header = True
         ## process message
         message = get_message(message_dets, message_level)

@@ -159,14 +159,15 @@ def missing_else(block_dets, *, repeated_message=False):
         if first:
             brief_comment += layout_comment(f"""\
 
-                #### Missing `else` clause
+                #### Possibly better with `else` clause
 
                 """)
         if first and not repeated_message:
             brief_comment += layout_comment(f"""\
                 `if` block{counter} has `elif` clauses but lacks an `else`
-                clause. It is often best to include an `else` clause when there
-                are `elif` clauses.
+                clause. If your `elif` clauses are trying to handle all expected
+                cases it is probably best to include an `else` clause as well
+                just in case something unexpected happens.
                 """)
         has_missing_else = True
     if not has_missing_else:

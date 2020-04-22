@@ -596,9 +596,9 @@ def _get_all_html_strs(snippet, overall_messages_dets, block_messages_dets, *,
             all_html_strs.append(block_code_str_highlighted)
             prev_line_no = line_no
         if message_dets.warning and not block_has_warning_header:
-            all_html_strs.append("<h3>Warnings</h3>")
-            all_html_strs.append("<p>There are some potential issues with this "
-                "code block you might want to fix.</p>")
+            all_html_strs.append("<h3>Questions / Warnings</h3>")
+            all_html_strs.append("<p>There may be some issues with this code "
+                "block you want to address.</p>")
             block_has_warning_header = True
         message_html_strs = get_message_html_strs(message_dets)
         all_html_strs.extend(message_html_strs)
