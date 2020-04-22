@@ -30,7 +30,6 @@ def add_if_details(if_element, if_clauses):
     if not orelse_children:
         return  ## merely an If on its own without clauses
     ## else: if or elif: ?
-    orelse_children = orelse_el.getchildren()
     just_the_if_under_orelse = (
         len(orelse_children) == 1 and orelse_children[0].tag == 'If')
     has_elif = just_the_if_under_orelse
@@ -74,8 +73,9 @@ def get_ifs_details(block_dets):
     if_elements = []
     for raw_if_el in raw_if_els:
         ## ignore if really an elif
-        has_or_else_parent = raw_if_el.getparent().tag == 'orelse'
-        has_siblings = raw_if_el.xpath('following-sibling')
+        parent_el = raw_if_el.getparent()
+        has_or_else_parent = (parent_el.tag == 'orelse')
+        has_siblings = bool(parent_el.getchildren())
         actually_elif = (has_or_else_parent and not has_siblings)
         if not actually_elif:
             if_elements.append(raw_if_el)
