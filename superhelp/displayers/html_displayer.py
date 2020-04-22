@@ -570,17 +570,20 @@ def _get_all_html_strs(snippet, overall_messages_dets, block_messages_dets, *,
         all_html_strs.extend(overall_snippet_html_strs)
 
     ## overall messages
+    overall_messages_dets.sort(key=lambda nt: nt.warning)
     for message_dets in overall_messages_dets:
         message_html_strs = get_message_html_strs(message_dets)
         all_html_strs.extend(message_html_strs)
 
     ## block messages
-    block_messages_dets.sort(key=lambda nt: (nt.first_line_no))
+    block_messages_dets.sort(key=lambda nt: (nt.first_line_no, nt.warning))  ## by code block then within blocks warnings last
     prev_line_no = None
     for message_dets in block_messages_dets:
         ## display code for line number (once ;-)) Each line might have one or more messages but it will always have the one code_str starting on that line
         line_no = message_dets.first_line_no
-        if line_no != prev_line_no:
+        new_block = (line_no != prev_line_no)
+        if new_block:
+            block_has_warning_header = False
             all_html_strs.append(
                 f'<h2>Code block starting line {line_no:,}</h2>')
             block_code_str = indent(
@@ -590,6 +593,11 @@ def _get_all_html_strs(snippet, overall_messages_dets, block_messages_dets, *,
                 block_code_str, extensions=['codehilite'])
             all_html_strs.append(block_code_str_highlighted)
             prev_line_no = line_no
+        if message_dets.warning and not block_has_warning_header:
+            all_html_strs.append("<h3>Warnings</h3>")
+            all_html_strs.append("<p>There are some potential issues with this "
+                "code block you might want to fix.</p>")
+            block_has_warning_header = True
         message_html_strs = get_message_html_strs(message_dets)
         all_html_strs.extend(message_html_strs)
     return all_html_strs

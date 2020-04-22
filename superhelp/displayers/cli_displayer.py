@@ -49,12 +49,14 @@ def display(snippet, messages_dets, *,
     for message_dets in overall_messages_dets:
         message = get_message(message_dets, message_level)
         text.append(message)
-    block_messages_dets.sort(key=lambda nt: (nt.first_line_no))
+    block_messages_dets.sort(key=lambda nt: (nt.first_line_no, nt.warning))
     prev_line_no = None
     for message_dets in block_messages_dets:
         ## display code for line number (once ;-))
         line_no = message_dets.first_line_no
-        if line_no != prev_line_no:
+        new_block = (line_no != prev_line_no)
+        if new_block:
+            block_has_warning_header = False
             text.append(mdv.main(
                 f'{LONG_LINE}\n## Code block starting line {line_no:,}'))
             text.append(mdv.main(dedent(
@@ -62,6 +64,11 @@ def display(snippet, messages_dets, *,
                 + message_dets.code_str
                 + f"\n{MDV_CODE_BOUNDARY}")))
             prev_line_no = line_no
+        if message_dets.warning and not block_has_warning_header:
+            text.append("\n### Warnings")
+            text.append("\nThere are some potential issues with this code block"
+                " you might want to fix.")
+            block_has_warning_header = True
         ## process message
         message = get_message(message_dets, message_level)
         text.append(message)  ## setting code_hilite is how you highlight the code - it is about handling MD within code e.g. in doc string
