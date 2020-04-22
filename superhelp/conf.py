@@ -26,16 +26,12 @@ def sorted(my_list):
 """
 
 TEST_SNIPPET = """\
-if len(mylist) > 0:
-    print(my_list)
-if len(mylist) >= 0:
-    print(my_list)
-if len(mylist) == 1:
-    print(my_list)
-if len(mylist) <= 1:
-    print(my_list)
-if len(mylist) < 1:
-    print(my_list)
+n = -1
+for image in images:
+    if n % 10 == 0:
+        print(f"Just processed image {{n}}")
+    process_image(image)
+    n += 1
 """
 
 DEMO_SNIPPET = """\
