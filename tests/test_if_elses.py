@@ -212,6 +212,40 @@ def test_misc():
                 'superhelp.advisors.if_else_advisors.implicit_boolean_enough': 0,  ## explicit counts not used as empty/non-empty boolean
             }
         ),
+        (
+            dedent("""\
+            def centuryFromYear(year):
+                if 1 <= year <= 100:
+                    return 1
+                else:
+                    if year % 100 == 0:
+                        return year // 100
+                    return year // 100 + 1
+            """),
+            {
+                'superhelp.advisors.if_else_advisors.if_else_overview': 1,
+                'superhelp.advisors.if_else_advisors.missing_else': 0,  ## saved from being an elif by having a return inside the else:
+                'superhelp.advisors.if_else_advisors.split_group_membership': 0,
+                'superhelp.advisors.if_else_advisors.implicit_boolean_enough': 0,
+            }
+        ),
+        (
+            dedent("""\
+            def centuryFromYear(year):
+                if 1 <= year <= 100:
+                    return 1
+                else:
+                    if year % 100 == 0:
+                        return year // 100
+            #        return year // 100 + 1
+            """),
+            {
+                'superhelp.advisors.if_else_advisors.if_else_overview': 1,
+                'superhelp.advisors.if_else_advisors.missing_else': 1,  ## the else: if is effectively an elif because nothing else under it
+                'superhelp.advisors.if_else_advisors.split_group_membership': 0,
+                'superhelp.advisors.if_else_advisors.implicit_boolean_enough': 0,
+            }
+        ),
     ]
     check_as_expected(test_conf)
 

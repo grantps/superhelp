@@ -211,8 +211,17 @@ def get_separated_messages_dets(snippet):
     """
     tree = get_tree(snippet)
     xml = astpath.asts.convert_to_xml(tree)
-    if conf.DEV_MODE:
+    if conf.RECORD_AST:
         xml.getroottree().write(str(conf.AST_OUTPUT_XML), pretty_print=True)
+        logging.info("""\
+
+
+
+        Updating AST
+
+
+
+        """)
     snippet_lines = snippet.split('\n')
     blocks_dets = get_blocks_dets(xml, snippet_lines)
     overall_snippet_messages_dets = get_overall_snippet_messages_dets(

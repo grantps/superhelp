@@ -2,7 +2,10 @@ import datetime
 import logging
 from pathlib import Path
 
-DEV_MODE = False  ## updates AST output each run
+LOG_LEVEL = logging.INFO
+RECORD_AST = False
+
+DEV_MODE = False
 
 if DEV_MODE:
     print("""\
@@ -14,8 +17,8 @@ if DEV_MODE:
 
 
     """)
-
-LOG_LEVEL = logging.DEBUG if DEV_MODE else logging.INFO
+    LOG_LEVEL = logging.DEBUG
+    RECORD_AST = True
 
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 
@@ -26,14 +29,13 @@ def sorted(my_list):
 """
 
 TEST_SNIPPET = """\
-def DNAtoRNA(DNAstring):
-    newString = ''
-    for char in DNAstring:
-        if char!= 'T':
-            newString+= char
-        else:
-            newString+='U'
-    return newString
+def centuryFromYear(year):
+    if 1 <= year <= 100:
+        return 1
+    else:
+        if year % 100 == 0:
+            return year // 100
+        return year // 100 + 1
 """
 
 DEMO_SNIPPET = """\

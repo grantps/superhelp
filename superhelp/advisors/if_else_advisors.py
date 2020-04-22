@@ -17,24 +17,27 @@ IF_XPATH = 'descendant-or-self::If'
 
 def add_if_details(if_element, if_clauses):
     """
-    If under our <If>'s <orelse> we have another <If> store an 'elif' in if_details
-    and send the <If> under <orelse> through again; otherwise store an 'else'
-    in if_details and return.
+    If under our <If>'s <orelse> we have another <If>, and it is the only child,
+    store an 'elif' in if_details and send the <If> under <orelse> through
+    again (the AST nests them even though they are siblings in the original code
+    syntax); otherwise store an 'else' in if_details and return.
 
-    <If>s have <orelse>s which either have <If>s or not. When there is not then
-    we have reached else.
+    <If>s have <orelse>s which either have sole <If>s or not. When there is not
+    then we have reached else.
     """
-    orelse_has_children = bool(if_element.xpath('orelse')[0].getchildren())  ## always has one but if merely an <If> has no children under orelse
-    if not orelse_has_children:
-        return
-    try:
-        if_element_under_if = if_element.xpath('orelse/If')[0]
-        has_elif = True
-    except IndexError:
-        has_elif = False
+    orelse_el = if_element.xpath('orelse')[0]  ## always has one
+    orelse_children = orelse_el.getchildren()
+    if not orelse_children:
+        return  ## merely an If on its own without clauses
+    ## else: if or elif: ?
+    orelse_children = orelse_el.getchildren()
+    just_the_if_under_orelse = (
+        len(orelse_children) == 1 and orelse_children[0].tag == 'If')
+    has_elif = just_the_if_under_orelse
     if has_elif:
         if_clauses.append(ELIF)
-        add_if_details(if_element_under_if, if_clauses)
+        elif_el = orelse_children[0]
+        add_if_details(elif_el, if_clauses)
     else:
         if_clauses.append(ELSE)
     return
@@ -43,6 +46,26 @@ def get_ifs_details(block_dets):
     """
     There can be multiple if statements in a snippet so we have to handle each
     of them.
+
+    And in AST the following are very similar:
+
+    if foo:
+        ...
+    else:
+        if bar:
+            ...
+
+    if foo:
+        ...
+    elif bar:
+        ...
+
+    They both result in:
+    <orelse>
+        <If ...>
+
+    So need to look under the 'orelse' for anything other than an 'If' to decide
+    whether an 'else' or 'elif'.
     """
     ## skip when if __name__ == '__main__'
     if block_dets.block_code_str.startswith("if __name__ == "):
@@ -52,7 +75,9 @@ def get_ifs_details(block_dets):
     for raw_if_el in raw_if_els:
         ## ignore if really an elif
         has_or_else_parent = raw_if_el.getparent().tag == 'orelse'
-        if not has_or_else_parent:
+        has_siblings = raw_if_el.xpath('following-sibling')
+        actually_elif = (has_or_else_parent and not has_siblings)
+        if not actually_elif:
             if_elements.append(raw_if_el)
     ifs_details = []
     for if_element in if_elements:
@@ -80,8 +105,9 @@ def _get_if_comment(ifs_details):
             n_elifs = if_details.if_clauses.count(ELIF)
             brief_comment += layout_comment(f"""\
 
-                `if` statement{counter} has {int2nice(n_elifs)} `elif`
-                clauses
+                `if` statement{counter} has {int2nice(n_elifs)} `elif` clauses.
+                Note - `else` clauses with an `if` and only the `if` underneath
+                count as `elif` clauses.
                 """)
             if if_details.missing_else:
                 brief_comment += " and no `else` clause."
@@ -168,6 +194,9 @@ def missing_else(block_dets, *, repeated_message=False):
                 clause. If your `elif` clauses are trying to handle all expected
                 cases it is probably best to include an `else` clause as well
                 just in case something unexpected happens.
+
+                Note - `else` clauses with an `if` and only the `if` underneath
+                count as `elif` clauses.
                 """)
         has_missing_else = True
     if not has_missing_else:
