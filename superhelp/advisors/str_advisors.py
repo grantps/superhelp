@@ -100,12 +100,18 @@ def str_overview(block_dets, *, repeated_message=False):
     }
     return message
 
-def str_combination(combination_type, assign_els, *, repeated_message=False):
+def str_combination(combination_type, str_els, *, repeated_message=False):
     global F_STR_REMINDER
     brief_comment = ''
     title = None
-    for assign_el in assign_els:
-        name = assign_el.xpath('targets/Name')[0].get('id')
+    for str_el in str_els:
+        try:
+            assign_el = str_el.xpath('ancestor::Assign')[-1]
+        except IndexError:
+            name = "An unnamed string"
+        else:
+            raw_name = assign_el.xpath('targets/Name')[0].get('id')
+            name = f"`{raw_name}`"
         combination_type2comment = {
             F_STR: "f-string interpolation",
             STR_FORMAT_FUNC: "the format function",
@@ -121,7 +127,7 @@ def str_combination(combination_type, assign_els, *, repeated_message=False):
             brief_comment += title
         brief_comment += layout_comment(f"""\
 
-            `{name}` is created using {combination_comment}.
+            {name} is created using {combination_comment}.
             """)
     message = {
         conf.BRIEF: brief_comment,
@@ -189,12 +195,8 @@ def f_str_interpolation(block_dets, *, repeated_message=False):
     Examine f-string interpolation.
     """
     joined_els = block_dets.element.xpath(JOINED_STR_XPATH)
-    assign_els = []
-    for joined_el in joined_els:
-        assign_el = joined_el.xpath('ancestor::Assign')[-1]
-        assign_els.append(assign_el)
     return str_combination(F_STR,
-        assign_els, repeated_message=repeated_message)
+        joined_els, repeated_message=repeated_message)
 
 @filt_block_advisor(xpath=FUNC_ATTR_XPATH)
 def format_str_interpolation(block_dets, repeated_message=False):
@@ -209,12 +211,8 @@ def format_str_interpolation(block_dets, repeated_message=False):
             format_funcs.append(func_attr_el)
     if not format_funcs:
         return None
-    assign_els = []
-    for format_el in format_funcs:
-        assign_el = format_el.xpath('ancestor::Assign')[-1]
-        assign_els.append(assign_el)
     return str_combination(STR_FORMAT_FUNC,
-        assign_els, repeated_message=repeated_message)
+        format_funcs, repeated_message=repeated_message)
 
 @any_block_advisor()
 def sprintf(block_dets, *, repeated_message=False):
@@ -226,12 +224,8 @@ def sprintf(block_dets, *, repeated_message=False):
     has_sprintf = bool(sprintf_els)
     if not has_sprintf:
         return None
-    assign_els = []
-    for sprintf_el in sprintf_els:
-        assign_el = sprintf_el.xpath('ancestor::Assign')[-1]
-        assign_els.append(assign_el)
     return str_combination(SPRINTF,
-        assign_els, repeated_message=repeated_message)
+        sprintf_els, repeated_message=repeated_message)
 
 @any_block_advisor()
 def string_addition(block_dets, *, repeated_message=False):
@@ -241,7 +235,7 @@ def string_addition(block_dets, *, repeated_message=False):
     """
     str_els_being_combined = block_dets.element.xpath(STR_ADDITION_XPATH)
     has_string_addition = False
-    assign_els = []
+    str_addition_els = []
     for str_el in str_els_being_combined:
         ## Does their immediate ancestor BinOp have op of Add?
         ## Don't know if there any alternatives but let's be sure
@@ -250,11 +244,10 @@ def string_addition(block_dets, *, repeated_message=False):
         ## was it an Add op
         has_add = bool(bin_op_el.xpath('op/Add'))
         if has_add:
+            str_addition_els.append(str_el)
             has_string_addition = True
-            assign_el = bin_op_el.xpath('ancestor::Assign')[-1]
-            assign_els.append(assign_el)
     if not has_string_addition:
         return None
     addition_message = str_combination(STR_ADDITION,
-        assign_els, repeated_message=repeated_message)
+        str_addition_els, repeated_message=repeated_message)
     return addition_message

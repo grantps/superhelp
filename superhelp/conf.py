@@ -27,7 +27,7 @@ def sorted(my_list):
 
 TEST_SNIPPET = """\
 def nameToInitials(name):
-    nameList = name.split(' ') 
+    nameList = name.split(' ')
     return "{}.{}".format(nameList[0][0],nameList[1][0])
 """
 

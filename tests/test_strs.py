@@ -187,6 +187,20 @@ def test_misc():
                 'superhelp.advisors.str_advisors.string_addition': 1,
             }
         ),
+        (
+            dedent("""\
+            def nameToInitials(name):
+                nameList = name.split(' ')
+                return "{}.{}".format(nameList[0][0],nameList[1][0])
+            """),
+            {
+                'superhelp.advisors.str_advisors.str_overview': 0,  ## no overview because not an assigned string
+                'superhelp.advisors.str_advisors.f_str_interpolation': 0,
+                'superhelp.advisors.str_advisors.format_str_interpolation': 1,
+                'superhelp.advisors.str_advisors.sprintf': 0,
+                'superhelp.advisors.str_advisors.string_addition': 0,
+            }
+        ),
     ]
     check_as_expected(test_conf)
 
