@@ -26,12 +26,9 @@ def sorted(my_list):
 """
 
 TEST_SNIPPET = """\
-n = -1
-for image in images:
-    if n % 10 == 0:
-        print(f"Just processed image {{n}}")
-    process_image(image)
-    n += 1
+def nameToInitials(name):
+    nameList = name.split(' ') 
+    return "{}.{}".format(nameList[0][0],nameList[1][0])
 """
 
 DEMO_SNIPPET = """\

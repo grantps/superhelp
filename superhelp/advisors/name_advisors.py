@@ -16,19 +16,34 @@ def _get_shamed_names_title(reserved_names, bad_names, dubious_names):
             title = "Bad naming - use of reserved names."
     else:
         title = ''
-    if bad_names:
-        if n_bad_names == 1:
-            if n_dubious_names < 1:
-                title += ' Also un-pythonic name'
+    if title:
+        if bad_names:
+            if n_bad_names == 1:
+                if n_dubious_names < 1:
+                    title += ' Also un-pythonic name'
+                else:
+                    title += ' Also un-pythonic name(s)'
             else:
-                title += ' Also un-pythonic name(s)'
-        else:
-            title += ' Also un-pythonic names'
-    elif dubious_names:
-        if n_dubious_names == 1:
-            title += ' Also a possibly un-pythonic name'
-        else:
-            title += ' Also other possibly un-pythonic names'
+                title += ' Also un-pythonic names'
+        elif dubious_names:
+            if n_dubious_names == 1:
+                title += ' Also a possibly un-pythonic name'
+            else:
+                title += ' Also other possibly un-pythonic names'
+    else:
+        if bad_names:
+            if n_bad_names == 1:
+                if n_dubious_names < 1:
+                    title = 'Un-pythonic name'
+                else:
+                    title = 'Un-pythonic name(s)'
+            else:
+                title = 'Un-pythonic names'
+        elif dubious_names:
+            if n_dubious_names == 1:
+                title = 'Possibly an un-pythonic name'
+            else:
+                title = 'Possibly some un-pythonic names'
     return title
 
 def _get_shamed_names_comment(shamed_names):

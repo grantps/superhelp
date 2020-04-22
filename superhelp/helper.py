@@ -16,9 +16,9 @@ advisors.load_advisors()
 t = True
 f = False
 
-do_test = f  ## use test snippet rather than the larger demo snippet
+do_test = t  ## use test snippet rather than the larger demo snippet
 do_html = t  ## use html displayer vs cli displayer
-do_displayer = t  ## for dev testing only
+do_displayer = f  ## for dev testing only
 
 def display_messages(displayer, snippet, messages_dets, *,
         message_level=conf.BRIEF, in_notebook=False):

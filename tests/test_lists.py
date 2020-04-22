@@ -70,6 +70,25 @@ def test_misc():
                 'superhelp.advisors.list_advisors.mixed_list_types': 0,
             }
         ),
+        (
+            dedent("""\
+            def countPositivesAndNegatives(list):
+                countNegative, countPositive = 0,0
+                listToReturn = []
+                for number in list:
+                    if number > 0:
+                        countPositive += 1 #increment by one
+                    else:
+                        countNegative+= number #incrementally sum
+                listToReturn.append(countPositive)
+                listToReturn.append(countNegative)
+                return listToReturn
+            """),
+            {
+                'superhelp.advisors.list_advisors.list_overview': 1,  ## one list assignment only even if we can't evaluate its content because not run, just part of a function definition
+                'superhelp.advisors.list_advisors.mixed_list_types': 0,
+            }
+        ),
     ]
     check_as_expected(test_conf)
 
