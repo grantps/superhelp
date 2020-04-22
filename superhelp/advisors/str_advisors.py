@@ -16,12 +16,11 @@ STR_ADDITION_XPATH = 'descendant-or-self::BinOp/left/Str'  ## each left has a ri
 F_STR_REMINDER = False
 
 @filt_block_advisor(xpath=ASSIGN_STR_XPATH)
-def str_overview(block_dets, *, repeated_message=False):
+def assigned_str_overview(block_dets, *, repeated_message=False):
     """
     Provide overview of assigned strings e.g. name = 'Hamish'.
     """
     brief_comment = ''
-    main_comment = ''
     str_els = block_dets.element.xpath(ASSIGN_STR_XPATH)
     first_name = None
     first_val = None
@@ -34,51 +33,59 @@ def str_overview(block_dets, *, repeated_message=False):
         if first:
             first_name = name
             first_val = val
-            title = layout_comment("""\
+            brief_comment += layout_comment("""\
 
                 ##### String Overview
 
                 """)
-            brief_comment += title
-            main_comment += title
-        desc_comment = layout_comment(f"""\
+        brief_comment += layout_comment(f"""\
             `{name}` is a string.
 
             """)
-        brief_comment += desc_comment
-        main_comment += desc_comment
     if repeated_message:
+        main_comment = brief_comment
         extra_comment = ''
     else:
         brief_comment += layout_comment(f"""\
             Python makes it easy to do lots of cool things with strings.
-            E.g. {first_name}.upper() returns {first_val.upper()}.
+
+            """)
+        if first_val:
+            name2use = first_name
+            val2use = first_val
+        else:
+            name2use = 'address'
+            val2use = 'Waiuku, New Zealand'
+            brief_comment += layout_comment(f"""\
+                For illustration, imagine we have string '{val2use}' assigned to
+                `{name2use}`:
+
+                """)
+        main_comment = brief_comment  ## after this brief and main diverge
+        brief_comment += layout_comment(f"""\
+            {name2use}.upper() returns {val2use.upper()}.
 
             """)
         black_heart = "\N{BLACK HEART}"
         main_comment += layout_comment(f"""\
-                Python makes it easy to do lots of cool things with strings.
+            Examples:
 
-                Examples:
+            {name2use}.upper() returns {val2use.upper()}.
 
-                {first_name}.upper() returns {first_val.upper()}.
+            {name2use}.center(70, '=') returns {val2use.center(70, '=')}
 
-                {first_name}.center(70, '=') returns {first_val.center(70, '=')}
+            {name2use}.endswith('chicken') returns {val2use.endswith('chicken')}
 
-                {first_name}.endswith('chicken') returns
-                {first_val.endswith('chicken')}
+            {name2use} + ' is a string' returns {val2use + ' is a string'}
 
-                {first_name} + ' is a string' returns
-                {first_val + ' is a string'}
+            {name2use} + ' ' + '{{\\NBLACK HEART}}' + ' Python' returns
+            {val2use + ' ' + black_heart + ' Python'}
 
-                {first_name} + ' ' + '{{\\NBLACK HEART}}' + ' Python' returns
-                {first_val + ' ' + black_heart + ' Python'}
+            len({name2use}) returns {len(val2use)} because that is how many
+            characters are in the {name2use} string (remember to count spaces -
+            they are characters too)
 
-                len({first_name}) returns {len(first_val)} because that is how
-                many characters are in the {first_name} string (remember to
-                count spaces - they are characters too)
-
-                sorted({first_name}) returns {sorted(first_val)}
+            sorted({name2use}) returns {sorted(val2use)}
             """)
         extra_comment = layout_comment("""\
             .upper(), .center() etc are abilities available with all Python

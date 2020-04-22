@@ -26,9 +26,14 @@ def sorted(my_list):
 """
 
 TEST_SNIPPET = """\
-def nameToInitials(name):
-    nameList = name.split(' ')
-    return "{}.{}".format(nameList[0][0],nameList[1][0])
+def DNAtoRNA(DNAstring):
+    newString = ''
+    for char in DNAstring:
+        if char!= 'T':
+            newString+= char
+        else:
+            newString+='U'
+    return newString
 """
 
 DEMO_SNIPPET = """\
