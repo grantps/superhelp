@@ -250,8 +250,9 @@ BROWSER_HTML_WRAPPER = """\
 <body>
 {logo_svg}
 <h1>SuperHELP - Help for Humans!</h1>
-<p>Help is provided for each block of code in your snippet.
-Toggle between different levels of detail.</p>
+<p>Help is provided for each block of code in your snippet.</p>
+<p>{missing_advice_message}</p>
+<p>Toggle between different levels of detail.</p>
 {radio_buttons}
 {body_inner}
 {visibility_script}
@@ -264,8 +265,9 @@ NOTEBOOK_HTML_WRAPPER = """\
 {head}
 <body>
 <h1>Look here for some help on the snippet in the cell above</h1>
-<p>Help is provided for each block of code in your snippet.
-Toggle between different levels of detail.</p>
+<p>Help is provided for each block of code in your snippet.</p>
+<p>{missing_advice_message}</p>
+<p>Toggle between different levels of detail.</p>
 {radio_buttons}
 {body_inner}
 {visibility_script}
@@ -628,13 +630,17 @@ def display(snippet, messages_dets, *,
     if in_notebook:
         html2write = NOTEBOOK_HTML_WRAPPER.format(
             head=head,
-            radio_buttons=radio_buttons, body_inner=body_inner,
+            radio_buttons=radio_buttons,
+            missing_advice_message=conf.MISSING_ADVICE_MESSAGE,
+            body_inner=body_inner,
             visibility_script=VISIBILITY_SCRIPT)
         return html2write
     else:
         html2write = BROWSER_HTML_WRAPPER.format(
             head=head, logo_svg=LOGO_SVG,
-            radio_buttons=radio_buttons, body_inner=body_inner,
+            radio_buttons=radio_buttons,
+            missing_advice_message=conf.MISSING_ADVICE_MESSAGE,
+            body_inner=body_inner,
             visibility_script=VISIBILITY_SCRIPT)
         explained_fpath = Path.cwd() / 'explained.html'
         with open(explained_fpath, 'w') as f:

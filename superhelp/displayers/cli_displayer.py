@@ -39,6 +39,7 @@ def display(snippet, messages_dets, *,
         "Help is provided for your overall snippet "
         "and for each line as appropriate.\n",
         f"Currently showing {message_level} content as requested",
+        conf.MISSING_ADVICE_MESSAGE,
     ]
     text.append(mdv.main(dedent(
         "## Overall Snippet\n"

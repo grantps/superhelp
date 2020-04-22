@@ -212,6 +212,9 @@ MIN_BRIEF_DOCSTRING = 3
 NO_ADVICE_MESSAGE = ("No advice to give - looks fine :-). But if you think "
     "there should have been some advice given, contact grant@p-s.co.nz with "
     "the subject line 'Advice' and explain. Include a snippet to test as well.")
+MISSING_ADVICE_MESSAGE = ("If there was some advice you think should have been "
+    "given that wasn't, contact grant@p-s.co.nz with the subject line 'Advice' "
+    "and explain. Include a snippet to test as well.")
 SYSTEM_MESSAGE = 'System message'
 
 LINE_FEED = '&#10;'
