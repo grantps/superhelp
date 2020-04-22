@@ -29,6 +29,23 @@ def test_misc():
         (
             dedent("""\
             capitals = {
+
+
+                'NZ': 'Wellington',
+                'Australia': 'Canberra',
+                'Japan': 'Tokyo',
+
+
+            }
+            """),
+            {
+                'superhelp.advisors.dict_advisors.dict_overview': 1,
+                'superhelp.advisors.dict_advisors.mixed_key_types': 0,
+            }
+        ),
+        (
+            dedent("""\
+            capitals = {
                 'NZ': 'Wellington',
                 'Australia': 'Canberra',
                 'Japan': 'Tokyo',

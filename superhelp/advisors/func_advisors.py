@@ -151,7 +151,8 @@ def func_len_check(block_dets, *, repeated_message=False):
     has_short_comment = False
     for func_el in func_els:
         name = func_el.get('name')
-        _first_line_no, _last_line_no, func_lines_n = get_el_lines_dets(func_el)
+        _first_line_no, _last_line_no, func_lines_n = get_el_lines_dets(
+            func_el, ignore_trailing_lines=True)
         if func_lines_n <= conf.MAX_BRIEF_FUNC_LOC:
             continue
         else:

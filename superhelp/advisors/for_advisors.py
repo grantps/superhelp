@@ -19,7 +19,8 @@ def for_overview(block_dets, *, repeated_message=False):
     for_els = block_dets.element.xpath(FOR_XPATH)
     any_short_enough = False
     for for_el in for_els:
-        _first_line_no, _last_line_no, for_lines_n = get_el_lines_dets(for_el)
+        _first_line_no, _last_line_no, for_lines_n = get_el_lines_dets(
+            for_el, ignore_trailing_lines=True)
         short_enough = for_lines_n < 3
         if short_enough:
             any_short_enough = True
