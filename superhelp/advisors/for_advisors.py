@@ -211,7 +211,7 @@ def nested_fors(block_dets, *, repeated_message=False):
     if not repeated_message:
         brief_comment += (
             layout_comment("""\
-                For example, instead of:
+                For example, you could replace:
 
                 """)
             +
@@ -224,7 +224,7 @@ def nested_fors(block_dets, *, repeated_message=False):
             +
             layout_comment("""\
 
-                could be replaced with:
+                with a version using `itertools.product`:
 
                 """)
             +
