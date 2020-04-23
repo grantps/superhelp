@@ -2,6 +2,8 @@ from textwrap import dedent
 
 from tests import check_as_expected
 
+ROOT = 'superhelp.advisors.for_advisors.'
+
 def test_misc():
     test_conf = [
         (
@@ -9,8 +11,8 @@ def test_misc():
             name_lengths = []
             """),
             {
-                'superhelp.advisors.for_advisors.for_overview': 0,
-                'superhelp.advisors.for_advisors.for_index_iteration': 0,
+                ROOT + 'comprehension_option': 0,
+                ROOT + 'for_index_iteration': 0,
             }
         ),
         (
@@ -20,40 +22,40 @@ def test_misc():
                 name_lengths.append(len(name))
             """),
             {
-                'superhelp.advisors.for_advisors.for_overview': 1,
-                'superhelp.advisors.for_advisors.for_index_iteration': 0,
+                ROOT + 'comprehension_option': 1,
+                ROOT + 'for_index_iteration': 0,
             }
         ),
         (
             dedent("""\
-            name_lengths = []
-            for name in ['Noor', 'Grant', ]:
-                for pet in ['cat', 'dog']:
-                    pass
+            for pet in ['cat', 'dog']:
+                name_lengths = []
+                for name in ['Noor', 'Grant', ]:
+                    name_lengths.append(len(name))
             """),
             {
-                'superhelp.advisors.for_advisors.for_overview': 1,  ## the inner one not too long to get advice on a possible list comprehension etc
-                'superhelp.advisors.for_advisors.for_index_iteration': 0,
+                ROOT + 'comprehension_option': 1,  ## the inner one not too long to get advice on a possible list comprehension etc
+                ROOT + 'for_index_iteration': 0,
             }
         ),
         (
             dedent("""\
-            name_lengths = []
-            for name in ['Noor', 'Grant', ]:
-                for pet in ['cat', 'dog']:  ## <=========== short
-                    pass
+            for pet in ['cat', 'dog']:
+                name_lengths = []
+                for name in ['Noor', 'Grant', ]:  ## <=========== short
+                    name_lengths.append(len(name))
             for name in ['Noor', 'Grant', ]:  ## <=========== short
-                pass
+                name_lengths.append(len(name))
             for name in ['Noor', 'Grant', ]:
                 pass
                 pass
-                pass
+                name_lengths.append(len(name))
             for name in ['Noor', 'Grant', ]:  ## <=========== short
-                pass
+                name_lengths.append(len(name))
             """),
             {
-                'superhelp.advisors.for_advisors.for_overview': 3,  ## three of four are not too long to get advice on a possible list comprehension etc
-                'superhelp.advisors.for_advisors.for_index_iteration': 0,
+                ROOT + 'comprehension_option': 3,  ## three of four are not too long to get advice on a possible list comprehension etc
+                ROOT + 'for_index_iteration': 0,
             }
         ),
         (
@@ -63,8 +65,8 @@ def test_misc():
                 print(f"My {pets[i]}")
             """),
             {
-                'superhelp.advisors.for_advisors.for_overview': 1,
-                'superhelp.advisors.for_advisors.for_index_iteration': 1,
+                ROOT + 'comprehension_option': 1,
+                ROOT + 'for_index_iteration': 1,
             }
         ),
         (
@@ -75,8 +77,8 @@ def test_misc():
                     comment = f"My {pets[i]}"
             """),
             {
-                'superhelp.advisors.for_advisors.for_overview': 1,  ## one block
-                'superhelp.advisors.for_advisors.for_index_iteration': 1,
+                ROOT + 'comprehension_option': 1,  ## one block
+                ROOT + 'for_index_iteration': 1,
             }
         ),
     ]

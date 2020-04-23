@@ -2,6 +2,8 @@ from textwrap import dedent
 
 from tests import check_as_expected
 
+ROOT = 'superhelp.advisors.enumerate_advisors.'
+
 def test_misc():
     test_conf = [
         (
@@ -9,7 +11,7 @@ def test_misc():
             pet = 'cat'
             """),
             {
-                'superhelp.advisors.enumerate_advisors.manual_incrementing': 0,
+                ROOT + 'manual_incrementing': 0,
             }
         ),
         (
@@ -22,7 +24,7 @@ def test_misc():
                 n += 1
             """),
             {
-                'superhelp.advisors.enumerate_advisors.manual_incrementing': 1,
+                ROOT + 'manual_incrementing': 1,
             }
         ),
         (
@@ -36,7 +38,7 @@ def test_misc():
                     n += 1
             """),
             {
-                'superhelp.advisors.enumerate_advisors.manual_incrementing': 1,
+                ROOT + 'manual_incrementing': 1,
             }
         ),
         (
@@ -49,7 +51,7 @@ def test_misc():
                 n += 1
             """),
             {
-                'superhelp.advisors.enumerate_advisors.manual_incrementing': 0,  ## not starting at 0, -1, or 1
+                ROOT + 'manual_incrementing': 0,  ## not starting at 0, -1, or 1
             }
         ),
         (
@@ -62,7 +64,7 @@ def test_misc():
                 n += 1
             """),
             {
-                'superhelp.advisors.enumerate_advisors.manual_incrementing': 1,
+                ROOT + 'manual_incrementing': 1,
             }
         ),
         (
@@ -81,10 +83,10 @@ def test_misc():
                 n += 1
             """),
             {
-                'superhelp.advisors.enumerate_advisors.manual_incrementing': 1,  ## snippet level so just once
+                ROOT + 'manual_incrementing': 1,  ## snippet level so just once
             }
         ),
     ]
     check_as_expected(test_conf)
 
-test_misc()
+# test_misc()

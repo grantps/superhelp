@@ -2,6 +2,8 @@ from textwrap import dedent
 
 from tests import check_as_expected
 
+ROOT = 'superhelp.advisors.sorting_reversing_advisors.'
+
 def test_misc():
     test_conf = [
         (
@@ -9,8 +11,8 @@ def test_misc():
             pet = 'cat'
             """),
             {
-                'superhelp.advisors.sorting_reversing_advisors.sorting_reversing_overview': 0,
-                'superhelp.advisors.sorting_reversing_advisors.list_sort_as_value': 0,
+                ROOT + 'sorting_reversing_overview': 0,
+                ROOT + 'list_sort_as_value': 0,
             }
         ),
         (
@@ -18,8 +20,8 @@ def test_misc():
             pets = sorted(['cat', 'dog', 'budgie'])
             """),
             {
-                'superhelp.advisors.sorting_reversing_advisors.sorting_reversing_overview': 1,
-                'superhelp.advisors.sorting_reversing_advisors.list_sort_as_value': 0,
+                ROOT + 'sorting_reversing_overview': 1,
+                ROOT + 'list_sort_as_value': 0,
             }
         ),
         (
@@ -28,8 +30,8 @@ def test_misc():
             your_pets = sorted(['cat', 'dog', 'budgie'])
             """),
             {
-                'superhelp.advisors.sorting_reversing_advisors.sorting_reversing_overview': 2,
-                'superhelp.advisors.sorting_reversing_advisors.list_sort_as_value': 0,
+                ROOT + 'sorting_reversing_overview': 2,
+                ROOT + 'list_sort_as_value': 0,
             }
         ),
         (
@@ -38,8 +40,8 @@ def test_misc():
             your_pets = sorted(['cat', 'dog', 'budgie'])
             """),
             {
-                'superhelp.advisors.sorting_reversing_advisors.sorting_reversing_overview': 2,
-                'superhelp.advisors.sorting_reversing_advisors.list_sort_as_value': 0,
+                ROOT + 'sorting_reversing_overview': 2,
+                ROOT + 'list_sort_as_value': 0,
             }
         ),
         (
@@ -49,8 +51,8 @@ def test_misc():
                 your_pets = sorted(['cat', 'dog', 'budgie'])
             """),
             {
-                'superhelp.advisors.sorting_reversing_advisors.sorting_reversing_overview': 1,
-                'superhelp.advisors.sorting_reversing_advisors.list_sort_as_value': 0,
+                ROOT + 'sorting_reversing_overview': 1,
+                ROOT + 'list_sort_as_value': 0,
             }
         ),
         (
@@ -58,8 +60,8 @@ def test_misc():
             demo = [1, 2].sort()
             """),
             {
-                'superhelp.advisors.sorting_reversing_advisors.sorting_reversing_overview': 1,
-                'superhelp.advisors.sorting_reversing_advisors.list_sort_as_value': 1,
+                ROOT + 'sorting_reversing_overview': 1,
+                ROOT + 'list_sort_as_value': 1,
             }
         ),
         (
@@ -68,8 +70,8 @@ def test_misc():
                 demo = [1, 2].sort()
             """),
             {
-                'superhelp.advisors.sorting_reversing_advisors.sorting_reversing_overview': 1,
-                'superhelp.advisors.sorting_reversing_advisors.list_sort_as_value': 1,
+                ROOT + 'sorting_reversing_overview': 1,
+                ROOT + 'list_sort_as_value': 1,
             }
         ),
         (
@@ -79,8 +81,8 @@ def test_misc():
                 demo = [1, 2].sort()
             """),
             {
-                'superhelp.advisors.sorting_reversing_advisors.sorting_reversing_overview': 2,
-                'superhelp.advisors.sorting_reversing_advisors.list_sort_as_value': 1,
+                ROOT + 'sorting_reversing_overview': 2,
+                ROOT + 'list_sort_as_value': 1,
             }
         ),
     ]

@@ -2,20 +2,22 @@ from textwrap import dedent
 
 from tests import check_as_expected
 
+ROOT = 'superhelp.advisors.list_advisors.'
+
 def test_misc():
     test_conf = [
         (
             "pet = 'cat'",  ## snippet
             {
-                'superhelp.advisors.list_advisors.list_overview': 0,
-                'superhelp.advisors.list_advisors.mixed_list_types': 0,  ## basically banned
+                ROOT + 'list_overview': 0,
+                ROOT + 'mixed_list_types': 0,  ## basically banned
             }
         ),
         (
             "names = ['Noor', 'Grant', 'Hyeji', 'Vicky', 'Olek', ]",  ## snippet
             {
-                'superhelp.advisors.list_advisors.list_overview': 1,
-                'superhelp.advisors.list_advisors.mixed_list_types': 0,  ## basically banned
+                ROOT + 'list_overview': 1,
+                ROOT + 'mixed_list_types': 0,  ## basically banned
             }
         ),
         (
@@ -26,8 +28,8 @@ def test_misc():
                 person_toys = ['ball', 'doll', 'frisbee']
             """),
             {
-                'superhelp.advisors.list_advisors.list_overview': 2,  ## both person_pets and person_toys are combined in one message so 1 + 1 it is
-                'superhelp.advisors.list_advisors.mixed_list_types': 0,  ## basically banned
+                ROOT + 'list_overview': 2,  ## both person_pets and person_toys are combined in one message so 1 + 1 it is
+                ROOT + 'mixed_list_types': 0,  ## basically banned
             }
         ),
         (
@@ -40,8 +42,8 @@ def test_misc():
             ]
             """),
             {
-                'superhelp.advisors.list_advisors.list_overview': 1,
-                'superhelp.advisors.list_advisors.mixed_list_types': 1,
+                ROOT + 'list_overview': 1,
+                ROOT + 'mixed_list_types': 1,
             }
         ),
         (
@@ -56,8 +58,8 @@ def test_misc():
                 ]
             """),
             {
-                'superhelp.advisors.list_advisors.list_overview': 2,  ## should be a message for names and another message for the mixedTypes assignments (the fact it is in a loop is ignored thankfully)
-                'superhelp.advisors.list_advisors.mixed_list_types': 1,  ## just once - see above
+                ROOT + 'list_overview': 2,  ## should be a message for names and another message for the mixedTypes assignments (the fact it is in a loop is ignored thankfully)
+                ROOT + 'mixed_list_types': 1,  ## just once - see above
             }
         ),
         (
@@ -66,8 +68,8 @@ def test_misc():
             names_lower = [name.lower() for name in names]  ## not a list assignment as such so handled as a list comprehension separately
             """),
             {
-                'superhelp.advisors.list_advisors.list_overview': 1,  ## one list assignment only
-                'superhelp.advisors.list_advisors.mixed_list_types': 0,
+                ROOT + 'list_overview': 1,  ## one list assignment only
+                ROOT + 'mixed_list_types': 0,
             }
         ),
         (
@@ -85,8 +87,8 @@ def test_misc():
                 return listToReturn
             """),
             {
-                'superhelp.advisors.list_advisors.list_overview': 1,  ## one list assignment only even if we can't evaluate its content because not run, just part of a function definition
-                'superhelp.advisors.list_advisors.mixed_list_types': 0,
+                ROOT + 'list_overview': 1,  ## one list assignment only even if we can't evaluate its content because not run, just part of a function definition
+                ROOT + 'mixed_list_types': 0,
             }
         ),
     ]

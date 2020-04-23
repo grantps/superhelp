@@ -2,6 +2,8 @@ from textwrap import dedent
 
 from tests import check_as_expected
 
+ROOT = 'superhelp.advisors.dict_advisors.'
+
 def test_misc():
     test_conf = [
         (
@@ -9,8 +11,8 @@ def test_misc():
             pet = 'cat'
             """),
             {
-                'superhelp.advisors.dict_advisors.dict_overview': 0,
-                'superhelp.advisors.dict_advisors.mixed_key_types': 0,
+                ROOT + 'dict_overview': 0,
+                ROOT + 'mixed_key_types': 0,
             }
         ),
         (
@@ -22,8 +24,8 @@ def test_misc():
             }
             """),
             {
-                'superhelp.advisors.dict_advisors.dict_overview': 1,
-                'superhelp.advisors.dict_advisors.mixed_key_types': 0,
+                ROOT + 'dict_overview': 1,
+                ROOT + 'mixed_key_types': 0,
             }
         ),
         (
@@ -39,8 +41,8 @@ def test_misc():
             }
             """),
             {
-                'superhelp.advisors.dict_advisors.dict_overview': 1,
-                'superhelp.advisors.dict_advisors.mixed_key_types': 0,
+                ROOT + 'dict_overview': 1,
+                ROOT + 'mixed_key_types': 0,
             }
         ),
         (
@@ -57,8 +59,8 @@ def test_misc():
             }
             """),
             {
-                'superhelp.advisors.dict_advisors.dict_overview': 2,
-                'superhelp.advisors.dict_advisors.mixed_key_types': 0,
+                ROOT + 'dict_overview': 2,
+                ROOT + 'mixed_key_types': 0,
             }
         ),
         (
@@ -69,8 +71,8 @@ def test_misc():
             }
             """),
             {
-                'superhelp.advisors.dict_advisors.dict_overview': 1,
-                'superhelp.advisors.dict_advisors.mixed_key_types': 1,
+                ROOT + 'dict_overview': 1,
+                ROOT + 'mixed_key_types': 1,
             }
         ),
         (
@@ -82,8 +84,8 @@ def test_misc():
                 }
             """),
             {
-                'superhelp.advisors.dict_advisors.dict_overview': 1,
-                'superhelp.advisors.dict_advisors.mixed_key_types': 1,
+                ROOT + 'dict_overview': 1,
+                ROOT + 'mixed_key_types': 1,
             }
         ),
     ]

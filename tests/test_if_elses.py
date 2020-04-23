@@ -2,6 +2,8 @@ from textwrap import dedent
 
 from tests import check_as_expected
 
+ROOT = 'superhelp.advisors.if_else_advisors.'
+
 def test_misc():
     test_conf = [
         (
@@ -9,10 +11,10 @@ def test_misc():
             pet = 'cat'
             """),
             {
-                'superhelp.advisors.if_else_advisors.if_else_overview': 0,
-                'superhelp.advisors.if_else_advisors.missing_else': 0,
-                'superhelp.advisors.if_else_advisors.split_group_membership': 0,
-                'superhelp.advisors.if_else_advisors.implicit_boolean_enough': 0,
+                ROOT + 'if_else_overview': 0,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
             }
         ),
         (
@@ -21,10 +23,10 @@ def test_misc():
                 pass
             """),
             {
-                'superhelp.advisors.if_else_advisors.if_else_overview': 1,
-                'superhelp.advisors.if_else_advisors.missing_else': 0,
-                'superhelp.advisors.if_else_advisors.split_group_membership': 0,
-                'superhelp.advisors.if_else_advisors.implicit_boolean_enough': 0,
+                ROOT + 'if_else_overview': 1,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
             }
         ),
         (
@@ -35,10 +37,10 @@ def test_misc():
                 pass
             """),
             {
-                'superhelp.advisors.if_else_advisors.if_else_overview': 1,
-                'superhelp.advisors.if_else_advisors.missing_else': 1,
-                'superhelp.advisors.if_else_advisors.split_group_membership': 0,
-                'superhelp.advisors.if_else_advisors.implicit_boolean_enough': 0,
+                ROOT + 'if_else_overview': 1,
+                ROOT + 'missing_else': 1,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
             }
         ),
         (
@@ -51,10 +53,10 @@ def test_misc():
                 pass
             """),
             {
-                'superhelp.advisors.if_else_advisors.if_else_overview': 1,
-                'superhelp.advisors.if_else_advisors.missing_else': 0,
-                'superhelp.advisors.if_else_advisors.split_group_membership': 0,
-                'superhelp.advisors.if_else_advisors.implicit_boolean_enough': 0,
+                ROOT + 'if_else_overview': 1,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
             }
         ),
         (
@@ -66,10 +68,10 @@ def test_misc():
                     pass
             """),
             {
-                'superhelp.advisors.if_else_advisors.if_else_overview': 1,
-                'superhelp.advisors.if_else_advisors.missing_else': 1,
-                'superhelp.advisors.if_else_advisors.split_group_membership': 0,
-                'superhelp.advisors.if_else_advisors.implicit_boolean_enough': 0,
+                ROOT + 'if_else_overview': 1,
+                ROOT + 'missing_else': 1,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
             }
         ),
         (
@@ -83,34 +85,10 @@ def test_misc():
                     pass
             """),
             {
-                'superhelp.advisors.if_else_advisors.if_else_overview': 1,
-                'superhelp.advisors.if_else_advisors.missing_else': 0,
-                'superhelp.advisors.if_else_advisors.split_group_membership': 0,
-                'superhelp.advisors.if_else_advisors.implicit_boolean_enough': 0,
-            }
-        ),
-        (
-            dedent("""\
-            for i in range(2):
-                if n == 1:
-                    pass
-                elif n == 2:
-                    pass
-                else:
-                    pass
-            for i in range(2):
-                if n == 1:
-                    pass
-                elif n == 2:
-                    pass
-                else:
-                    pass
-            """),
-            {
-                'superhelp.advisors.if_else_advisors.if_else_overview': 2,
-                'superhelp.advisors.if_else_advisors.missing_else': 0,
-                'superhelp.advisors.if_else_advisors.split_group_membership': 0,
-                'superhelp.advisors.if_else_advisors.implicit_boolean_enough': 0,
+                ROOT + 'if_else_overview': 1,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
             }
         ),
         (
@@ -127,12 +105,36 @@ def test_misc():
                     pass
                 elif n == 2:
                     pass
+                else:
+                    pass
             """),
             {
-                'superhelp.advisors.if_else_advisors.if_else_overview': 2,
-                'superhelp.advisors.if_else_advisors.missing_else': 1,
-                'superhelp.advisors.if_else_advisors.split_group_membership': 0,
-                'superhelp.advisors.if_else_advisors.implicit_boolean_enough': 0,
+                ROOT + 'if_else_overview': 2,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
+            }
+        ),
+        (
+            dedent("""\
+            for i in range(2):
+                if n == 1:
+                    pass
+                elif n == 2:
+                    pass
+                else:
+                    pass
+            for i in range(2):
+                if n == 1:
+                    pass
+                elif n == 2:
+                    pass
+            """),
+            {
+                ROOT + 'if_else_overview': 2,
+                ROOT + 'missing_else': 1,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
             }
         ),
         (
@@ -141,10 +143,10 @@ def test_misc():
                 item = x
             """),
             {
-                'superhelp.advisors.if_else_advisors.if_else_overview': 1,
-                'superhelp.advisors.if_else_advisors.missing_else': 0,
-                'superhelp.advisors.if_else_advisors.split_group_membership': 1,
-                'superhelp.advisors.if_else_advisors.implicit_boolean_enough': 0,
+                ROOT + 'if_else_overview': 1,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 1,
+                ROOT + 'implicit_boolean_enough': 0,
             }
         ),
         (
@@ -153,10 +155,10 @@ def test_misc():
                 item = x
             """),
             {
-                'superhelp.advisors.if_else_advisors.if_else_overview': 1,
-                'superhelp.advisors.if_else_advisors.missing_else': 0,
-                'superhelp.advisors.if_else_advisors.split_group_membership': 0,  ## only dealing with simple cases of all same type and either str or num
-                'superhelp.advisors.if_else_advisors.implicit_boolean_enough': 0,
+                ROOT + 'if_else_overview': 1,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 0,  ## only dealing with simple cases of all same type and either str or num
+                ROOT + 'implicit_boolean_enough': 0,
             }
         ),
         (
@@ -166,10 +168,10 @@ def test_misc():
                     item = x
             """),
             {
-                'superhelp.advisors.if_else_advisors.if_else_overview': 1,
-                'superhelp.advisors.if_else_advisors.missing_else': 0,
-                'superhelp.advisors.if_else_advisors.split_group_membership': 1,
-                'superhelp.advisors.if_else_advisors.implicit_boolean_enough': 0,
+                ROOT + 'if_else_overview': 1,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 1,
+                ROOT + 'implicit_boolean_enough': 0,
             }
         ),
         (
@@ -186,10 +188,10 @@ def test_misc():
                 print(my_list)
             """),
             {
-                'superhelp.advisors.if_else_advisors.if_else_overview': 5,
-                'superhelp.advisors.if_else_advisors.missing_else': 0,
-                'superhelp.advisors.if_else_advisors.split_group_membership': 0,
-                'superhelp.advisors.if_else_advisors.implicit_boolean_enough': 1,  ## per block but no repeats
+                ROOT + 'if_else_overview': 5,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 1,  ## per block but no repeats
             }
         ),
         (
@@ -206,10 +208,10 @@ def test_misc():
                 print(my_list)
             """),
             {
-                'superhelp.advisors.if_else_advisors.if_else_overview': 5,
-                'superhelp.advisors.if_else_advisors.missing_else': 0,
-                'superhelp.advisors.if_else_advisors.split_group_membership': 0,
-                'superhelp.advisors.if_else_advisors.implicit_boolean_enough': 0,  ## explicit counts not used as empty/non-empty boolean
+                ROOT + 'if_else_overview': 5,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,  ## explicit counts not used as empty/non-empty boolean
             }
         ),
         (
@@ -223,10 +225,10 @@ def test_misc():
                     return year // 100 + 1
             """),
             {
-                'superhelp.advisors.if_else_advisors.if_else_overview': 1,
-                'superhelp.advisors.if_else_advisors.missing_else': 0,  ## saved from being an elif by having a return inside the else:
-                'superhelp.advisors.if_else_advisors.split_group_membership': 0,
-                'superhelp.advisors.if_else_advisors.implicit_boolean_enough': 0,
+                ROOT + 'if_else_overview': 1,
+                ROOT + 'missing_else': 0,  ## saved from being an elif by having a return inside the else:
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
             }
         ),
         (
@@ -240,13 +242,13 @@ def test_misc():
             #        return year // 100 + 1
             """),
             {
-                'superhelp.advisors.if_else_advisors.if_else_overview': 1,
-                'superhelp.advisors.if_else_advisors.missing_else': 1,  ## the else: if is effectively an elif because nothing else under it
-                'superhelp.advisors.if_else_advisors.split_group_membership': 0,
-                'superhelp.advisors.if_else_advisors.implicit_boolean_enough': 0,
+                ROOT + 'if_else_overview': 1,
+                ROOT + 'missing_else': 1,  ## the else: if is effectively an elif because nothing else under it
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
             }
         ),
     ]
     check_as_expected(test_conf)
 
-test_misc()
+# test_misc()

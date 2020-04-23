@@ -2,6 +2,8 @@ from textwrap import dedent
 
 from tests import check_as_expected
 
+ROOT = 'superhelp.advisors.num_advisors.'
+
 def test_misc():
     test_conf = [
         (
@@ -9,7 +11,7 @@ def test_misc():
             pet = 'cat'
             """),
             {
-                'superhelp.advisors.num_advisors.num_overview': 0,
+                ROOT + 'num_overview': 0,
             }
         ),
         (
@@ -17,7 +19,7 @@ def test_misc():
             demo = [1, 2]
             """),
             {
-                'superhelp.advisors.num_advisors.num_overview': 0,
+                ROOT + 'num_overview': 0,
             }
         ),
         (
@@ -25,7 +27,7 @@ def test_misc():
             demo = 1
             """),
             {
-                'superhelp.advisors.num_advisors.num_overview': 1,
+                ROOT + 'num_overview': 1,
             }
         ),
         (
@@ -34,7 +36,7 @@ def test_misc():
             demo2 = 2
             """),
             {
-                'superhelp.advisors.num_advisors.num_overview': 2,  # two blocks so two messages
+                ROOT + 'num_overview': 2,  # two blocks so two messages
             }
         ),
         (
@@ -43,7 +45,7 @@ def test_misc():
                 demo1 = 1
             """),
             {
-                'superhelp.advisors.num_advisors.num_overview': 1,
+                ROOT + 'num_overview': 1,
             }
         ),
         (
@@ -53,7 +55,7 @@ def test_misc():
                 demo2 = 2
             """),
             {
-                'superhelp.advisors.num_advisors.num_overview': 1,
+                ROOT + 'num_overview': 1,
             }
         ),
         (
@@ -63,7 +65,7 @@ def test_misc():
                 demo2 = 2.666
             """),
             {
-                'superhelp.advisors.num_advisors.num_overview': 1,
+                ROOT + 'num_overview': 1,
             }
         ),
     ]

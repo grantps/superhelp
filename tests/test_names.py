@@ -2,6 +2,8 @@ from textwrap import dedent
 
 from tests import check_as_expected
 
+ROOT = 'superhelp.advisors.name_advisors.'
+
 def test_misc():
     test_conf = [
         (
@@ -9,7 +11,8 @@ def test_misc():
             pet = 'cat'
             """),
             {
-                'superhelp.advisors.name_advisors.name_check': 0,
+                ROOT + 'unpythonic_name_check': 0,
+                ROOT + 'short_name_check': 0,
             }
         ),
         (
@@ -18,7 +21,8 @@ def test_misc():
                 pet = 'cat'
             """),
             {
-                'superhelp.advisors.name_advisors.name_check': 0,
+                ROOT + 'unpythonic_name_check': 0,
+                ROOT + 'short_name_check': 1,
             }
         ),
         (
@@ -26,7 +30,8 @@ def test_misc():
             myPet = 'cat'
             """),
             {
-                'superhelp.advisors.name_advisors.name_check': 1,
+                ROOT + 'unpythonic_name_check': 1,
+                ROOT + 'short_name_check': 0,
             }
         ),
         (
@@ -35,7 +40,8 @@ def test_misc():
                 myPet = 'cat'
             """),
             {
-                'superhelp.advisors.name_advisors.name_check': 1,
+                ROOT + 'unpythonic_name_check': 1,
+                ROOT + 'short_name_check': 1,
             }
         ),
         (
@@ -44,7 +50,8 @@ def test_misc():
                 pass
             """),
             {
-                'superhelp.advisors.name_advisors.name_check': 1,
+                ROOT + 'unpythonic_name_check': 1,
+                ROOT + 'short_name_check': 0,
             }
         ),
         (
@@ -54,7 +61,8 @@ def test_misc():
                     pass
             """),
             {
-                'superhelp.advisors.name_advisors.name_check': 1,
+                ROOT + 'unpythonic_name_check': 1,
+                ROOT + 'short_name_check': 1,
             }
         ),
         (
@@ -67,7 +75,8 @@ def test_misc():
                     pass
             """),
             {
-                'superhelp.advisors.name_advisors.name_check': 2,
+                ROOT + 'unpythonic_name_check': 2,
+                ROOT + 'short_name_check': 2,
             }
         ),
         (
@@ -80,7 +89,18 @@ def test_misc():
                     pass
             """),
             {
-                'superhelp.advisors.name_advisors.name_check': 1,
+                ROOT + 'unpythonic_name_check': 1,
+                ROOT + 'short_name_check': 2,
+            }
+        ),
+        (
+            dedent("""\
+            for x, y in [(1, 2), (3, 4), ]:
+                pass
+            """),
+            {
+                ROOT + 'unpythonic_name_check': 0,
+                ROOT + 'short_name_check': 1,  ## Looks at both together
             }
         ),
     ]

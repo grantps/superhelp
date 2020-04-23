@@ -2,6 +2,8 @@ from textwrap import dedent
 
 from tests import check_as_expected
 
+ROOT = 'superhelp.advisors.decorator_advisors.'
+
 def test_misc():
     test_conf = [
         (
@@ -9,7 +11,7 @@ def test_misc():
             pet = 'cat'
             """),
             {
-                'superhelp.advisors.decorator_advisors.decorator_overview': 0,
+                ROOT + 'decorator_overview': 0,
             }
         ),
         (
@@ -27,7 +29,7 @@ def test_misc():
                 print(message)
             """),
             {
-                'superhelp.advisors.decorator_advisors.decorator_overview': 2,  ## includes wraps
+                ROOT + 'decorator_overview': 2,  ## includes wraps
             }
         ),
         (
@@ -52,7 +54,7 @@ def test_misc():
                 print(message.upper())
             """),
             {
-                'superhelp.advisors.decorator_advisors.decorator_overview': 3,  ## each block should get the message
+                ROOT + 'decorator_overview': 3,  ## each block should get the message
             }
         ),
     ]

@@ -29,13 +29,10 @@ def sorted(my_list):
 """
 
 TEST_SNIPPET = """\
-def centuryFromYear(year):
-    if 1 <= year <= 100:
-        return 1
-    else:
-        if year % 100 == 0:
-            return year // 100
-        return year // 100 + 1
+# for i, j in [(1,2)]:
+#     print(i)
+for i in range(2):
+    print(i)
 """
 
 DEMO_SNIPPET = """\
@@ -212,13 +209,15 @@ EXAMPLES_OF_TYPES = {  ## best to include at least three so we have enough to ap
 MAX_BRIEF_FUNC_LOC = 35
 MAX_BRIEF_FUNC_ARGS = 6
 MIN_BRIEF_DOCSTRING = 3
+MIN_BRIEF_NAME = 3
 
 NO_ADVICE_MESSAGE = ("No advice to give - looks fine :-). But if you think "
     "there should have been some advice given, contact grant@p-s.co.nz with "
-    "the subject line 'Advice' and explain. Include a snippet to test as well.")
+    "the subject line 'Advice' and explain. Please include a snippet to test as"
+    " well.")
 MISSING_ADVICE_MESSAGE = ("If there was some advice you think should have been "
     "given that wasn't, contact grant@p-s.co.nz with the subject line 'Advice' "
-    "and explain. Include a snippet to test as well.")
+    "and explain. Please include a snippet to test as well.")
 SYSTEM_MESSAGE = 'System message'
 
 LINE_FEED = '&#10;'

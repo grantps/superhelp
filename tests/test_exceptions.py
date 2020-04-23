@@ -2,6 +2,8 @@ from textwrap import dedent
 
 from tests import check_as_expected
 
+ROOT = 'superhelp.advisors.exception_advisors.'
+
 def test_misc():
     test_conf = [
         (
@@ -9,8 +11,8 @@ def test_misc():
             pet = 'cat'
             """),
             {
-                'superhelp.advisors.exception_advisors.exception_overview': 0,  ## one try block
-                'superhelp.advisors.exception_advisors.unspecific_exception': 0,
+                ROOT + 'exception_overview': 0,  ## one try block
+                ROOT + 'unspecific_exception': 0,
             }
         ),
         (
@@ -24,8 +26,8 @@ def test_misc():
                 pass
             """),
             {
-                'superhelp.advisors.exception_advisors.exception_overview': 1,  ## one try block
-                'superhelp.advisors.exception_advisors.unspecific_exception': 0,
+                ROOT + 'exception_overview': 1,  ## one try block
+                ROOT + 'unspecific_exception': 0,
             }
         ),
         (
@@ -37,8 +39,8 @@ def test_misc():
                 pass
             """),
             {
-                'superhelp.advisors.exception_advisors.exception_overview': 1,
-                'superhelp.advisors.exception_advisors.unspecific_exception': 1,
+                ROOT + 'exception_overview': 1,
+                ROOT + 'unspecific_exception': 1,
             }
         ),
         (
@@ -51,8 +53,8 @@ def test_misc():
                     pass
             """),
             {
-                'superhelp.advisors.exception_advisors.exception_overview': 1,
-                'superhelp.advisors.exception_advisors.unspecific_exception': 1,
+                ROOT + 'exception_overview': 1,
+                ROOT + 'unspecific_exception': 1,
             }
         ),
         (
@@ -77,8 +79,8 @@ def test_misc():
                     pass
             """),
             {
-                'superhelp.advisors.exception_advisors.exception_overview': 1,  ## only one message because the message handles each exception internally - so still one message per snippet
-                'superhelp.advisors.exception_advisors.unspecific_exception': 1,
+                ROOT + 'exception_overview': 1,  ## only one message because the message handles each exception internally - so still one message per snippet
+                ROOT + 'unspecific_exception': 1,
             }
         ),
     ]

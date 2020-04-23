@@ -2,6 +2,8 @@ from textwrap import dedent
 
 from tests import check_as_expected
 
+ROOT = 'superhelp.advisors.tuple_advisors.'
+
 def test_misc():
     test_conf = [
         (
@@ -9,7 +11,7 @@ def test_misc():
             pet = 'cat'
             """),
             {
-                'superhelp.advisors.tuple_advisors.tuple_overview': 0,
+                ROOT + 'tuple_overview': 0,
             }
         ),
         (
@@ -17,7 +19,7 @@ def test_misc():
             coord = (1, 2)
             """),
             {
-                'superhelp.advisors.tuple_advisors.tuple_overview': 1,
+                ROOT + 'tuple_overview': 1,
             }
         ),
         (
@@ -25,7 +27,16 @@ def test_misc():
             pets = ('cat', 'dog')
             """),
             {
-                'superhelp.advisors.tuple_advisors.tuple_overview': 1,
+                ROOT + 'tuple_overview': 1,
+            }
+        ),
+        (
+            dedent("""\
+            pets = ('cat', 'dog',
+            )
+            """),
+            {
+                ROOT + 'tuple_overview': 1,
             }
         ),
         (
@@ -34,7 +45,7 @@ def test_misc():
             pets2 = ('cat', 'dog')
             """),
             {
-                'superhelp.advisors.tuple_advisors.tuple_overview': 2,
+                ROOT + 'tuple_overview': 2,
             }
         ),
         (
@@ -43,7 +54,7 @@ def test_misc():
                 pets = ('cat', 'dog')
             """),
             {
-                'superhelp.advisors.tuple_advisors.tuple_overview': 1,
+                ROOT + 'tuple_overview': 1,
             }
         ),
         (
@@ -53,7 +64,7 @@ def test_misc():
                 pets2 = ('cat', 'dog')
             """),
             {
-                'superhelp.advisors.tuple_advisors.tuple_overview': 1,
+                ROOT + 'tuple_overview': 1,
             }
         ),
         (
@@ -64,7 +75,7 @@ def test_misc():
                 pets2 = ('cat', 'dog')
             """),
             {
-                'superhelp.advisors.tuple_advisors.tuple_overview': 2,
+                ROOT + 'tuple_overview': 2,
             }
         ),
     ]

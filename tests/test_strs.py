@@ -2,6 +2,8 @@ from textwrap import dedent
 
 from tests import check_as_expected
 
+ROOT = 'superhelp.advisors.str_advisors.'
+
 def test_misc():
     test_conf = [
         (
@@ -9,11 +11,11 @@ def test_misc():
             num = 1
             """),
             {
-                'superhelp.advisors.str_advisors.assigned_str_overview': 0,
-                'superhelp.advisors.str_advisors.f_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.format_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.sprintf': 0,
-                'superhelp.advisors.str_advisors.string_addition': 0,
+                ROOT + 'assigned_str_overview': 0,
+                ROOT + 'f_str_interpolation': 0,
+                ROOT + 'format_str_interpolation': 0,
+                ROOT + 'sprintf': 0,
+                ROOT + 'string_addition': 0,
             }
         ),
         (
@@ -21,11 +23,11 @@ def test_misc():
             pet = 'cat'
             """),
             {
-                'superhelp.advisors.str_advisors.assigned_str_overview': 1,
-                'superhelp.advisors.str_advisors.f_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.format_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.sprintf': 0,
-                'superhelp.advisors.str_advisors.string_addition': 0,
+                ROOT + 'assigned_str_overview': 1,
+                ROOT + 'f_str_interpolation': 0,
+                ROOT + 'format_str_interpolation': 0,
+                ROOT + 'sprintf': 0,
+                ROOT + 'string_addition': 0,
             }
         ),
         (
@@ -33,11 +35,11 @@ def test_misc():
             pet = 'jelly' + 'fish'
             """),
             {
-                'superhelp.advisors.str_advisors.assigned_str_overview': 0,  ## only want to cover string combination / interpolation
-                'superhelp.advisors.str_advisors.f_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.format_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.sprintf': 0,
-                'superhelp.advisors.str_advisors.string_addition': 1,
+                ROOT + 'assigned_str_overview': 0,  ## only want to cover string combination / interpolation
+                ROOT + 'f_str_interpolation': 0,
+                ROOT + 'format_str_interpolation': 0,
+                ROOT + 'sprintf': 0,
+                ROOT + 'string_addition': 1,
             }
         ),
         (
@@ -45,11 +47,11 @@ def test_misc():
             pet = '%s%s' % ('jelly', 'fish')
             """),
             {
-                'superhelp.advisors.str_advisors.assigned_str_overview': 0,
-                'superhelp.advisors.str_advisors.f_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.format_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.sprintf': 1,
-                'superhelp.advisors.str_advisors.string_addition': 0,
+                ROOT + 'assigned_str_overview': 0,
+                ROOT + 'f_str_interpolation': 0,
+                ROOT + 'format_str_interpolation': 0,
+                ROOT + 'sprintf': 1,
+                ROOT + 'string_addition': 0,
             }
         ),
         (
@@ -57,11 +59,11 @@ def test_misc():
             pet = '%(a)s%(b)s' % {'a': 'jelly', 'b': 'fish'}
             """),
             {
-                'superhelp.advisors.str_advisors.assigned_str_overview': 0,
-                'superhelp.advisors.str_advisors.f_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.format_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.sprintf': 1,
-                'superhelp.advisors.str_advisors.string_addition': 0,
+                ROOT + 'assigned_str_overview': 0,
+                ROOT + 'f_str_interpolation': 0,
+                ROOT + 'format_str_interpolation': 0,
+                ROOT + 'sprintf': 1,
+                ROOT + 'string_addition': 0,
             }
         ),
         (
@@ -69,11 +71,11 @@ def test_misc():
             pet = '{}{}'.format('jelly', 'fish')
             """),
             {
-                'superhelp.advisors.str_advisors.assigned_str_overview': 0,
-                'superhelp.advisors.str_advisors.f_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.format_str_interpolation': 1,
-                'superhelp.advisors.str_advisors.sprintf': 0,
-                'superhelp.advisors.str_advisors.string_addition': 0,
+                ROOT + 'assigned_str_overview': 0,
+                ROOT + 'f_str_interpolation': 0,
+                ROOT + 'format_str_interpolation': 1,
+                ROOT + 'sprintf': 0,
+                ROOT + 'string_addition': 0,
             }
         ),
         (
@@ -81,11 +83,11 @@ def test_misc():
             pet = '{a}{b}'.format(a='jelly', b='fish')
             """),
             {
-                'superhelp.advisors.str_advisors.assigned_str_overview': 0,
-                'superhelp.advisors.str_advisors.f_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.format_str_interpolation': 1,
-                'superhelp.advisors.str_advisors.sprintf': 0,
-                'superhelp.advisors.str_advisors.string_addition': 0,
+                ROOT + 'assigned_str_overview': 0,
+                ROOT + 'f_str_interpolation': 0,
+                ROOT + 'format_str_interpolation': 1,
+                ROOT + 'sprintf': 0,
+                ROOT + 'string_addition': 0,
             }
         ),
         (
@@ -95,11 +97,11 @@ def test_misc():
             pet = f'{a}{b}'
             """),
             {
-                'superhelp.advisors.str_advisors.assigned_str_overview': 2,
-                'superhelp.advisors.str_advisors.f_str_interpolation': 1,
-                'superhelp.advisors.str_advisors.format_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.sprintf': 0,
-                'superhelp.advisors.str_advisors.string_addition': 0,
+                ROOT + 'assigned_str_overview': 2,
+                ROOT + 'f_str_interpolation': 1,
+                ROOT + 'format_str_interpolation': 0,
+                ROOT + 'sprintf': 0,
+                ROOT + 'string_addition': 0,
             }
         ),
         (
@@ -108,11 +110,11 @@ def test_misc():
                 pet = 'cat'
             """),
             {
-                'superhelp.advisors.str_advisors.assigned_str_overview': 1,
-                'superhelp.advisors.str_advisors.f_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.format_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.sprintf': 0,
-                'superhelp.advisors.str_advisors.string_addition': 0,
+                ROOT + 'assigned_str_overview': 1,
+                ROOT + 'f_str_interpolation': 0,
+                ROOT + 'format_str_interpolation': 0,
+                ROOT + 'sprintf': 0,
+                ROOT + 'string_addition': 0,
             }
         ),
         (
@@ -121,11 +123,11 @@ def test_misc():
                 pet = 'jelly' + 'fish'
             """),
             {
-                'superhelp.advisors.str_advisors.assigned_str_overview': 0,
-                'superhelp.advisors.str_advisors.f_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.format_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.sprintf': 0,
-                'superhelp.advisors.str_advisors.string_addition': 1,
+                ROOT + 'assigned_str_overview': 0,
+                ROOT + 'f_str_interpolation': 0,
+                ROOT + 'format_str_interpolation': 0,
+                ROOT + 'sprintf': 0,
+                ROOT + 'string_addition': 1,
             }
         ),
         (
@@ -134,11 +136,11 @@ def test_misc():
                 pet = '%(a)s%(b)s' % {'a': 'jelly', 'b': 'fish'}
             """),
             {
-                'superhelp.advisors.str_advisors.assigned_str_overview': 0,
-                'superhelp.advisors.str_advisors.f_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.format_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.sprintf': 1,
-                'superhelp.advisors.str_advisors.string_addition': 0,
+                ROOT + 'assigned_str_overview': 0,
+                ROOT + 'f_str_interpolation': 0,
+                ROOT + 'format_str_interpolation': 0,
+                ROOT + 'sprintf': 1,
+                ROOT + 'string_addition': 0,
             }
         ),
         (
@@ -147,11 +149,11 @@ def test_misc():
                 pet = '{a}{b}'.format(a='jelly', b='fish')
             """),
             {
-                'superhelp.advisors.str_advisors.assigned_str_overview': 0,
-                'superhelp.advisors.str_advisors.f_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.format_str_interpolation': 1,
-                'superhelp.advisors.str_advisors.sprintf': 0,
-                'superhelp.advisors.str_advisors.string_addition': 0,
+                ROOT + 'assigned_str_overview': 0,
+                ROOT + 'f_str_interpolation': 0,
+                ROOT + 'format_str_interpolation': 1,
+                ROOT + 'sprintf': 0,
+                ROOT + 'string_addition': 0,
             }
         ),
         (
@@ -162,11 +164,11 @@ def test_misc():
                 pet = f'{a}{b}'
             """),
             {
-                'superhelp.advisors.str_advisors.assigned_str_overview': 1,
-                'superhelp.advisors.str_advisors.f_str_interpolation': 1,
-                'superhelp.advisors.str_advisors.format_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.sprintf': 0,
-                'superhelp.advisors.str_advisors.string_addition': 0,
+                ROOT + 'assigned_str_overview': 1,
+                ROOT + 'f_str_interpolation': 1,
+                ROOT + 'format_str_interpolation': 0,
+                ROOT + 'sprintf': 0,
+                ROOT + 'string_addition': 0,
             }
         ),
         (
@@ -180,11 +182,11 @@ def test_misc():
                 their_pet = '%(a)s%(b)s' % {'a': 'sting', 'b': 'ray'}
             """),
             {
-                'superhelp.advisors.str_advisors.assigned_str_overview': 1,
-                'superhelp.advisors.str_advisors.f_str_interpolation': 1,
-                'superhelp.advisors.str_advisors.format_str_interpolation': 1,
-                'superhelp.advisors.str_advisors.sprintf': 1,
-                'superhelp.advisors.str_advisors.string_addition': 1,
+                ROOT + 'assigned_str_overview': 1,
+                ROOT + 'f_str_interpolation': 1,
+                ROOT + 'format_str_interpolation': 1,
+                ROOT + 'sprintf': 1,
+                ROOT + 'string_addition': 1,
             }
         ),
         (
@@ -194,11 +196,11 @@ def test_misc():
                 return "{}.{}".format(nameList[0][0],nameList[1][0])
             """),
             {
-                'superhelp.advisors.str_advisors.assigned_str_overview': 0,  ## no overview because not an assigned string
-                'superhelp.advisors.str_advisors.f_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.format_str_interpolation': 1,
-                'superhelp.advisors.str_advisors.sprintf': 0,
-                'superhelp.advisors.str_advisors.string_addition': 0,
+                ROOT + 'assigned_str_overview': 0,  ## no overview because not an assigned string
+                ROOT + 'f_str_interpolation': 0,
+                ROOT + 'format_str_interpolation': 1,
+                ROOT + 'sprintf': 0,
+                ROOT + 'string_addition': 0,
             }
         ),
         (
@@ -213,11 +215,11 @@ def test_misc():
                 return newString
             """),
             {
-                'superhelp.advisors.str_advisors.assigned_str_overview': 1,  ## no overview because not an assigned string
-                'superhelp.advisors.str_advisors.f_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.format_str_interpolation': 0,
-                'superhelp.advisors.str_advisors.sprintf': 0,
-                'superhelp.advisors.str_advisors.string_addition': 0,  ## not interested in pushing people towards f-strings in such cases
+                ROOT + 'assigned_str_overview': 1,  ## no overview because not an assigned string
+                ROOT + 'f_str_interpolation': 0,
+                ROOT + 'format_str_interpolation': 0,
+                ROOT + 'sprintf': 0,
+                ROOT + 'string_addition': 0,  ## not interested in pushing people towards f-strings in such cases
             }
         ),
     ]

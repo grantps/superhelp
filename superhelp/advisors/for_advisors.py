@@ -6,7 +6,7 @@ from ..utils import layout_comment
 FOR_XPATH = 'descendant-or-self::For'
 
 @filt_block_advisor(xpath=FOR_XPATH)
-def for_overview(block_dets, *, repeated_message=False):
+def comprehension_option(block_dets, *, repeated_message=False):
     """
     Provide overview of for loop to see if simple enough to be a possible
     candidate for a comprehension.
@@ -38,6 +38,8 @@ def for_overview(block_dets, *, repeated_message=False):
     elif 'set' in block_dets.block_code_str:
         comp_type = 'Set Comprehension'
         comp_comment = shared.SET_COMPREHENSION_COMMENT
+    else:
+        return None
     brief_comment = layout_comment(f"""\
         #### Possible option of using a {comp_type}
 

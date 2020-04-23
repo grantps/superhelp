@@ -2,18 +2,20 @@ from textwrap import dedent
 
 from tests import check_as_expected
 
+ROOT = 'superhelp.advisors.listcomp_advisors.'
+
 def test_misc():
     test_conf = [
         (
             "pet = 'cat'",  ## snippet
             {
-                'superhelp.advisors.listcomp_advisors.listcomp_overview': 0,
+                ROOT + 'listcomp_overview': 0,
             }
         ),
         (
             "names = ['Noor', 'Grant', 'Hyeji', 'Vicky', 'Olek', ]",  ## snippet
             {
-                'superhelp.advisors.listcomp_advisors.listcomp_overview': 0,
+                ROOT + 'listcomp_overview': 0,
             }
         ),
         (
@@ -22,7 +24,7 @@ def test_misc():
             names_lower = [name.lower() for name in names]  ## not a list assignment as such so handled as a list comprehension separately
             """),
             {
-                'superhelp.advisors.listcomp_advisors.listcomp_overview': 1,
+                ROOT + 'listcomp_overview': 1,
             }
         ),
         (
@@ -32,7 +34,7 @@ def test_misc():
             evens_squared = [x**2 for x in range(1, 6) if x % 2 == 0]
             """),
             {
-                'superhelp.advisors.listcomp_advisors.listcomp_overview': 2,
+                ROOT + 'listcomp_overview': 2,
             }
         ),
         (
@@ -43,7 +45,7 @@ def test_misc():
             evens_squared = [x**2 for x in range(1, 6) if x % 2 == 0]
             """),
             {
-                'superhelp.advisors.listcomp_advisors.listcomp_overview': 2,
+                ROOT + 'listcomp_overview': 2,
             }
         ),
     ]

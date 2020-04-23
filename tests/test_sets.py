@@ -2,6 +2,8 @@ from textwrap import dedent
 
 from tests import check_as_expected
 
+ROOT = 'superhelp.advisors.set_advisors.'
+
 def test_misc():
     test_conf = [
         (
@@ -9,7 +11,7 @@ def test_misc():
             pet = 'cat'
             """),
             {
-                'superhelp.advisors.set_advisors.set_overview': 0,
+                ROOT + 'set_overview': 0,
             }
         ),
         (
@@ -17,7 +19,7 @@ def test_misc():
             demo = set()
             """),
             {
-                'superhelp.advisors.set_advisors.set_overview': 1,
+                ROOT + 'set_overview': 1,
             }
         ),
         (
@@ -26,7 +28,7 @@ def test_misc():
             demo2 = set()
             """),
             {
-                'superhelp.advisors.set_advisors.set_overview': 2,
+                ROOT + 'set_overview': 2,
             }
         ),
         (
@@ -36,7 +38,7 @@ def test_misc():
                 demo2 = set()
             """),
             {
-                'superhelp.advisors.set_advisors.set_overview': 1,
+                ROOT + 'set_overview': 1,
             }
         ),
         (
@@ -46,7 +48,7 @@ def test_misc():
                 demo2 = set([8, 9, 10])
             """),
             {
-                'superhelp.advisors.set_advisors.set_overview': 1,
+                ROOT + 'set_overview': 1,
             }
         ),
     ]

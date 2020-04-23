@@ -2,6 +2,8 @@ from textwrap import dedent
 
 from tests import check_as_expected
 
+ROOT = 'superhelp.advisors.packing_advisors.'
+
 def test_misc():
     test_conf = [
         (
@@ -9,8 +11,8 @@ def test_misc():
             pet = 'cat'
             """),
             {
-                'superhelp.advisors.packing_advisors.unpacking': 0,
-                'superhelp.advisors.packing_advisors.unpacking_opportunity': 0,
+                ROOT + 'unpacking': 0,
+                ROOT + 'unpacking_opportunity': 0,
             }
         ),
         (
@@ -18,8 +20,8 @@ def test_misc():
             x, y = coord
             """),
             {
-                'superhelp.advisors.packing_advisors.unpacking': 1,
-                'superhelp.advisors.packing_advisors.unpacking_opportunity': 0,
+                ROOT + 'unpacking': 1,
+                ROOT + 'unpacking_opportunity': 0,
             }
         ),
         (
@@ -28,8 +30,8 @@ def test_misc():
             x, y = coord2
             """),
             {
-                'superhelp.advisors.packing_advisors.unpacking': 2,
-                'superhelp.advisors.packing_advisors.unpacking_opportunity': 0,
+                ROOT + 'unpacking': 2,
+                ROOT + 'unpacking_opportunity': 0,
             }
         ),
         (
@@ -39,8 +41,8 @@ def test_misc():
                 x, y = coord2
             """),
             {
-                'superhelp.advisors.packing_advisors.unpacking': 1,  ## in one block so one message
-                'superhelp.advisors.packing_advisors.unpacking_opportunity': 0,
+                ROOT + 'unpacking': 1,  ## in one block so one message
+                ROOT + 'unpacking_opportunity': 0,
             }
         ),
         (
@@ -49,8 +51,8 @@ def test_misc():
             y = coord[1]
             """),
             {
-                'superhelp.advisors.packing_advisors.unpacking': 0,
-                'superhelp.advisors.packing_advisors.unpacking_opportunity': 1,
+                ROOT + 'unpacking': 0,
+                ROOT + 'unpacking_opportunity': 1,
             }
         ),
         (
@@ -60,8 +62,8 @@ def test_misc():
                 y = coord[1]
             """),
             {
-                'superhelp.advisors.packing_advisors.unpacking': 0,
-                'superhelp.advisors.packing_advisors.unpacking_opportunity': 1,
+                ROOT + 'unpacking': 0,
+                ROOT + 'unpacking_opportunity': 1,
             }
         ),
         (
@@ -74,8 +76,8 @@ def test_misc():
                 y = coord2[1]
             """),
             {
-                'superhelp.advisors.packing_advisors.unpacking': 0,
-                'superhelp.advisors.packing_advisors.unpacking_opportunity': 1,  ## snippet-level message so only the one
+                ROOT + 'unpacking': 0,
+                ROOT + 'unpacking_opportunity': 1,  ## snippet-level message so only the one
             }
         ),
     ]
