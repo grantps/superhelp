@@ -90,6 +90,40 @@ def test_misc():
                 ROOT + 'docstring_issues': 1,
             }
         ),
+        (
+            dedent(f"""\
+            def demo():
+                '''
+                One line
+                '''
+                return True
+            """),
+            {
+                ROOT + 'func_overview': 1,
+                ROOT + 'func_len_check': 0,
+                ROOT + 'func_excess_parameters': 0,
+                ROOT + 'positional_boolean': 0,
+                ROOT + 'docstring_issues': 1,
+            }
+        ),
+        (
+            dedent(f"""\
+            def demo():
+                '''
+                One line
+                Two lines
+                Three lines
+                '''
+                return True
+            """),
+            {
+                ROOT + 'func_overview': 1,
+                ROOT + 'func_len_check': 0,
+                ROOT + 'func_excess_parameters': 0,
+                ROOT + 'positional_boolean': 0,
+                ROOT + 'docstring_issues': 0,  ## Just sqeaks through
+            }
+        ),
     ]
     check_as_expected(test_conf)
 

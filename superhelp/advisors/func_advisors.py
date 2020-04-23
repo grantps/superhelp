@@ -367,6 +367,7 @@ def docstring_issues(block_dets, *, repeated_message=False):
     Check over function doc strings. Missing doc string, not enough lines to
     cover params, return etc.
     """
+    WRAPPING_NEWLINE_N = 2
     example_docstring = layout_comment(f'''\
         def greet(name, greet_word='Hi'):
             """
@@ -418,7 +419,7 @@ def docstring_issues(block_dets, *, repeated_message=False):
                     """)
         else:
             n_args = get_n_args(func_el)
-            n_doc_lines = len(docstring.split(conf.LINE_FEED))
+            n_doc_lines = len(docstring.split('\n')) - WRAPPING_NEWLINE_N
             too_short = n_doc_lines < (conf.MIN_BRIEF_DOCSTRING + n_args)
             param_str = ' given the number of parameters' if n_args > 1 else ''
             if too_short:

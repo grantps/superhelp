@@ -29,10 +29,15 @@ def sorted(my_list):
 """
 
 TEST_SNIPPET = """\
-# for i, j in [(1,2)]:
-#     print(i)
-for i in range(2):
-    print(i)
+def min_number(list_of_numbers):
+    '''
+    A function that returns the smallest number in a list
+
+    :param list list_of_numbers: a list of integers
+    :return: the smallest integer
+    :rtype: integer
+    '''
+    return min(list_of_numbers)
 """
 
 DEMO_SNIPPET = """\

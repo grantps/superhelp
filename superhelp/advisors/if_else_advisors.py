@@ -105,14 +105,15 @@ def _get_if_comment(ifs_details):
             n_elifs = if_details.if_clauses.count(ELIF)
             brief_comment += layout_comment(f"""\
 
-                `if` statement{counter} has {int2nice(n_elifs)} `elif` clauses.
-                Note - `else` clauses with an `if` and only the `if` underneath
-                count as `elif` clauses.
+                `if` statement{counter} has {int2nice(n_elifs)} `elif` clauses
                 """)
             if if_details.missing_else:
                 brief_comment += " and no `else` clause."
             else:
                 brief_comment += " and an `else` clause."
+            brief_comment += (
+                " Note - `else` clauses with an `if`, and only an `if`, "
+                "underneath count as `elif` clauses not `else` clauses.")
         else:
             brief_comment += layout_comment(f"""\
 
