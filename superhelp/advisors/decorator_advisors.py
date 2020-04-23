@@ -6,6 +6,8 @@ decorator_xpath = (
     'descendant-or-self::decorator_list/Name '
     '| '
     'descendant-or-self::decorator_list/Call/func/Name'
+    ' | '
+    'descendant-or-self::decorator_list/Call/func/Attribute/value/Name'
 )
 
 @filt_block_advisor(xpath=decorator_xpath)
@@ -16,7 +18,16 @@ def decorator_overview(block_dets, *, repeated_message=False):
     decorator_els = block_dets.element.xpath(decorator_xpath)
     if not decorator_els:
         return None
-    decorator_names = [decorator_el.get('id') for decorator_el in decorator_els]
+    decorator_names = []
+    for decorator_el in decorator_els:
+        name = decorator_el.get('id')
+        dec_list_el = decorator_el.xpath('ancestor::decorator_list')[0]
+        attrib_els = dec_list_el.xpath('Call/func/Attribute')
+        if len(attrib_els) == 1:
+            namespace = attrib_els[0].get('attr')
+            if namespace:
+                name = f"{namespace}.{name}"
+        decorator_names.append(name)
     dec_name_list = get_nice_str_list(decorator_names, quoter='`')
     plural = 's' if len(decorator_names) > 1 else ''
     brief_comment = layout_comment(f"""\
@@ -27,8 +38,6 @@ def decorator_overview(block_dets, *, repeated_message=False):
     main_comment = brief_comment
     if not repeated_message:
         main_comment += (
-            brief_comment
-            +
             layout_comment("""\
 
                 Decorators are a common and handy feature of Python. Using them

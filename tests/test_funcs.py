@@ -2,8 +2,19 @@ from textwrap import dedent
 
 from tests import check_as_expected
 
-pad = 16
-pass_padding = ('\n' + (pad * ' ')).join(['pass']*100)
+def get_repeated_lines(*, item='pass', lpad=16, n_lines=100):
+    """
+    :return: E.g.
+     '''pass
+     pass
+     pass
+     pass
+     pass
+     pass'''
+    :rtype: str
+    """
+    repeated_lines = ('\n' + (lpad * ' ')).join([item]*n_lines)
+    return repeated_lines
 
 excess_args = ', '.join(['arg' + str(i) for i in range(100)])
 
@@ -53,7 +64,7 @@ def test_misc():
         (
             dedent(f"""\
             def square(num):
-                {pass_padding}
+                {get_repeated_lines(item='pass', lpad=16, n_lines=100)}
                 return num ** 2
             """),
             {
@@ -121,7 +132,22 @@ def test_misc():
                 ROOT + 'func_len_check': 0,
                 ROOT + 'func_excess_parameters': 0,
                 ROOT + 'positional_boolean': 0,
-                ROOT + 'docstring_issues': 0,  ## Just sqeaks through
+                ROOT + 'docstring_issues': 0,  ## Just squeaks through
+            }
+        ),
+        (
+            dedent(f"""\
+            def demo():
+                {get_repeated_lines(item='', lpad=16, n_lines=100)}  ## if included would be enough to blow the limit
+                {get_repeated_lines(item='pass', lpad=16, n_lines=8)}  ## only a few non-empty lines
+                return True
+            """),
+            {
+                ROOT + 'func_overview': 1,
+                ROOT + 'func_len_check': 0,
+                ROOT + 'func_excess_parameters': 0,
+                ROOT + 'positional_boolean': 0,
+                ROOT + 'docstring_issues': 1,
             }
         ),
     ]

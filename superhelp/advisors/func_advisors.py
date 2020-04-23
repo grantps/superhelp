@@ -3,6 +3,8 @@ from ..ast_funcs import get_el_lines_dets
 from .. import conf, utils
 from ..utils import layout_comment
 
+FUNC_DEFN_XPATH = 'descendant-or-self::FunctionDef'
+
 def _get_arg_comment(func_el, *, repeated_message=False):
     """
     Must cope with positional arguments, keyword arguments, keyword-only
@@ -106,12 +108,12 @@ def _get_exit_comment(func_el, *, repeated_message=False):
             return_elements, repeated_message=repeated_message)
     return exit_comment
 
-@filt_block_advisor(xpath='body/FunctionDef')
+@filt_block_advisor(xpath=FUNC_DEFN_XPATH)
 def func_overview(block_dets, *, repeated_message=False):
     """
     Advise on function definition statements. e.g. def greeting(): ...
     """
-    func_els = block_dets.element.xpath('descendant-or-self::FunctionDef')
+    func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
     brief_comment = layout_comment("""\
         #### Function Details
         """)
@@ -141,18 +143,22 @@ def func_overview(block_dets, *, repeated_message=False):
     }
     return message
 
-@filt_block_advisor(xpath='body/FunctionDef', warning=True)
+@filt_block_advisor(xpath=FUNC_DEFN_XPATH, warning=True)
 def func_len_check(block_dets, *, repeated_message=False):
     """
     Warn about functions that might be too long.
     """
-    func_els = block_dets.element.xpath('descendant-or-self::FunctionDef')
+    func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
     brief_comment = ''
     has_short_comment = False
     for func_el in func_els:
         name = func_el.get('name')
-        _first_line_no, _last_line_no, func_lines_n = get_el_lines_dets(
+        first_line_no, last_line_no, _func_lines_n = get_el_lines_dets(
             func_el, ignore_trailing_lines=True)
+        block_lines = block_dets.block_code_str.split('\n')
+        func_lines = block_lines[first_line_no - 1: last_line_no]
+        func_non_empty_lines = [line for line in func_lines if line]
+        func_lines_n = len(func_non_empty_lines)
         if func_lines_n <= conf.MAX_BRIEF_FUNC_LOC:
             continue
         else:
@@ -165,7 +171,7 @@ def func_len_check(block_dets, *, repeated_message=False):
             brief_comment += layout_comment(f"""\
 
             `{name}` has {utils.int2nice(func_lines_n)} lines of code
-            (including comments).
+            (including comments but with empty lines ignored).
             """)
             if not repeated_message:
                 brief_comment += (" Sometimes it is OK for a function to be "
@@ -184,12 +190,12 @@ def get_n_args(func_el):
     n_args = len(arg_els + kwonlyarg_els)
     return n_args
 
-@filt_block_advisor(xpath='body/FunctionDef', warning=True)
+@filt_block_advisor(xpath=FUNC_DEFN_XPATH, warning=True)
 def func_excess_parameters(block_dets, *, repeated_message=False):
     """
     Warn about functions that might have too many parameters.
     """
-    func_els = block_dets.element.xpath('descendant-or-self::FunctionDef')
+    func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
     brief_comment = ''
     has_high = False
     for func_el in func_els:
@@ -247,7 +253,7 @@ def get_danger_args(func_el):
         if danger_status is not None]
     return danger_args
 
-@filt_block_advisor(xpath='body/FunctionDef', warning=True)
+@filt_block_advisor(xpath=FUNC_DEFN_XPATH, warning=True)
 def positional_boolean(block_dets, *, repeated_message=False):
     """
     Look for any obvious candidates for forced keyword use e.g. where a
@@ -256,7 +262,7 @@ def positional_boolean(block_dets, *, repeated_message=False):
     Defaults apply from the rightmost backwards (within their group - either
     defaults or kw_defaults (related to kwonlyargs)).
     """
-    func_els = block_dets.element.xpath('descendant-or-self::FunctionDef')
+    func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
     brief_comment = ''
     has_positional_comment = False
     for func_el in func_els:
@@ -361,7 +367,7 @@ def get_funcs_dets_and_docstring(func_els):
         funcs_dets_and_docstring.append(func_dets_and_docstring)
     return funcs_dets_and_docstring
 
-@filt_block_advisor(xpath='body/FunctionDef', warning=True)
+@filt_block_advisor(xpath=FUNC_DEFN_XPATH, warning=True)
 def docstring_issues(block_dets, *, repeated_message=False):
     """
     Check over function doc strings. Missing doc string, not enough lines to
@@ -381,7 +387,7 @@ def docstring_issues(block_dets, *, repeated_message=False):
             greeting = f"{{greet_word}} {{name}} - how are you?"
             return greeting
         ''', is_code=True)
-    func_els = block_dets.element.xpath('descendant-or-self::FunctionDef')
+    func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
     funcs_dets_and_docstring = get_funcs_dets_and_docstring(func_els)
     brief_comment = ''
     missing_commented = False

@@ -117,7 +117,8 @@ def _get_if_comment(ifs_details):
         else:
             brief_comment += layout_comment(f"""\
 
-                `if` statement{counter} has no extra conditions.
+                `if` statement{counter} has no extra clauses e.g. `elif`s or an
+                `else`.
                 """)
     return brief_comment
 
