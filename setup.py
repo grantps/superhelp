@@ -2,7 +2,7 @@ from setuptools import setup, find_packages  # @UnresolvedImport
 from codecs import open
 from os import path
 
-__version__ = '0.1.10'
+__version__ = '0.1.11'
 
 here = path.abspath(path.dirname(__file__))
 
@@ -27,9 +27,14 @@ setup(
     download_url=f'https://git.nzoss.org.nz/pyGrant/superhelp/dist/superhelp-{__version__}.tar.gz',
     license='MIT',
     classifiers=[
-      'Development Status :: 3 - Alpha',
+      'Development Status :: 4 - Beta',
       'Intended Audience :: Developers',
       'Programming Language :: Python :: 3',
+      'Programming Language :: Python :: 3.6',
+      'Programming Language :: Python :: 3.7',
+      'Programming Language :: Python :: 3.8',
+      'Programming Language :: Python :: 3.9',
+      'Operating System :: OS Independent',
     ],
     keywords='',
     packages=find_packages(exclude=['docs', 'tests*']),
@@ -38,7 +43,7 @@ setup(
     install_requires=install_requires,
     dependency_links=dependency_links,
     author_email='grant@p-s.co.nz',
-    python_requires='>=3',
+    python_requires='>=3.6',
     entry_points = {
         'console_scripts': [
             'shelp=superhelp.helper:shelp',  ## using argparse to allow arguments
