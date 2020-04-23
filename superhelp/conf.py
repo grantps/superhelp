@@ -29,10 +29,10 @@ def sorted(my_list):
 """
 
 TEST_SNIPPET = """\
-for i in range(2):
-    def my_func():
-        pass
-        pass
+for person in persons:
+    for pet in pets:
+        for year in years:
+            print(f"{person} might like a {pet} in {year}")
 """
 
 DEMO_SNIPPET = """\

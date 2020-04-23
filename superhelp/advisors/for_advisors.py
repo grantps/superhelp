@@ -185,3 +185,67 @@ def for_index_iteration(block_dets, *, repeated_message=False):
         conf.BRIEF: brief_comment,
     }
     return message
+
+@filt_block_advisor(xpath=FOR_XPATH)
+def nested_fors(block_dets, *, repeated_message=False):
+    """
+    Look to see if an opportunity for using itertools.product instead of nested
+    iteration.
+    """
+    for_els = block_dets.element.xpath(FOR_XPATH)
+    nested_iteration = False
+    for for_el in for_els:
+        nested_for_els = for_el.xpath('descendant::For')
+        if nested_for_els:
+            nested_iteration = True
+            break
+    if not nested_iteration:
+        return None
+    brief_comment = layout_comment("""\
+
+        #### Possible option of simplifying nested iteration
+
+        Consider replacing nested iteration with `itertools.product`.
+
+        """)
+    if not repeated_message:
+        brief_comment += (
+            layout_comment("""\
+                For example, instead of:
+
+                """)
+            +
+            layout_comment("""\
+                for person in persons:
+                    for pet in pets:
+                        for year in years:
+                            print(f"{person} might like a {pet} in {year}")
+                """, is_code=True)
+            +
+            layout_comment("""\
+
+                could be replaced with:
+
+                """)
+            +
+            layout_comment("""\
+                from itertools import product
+                for person, pet, year in product(persons, pets, years):
+                    print(f"{person} might like a {pet} in {year}")
+                """, is_code=True)
+        )
+    main_comment = brief_comment
+    if not repeated_message:
+        main_comment += layout_comment("""\
+
+            Whether this is a good idea or not depends on your specific code but
+            using `product` has the advantage of reducing indentation. It also
+            semantically expresses the intention of the code - namely to look at
+            every option in the cartesian product of the different collections
+            of items.
+            """)
+    message = {
+        conf.BRIEF: brief_comment,
+        conf.MAIN: main_comment,
+    }
+    return message

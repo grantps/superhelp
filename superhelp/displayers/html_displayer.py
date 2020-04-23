@@ -362,6 +362,7 @@ INTERNAL_CSS = """\
 body {
   background-color: white;
   %(margin_css)s
+  %(max_width_css)s
 }
 h1, h2 {
   color: #0072aa;
@@ -618,7 +619,8 @@ def _get_all_html_strs(snippet, overall_messages_dets, block_messages_dets, *,
 def _get_head(*, in_notebook=False):
     internal_css = INTERNAL_CSS % {
         'code_css': CODE_CSS,
-        'margin_css': '' if in_notebook else 'margin: 60px 80px 80px 80px;',
+        'margin_css': '' if in_notebook else 'margin: 40px 70px 20px 70px;',
+        'max_width_css': '' if in_notebook else 'max-width: 700px;'
     }
     head = HTML_HEAD % {
         'internal_css': internal_css}

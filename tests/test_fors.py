@@ -13,6 +13,7 @@ def test_misc():
             {
                 ROOT + 'comprehension_option': 0,
                 ROOT + 'for_index_iteration': 0,
+                ROOT + 'nested_fors': 0,
             }
         ),
         (
@@ -24,6 +25,7 @@ def test_misc():
             {
                 ROOT + 'comprehension_option': 1,
                 ROOT + 'for_index_iteration': 0,
+                ROOT + 'nested_fors': 0,
             }
         ),
         (
@@ -36,6 +38,7 @@ def test_misc():
             {
                 ROOT + 'comprehension_option': 1,  ## the inner one not too long to get advice on a possible list comprehension etc
                 ROOT + 'for_index_iteration': 0,
+                ROOT + 'nested_fors': 1,
             }
         ),
         (
@@ -56,6 +59,7 @@ def test_misc():
             {
                 ROOT + 'comprehension_option': 3,  ## three of four are not too long to get advice on a possible list comprehension etc
                 ROOT + 'for_index_iteration': 0,
+                ROOT + 'nested_fors': 1,
             }
         ),
         (
@@ -67,6 +71,7 @@ def test_misc():
             {
                 ROOT + 'comprehension_option': 1,
                 ROOT + 'for_index_iteration': 1,
+                ROOT + 'nested_fors': 0,
             }
         ),
         (
@@ -79,6 +84,7 @@ def test_misc():
             {
                 ROOT + 'comprehension_option': 1,  ## one block
                 ROOT + 'for_index_iteration': 1,
+                ROOT + 'nested_fors': 1,
             }
         ),
     ]
