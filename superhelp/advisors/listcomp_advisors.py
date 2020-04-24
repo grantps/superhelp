@@ -22,7 +22,7 @@ def listcomp_overview(block_dets, *, repeated_message=False):
         if first:
             title = layout_comment(f"""\
 
-                #### List comprehension{plural} used
+                ### List comprehension{plural} used
 
                 """)
             brief_comment += title
@@ -36,7 +36,7 @@ def listcomp_overview(block_dets, *, repeated_message=False):
     else:
         extra_comment = (
             layout_comment(f"""\
-                #### Other "comprehensions"
+                ### Other "comprehensions"
 
                 """)
             + shared.GENERAL_COMPREHENSION_COMMENT

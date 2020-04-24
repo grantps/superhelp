@@ -250,7 +250,7 @@ def manual_incrementing(blocks_dets):
         return None
     brief_comment = layout_comment(f"""\
 
-        #### Possible option of using `enumerate()`
+        ### Possible option of using `enumerate()`
 
         It looks like your code is manually incrementing `{incrementing_var}`.
         In Python you can use the `enumerate` function to handle this for you.

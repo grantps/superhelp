@@ -46,7 +46,7 @@ def named_tuple_overview(blocks_dets):
     brief_comment = (
             layout_comment("""\
 
-                #### Named Tuple Enhancements
+                ### Named Tuple Enhancements
 
                 Named tuples can be enhanced to make them even more useful -
                 especially when debugging. The label can be expanded beyond the

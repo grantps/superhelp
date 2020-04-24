@@ -38,12 +38,12 @@ def exception_overview(blocks_dets):
     exception_blocks = get_exception_blocks(blocks_dets)
     if not exception_blocks:
         return None
-    brief_comment = '#### Exception handling'
+    brief_comment = '### Exception handling'
     for n, exception_block in enumerate(exception_blocks, 1):
         counter = '' if len(exception_blocks) == 1 else f" {int2nice(n)}"
         brief_comment += layout_comment(f"""\
 
-            ##### `try`-`except` block{counter}
+            #### `try`-`except` block{counter}
 
             """)
         brief_comment += _get_exception_block_comment(exception_block)
@@ -74,7 +74,7 @@ def unspecific_exception(blocks_dets):
         if not has_title:
             brief_comment += layout_comment("""\
 
-                ##### Un-specific `Exception` only in `try`-`except` block(s)
+                #### Un-specific `Exception` only in `try`-`except` block(s)
 
                 """)
         has_title = True

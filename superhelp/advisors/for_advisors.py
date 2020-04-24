@@ -41,7 +41,7 @@ def comprehension_option(block_dets, *, repeated_message=False):
     else:
         return None
     brief_comment = layout_comment(f"""\
-        #### Possible option of using a {comp_type}
+        ### Possible option of using a {comp_type}
 
         """)
     if not repeated_message:
@@ -142,7 +142,7 @@ def for_index_iteration(block_dets, *, repeated_message=False):
         return None
     brief_comment = layout_comment(f"""\
 
-        #### Possible option of using direct iteration
+        ### Possible option of using direct iteration
 
         It looks like your snippet iterates through `{iterable_name}` using
         indexes. In Python you can iterate directly which is much easier.
@@ -203,7 +203,7 @@ def nested_fors(block_dets, *, repeated_message=False):
         return None
     brief_comment = layout_comment("""\
 
-        #### Possible option of simplifying nested iteration
+        ### Possible option of simplifying nested iteration
 
         Consider replacing nested iteration with `itertools.product`.
 

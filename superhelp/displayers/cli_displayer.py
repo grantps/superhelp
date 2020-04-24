@@ -1,6 +1,7 @@
+import logging
 from textwrap import dedent
 
-from superhelp import mdv_fixed as mdv
+from .cli_extras import md2cli as mdv
 
 """
 Note - displays properly in the terminal but not necessarily in other output
@@ -24,7 +25,7 @@ def get_message(message_dets, message_level):
         .replace(f"    {conf.PYTHON_CODE_START}", MDV_CODE_BOUNDARY)
         .replace(f"\n    {conf.PYTHON_CODE_END}", MDV_CODE_BOUNDARY)
     )
-    message = mdv.main(md=message)
+    message = mdv.main(md=message.replace('`', ''))  ## They create problems in formatting
     return message
 
 def display(snippet, messages_dets, *,
@@ -32,6 +33,7 @@ def display(snippet, messages_dets, *,
     """
     Show by code blocks.
     """
+    logging.debug(f"{__name__} doesn't use in_notebook setting {in_notebook}")
     mdv.term_columns = TERMINAL_WIDTH
     text = [mdv.main(f"{LONG_LINE}\n"
         "# SuperHELP - Help for Humans!\n"),
@@ -52,7 +54,10 @@ def display(snippet, messages_dets, *,
         text.append(message)
     block_messages_dets.sort(key=lambda nt: (nt.first_line_no, nt.warning))
     prev_line_no = None
-    for message_dets in block_messages_dets:
+    for n, message_dets in enumerate(block_messages_dets):
+        if n > 41:
+            has_prob = True
+            print(has_prob)
         ## display code for line number (once ;-))
         line_no = message_dets.first_line_no
         new_block = (line_no != prev_line_no)
@@ -72,6 +77,6 @@ def display(snippet, messages_dets, *,
             block_has_warning_header = True
         ## process message
         message = get_message(message_dets, message_level)
-        text.append(message)  ## setting code_hilite is how you highlight the code - it is about handling MD within code e.g. in doc string
+        text.append(message)
     content = '\n'.join(text)
     print(content)

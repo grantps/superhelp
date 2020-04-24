@@ -115,7 +115,7 @@ def func_overview(block_dets, *, repeated_message=False):
     """
     func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
     brief_comment = layout_comment("""\
-        #### Function Details
+        ### Function Details
         """)
     for func_el in func_els:
         name = func_el.get('name')
@@ -164,7 +164,7 @@ def func_len_check(block_dets, *, repeated_message=False):
         else:
             if not has_short_comment:
                 brief_comment += layout_comment("""\
-                    #### Function possibly too long
+                    ### Function possibly too long
 
                     """)
                 has_short_comment = True
@@ -204,7 +204,7 @@ def func_excess_parameters(block_dets, *, repeated_message=False):
         high_args = n_args > conf.MAX_BRIEF_FUNC_ARGS
         if high_args:
             brief_comment += layout_comment("""\
-                #### Possibly too many function parameters
+                ### Possibly too many function parameters
 
                 """)
             brief_comment += layout_comment(f"""\
@@ -272,7 +272,7 @@ def positional_boolean(block_dets, *, repeated_message=False):
             if not has_positional_comment:
                 brief_comment += layout_comment("""\
 
-                    #### Function expects risky positional arguments
+                    ### Function expects risky positional arguments
                     """)
                 if not repeated_message:
                     brief_comment += layout_comment("""\
@@ -397,7 +397,7 @@ def docstring_issues(block_dets, *, repeated_message=False):
             if not (missing_commented or repeated_message):
                 brief_comment += (
                     layout_comment(f"""\
-                        #### Function missing doc string
+                        ### Function missing doc string
 
                         `{func_name}` lacks a doc string - you should probably
                         add one.
@@ -432,7 +432,7 @@ def docstring_issues(block_dets, *, repeated_message=False):
                 if not (inadequate_commented or repeated_message):
                     brief_comment += (
                         layout_comment(f"""\
-                            #### Function doc string too brief?
+                            ### Function doc string too brief?
 
                             The doc string for {func_name} seems a little
                             short{param_str}. You might want to rework it. Here

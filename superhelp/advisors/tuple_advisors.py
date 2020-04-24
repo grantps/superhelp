@@ -13,7 +13,7 @@ def tuple_overview(block_dets, *, repeated_message=False):
     tup_els = block_dets.element.xpath(ASSIGN_TUPLE_XPATH)
     title = layout_comment("""\
 
-        ##### Tuple Overview
+        #### Tuple Overview
 
         """)
     brief_comment = title
@@ -110,7 +110,7 @@ def tuple_overview(block_dets, *, repeated_message=False):
         extra_comment = (
             layout_comment(f"""\
 
-                ##### GOTCHA - immutable means 100% unchangeable right?
+                #### GOTCHA - immutable means 100% unchangeable right?
 
                 If you have a tuple of mutable data e.g. lists, the content
                 of those lists can be altered even while it remains true that you
@@ -148,7 +148,7 @@ def tuple_overview(block_dets, *, repeated_message=False):
                 that are immutable e.g. a reference to the memory address where
                 a mutable list sits.
 
-                ##### Named tuples
+                #### Named tuples
 
                 Tuples are a light-weight way of defining and storing data. It
                 is easier, for example, to write `coord` = (-37, 174) than it is
@@ -180,7 +180,7 @@ def tuple_overview(block_dets, *, repeated_message=False):
             +
             layout_comment(f"""\
 
-                ##### "Tupple" vs "Toople"
+                #### "Tupple" vs "Toople"
 
                 There is no consensus on how to pronounce tuple. Should it rhyme
                 with cup or with hoop? People from a more mathematical

@@ -170,7 +170,7 @@ def list_overview(block_dets, *, repeated_message=False):
             first_list_items = items
             title = layout_comment(f"""\
 
-                #### List{plural} defined
+                ### List{plural} defined
     
                 """)
             brief_comment += title
@@ -232,7 +232,7 @@ def mixed_list_types(block_dets, *, repeated_message=False):  # @UnusedVariable
         has_mixed = True
         if first:
             title = layout_comment(f"""\
-                #### List(s) with mix of different data types
+                ### List(s) with mix of different data types
     
                 """)
             brief_comment += title

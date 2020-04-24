@@ -97,7 +97,7 @@ def get_message_dets_from_input(advisor_dets, *,
         message = {
             conf.BRIEF: (
                 layout_comment(f"""\
-                    #### Advisor "`{name}`" unable to run
+                    ### Advisor "`{name}`" unable to run
 
                     Advisor {name} unable to run. Advisor description:
                     """)
@@ -250,7 +250,7 @@ def get_error_messages_dets(e, snippet):
     """
     message = {
         conf.BRIEF: layout_comment(f"""\
-            #### No advice sorry :-(
+            ### No advice sorry :-(
 
             Unable to provide advice - some sort of problem.
 

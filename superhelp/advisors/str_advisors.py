@@ -35,7 +35,7 @@ def assigned_str_overview(block_dets, *, repeated_message=False):
             first_val = val
             brief_comment += layout_comment("""\
 
-                ##### String Overview
+                #### String Overview
 
                 """)
         brief_comment += layout_comment(f"""\
@@ -129,7 +129,7 @@ def str_combination(combination_type, str_els, *, repeated_message=False):
         if not title:
             title = layout_comment(f"""\
 
-            #### Strings created by combining or interpolating strings
+            ### Strings created by combining or interpolating strings
             """)
             brief_comment += title
         brief_comment += layout_comment(f"""\

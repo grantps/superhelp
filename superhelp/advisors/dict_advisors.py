@@ -57,7 +57,7 @@ def _get_minimal_dict_details(block_dets, dict_els, plural):
         if first:
             title = layout_comment(f"""\
 
-                #### Dictionar{plural} defined
+                ### Dictionar{plural} defined
 
                 """)
             brief_comment += title
@@ -84,7 +84,7 @@ def _get_full_dict_details(block_dets, dict_els, plural):
             first_name = name
             title = layout_comment(f"""\
 
-                #### Dictionar{plural} defined
+                ### Dictionar{plural} defined
 
                 """)
             brief_comment += title
@@ -198,7 +198,7 @@ def mixed_key_types(block_dets, *, repeated_message=False):
         if first:
             title = layout_comment(f"""\
 
-                #### Mix of integer and string keys in dictionary
+                ### Mix of integer and string keys in dictionary
 
                 """)
             brief_comment += title

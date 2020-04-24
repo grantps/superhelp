@@ -43,14 +43,14 @@ def sorting_reversing_overview(block_dets, *, repeated_message=False):
         return None
     if repeated_message:
         brief_comment = layout_comment(f"""\
-            #### Sorting / reversing
+            ### Sorting / reversing
 
             This block of code {sorting_or_reversing_comment}.
             """)
         main_comment = brief_comment
     else:
         brief_comment = layout_comment(f"""\
-            #### Sorting / reversing
+            ### Sorting / reversing
 
             This block of code {sorting_or_reversing_comment}. Sorting and, to a
             lesser extent, reversing are very common needs in programming. Two
@@ -62,7 +62,7 @@ def sorting_reversing_overview(block_dets, *, repeated_message=False):
             """)
         main_comment = (
             layout_comment(f"""\
-                #### Sorting / reversing
+                ### Sorting / reversing
 
                 This block of code {sorting_or_reversing_comment}. Sorting and,
                 to a lesser extent, reversing are very common needs in
@@ -152,7 +152,7 @@ def list_sort_as_value(block_dets, *, repeated_message=False):
     if not names_assigned_to_sort:
         return None
     brief_comment = layout_comment(f"""\
-        #### Assignment of `None` result from in-place `.sort()` on list
+        ### Assignment of `None` result from in-place `.sort()` on list
 
         """)
     multiple = len(names_assigned_to_sort) > 1

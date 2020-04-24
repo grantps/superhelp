@@ -31,7 +31,7 @@ def decorator_overview(block_dets, *, repeated_message=False):
     dec_name_list = get_nice_str_list(decorator_names, quoter='`')
     plural = 's' if len(decorator_names) > 1 else ''
     brief_comment = layout_comment(f"""\
-            #### Decorator{plural} used
+            ### Decorator{plural} used
 
             The code uses the decorator{plural}: {dec_name_list}.
             """)

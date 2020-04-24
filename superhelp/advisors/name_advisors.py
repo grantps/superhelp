@@ -161,7 +161,7 @@ def unpythonic_name_check(block_dets, *, repeated_message=False):
         return None
     title = _get_shamed_names_title(reserved_names, bad_names, dubious_names)
     brief_comment = layout_comment(f"""\
-        #### {title}
+        ### {title}
 
         """)
     if reserved_names:
@@ -233,7 +233,7 @@ def short_name_check(block_dets, *, repeated_message=False):
             name = names.pop()
             short_comment += f"`{name}` is short."
     brief_comment = layout_comment(f"""\
-        #### Short variable names
+        ### Short variable names
 
         Sometimes, short variable names are appropriate - even conventional -
         but they should be avoided outside of a few special cases. In your code:

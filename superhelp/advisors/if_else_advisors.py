@@ -98,7 +98,7 @@ def _get_if_comment(ifs_details):
     Have to cope with multiple if statements and make it nice (unnumbered) when
     only one.
     """
-    brief_comment = '#### Conditional statement detected'
+    brief_comment = '### Conditional statement detected'
     for n, if_details in enumerate(ifs_details, 1):
         counter = '' if len(ifs_details) == 1 else f" {int2nice(n)}"
         if if_details.multiple_conditions:
@@ -187,7 +187,7 @@ def missing_else(block_dets, *, repeated_message=False):
         if first:
             brief_comment += layout_comment(f"""\
 
-                #### Possibly better with `else` clause
+                ### Possibly better with `else` clause
 
                 """)
         if first and not repeated_message:
@@ -353,7 +353,7 @@ def split_group_membership(block_dets, *, repeated_message=False):
         return None
     brief_comment = layout_comment(f"""\
 
-            #### Possible option of evaluating group membership
+            ### Possible option of evaluating group membership
 
             It looks like `{comp_var}` has been in multiple separate
             comparisons. In Python it is possible to do a simple check of group
@@ -452,7 +452,7 @@ def implicit_boolean_enough(block_dets, *, repeated_message=False):
     brief_comment = (
         layout_comment("""\
 
-            #### Possible option of using an implicit boolean
+            ### Possible option of using an implicit boolean
 
             In Python, "", 0, [], {}, (), `None` all evaluate to False when we
             ask if they are `True` or `False`. And they all evaluate to `True`
