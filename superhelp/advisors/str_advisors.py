@@ -1,6 +1,6 @@
 from ..advisors import any_block_advisor, filt_block_advisor
 from .. import code_execution, conf
-from ..utils import layout_comment
+from ..utils import layout_comment as layout
 
 F_STR = 'f-string'
 STR_FORMAT_FUNC = 'str_format'
@@ -33,12 +33,12 @@ def assigned_str_overview(block_dets, *, repeated_message=False):
         if first:
             first_name = name
             first_val = val
-            brief_comment += layout_comment("""\
+            brief_comment += layout("""\
 
                 #### String Overview
 
                 """)
-        brief_comment += layout_comment(f"""\
+        brief_comment += layout(f"""\
             `{name}` is a string.
 
             """)
@@ -46,7 +46,7 @@ def assigned_str_overview(block_dets, *, repeated_message=False):
         main_comment = brief_comment
         extra_comment = ''
     else:
-        brief_comment += layout_comment(f"""\
+        brief_comment += layout(f"""\
             Python makes it easy to do lots of cool things with strings.
 
             """)
@@ -56,18 +56,18 @@ def assigned_str_overview(block_dets, *, repeated_message=False):
         else:
             name2use = 'address'
             val2use = 'Waiuku, New Zealand'
-            brief_comment += layout_comment(f"""\
+            brief_comment += layout(f"""\
                 For illustration, imagine we have string '{val2use}' assigned to
                 `{name2use}`:
 
                 """)
         main_comment = brief_comment  ## after this brief and main diverge
-        brief_comment += layout_comment(f"""\
+        brief_comment += layout(f"""\
             {name2use}.upper() returns {val2use.upper()}.
 
             """)
         black_heart = "\N{BLACK HEART}"
-        main_comment += layout_comment(f"""\
+        main_comment += layout(f"""\
             Examples:
 
             {name2use}.upper() returns {val2use.upper()}.
@@ -87,7 +87,7 @@ def assigned_str_overview(block_dets, *, repeated_message=False):
 
             sorted({name2use}) returns {sorted(val2use)}
             """)
-        extra_comment = layout_comment("""\
+        extra_comment = layout("""\
             .upper(), .center() etc are abilities available with all Python
             strings. Technically they are methods of string objects. They start
             with a dot and are on the end of the object.
@@ -127,12 +127,12 @@ def str_combination(combination_type, str_els, *, repeated_message=False):
         }
         combination_comment = combination_type2comment[combination_type]
         if not title:
-            title = layout_comment(f"""\
+            title = layout(f"""\
 
             ### Strings created by combining or interpolating strings
             """)
             brief_comment += title
-        brief_comment += layout_comment(f"""\
+        brief_comment += layout(f"""\
 
             {name} is created using {combination_comment}.
             """)
@@ -143,7 +143,7 @@ def str_combination(combination_type, str_els, *, repeated_message=False):
     if combination_type != F_STR and not repeated_message:
         if not F_STR_REMINDER:
             F_STR_REMINDER = True
-            message[conf.BRIEF] += layout_comment("""\
+            message[conf.BRIEF] += layout("""\
     
                 Your snippet uses a non-f-string approach to constructing a
                 string.
@@ -152,7 +152,7 @@ def str_combination(combination_type, str_els, *, repeated_message=False):
                 your string?
                 """)
             message[conf.MAIN] += (
-                layout_comment("""\
+                layout("""\
 
                     Have you considered using an f-string approach to
                     constructing your string?
@@ -164,31 +164,31 @@ def str_combination(combination_type, str_els, *, repeated_message=False):
 
                     """)
                 +
-                layout_comment("""\
+                layout("""\
                     cost = 10_550
                     print(f"Cost is ${cost:,}")
                     # >>> 'Cost is $10,550'
                     """, is_code=True)
                 +
-                layout_comment(f"""\
+                layout(f"""\
 
                     Or making small in-line calculations:
 
                     """)
                 +
-                layout_comment("""\
+                layout("""\
                     people = ['Bart', 'Lisa']
                     print(f"There are {len(people)} people")
                     # >>> 'There are 2 people'
                     """, is_code=True)
                 +
-                layout_comment(f"""\
+                layout(f"""\
 
                     Or zero-padding numbers:
 
                     """)
                 +
-                layout_comment("""\
+                layout("""\
                     num = 525
                     print(f"{num:0>4}")
                     # >>> '0525'

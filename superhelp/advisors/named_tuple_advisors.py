@@ -2,7 +2,7 @@ from collections import namedtuple
 
 from ..advisors import snippet_advisor
 from .. import conf
-from ..utils import layout_comment
+from ..utils import layout_comment as layout
 
 NTDets = namedtuple('NamedTupleDetails', 'name, label, fields_str, fields_list')
 
@@ -44,7 +44,7 @@ def named_tuple_overview(blocks_dets):
     example_dets = named_tuples_dets[0]
     first_field = example_dets.fields_list[0]
     brief_comment = (
-            layout_comment("""\
+            layout("""\
 
                 ### Named Tuple Enhancements
 
@@ -57,7 +57,7 @@ def named_tuple_overview(blocks_dets):
 
                 """)
             +
-            layout_comment(f"""\
+            layout(f"""\
                 {example_dets.name} = namedtuple("{example_dets.label}",
                     "{example_dets.fields_str}")
                 {example_dets.name}.__doc__ += "\\n\\nExtra comments"
@@ -68,18 +68,18 @@ def named_tuple_overview(blocks_dets):
     main_comment = (
         brief_comment
         +
-        layout_comment("""\
+        layout("""\
 
             Default arguments are another nice option (added in Python 3.7). For
             example the following named tuple has a default IQ of 100:
             """)
         +
-        layout_comment("""\
+        layout("""\
 
             People = namedtuple('PeopleDets', 'name, IQ', defaults=(100, ))
             """, is_code=True)
         +
-        layout_comment("""\
+        layout("""\
 
             The official documentation has more details.
             """)

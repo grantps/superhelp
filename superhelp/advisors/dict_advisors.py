@@ -1,46 +1,46 @@
 from ..advisors import filt_block_advisor
 from .. import code_execution, conf, utils
 from ..ast_funcs import get_assign_name
-from ..utils import get_nice_str_list, layout_comment
+from ..utils import get_nice_str_list, layout_comment as layout
 
 ASSIGN_DICT_XPATH = 'descendant-or-self::Assign/value/Dict'
 
 def _get_additional_main_comment(first_name):
     additional_main_comment = (
-        layout_comment(f"""
+        layout(f"""
 
             It is common to iterate through the key-value pairs of a dictionary.
             This can be achieved using the dictionary's `.items()` method. E.g.
 
             """)
         +
-        layout_comment(f"""\
+        layout(f"""\
             ## k, v is conventional, and OK in a hurry, but readable names
             ## are probably better for code you're going to maintain
             for k, v in {first_name}.items():
                 print(f"key {{k}} maps to value {{v}}")
             """, is_code=True)
         +
-        layout_comment(f"""
+        layout(f"""
             
             Keys are unique but values can be repeated. For example:
 
             """)
         +
-        layout_comment(f"""
+        layout(f"""
             country2car = {{'Japan': 'Toyota', 'Sweden': 'Volvo'}}  ## OK - all keys are unique
             country2car = {{'Japan': 'Toyota', 'Japan': 'Honda'}}  ## Oops - the 'Japan' key is repeated
 
             """, is_code=True)
         +
-        layout_comment(f"""
+        layout(f"""
 
             In which case a better structure might be to have each 'value'
             being a list e.g.
 
             """)
         +
-        layout_comment(f"""
+        layout(f"""
             country2cars = {{'Japan': ['Toyota', 'Honda'], 'Sweden': ['Volvo']}}  ## OK - all keys are unique
 
             """, is_code=True)
@@ -55,13 +55,13 @@ def _get_minimal_dict_details(block_dets, dict_els, plural):
         items = code_execution.get_val(
             block_dets.pre_block_code_str, block_dets.block_code_str, name)
         if first:
-            title = layout_comment(f"""\
+            title = layout(f"""\
 
                 ### Dictionar{plural} defined
 
                 """)
             brief_comment += title
-        brief_comment += layout_comment(f"""\
+        brief_comment += layout(f"""\
 
             `{name}` is a dictionary with {utils.int2nice(len(items))} items
             (i.e. {utils.int2nice(len(items))} mappings).
@@ -82,7 +82,7 @@ def _get_full_dict_details(block_dets, dict_els, plural):
             block_dets.pre_block_code_str, block_dets.block_code_str, name)
         if first:
             first_name = name
-            title = layout_comment(f"""\
+            title = layout(f"""\
 
                 ### Dictionar{plural} defined
 
@@ -90,12 +90,12 @@ def _get_full_dict_details(block_dets, dict_els, plural):
             brief_comment += title
             main_comment += title
 
-            brief_comment += layout_comment("""\
+            brief_comment += layout("""\
 
                 Dictionaries map keys to values.
 
                 """)
-            main_comment += layout_comment("""\
+            main_comment += layout("""\
 
                 Dictionaries, along with lists, are the workhorses of Python
                 data structures.
@@ -103,14 +103,14 @@ def _get_full_dict_details(block_dets, dict_els, plural):
                 """)
         empty_dict = (len(items) == 0)
         if empty_dict:
-            list_desc = layout_comment(f"""\
+            list_desc = layout(f"""\
 
                 `{name}` is an empty dictionary.
 
                 """)
         else:
             plural = '' if len(items) == 1 else 's'
-            list_desc = layout_comment(f"""\
+            list_desc = layout(f"""\
 
                 `{name}` is a dictionary with {utils.int2nice(len(items))}
                 item{plural} (i.e. {utils.int2nice(len(items))}
@@ -124,7 +124,7 @@ def _get_full_dict_details(block_dets, dict_els, plural):
         brief_comment += list_desc
         main_comment += list_desc
    
-        brief_comment += layout_comment("""\
+        brief_comment += layout("""\
 
             Keys are unique but values can be repeated.
 
@@ -135,7 +135,7 @@ def _get_full_dict_details(block_dets, dict_els, plural):
     message = {
         conf.BRIEF: brief_comment,
         conf.MAIN: main_comment,
-        conf.EXTRA: layout_comment("""\
+        conf.EXTRA: layout("""\
 
             Python dictionaries (now) keep the order in which items are added.
 
@@ -196,7 +196,7 @@ def mixed_key_types(block_dets, *, repeated_message=False):
         mixed_names.append(name)
         has_mixed = True
         if first:
-            title = layout_comment(f"""\
+            title = layout(f"""\
 
                 ### Mix of integer and string keys in dictionary
 
@@ -208,13 +208,13 @@ def mixed_key_types(block_dets, *, repeated_message=False):
     multiple = len(mixed_names) > 1
     if multiple:
         nice_str_list = get_nice_str_list(mixed_names, quoter='`')
-        mixed_warning = layout_comment(f"""
+        mixed_warning = layout(f"""
 
             {nice_str_list} have keys include a mix of strings and integers -
             which is probably a bad idea.
             """)
     else:
-        mixed_warning = layout_comment(f"""
+        mixed_warning = layout(f"""
 
             `{name}`'s keys include both strings and integers which is probably
             a bad idea.
@@ -223,7 +223,7 @@ def mixed_key_types(block_dets, *, repeated_message=False):
     main_comment += mixed_warning
 
     if not repeated_message:
-        main_comment += layout_comment("""\
+        main_comment += layout("""\
 
             For example, if you have both 1 and "1" as keys in a dictionary
             (which is allowed because they are not the same key) it is very easy

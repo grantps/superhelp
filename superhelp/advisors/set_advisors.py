@@ -1,7 +1,7 @@
 from ..advisors import filt_block_advisor
 from ..ast_funcs import get_assign_name
 from .. import code_execution, conf, utils
-from ..utils import layout_comment
+from ..utils import layout_comment as layout
 
 ASSIGN_FUNC_NAME_XPATH = 'descendant-or-self::Assign/value/Call/func/Name'
 
@@ -33,31 +33,31 @@ def set_overview(block_dets, *, repeated_message=False):
         empty_set = len(my_set) == 0
         if not empty_set:
             members = str(sorted(my_set)).strip('[').strip(']')
-            brief_comment += layout_comment(f"""\
+            brief_comment += layout(f"""\
                 `{name}` is a set with {utils.int2nice(len(my_set))} members:
                 {members}
                 """)
             set_item = list(my_set)[0]
             if not no_duplicates_demo and not repeated_message:  ## only want one demo even if multiple sets defined in block
                 no_duplicates_demo = (
-                    layout_comment(f"""\
+                    layout(f"""\
 
                     For example:
 
                     """)
                     +
-                    layout_comment(f"""\
+                    layout(f"""\
                         {name}.add({set_item})
                         ## >>> {my_set}
                         """, is_code=True)
                 )
         else:
-            brief_comment += layout_comment(f"""\
+            brief_comment += layout(f"""\
                 `{name}` is an empty set.
                 """)
     if not repeated_message:
         brief_comment += (
-            layout_comment("""\
+            layout("""\
 
                 Python sets are brilliant. There are often cases in programming
                 where you need some sort of set operation e.g. you need
@@ -69,7 +69,7 @@ def set_overview(block_dets, *, repeated_message=False):
                 For example:
             """)
             +
-            layout_comment("""\
+            layout("""\
                 people = set(['Sam', 'Avi', 'Terri', 'Noor', 'Hyeji'])
                 no_email = set(['Sam', 'Terri'])
                 people2email = people - no_email
@@ -83,7 +83,7 @@ def set_overview(block_dets, *, repeated_message=False):
         main_comment = (
             brief_comment
             +
-            layout_comment(f"""\
+            layout(f"""\
 
                 Being a set, all members are unique by definition
                 so if you add something to a set that is already a member
@@ -92,13 +92,13 @@ def set_overview(block_dets, *, repeated_message=False):
             +
             no_duplicates_demo
             +
-            layout_comment("""\
+            layout("""\
 
                 This is unlike a list which grows each time you append an item
                 - the list simply repeats the item. For example:
                 """)
             +
-            layout_comment("""\
+            layout("""\
                 my_list = [1, 2, 3]
                 my_list.append(4)
                 my_list.append(4)
@@ -112,7 +112,7 @@ def set_overview(block_dets, *, repeated_message=False):
                 """, is_code=True)
         )
         extra_comment = (
-            layout_comment("""\
+            layout("""\
                 Set operations can be expressed with operators such as
                 '-' (minus) or with methods such as .difference().
 
@@ -123,7 +123,7 @@ def set_overview(block_dets, *, repeated_message=False):
                 '|' not '+'.
                 """)
             +
-            layout_comment("""\
+            layout("""\
                 badminton_players = set(['Grant', 'Charlotte', 'Aravind'])
                 tennis_players = set(['Giles', 'Grant'])
                 squash_players = set(['Grzegorz'])

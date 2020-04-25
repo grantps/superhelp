@@ -1,7 +1,7 @@
 from ..advisors import filt_block_advisor
 from ..ast_funcs import get_assign_name
 from .. import code_execution, conf, utils
-from ..utils import layout_comment
+from ..utils import layout_comment as layout
 
 ASSIGN_TUPLE_XPATH = 'descendant-or-self::Assign/value/Tuple'
 
@@ -11,7 +11,7 @@ def tuple_overview(block_dets, *, repeated_message=False):
     Explain usage of tuples.
     """
     tup_els = block_dets.element.xpath(ASSIGN_TUPLE_XPATH)
-    title = layout_comment("""\
+    title = layout("""\
 
         #### Tuple Overview
 
@@ -26,7 +26,7 @@ def tuple_overview(block_dets, *, repeated_message=False):
         tup = code_execution.get_val(
             block_dets.pre_block_code_str, block_dets.block_code_str, name)
         name_tups.append((name, tup))
-        tup_desc = layout_comment(f"""\
+        tup_desc = layout(f"""\
 
             `{name}` is a tuple with {utils.int2nice(len(tup))} items.
 
@@ -36,20 +36,20 @@ def tuple_overview(block_dets, *, repeated_message=False):
     if repeated_message:
         extra_comment = ''
     else:
-        brief_comment += layout_comment("""\
+        brief_comment += layout("""\
 
             Tuples are like lists but the items inside cannot be replaced,
             removed, or added to. For example, if we have a list [1, 2] we can
             append a 3 to it. But if we have a tuple (1, 2) we cannot.
 
             """)
-        main_comment += layout_comment("""\
+        main_comment += layout("""\
 
             Tuples are like lists but they are immutable. That means
             unchangeable.
 
             """)
-        why_immutability_comment = layout_comment("""
+        why_immutability_comment = layout("""
             But why would we want a data structure with all those limitations -
             wouldn't a list always be better? In practice it is often useful to
             know that a data structure is not being mutated somewhere inside the
@@ -59,7 +59,7 @@ def tuple_overview(block_dets, *, repeated_message=False):
             """)
         brief_comment += why_immutability_comment
         main_comment += why_immutability_comment
-        brief_comment += layout_comment("""\
+        brief_comment += layout("""\
 
             Tuples have an order, and can contain duplicate items and items of
             different types (usually not advisable).
@@ -78,7 +78,7 @@ def tuple_overview(block_dets, *, repeated_message=False):
             tup_appended = list(first_tup)
             tup_appended.append(3)
             tup_appended = tuple(tup_appended)
-            immutability_comment = layout_comment(f"""
+            immutability_comment = layout(f"""
                 * cannot be *replaced* -
                 so we can't run `{first_name}`[0] = 100 to get {tup_replaced}.
                 It will raise an exception -
@@ -89,14 +89,14 @@ def tuple_overview(block_dets, *, repeated_message=False):
                 get {tup_appended}.
                 """)
         else:
-            immutability_comment = layout_comment(f"""
+            immutability_comment = layout(f"""
                 * cannot be *replaced*. It will raise an exception - TypeError:
                 'tuple' object does not support item assignment)
                 * cannot be *removed*
                 * cannot be *added*
                 """)
         main_comment += immutability_comment
-        main_comment += layout_comment("""\
+        main_comment += layout("""\
 
             Tuples have an order, and can contain duplicate items and items of
             different types (usually not advisable).
@@ -108,7 +108,7 @@ def tuple_overview(block_dets, *, repeated_message=False):
         original_guests = (friends, family)
         guests = (friends + ['Lenny'], family)
         extra_comment = (
-            layout_comment(f"""\
+            layout(f"""\
 
                 #### GOTCHA - immutable means 100% unchangeable right?
 
@@ -120,14 +120,14 @@ def tuple_overview(block_dets, *, repeated_message=False):
 
                 """)
             +
-            layout_comment(f"""\
+            layout(f"""\
                 friends = {friends}
                 family = {family}
                 guests = (friends, family)
 
                 """, is_code=True)
             +
-            layout_comment(f"""\
+            layout(f"""\
 
                 `guests` is now {original_guests}. And because `guests` is
                 immutable we can't add, remove, or replace its items. But look
@@ -136,12 +136,12 @@ def tuple_overview(block_dets, *, repeated_message=False):
 
                 """)
             +
-            layout_comment(f"""\
+            layout(f"""\
                 friends.append('Lenny')
 
                 """, is_code=True)
             +
-            layout_comment(f"""\
+            layout(f"""\
 
                 `guests` is now {guests}. An immutable data structure has
                 changed! In reality it is the references to individual items
@@ -169,7 +169,7 @@ def tuple_overview(block_dets, *, repeated_message=False):
 
                 """)
             +
-            layout_comment(f"""\
+            layout(f"""\
 
                 from collections import namedtuple
                 Coord = namedtuple('Coordinate', 'x, y')
@@ -178,7 +178,7 @@ def tuple_overview(block_dets, *, repeated_message=False):
                 # >>> Coordinate(x=-37, y=174))
                 """, is_code=True)
             +
-            layout_comment(f"""\
+            layout(f"""\
 
                 #### "Tupple" vs "Toople"
 

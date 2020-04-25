@@ -2,21 +2,25 @@ import datetime
 import logging
 from pathlib import Path
 
-LOG_LEVEL = logging.INFO
-RECORD_AST = False
+t = True
+f = False
 
-DEV_MODE = False
+## =============================================================================
 
-if DEV_MODE:
-    print("""\
+## Release settings in (). Enforced by Makefile using good old sed :-)
 
+RECORD_AST = t  ## (f)
+DEV_MODE = f  ## (f)
+DO_TEST = t  ## set test snippet as deafult rather than the larger demo snippet (t)
+DO_HTML = t  ## set html displayer as default (t)
+DO_DISPLAYER = t  ## f is only ever used when testing pre-display (t)
 
+## =============================================================================
 
-    In DEV_MODE
-
-
-
-    """)
+if not DEV_MODE:
+    LOG_LEVEL = logging.INFO
+else:
+    print("\n" * 3 + "In DEV_MODE" + "\n" * 3)
     LOG_LEVEL = logging.DEBUG
     RECORD_AST = True
 
@@ -29,10 +33,13 @@ def sorted(my_list):
 """
 
 TEST_SNIPPET = """\
-for person in persons:
-    for pet in pets:
-        for year in years:
-            print(f"{person} might like a {pet} in {year}")
+class Onsie:
+    def __init__(self):
+        pass
+    def one(self):
+        pass
+    def two(self):
+        pass
 """
 
 DEMO_SNIPPET = """\
@@ -210,6 +217,9 @@ MAX_BRIEF_FUNC_LOC = 35
 MAX_BRIEF_FUNC_ARGS = 6
 MIN_BRIEF_DOCSTRING = 3
 MIN_BRIEF_NAME = 3
+
+FUNCTION_LBL = 'function'
+METHOD_LBL = 'method'
 
 NO_ADVICE_MESSAGE = ("No advice to give - looks fine :-). But if you think "
     "there should have been some advice given, contact grant@p-s.co.nz with "

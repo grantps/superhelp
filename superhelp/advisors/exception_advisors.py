@@ -1,6 +1,6 @@
 from ..advisors import snippet_advisor
 from .. import conf
-from ..utils import get_nice_str_list, int2nice, layout_comment
+from ..utils import get_nice_str_list, int2nice, layout_comment as layout
 
 UNSPECIFIC_EXCEPTION = 'Exception'
 
@@ -41,14 +41,14 @@ def exception_overview(blocks_dets):
     brief_comment = '### Exception handling'
     for n, exception_block in enumerate(exception_blocks, 1):
         counter = '' if len(exception_blocks) == 1 else f" {int2nice(n)}"
-        brief_comment += layout_comment(f"""\
+        brief_comment += layout(f"""\
 
             #### `try`-`except` block{counter}
 
             """)
         brief_comment += _get_exception_block_comment(exception_block)
     message = {
-        conf.BRIEF: layout_comment(brief_comment),
+        conf.BRIEF: layout(brief_comment),
     }
     return message
 
@@ -72,7 +72,7 @@ def unspecific_exception(blocks_dets):
         has_unspecific = True
         unspecific_block_ns.append(n)
         if not has_title:
-            brief_comment += layout_comment("""\
+            brief_comment += layout("""\
 
                 #### Un-specific `Exception` only in `try`-`except` block(s)
 
@@ -89,7 +89,7 @@ def unspecific_exception(blocks_dets):
             for unspecific_block_n in unspecific_block_ns]
         blocks_ns = get_nice_str_list(unspecific_nice_block_ns, quoter='')
         block_n_specific_text = f"s {blocks_ns} have"
-    brief_comment += layout_comment(f"""\
+    brief_comment += layout(f"""\
 
         `try`-`except` block{block_n_specific_text} an un-specific Exception
         only.
@@ -101,11 +101,11 @@ def unspecific_exception(blocks_dets):
         For example:
         """)
     message = {
-        conf.BRIEF: layout_comment(brief_comment),
+        conf.BRIEF: layout(brief_comment),
         conf.MAIN: (
-            layout_comment(brief_comment)
+            layout(brief_comment)
             +
-            layout_comment("""\
+            layout("""\
 
                 try:
                     spec_dicts[idx][spec_type]

@@ -1,7 +1,7 @@
 from ..advisors import shared, filt_block_advisor
 from ..ast_funcs import get_el_lines_dets
 from .. import conf
-from ..utils import layout_comment
+from ..utils import layout_comment as layout
 
 FOR_XPATH = 'descendant-or-self::For'
 
@@ -40,12 +40,12 @@ def comprehension_option(block_dets, *, repeated_message=False):
         comp_comment = shared.SET_COMPREHENSION_COMMENT
     else:
         return None
-    brief_comment = layout_comment(f"""\
+    brief_comment = layout(f"""\
         ### Possible option of using a {comp_type}
 
         """)
     if not repeated_message:
-        brief_comment += layout_comment(f"""\
+        brief_comment += layout(f"""\
             Simple for loops can sometimes be replaced with comprehensions. In
             this case a simple reading of the code suggests a {comp_type} might
             be possible. Of course, only use a comprehension if it makes your
@@ -140,7 +140,7 @@ def for_index_iteration(block_dets, *, repeated_message=False):
             break
     if not any_incremental_iteration:
         return None
-    brief_comment = layout_comment(f"""\
+    brief_comment = layout(f"""\
 
         ### Possible option of using direct iteration
 
@@ -149,33 +149,33 @@ def for_index_iteration(block_dets, *, repeated_message=False):
         """)
     if not repeated_message:
         brief_comment += (
-            layout_comment(f"""\
+            layout(f"""\
 
                 For example, instead of:
 
                 """)
             +
-            layout_comment(f"""\
+            layout(f"""\
 
                 for {index_name} in range(len({iterable_name})):
                     print({iterable_name}[{index_name}])
 
                 """, is_code=True)
             +
-            layout_comment(f"""\
+            layout(f"""\
 
                 you can directly iterate as follows:
 
                 """)
             +
-            layout_comment(f"""\
+            layout(f"""\
 
                 for item in {iterable_name}:  ## item should be replaced with a more useful name
                     print(item)
 
                 """, is_code=True)
             +
-            layout_comment(f"""\
+            layout(f"""\
 
                 which is considered more pythonic i.e. good.
 
@@ -201,7 +201,7 @@ def nested_fors(block_dets, *, repeated_message=False):
             break
     if not nested_iteration:
         return None
-    brief_comment = layout_comment("""\
+    brief_comment = layout("""\
 
         ### Possible option of simplifying nested iteration
 
@@ -210,25 +210,25 @@ def nested_fors(block_dets, *, repeated_message=False):
         """)
     if not repeated_message:
         brief_comment += (
-            layout_comment("""\
+            layout("""\
                 For example, you could replace:
 
                 """)
             +
-            layout_comment("""\
+            layout("""\
                 for person in persons:
                     for pet in pets:
                         for year in years:
                             print(f"{person} might like a {pet} in {year}")
                 """, is_code=True)
             +
-            layout_comment("""\
+            layout("""\
 
                 with a version using `itertools.product`:
 
                 """)
             +
-            layout_comment("""\
+            layout("""\
                 from itertools import product
                 for person, pet, year in product(persons, pets, years):
                     print(f"{person} might like a {pet} in {year}")
@@ -236,7 +236,7 @@ def nested_fors(block_dets, *, repeated_message=False):
         )
     main_comment = brief_comment
     if not repeated_message:
-        main_comment += layout_comment("""\
+        main_comment += layout("""\
 
             Whether this is a good idea or not depends on your specific code but
             using `product` has the advantage of reducing indentation. It also

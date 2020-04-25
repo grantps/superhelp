@@ -1,7 +1,7 @@
 from ..advisors import any_block_advisor, filt_block_advisor
 from ..ast_funcs import get_assign_name
 from .. import conf
-from ..utils import get_nice_str_list, layout_comment
+from ..utils import get_nice_str_list, layout_comment as layout
 
 def _get_sorting_or_reversing_comment(block_dets):
     """
@@ -42,14 +42,14 @@ def sorting_reversing_overview(block_dets, *, repeated_message=False):
     if not sorting_or_reversing_comment:
         return None
     if repeated_message:
-        brief_comment = layout_comment(f"""\
+        brief_comment = layout(f"""\
             ### Sorting / reversing
 
             This block of code {sorting_or_reversing_comment}.
             """)
         main_comment = brief_comment
     else:
-        brief_comment = layout_comment(f"""\
+        brief_comment = layout(f"""\
             ### Sorting / reversing
 
             This block of code {sorting_or_reversing_comment}. Sorting and, to a
@@ -61,7 +61,7 @@ def sorting_reversing_overview(block_dets, *, repeated_message=False):
             2) the list sort method e.g. my_list.`sort()` returns `None`, not the sorted list
             """)
         main_comment = (
-            layout_comment(f"""\
+            layout(f"""\
                 ### Sorting / reversing
 
                 This block of code {sorting_or_reversing_comment}. Sorting and,
@@ -74,7 +74,7 @@ def sorting_reversing_overview(block_dets, *, repeated_message=False):
 
                 """)
             +
-            layout_comment("""\
+            layout("""\
                 word = 'cat'
                 word_reversed = reversed(word)
                 ## >>> word_reversed
@@ -86,7 +86,7 @@ def sorting_reversing_overview(block_dets, *, repeated_message=False):
                 ## >>> False
                 """, is_code=True)
             +
-            layout_comment("""\
+            layout("""\
                 Using the reversed function does not apply any sorting to the
                 sequence being reversed - it merely flips the (possibly)
                 unordered sequence the other way.
@@ -103,7 +103,7 @@ def sorting_reversing_overview(block_dets, *, repeated_message=False):
 
                 """)
             +
-            layout_comment("""\
+            layout("""\
                 fruit = ['banana', 'apple', 'cranberry']
                 fruit_sorted = sorted(fruit)
                 ## >>> fruit_sorted
@@ -113,13 +113,13 @@ def sorting_reversing_overview(block_dets, *, repeated_message=False):
                 ## >>> ['banana', 'apple', 'cranberry']
                 """, is_code=True)
             +
-            layout_comment("""\
+            layout("""\
 
                 ii) `.sort()` returning `None` and changing its input in-place
 
                 """)
             +
-            layout_comment("""\
+            layout("""\
 
                 result_of_fruit_sort = fruit.sort()
                 ## >>> result_of_fruit_sort
@@ -151,7 +151,7 @@ def list_sort_as_value(block_dets, *, repeated_message=False):
             names_assigned_to_sort.append(name)
     if not names_assigned_to_sort:
         return None
-    brief_comment = layout_comment(f"""\
+    brief_comment = layout(f"""\
         ### Assignment of `None` result from in-place `.sort()` on list
 
         """)
@@ -159,7 +159,7 @@ def list_sort_as_value(block_dets, *, repeated_message=False):
     if multiple:
         nice_str_list = get_nice_str_list(names_assigned_to_sort, quoter='`')
         if not repeated_message:
-            brief_comment += layout_comment(f"""\
+            brief_comment += layout(f"""\
             {nice_str_list} are assigned to the results of in-place sort
             operations. This is almost certainly a mistake as the intention is
             probably not to set them each to `None` (the return value of the
@@ -167,7 +167,7 @@ def list_sort_as_value(block_dets, *, repeated_message=False):
             """)
     else:
         if not repeated_message:
-            brief_comment += layout_comment(f"""\
+            brief_comment += layout(f"""\
                 `{name}` is assigned to the result of an in-place sort
                 operation. This is almost certainly a mistake as the intention
                 is probably not to set `{name}` to `None` (the return value of

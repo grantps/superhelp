@@ -2,7 +2,7 @@ from collections import defaultdict, namedtuple, Counter
 
 from ..advisors import filt_block_advisor
 from .. import conf
-from ..utils import int2nice, layout_comment
+from ..utils import int2nice, layout_comment as layout
 
 IfDets = namedtuple('IfDetails',
     'multiple_conditions, missing_else, if_clauses')
@@ -103,7 +103,7 @@ def _get_if_comment(ifs_details):
         counter = '' if len(ifs_details) == 1 else f" {int2nice(n)}"
         if if_details.multiple_conditions:
             n_elifs = if_details.if_clauses.count(ELIF)
-            brief_comment += layout_comment(f"""\
+            brief_comment += layout(f"""\
 
                 `if` statement{counter} has {int2nice(n_elifs)} `elif` clauses
                 """)
@@ -115,7 +115,7 @@ def _get_if_comment(ifs_details):
                 " Note - `else` clauses with an `if`, and only an `if`, "
                 "underneath count as `elif` clauses not `else` clauses.")
         else:
-            brief_comment += layout_comment(f"""\
+            brief_comment += layout(f"""\
 
                 `if` statement{counter} has no extra clauses e.g. `elif`s or an
                 `else`.
@@ -136,7 +136,7 @@ def if_else_overview(block_dets, *, repeated_message=False):
     main_comment = brief_comment
     if not repeated_message:
         main_comment += (
-            layout_comment("""\
+            layout("""\
 
                 When using `if`, `elif`, or `else`, the item evaluated can
                 either be an expression or a name (variable). Sometimes your
@@ -145,18 +145,18 @@ def if_else_overview(block_dets, *, repeated_message=False):
 
                 """)
             +
-            layout_comment("""\
+            layout("""\
                 if length_matters and len(phrase) > conf.MAX_SANE_LENGTH:
                     phrase = chop(phrase)
                 """, is_code=True)
             +
-            layout_comment("""\
+            layout("""\
 
                 is shorter but more complex than:
 
                 """)
             +
-            layout_comment("""\
+            layout("""\
                 too_long = (
                     length_matters
                     and len(phrase) > conf.MAX_SANE_LENGTH
@@ -185,13 +185,13 @@ def missing_else(block_dets, *, repeated_message=False):
         first = (n == 1)
         counter = '' if len(ifs_dets_missing_else) == 1 else f" {int2nice(n)}"
         if first:
-            brief_comment += layout_comment(f"""\
+            brief_comment += layout(f"""\
 
                 ### Possibly better with `else` clause
 
                 """)
         if first and not repeated_message:
-            brief_comment += layout_comment(f"""\
+            brief_comment += layout(f"""\
                 `if` block{counter} has `elif` clauses but lacks an `else`
                 clause. If your `elif` clauses are trying to handle all expected
                 cases it is probably best to include an `else` clause as well
@@ -209,7 +209,7 @@ def missing_else(block_dets, *, repeated_message=False):
         main_comment = (
             brief_comment
             +
-            layout_comment("""\
+            layout("""\
 
                 You may have left out the `else` because it is currently
                 impossible that this branch will ever be called. You know that
@@ -227,7 +227,7 @@ def missing_else(block_dets, *, repeated_message=False):
 
                 """)
             +
-            layout_comment("""\
+            layout("""\
                 ## At the point this code is written we absolutely know
                 ## there are only two user types: managers and staff
 
@@ -242,7 +242,7 @@ def missing_else(block_dets, *, repeated_message=False):
                     pass
                 """, is_code=True)
             +
-            layout_comment("""\
+            layout("""\
 
                 But then a new user type is created (e.g. admin) and the logic
                 of the entire program breaks all over the place with no clarity
@@ -253,7 +253,7 @@ def missing_else(block_dets, *, repeated_message=False):
 
                 """)
             +
-            layout_comment("""\
+            layout("""\
                 else:
                     raise Exception(f"Unexpected user: '{user}'")
                 """, is_code=True)
@@ -351,7 +351,7 @@ def split_group_membership(block_dets, *, repeated_message=False):
             break
     if not has_split:
         return None
-    brief_comment = layout_comment(f"""\
+    brief_comment = layout(f"""\
 
             ### Possible option of evaluating group membership
 
@@ -361,13 +361,13 @@ def split_group_membership(block_dets, *, repeated_message=False):
         """)
     if not repeated_message:
         brief_comment += (
-            layout_comment(f"""\
+            layout(f"""\
 
                 For example:
 
             """)
             +
-            layout_comment(f"""\
+            layout(f"""\
                 if {comp_var} in {comp_vals_gp_str}:
                     ...
                 """, is_code=True)
@@ -375,13 +375,13 @@ def split_group_membership(block_dets, *, repeated_message=False):
     main_comment = brief_comment
     if not repeated_message:
         main_comment += (
-            layout_comment(f"""\
+            layout(f"""\
 
                 Or to check if a variable is NOT in a group:
 
                 """)
             +
-            layout_comment(f"""\
+            layout(f"""\
                 if {comp_var} not in {comp_vals_gp_str}:
                     ...
                 """, is_code=True)
@@ -450,7 +450,7 @@ def implicit_boolean_enough(block_dets, *, repeated_message=False):
     if not implicit_boolean_possible:
         return None
     brief_comment = (
-        layout_comment("""\
+        layout("""\
 
             ### Possible option of using an implicit boolean
 
@@ -462,18 +462,18 @@ def implicit_boolean_enough(block_dets, *, repeated_message=False):
 
             """)
         +
-        layout_comment("""\
+        layout("""\
             if len(my_list) > 0:
                 ...
 
             """, is_code=True)
         +
-        layout_comment("""\
+        layout("""\
             with:
 
             """)
         +
-        layout_comment("""\
+        layout("""\
             if my_list:  ## if empty, evaluates to False otherwise True
                 ...
 

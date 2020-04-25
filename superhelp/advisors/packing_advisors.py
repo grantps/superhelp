@@ -2,7 +2,7 @@ from collections import defaultdict
 
 from ..advisors import shared, snippet_advisor, filt_block_advisor
 from .. import conf, utils
-from ..utils import layout_comment
+from ..utils import layout_comment as layout
 
 ASSIGN_UNPACKING_XPATH = 'descendant-or-self::Assign/targets/Tuple'
 
@@ -19,7 +19,7 @@ def unpacking(block_dets, *, repeated_message=False):
         if not unpacked_names:
             continue
         nice_str_list = utils.get_nice_str_list(unpacked_names, quoter='`')
-        unpacked_comment = layout_comment(f"""\
+        unpacked_comment = layout(f"""\
 
             Your code uses unpacking to assign names {nice_str_list}
             """)
@@ -66,12 +66,12 @@ def unpacking_opportunity(blocks_dets):
     multiple_items = len(sources2unpack) > 1
     if multiple_items:
         nice_sources_list = utils.get_nice_str_list(sources2unpack, quoter='`')
-        brief_comment = layout_comment(f"""\
+        brief_comment = layout(f"""\
             {nice_sources_list} have multiple items extracted by
             indexing so might be suitable candidates for unpacking.
             """)
     else:
-        brief_comment = layout_comment(f"""\
+        brief_comment = layout(f"""\
             Name (variable) `{sources2unpack[0]}` has multiple items extracted
             by indexing so might be a suitable candidate for unpacking.
             """)

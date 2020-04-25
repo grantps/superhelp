@@ -3,7 +3,7 @@ from collections import defaultdict
 from ..advisors import any_block_advisor
 from .. import conf, utils
 from .shared import is_reserved_name
-from ..utils import get_nice_str_list, int2nice, layout_comment
+from ..utils import get_nice_str_list, int2nice, layout_comment as layout
 
 def _get_shamed_names_title(reserved_names, bad_names, dubious_names):
     if not (reserved_names or bad_names or dubious_names):
@@ -160,29 +160,29 @@ def unpythonic_name_check(block_dets, *, repeated_message=False):
     if not (reserved_names or bad_names or dubious_names):
         return None
     title = _get_shamed_names_title(reserved_names, bad_names, dubious_names)
-    brief_comment = layout_comment(f"""\
+    brief_comment = layout(f"""\
         ### {title}
 
         """)
     if reserved_names:
         reserved_names_listed = utils.get_nice_str_list(
             reserved_names, quoter='`')
-        brief_comment += layout_comment(f"""\
+        brief_comment += layout(f"""\
             Reserved name(s): {reserved_names_listed}
             """)
     if bad_names:
         bad_names_listed = utils.get_nice_str_list(bad_names, quoter='`')
-        brief_comment += layout_comment(f"""\
+        brief_comment += layout(f"""\
             Un-pythonic name(s): {bad_names_listed}
             """)
     if dubious_names:
         dubious_names_listed = utils.get_nice_str_list(
             dubious_names, quoter='`')
-        brief_comment += layout_comment(f"""\
+        brief_comment += layout(f"""\
             Possibly un-pythonic name(s): {dubious_names_listed}
             """)
     if not repeated_message:
-        brief_comment += layout_comment("""\
+        brief_comment += layout("""\
 
             Python variables should not named using reserved words e.g.
             `collections` or `sorted`.
@@ -193,7 +193,7 @@ def unpythonic_name_check(block_dets, *, repeated_message=False):
             """)
     main_comment = brief_comment
     if not repeated_message:
-        main_comment += layout_comment("""\
+        main_comment += layout("""\
             In Python class names and named tuples are expected to be in Pascal
             Case (also known as upper camel case) rather than the usual snake
             case. E.g. `collections.ChainMap`
@@ -232,7 +232,7 @@ def short_name_check(block_dets, *, repeated_message=False):
         else:
             name = names.pop()
             short_comment += f"`{name}` is short."
-    brief_comment = layout_comment(f"""\
+    brief_comment = layout(f"""\
         ### Short variable names
 
         Sometimes, short variable names are appropriate - even conventional -
@@ -243,7 +243,7 @@ def short_name_check(block_dets, *, repeated_message=False):
     main_comment = brief_comment
     if not repeated_message:
         main_comment += (
-            layout_comment("""\
+            layout("""\
 
                 In many programming languages it is idiomatic to use `i`, `j`,
                 and even `k` as increment counters. It is best to reserve `i`
@@ -256,14 +256,14 @@ def short_name_check(block_dets, *, repeated_message=False):
 
             """)
             +
-            layout_comment("""\
+            layout("""\
 
                 for k, v in my_dict.items():
                     ...
 
             """, is_code=True)
             +
-            layout_comment("""\
+            layout("""\
                 But even they should probably be replaced with something more
                 descriptive.
 

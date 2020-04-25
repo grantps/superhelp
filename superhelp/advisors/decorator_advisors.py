@@ -1,8 +1,8 @@
 from ..advisors import filt_block_advisor
 from .. import conf
-from ..utils import get_nice_str_list, layout_comment
+from ..utils import get_nice_str_list, layout_comment as layout
 
-decorator_xpath = (
+DECORATOR_XPATH = (
     'descendant-or-self::decorator_list/Name '
     '| '
     'descendant-or-self::decorator_list/Call/func/Name'
@@ -10,12 +10,12 @@ decorator_xpath = (
     'descendant-or-self::decorator_list/Call/func/Attribute/value/Name'
 )
 
-@filt_block_advisor(xpath=decorator_xpath)
+@filt_block_advisor(xpath=DECORATOR_XPATH)
 def decorator_overview(block_dets, *, repeated_message=False):
     """
     Look for decorators and explain some options for improving them.
     """
-    decorator_els = block_dets.element.xpath(decorator_xpath)
+    decorator_els = block_dets.element.xpath(DECORATOR_XPATH)
     if not decorator_els:
         return None
     decorator_names = []
@@ -30,7 +30,7 @@ def decorator_overview(block_dets, *, repeated_message=False):
         decorator_names.append(name)
     dec_name_list = get_nice_str_list(decorator_names, quoter='`')
     plural = 's' if len(decorator_names) > 1 else ''
-    brief_comment = layout_comment(f"""\
+    brief_comment = layout(f"""\
             ### Decorator{plural} used
 
             The code uses the decorator{plural}: {dec_name_list}.
@@ -38,7 +38,7 @@ def decorator_overview(block_dets, *, repeated_message=False):
     main_comment = brief_comment
     if not repeated_message:
         main_comment += (
-            layout_comment("""\
+            layout("""\
 
                 Decorators are a common and handy feature of Python. Using them
                 is beginner-level Python and making them is intermediate-level
@@ -55,7 +55,7 @@ def decorator_overview(block_dets, *, repeated_message=False):
 
                 """)
             +
-            layout_comment("""\
+            layout("""\
 
                 from bottle import route
 
@@ -64,14 +64,14 @@ def decorator_overview(block_dets, *, repeated_message=False):
                     return "Hello World!"
                 """, is_code=True)
             +
-            layout_comment("""\
+            layout("""\
 
                 and here is an example of a simple, no argument decorator being
                 created with `functool.wraps` applied:
 
                 """)
             +
-            layout_comment('''\
+            layout('''\
                 from functools import wraps
 
                 def tweet(func):

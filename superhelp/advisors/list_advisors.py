@@ -1,7 +1,7 @@
 from ..advisors import filt_block_advisor
 from ..ast_funcs import get_assign_name
 from .. import code_execution, conf, utils
-from ..utils import layout_comment
+from ..utils import layout_comment as layout
 
 ASSIGN_LIST_XPATH = 'descendant-or-self::Assign/value/List'
 
@@ -55,7 +55,7 @@ def _get_additional_main_comment(first_name, first_list_items):
     family = ['Bart', 'Lisa', 'Marge', 'Homer']
     guests = friends + family
     additional_main_comment = (
-        layout_comment("""\
+        layout("""\
 
             Lists, along with dictionaries, are the workhorses of Python data
             structures.
@@ -66,17 +66,17 @@ def _get_additional_main_comment(first_name, first_list_items):
             Extra items can be added to lists using the .append() method e.g.
             """)
         +
-        layout_comment(f"""\
+        layout(f"""\
             {first_name}.append({listable_example_item})
             """, is_code=True)
         +
-        layout_comment(f"""\
+        layout(f"""\
 
             which results in {appended_list}
 
             """)
         +
-        layout_comment("""\
+        layout("""\
 
             If you want to add multiple items at once, .extend() is useful.
 
@@ -85,24 +85,24 @@ def _get_additional_main_comment(first_name, first_list_items):
 
             """)
         +
-        layout_comment(f"""\
+        layout(f"""\
             {first_name}.extend({items2extend})
             """, is_code=True)
         +
-        layout_comment(f"""\
+        layout(f"""\
 
             which results in {extended_list}
 
             """)
         +
-        layout_comment("""\
+        layout("""\
 
             GOTCHA: if you are adding tuples to your list it is easy to
             forget the nested parentheses. E.g.
 
             """)
         +
-        layout_comment(f"""\
+        layout(f"""\
 
             coordinates.append((x, y))  ## Correct
 
@@ -110,20 +110,20 @@ def _get_additional_main_comment(first_name, first_list_items):
 
             """, is_code=True)
         +
-        layout_comment("""\
+        layout("""\
 
             Lists can also be added together e.g.
 
             """)
         +
-        layout_comment(f"""\
+        layout(f"""\
             friends = {friends}
             family = {family}
             guests = friends + family
 
             """, is_code=True)
         +
-        layout_comment(f"""\
+        layout(f"""\
 
             resulting in {guests}
 
@@ -132,14 +132,14 @@ def _get_additional_main_comment(first_name, first_list_items):
 
             """)
         +
-        layout_comment(f"""\
+        layout(f"""\
             workmate = 'Carl'
             guests = {friends} + {family} + workmate  ## Oops - can only add lists
             guests = {friends} + {family} + [workmate]  ## That's better
 
             """, is_code=True)
         +
-        layout_comment(f"""\
+        layout(f"""\
 
             resulting in {guests + ['Carl']}
 
@@ -168,7 +168,7 @@ def list_overview(block_dets, *, repeated_message=False):
         if first:
             first_name = name
             first_list_items = items
-            title = layout_comment(f"""\
+            title = layout(f"""\
 
                 ### List{plural} defined
     
@@ -176,24 +176,24 @@ def list_overview(block_dets, *, repeated_message=False):
             brief_comment += title
             main_comment += title
         if items is None:
-            list_desc = layout_comment(f"""\
+            list_desc = layout(f"""\
 
                 `{name}` is a list.
                 """)
         elif items == []:
-            list_desc = layout_comment(f"""\
+            list_desc = layout(f"""\
 
                 `{name}` is an empty list.
                 """)
         else:
-            list_desc = layout_comment(f"""\
+            list_desc = layout(f"""\
     
                 `{name}` is a list with {utils.int2nice(len(items))} items.
                 """)
         brief_comment += list_desc
         main_comment += list_desc
     if not repeated_message:
-        brief_comment += layout_comment("""\
+        brief_comment += layout("""\
 
             Lists, along with dictionaries, are the workhorses of Python data
             structures.
@@ -231,20 +231,20 @@ def mixed_list_types(block_dets, *, repeated_message=False):  # @UnusedVariable
             continue
         has_mixed = True
         if first:
-            title = layout_comment(f"""\
+            title = layout(f"""\
                 ### List(s) with mix of different data types
     
                 """)
             brief_comment += title
             main_comment += title
-        mixed_warning = layout_comment(f"""
+        mixed_warning = layout(f"""
 
             `{name}` contains more than one data type - which is probably a bad
             idea.
             """)
         brief_comment += mixed_warning
         main_comment += mixed_warning
-        main_comment += layout_comment(f"""\
+        main_comment += layout(f"""\
              The data types found were: {", ".join(item_type_nice_names)}.
             """)
     if not has_mixed:

@@ -1,9 +1,38 @@
+"""
+Covers functions and methods.
+"""
 from ..advisors import filt_block_advisor
 from ..ast_funcs import get_el_lines_dets
 from .. import conf, utils
-from ..utils import layout_comment
+from ..utils import layout_comment as layout
 
 FUNC_DEFN_XPATH = 'descendant-or-self::FunctionDef'
+
+def get_is_method(func_el):
+    class_els = func_el.xpath('ancestor::ClassDef')
+    if not class_els:
+        return False
+    class_el = class_els[-1]
+    ## check is a direct member of a class and not just a function defined somewhere internally
+    method_els = class_el.xpath('body/FunctionDef')
+    return func_el in method_els
+
+def get_func_type_lbl(func_el):
+    func_type_lbl = (
+        conf.METHOD_LBL if get_is_method(func_el) else conf.FUNCTION_LBL)
+    return func_type_lbl
+
+def get_overall_func_type_lbl(func_els):
+    if not func_els:
+        return None
+    includes_plain_function = False
+    for func_el in func_els:
+        func_type_lbl = get_func_type_lbl(func_el)
+        if func_type_lbl == conf.FUNCTION_LBL:
+            includes_plain_function = True
+    overall_func_type_lbl = (
+        conf.FUNCTION_LBL if includes_plain_function else conf.METHOD_LBL)
+    return overall_func_type_lbl
 
 def _get_arg_comment(func_el, *, repeated_message=False):
     """
@@ -49,7 +78,8 @@ def _get_arg_comment(func_el, *, repeated_message=False):
             arg_comment = "doesn't take any arguments"
     return arg_comment
 
-def _get_return_comment(return_elements, *, repeated_message=False):
+def _get_return_comment(func_type_lbl, return_elements, *,
+        repeated_message=False):
     implicit_return_els = [return_element for return_element in return_elements
         if not return_element.getchildren()]
     implicit_returns_n = len(implicit_return_els)
@@ -67,31 +97,32 @@ def _get_return_comment(return_elements, *, repeated_message=False):
                 val_returns_n += 1
     keyword_returns_n = none_returns_n + val_returns_n + implicit_returns_n
     if not keyword_returns_n:
-        returns_comment = "The function does not explicitly return anything."
+        returns_comment = (
+            f"The {func_type_lbl} does not explicitly return anything.")
         if not repeated_message:
             returns_comment += (
                 " In which case, in Python, it implicitly returns None")
     else:
         returns_comment = (
-            "The function exits via an explicit `return` statement "
+            f"The {func_type_lbl} exits via an explicit `return` statement "
             f"{utils.int2nice(keyword_returns_n)} time")
         if repeated_message:
             returns_comment += '.'
         else:
             if keyword_returns_n > 1:
                 returns_comment += (
-                    "s. Some people prefer functions to have one, "
-                    "and only one exit point for clarity. Others disagree e.g. "
-                    "using early returns to short-circuit functions if initial "
-                    "validation of some sort makes it possible to avoid the "
-                    "bulk of the function. Whatever approach you take make sure"
-                    " your function is easy to reason about in terms of what it"
-                    " returns and where it exits")
+                    f"s. Some people prefer {func_type_lbl}s to have one, and "
+                    "only one exit point for clarity. Others disagree e.g. "
+                    f"using early returns to short-circuit {func_type_lbl}s if "
+                    "initial validation of some sort makes it possible to avoid"
+                    f" the bulk of the {func_type_lbl}. Whatever approach you "
+                    f"take make sure your {func_type_lbl} is easy to reason "
+                    "about in terms of what it returns and where it exits")
             else:
                 returns_comment += '.'
     return returns_comment
 
-def _get_exit_comment(func_el, *, repeated_message=False):
+def _get_exit_comment(func_el, func_type_lbl, *, repeated_message=False):
     """
     Look for 'return' and 'yield'.
     """
@@ -104,38 +135,52 @@ def _get_exit_comment(func_el, *, repeated_message=False):
         else:
             exit_comment = "It is a generator function."
     else:
-        exit_comment = _get_return_comment(
+        exit_comment = _get_return_comment(func_type_lbl,
             return_elements, repeated_message=repeated_message)
     return exit_comment
 
 @filt_block_advisor(xpath=FUNC_DEFN_XPATH)
 def func_overview(block_dets, *, repeated_message=False):
     """
-    Advise on function definition statements. e.g. def greeting(): ...
+    Advise on function (or method) definition statements.
+    e.g. def greeting(): ...
     """
     func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
-    brief_comment = layout_comment("""\
-        ### Function Details
+    overall_func_type_lbl = get_overall_func_type_lbl(func_els)
+    brief_comment = layout(f"""\
+        ### {overall_func_type_lbl.title()} Details
         """)
     for func_el in func_els:
+        func_type_lbl = get_func_type_lbl(func_el)
         name = func_el.get('name')
         arg_comment = _get_arg_comment(
             func_el, repeated_message=repeated_message)
         exit_comment = _get_exit_comment(
-            func_el, repeated_message=repeated_message)
-        brief_comment += layout_comment(f"""\
+            func_el, func_type_lbl, repeated_message=repeated_message)
+        brief_comment += layout(f"""\
 
-            The function named `{name}` {arg_comment}. {exit_comment}.
+            The {func_type_lbl} named `{name}` {arg_comment}. {exit_comment}.
             """)
+
+    main_comment = brief_comment
     if repeated_message:
         extra_comment = ''
     else:
-        extra_comment = layout_comment("""\
+        if func_type_lbl == conf.METHOD_LBL:
+            main_comment += layout("""\
+
+                Methods are functions that sit directly inside a class
+                definition. Unless they are defined as static methods e.g. using
+                the `@staticmethod` decorator, they take the instance of the
+                class as the first parameter - almost always named `self`. But
+                they are basically functions.
+                """)
+        extra_comment = layout(f"""\
             There is often confusion about the difference between arguments and
-            parameters. Functions define parameters but receive arguments. You
-            can think of parameters as being like car parks and arguments as the
-            cars that fill them. You supply arguments to a function depending on
-            its parameters.
+            parameters. {overall_func_type_lbl.title()}s define parameters but
+            receive arguments. You can think of parameters as being like car
+            parks and arguments as the cars that fill them. You supply arguments
+            to a {overall_func_type_lbl} depending on its parameters.
             """)
     message = {
         conf.BRIEF: brief_comment,
@@ -149,9 +194,11 @@ def func_len_check(block_dets, *, repeated_message=False):
     Warn about functions that might be too long.
     """
     func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
+    overall_func_type_lbl = get_overall_func_type_lbl(func_els)
     brief_comment = ''
     has_short_comment = False
     for func_el in func_els:
+        func_type_lbl = get_func_type_lbl(func_el)
         name = func_el.get('name')
         first_line_no, last_line_no, _func_lines_n = get_el_lines_dets(
             func_el, ignore_trailing_lines=True)
@@ -163,18 +210,19 @@ def func_len_check(block_dets, *, repeated_message=False):
             continue
         else:
             if not has_short_comment:
-                brief_comment += layout_comment("""\
-                    ### Function possibly too long
+                brief_comment += layout(f"""\
+                    ### {overall_func_type_lbl.title()} possibly too long
 
                     """)
                 has_short_comment = True
-            brief_comment += layout_comment(f"""\
+            brief_comment += layout(f"""\
 
             `{name}` has {utils.int2nice(func_lines_n)} lines of code
             (including comments but with empty lines ignored).
             """)
             if not repeated_message:
-                brief_comment += (" Sometimes it is OK for a function to be "
+                brief_comment += (
+                    f" Sometimes it is OK for a {func_type_lbl} to be "
                     "that long but you should consider refactoring the code "
                     "into smaller units.")
     if not brief_comment:
@@ -198,27 +246,29 @@ def func_excess_parameters(block_dets, *, repeated_message=False):
     func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
     brief_comment = ''
     has_high = False
+    overall_func_type_lbl = get_overall_func_type_lbl(func_els)
     for func_el in func_els:
+        func_type_lbl = get_func_type_lbl(func_el)
         name = func_el.get('name')
         n_args = get_n_args(func_el)
         high_args = n_args > conf.MAX_BRIEF_FUNC_ARGS
         if high_args:
-            brief_comment += layout_comment("""\
-                ### Possibly too many function parameters
+            brief_comment += layout(f"""\
+                ### Possibly too many {overall_func_type_lbl} parameters
 
                 """)
-            brief_comment += layout_comment(f"""\
+            brief_comment += layout(f"""\
 
             `{name}` has {n_args:,} parameters.
 
             """)
             if not (has_high or repeated_message):
-                brief_comment += layout_comment("""\
-                    Sometimes it is OK for a function to have that many but you
-                    should consider refactoring the code or collecting related
-                    parameters into single parameters e.g. instead of receiving
-                    image size arguments separately perhaps you could receive a
-                    dictionary of image size argument details.
+                brief_comment += layout(f"""\
+                    Sometimes it is OK for a {func_type_lbl} to have that many
+                    but you should consider refactoring the code or collecting
+                    related parameters into single parameters e.g. instead of
+                    receiving image size arguments separately perhaps you could
+                    receive a dictionary of image size argument details.
                     """)
             has_high = True
     if not has_high:
@@ -263,45 +313,48 @@ def positional_boolean(block_dets, *, repeated_message=False):
     defaults or kw_defaults (related to kwonlyargs)).
     """
     func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
+    overall_func_type_lbl = get_overall_func_type_lbl(func_els)
     brief_comment = ''
     has_positional_comment = False
     for func_el in func_els:
+        func_type_lbl = get_func_type_lbl(func_el)
         name = func_el.get('name')
         danger_args = get_danger_args(func_el)
         if danger_args:
             if not has_positional_comment:
-                brief_comment += layout_comment("""\
+                brief_comment += layout(f"""\
 
-                    ### Function expects risky positional arguments
+                    ### {overall_func_type_lbl.title()} expects risky positional
+                    arguments
                     """)
                 if not repeated_message:
-                    brief_comment += layout_comment("""\
+                    brief_comment += layout(f"""\
 
-                    Functions which expect numbers or booleans (True/False)
-                    without requiring keywords are risky. They are risky when if
-                    the function is changed later to have different parameters.
-                    For example, greeting(formal=True) is more intelligible than
-                    greeting(True). And intelligible code is safer to alter /
-                    maintain over time than mysterious code.
+                    {func_type_lbl.title}s which expect numbers or booleans
+                    (True/False) without requiring keywords are risky. They are
+                    risky when if the {func_type_lbl} is changed later to have
+                    different parameters. For example, greeting(formal=True) is
+                    more intelligible than greeting(True). And intelligible code
+                    is safer to alter / maintain over time than mysterious code.
                     """)
-            brief_comment += layout_comment(f"""\
+            brief_comment += layout(f"""\
                 A partial analysis of `{name}` found the following risky non-
                 keyword (positional) parameters: {danger_args}.
                 """)
             if not (has_positional_comment) or repeated_message:
                 brief_comment += (
-                    layout_comment("""\
+                    layout("""\
 
                         Using an asterisk as a pseudo-parameter forces all
                         parameters to the right to be keywords e.g.
                         """)
                     +
-                    layout_comment(f"""\
+                    layout(f"""\
                         def greeting(name, *, formal=False):
                             ...
                         """, is_code=True)
                     +
-                    layout_comment(f"""\
+                    layout(f"""\
 
                         In this example you couldn't now call the function
                         greeting('Jo', True) - it would need to be
@@ -314,11 +367,11 @@ def positional_boolean(block_dets, *, repeated_message=False):
     if repeated_message:
         extra_comment = ''
     else:
-        extra_comment = layout_comment(f"""\
+        extra_comment = layout(f"""\
             Putting an asterisk in the parameters has the effect of forcing all
             parameters to the right to be keyword parameters because the
             asterisk mops up any remaining positional arguments supplied (if
-            any) when the function is called. There can't be any other
+            any) when the {func_type_lbl} is called. There can't be any other
             positional arguments, because they have all been handled already, so
             only keyword parameters are allowed thereafter.
             """)
@@ -374,7 +427,7 @@ def docstring_issues(block_dets, *, repeated_message=False):
     cover params, return etc.
     """
     WRAPPING_NEWLINE_N = 2
-    example_docstring = layout_comment(f'''\
+    example_docstring = layout(f'''\
         def greet(name, greet_word='Hi'):
             """
             Get a greeting for the supplied person.
@@ -388,30 +441,32 @@ def docstring_issues(block_dets, *, repeated_message=False):
             return greeting
         ''', is_code=True)
     func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
+    overall_func_type_lbl = get_overall_func_type_lbl(func_els)
     funcs_dets_and_docstring = get_funcs_dets_and_docstring(func_els)
     brief_comment = ''
     missing_commented = False
     inadequate_commented = False
     for func_el, func_name, docstring in funcs_dets_and_docstring:
+        func_type_lbl = get_func_type_lbl(func_el)
         if docstring is None:
             if not (missing_commented or repeated_message):
                 brief_comment += (
-                    layout_comment(f"""\
-                        ### Function missing doc string
+                    layout(f"""\
+                        ### {overall_func_type_lbl.title()} missing doc string
 
                         `{func_name}` lacks a doc string - you should probably
                         add one.
 
-                        Note - # comments at the top of the function do not work
-                        as doc strings. Python completely ignores them. If you
-                        add a proper doc string, however, it can be accessed by
-                        running help({func_name}) or {func_name}.\_\_doc\_\_.
-                        Which is useful when using this function in bigger
-                        projects e.g. in an IDE (Integrated Development
-                        Environment).
+                        Note - # comments at the top of the {func_type_lbl} do
+                        not work as doc strings. Python completely ignores them.
+                        If you add a proper doc string, however, it can be
+                        accessed by running help({func_name}) or
+                        {func_name}.\_\_doc\_\_. Which is useful when using this
+                        {func_type_lbl} in bigger projects e.g. in an IDE
+                        (Integrated Development Environment).
 
-                        Here is an example doc string using one of several valid
-                        formats:
+                        Here is an example doc string for a simple function
+                        using one of several valid formats:
 
                         """)
                     +
@@ -419,7 +474,8 @@ def docstring_issues(block_dets, *, repeated_message=False):
                 )
                 missing_commented = True
             else:
-                brief_comment += layout_comment(f"""\
+                brief_comment += layout(f"""\
+
                     `{func_name}` lacks a doc string - you should probably add
                     one.
                     """)
@@ -431,7 +487,7 @@ def docstring_issues(block_dets, *, repeated_message=False):
             if too_short:
                 if not (inadequate_commented or repeated_message):
                     brief_comment += (
-                        layout_comment(f"""\
+                        layout(f"""\
                             ### Function doc string too brief?
 
                             The doc string for {func_name} seems a little
@@ -444,7 +500,7 @@ def docstring_issues(block_dets, *, repeated_message=False):
                     )
                     inadequate_commented = True
                 else:
-                    brief_comment += layout_comment(f"""\
+                    brief_comment += layout(f"""\
                         The doc string for {func_name} seems a little short.
                         """)
     if not (missing_commented or inadequate_commented):

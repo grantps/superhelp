@@ -3,7 +3,7 @@ import keyword
 from textwrap import dedent
 
 from ..conf import STD_LIBS
-from ..utils import layout_comment
+from ..utils import layout_comment as layout
 
 def is_reserved_name(name):
     is_reserved = name in set(keyword.kwlist + dir(builtins) + STD_LIBS)
@@ -16,7 +16,7 @@ UNPACKING_COMMENT = (
 
         """)
     +
-    layout_comment(f"""\
+    layout(f"""\
         #### Un-pythonic :-(
 
         location = (-37, 174, 'Auckland', 'Mt Albert')
@@ -29,7 +29,7 @@ UNPACKING_COMMENT = (
         lat, lon, city, suburb = location
         """, is_code=True)
     +
-    layout_comment(f"""\
+    layout(f"""\
 
         If you don't need all the values you can indicate which you want to
         ignore or even mop up multiple unused values into a single value using
@@ -39,38 +39,38 @@ UNPACKING_COMMENT = (
 
         """)
     +
-    layout_comment(f"""\
+    layout(f"""\
         lat, lon, _city, _suburb = location
         """, is_code=True)
     +
-    layout_comment(f"""\
+    layout(f"""\
 
         or:
 
         """)
     +
-    layout_comment(f"""\
+    layout(f"""\
         lat, lon, *_ = location
         """, is_code=True)
     +
-    layout_comment(f"""\
+    layout(f"""\
 
         or:
 
         """)
     +
-    layout_comment(f"""\
+    layout(f"""\
         lat, lon, *unused = location
         """, is_code=True)
     +
-    layout_comment(f"""\
+    layout(f"""\
 
         Note - unused, in this case, would be ['Auckland', 'Mt Albert']
 
         """)
 )
 
-GENERAL_COMPREHENSION_COMMENT = layout_comment(f"""\
+GENERAL_COMPREHENSION_COMMENT = layout(f"""\
     Comprehensions are one the great things about Python. To see why, have a
     look at Raymond Hettinger's classic talk "Transforming Code into Beautiful,
     Idiomatic Python" <https://youtu.be/OSGv2VnC0go?t=2738> where he explains
@@ -85,37 +85,37 @@ GENERAL_COMPREHENSION_COMMENT = layout_comment(f"""\
     """)
 
 LIST_COMPREHENSION_COMMENT = (
-    layout_comment("""\
+    layout("""\
         #### Example List Comprehension:
         """)
     +
-    layout_comment(f"""\
+    layout(f"""\
         names_lengths = [
             len(name)
             for name in ['Tinky Winky', 'Dipsy', 'La La', 'Po']
         ]
         """, is_code=True)
     +
-    layout_comment("""\
+    layout("""\
 
         produces an ordinary list:
 
         """)
     +
-    layout_comment(str(
+    layout(str(
         {
             len(name)
             for name in ['Tinky Winky', 'Dipsy', 'La La', 'Po']
         }
         ))
     +
-    layout_comment("""\
+    layout("""\
 
         It is also possible to add a simple filter using `if`
 
         """)
     +
-    layout_comment(f"""\
+    layout(f"""\
         names_lengths = [
             len(name)
             for name in ['Tinky Winky', 'Dipsy', 'La La', 'Po']
@@ -123,13 +123,13 @@ LIST_COMPREHENSION_COMMENT = (
         ]
         """, is_code=True)
     +
-    layout_comment("""\
+    layout("""\
 
         produces an ordinary list:
 
         """)
     +
-    layout_comment(str(
+    layout(str(
         {
             len(name)
             for name in ['Tinky Winky', 'Dipsy', 'La La', 'Po']
@@ -139,24 +139,24 @@ LIST_COMPREHENSION_COMMENT = (
 )
 
 DICT_COMPREHENSION_COMMENT = (
-    layout_comment("""\
+    layout("""\
     #### Example Dictionary Comprehension:
     """)
     +
-    layout_comment(f"""\
+    layout(f"""\
         country2capital = {{
             country: capital
             for country, capital in [('NZ', 'Wellington'), ('Italy', 'Rome')]
         }}
         """, is_code=True)
     +
-    layout_comment("""\
+    layout("""\
 
         produces an ordinary dictionary:
 
         """)
     +
-    layout_comment(str(
+    layout(str(
         {
             country: capital
             for country, capital
@@ -164,13 +164,13 @@ DICT_COMPREHENSION_COMMENT = (
         }
         ))
     +
-    layout_comment("""\
+    layout("""\
 
         It is also possible to add a simple filter using `if`
 
         """)
     +
-    layout_comment(f"""\
+    layout(f"""\
         country2capital = {{
             country: capital
             for country, capital in [('NZ', 'Wellington'), ('Italy', 'Rome')]
@@ -178,13 +178,13 @@ DICT_COMPREHENSION_COMMENT = (
         }}
         """, is_code=True)
     +
-    layout_comment("""\
+    layout("""\
 
         produces an ordinary dictionary:
 
         """)
     +
-    layout_comment(str(
+    layout(str(
         {
             country: capital
             for country, capital
@@ -195,37 +195,37 @@ DICT_COMPREHENSION_COMMENT = (
 )
 
 SET_COMPREHENSION_COMMENT = (
-    layout_comment("""\
+    layout("""\
         #### Example Set Comprehension
         """)
     +
-    layout_comment(f"""\
+    layout(f"""\
         pets = {{
             pet for _person, pet
             in [('Rachel', 'cat'), ('Elliot', 'goat'), ('Giles', 'cat'),]
         }}
         """, is_code=True)
     +
-    layout_comment("""\
+    layout("""\
 
         produces an ordinary set (i.e. unique members only):
 
         """)
     +
-    layout_comment(str(
+    layout(str(
         {
             pet for _person, pet
                 in [('Rachel', 'cat'), ('Elliot', 'goat'), ('Giles', 'cat'),]
         }
         ))
     +
-    layout_comment("""\
+    layout("""\
 
         It is also possible to add a simple filter using `if`
 
         """)
     +
-    layout_comment(f"""\
+    layout(f"""\
         pets = {{
             pet for person, pet
             in [('Rachel', 'cat'), ('Elliot', 'goat'), ('Giles', 'cat'),]
@@ -233,13 +233,13 @@ SET_COMPREHENSION_COMMENT = (
         }}
         """, is_code=True)
     +
-    layout_comment("""\
+    layout("""\
 
         produces an ordinary set (i.e. unique members only):
 
         """)
     +
-    layout_comment(str(
+    layout(str(
         {
             pet for person, pet
                 in [('Rachel', 'cat'), ('Elliot', 'goat'), ('Giles', 'cat'),]

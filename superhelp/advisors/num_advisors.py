@@ -3,7 +3,7 @@ from collections import defaultdict
 from ..advisors import filt_block_advisor
 from ..ast_funcs import get_assign_name
 from .. import code_execution, conf
-from ..utils import get_nice_str_list, layout_comment
+from ..utils import get_nice_str_list, layout_comment as layout
 
 ASSIGN_NUM_XPATH = 'descendant-or-self::Assign/value/Num'
 
@@ -31,12 +31,12 @@ def num_overview(block_dets, *, repeated_message=False):
     for val_type, names in val_types.items():
         names_text = get_nice_str_list(names, quoter='`')
         if len(names) == 1:
-            names_msg = layout_comment(f"""\
+            names_msg = layout(f"""\
 
                 {names_text} is a number - specific type `{val_type}`.
                 """)
         else:
-            names_msg = layout_comment(f"""\
+            names_msg = layout(f"""\
 
                 {names_text} are numbers - specific type `{val_type}`.
                 """)
@@ -47,7 +47,7 @@ def num_overview(block_dets, *, repeated_message=False):
             val = type_firsts[val_type]
             specific_comment = None
             if val_type == conf.INT_TYPE:
-                specific_comment = layout_comment(f"""\
+                specific_comment = layout(f"""\
 
                     Integers are counting numbers and include 0 and negative
                     numbers e.g. -2
@@ -58,7 +58,7 @@ def num_overview(block_dets, *, repeated_message=False):
                     e.g. float({first_name}) which returns {float(val)}
                     """)
             elif val_type == conf.FLOAT_TYPE:
-                specific_comment = layout_comment(f"""\
+                specific_comment = layout(f"""\
 
                     Floats are used when decimal places are required.
 
@@ -73,7 +73,7 @@ def num_overview(block_dets, *, repeated_message=False):
         conf.BRIEF: brief_comment,
     }
     if conf.FLOAT_TYPE in val_types and not repeated_message:
-        message[conf.EXTRA] = layout_comment(f"""\
+        message[conf.EXTRA] = layout(f"""\
             Floats, or floating point numbers, are stored in computers as binary
             fractions. "Unfortunately, most decimal fractions cannot be
             represented exactly as binary fractions. A consequence is that, in

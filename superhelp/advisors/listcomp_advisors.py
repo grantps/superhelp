@@ -1,7 +1,7 @@
 from ..advisors import shared, filt_block_advisor
 from ..ast_funcs import get_assign_name
 from .. import code_execution, conf, utils
-from ..utils import layout_comment
+from ..utils import layout_comment as layout
 
 ASSIGN_LISTCOMP_XPATH = 'descendant-or-self::Assign/value/ListComp'
 
@@ -20,13 +20,13 @@ def listcomp_overview(block_dets, *, repeated_message=False):
         items = code_execution.get_val(
             block_dets.pre_block_code_str, block_dets.block_code_str, name)
         if first:
-            title = layout_comment(f"""\
+            title = layout(f"""\
 
                 ### List comprehension{plural} used
 
                 """)
             brief_comment += title
-        brief_comment += layout_comment(f"""
+        brief_comment += layout(f"""
 
             `{name}` is a list comprehension returning a list
             with {utils.int2nice(len(items))} items: {items}
@@ -35,12 +35,12 @@ def listcomp_overview(block_dets, *, repeated_message=False):
         extra_comment = ''
     else:
         extra_comment = (
-            layout_comment(f"""\
+            layout(f"""\
                 ### Other "comprehensions"
 
                 """)
             + shared.GENERAL_COMPREHENSION_COMMENT
-            + layout_comment("""\
+            + layout("""\
 
                 List comprehensions aren't the only type of comprehension you can
                 make. Python also lets you write Dictionary and Set Comprehensions:
@@ -50,7 +50,7 @@ def listcomp_overview(block_dets, *, repeated_message=False):
             + '\n\n'
             + shared.SET_COMPREHENSION_COMMENT
             + '\n\n'
-            + layout_comment("""\
+            + layout("""\
                 Pro tip: don't make comprehension *in*comprehensions ;-). If it is
                 hard to read it is probably better written as a looping structure.
                 """)
