@@ -16,8 +16,8 @@ advisors.load_advisors()
 t = True
 f = False
 
-do_test = f  ## use test snippet rather than the larger demo snippet
-do_html = f  ## use html displayer vs cli displayer
+do_test = t  ## use test snippet rather than the larger demo snippet
+do_html = t  ## use html displayer vs cli displayer
 do_displayer = t  ## for dev testing only
 
 def display_messages(displayer, snippet, messages_dets, *,
@@ -51,8 +51,8 @@ def _get_displayer_module(displayer):
             "a displayer if you want advice displayed")
     return displayer_module
 
-def superhelp(snippet=None, *, file_path=None,
-        displayer='html', message_level=conf.EXTRA, in_notebook=False):
+def get_advice(snippet=None, *, file_path=None, displayer='html',
+        message_level=conf.EXTRA, in_notebook=False):
     """
     Provide advice about the snippet supplied
 
@@ -102,7 +102,7 @@ def shelp():
         help="Where do you want your help shown? html, cli, etc")
     args = parser.parse_args()
     displayer = args.displayer if do_displayer else None
-    superhelp(args.snippet,
+    get_advice(args.snippet,
         file_path=args.file_path, displayer=displayer, message_level=args.level)
 
 if __name__ == '__main__':
