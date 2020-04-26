@@ -38,8 +38,8 @@ class Onsie:
         pass
     def one(self):
         pass
-    def two(self):
-        pass
+#     def two(self):
+#         pass
 """
 
 DEMO_SNIPPET = """\

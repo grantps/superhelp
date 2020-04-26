@@ -508,9 +508,8 @@ def get_separate_code_message_parts(message):
 def get_html_strs(message, message_type, *, warning=False):
     if not message:
         return []
-    div_class = MESSAGE_LEVEL2CLASS[message_type]
-    warning_class = ' warning' if warning else ''
-    str_html_list = [f"<div class='{div_class}{warning_class}'>", ]
+    message_type_class = MESSAGE_LEVEL2CLASS[message_type]
+    str_html_list = [f"<div class='{message_type_class}'>", ]
     message_parts = get_separate_code_message_parts(message)
     for message_part in message_parts:
         if message_part[IS_CODE]:
@@ -528,6 +527,8 @@ def get_message_html_strs(message_dets):
     Process message.
     """
     message_html_strs = []
+    if message_dets.warning:
+        message_html_strs.append("<div class='warning'>")
     for message_level in conf.MESSAGE_LEVELS:
         try:
             message = message_dets.message[message_level]
@@ -550,6 +551,8 @@ def get_message_html_strs(message_dets):
             message_level_html_strs = get_html_strs(
                 message, message_level, warning=message_dets.warning)
             message_html_strs.extend(message_level_html_strs)
+    if message_dets.warning:
+        message_html_strs.append("</div>")
     return message_html_strs
 
 def repeat_overall_snippet(snippet):
