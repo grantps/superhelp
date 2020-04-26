@@ -6,6 +6,8 @@ from ..utils import get_python_version, int2nice, layout_comment as layout
 
 def get_string_3_7(comparison_el):
     string = comparison_el.get('s')
+    if not string:
+        return None
     return string
 
 def get_string_3_8(comparison_el):
@@ -17,7 +19,9 @@ def get_string_3_8(comparison_el):
     return string
 
 def get_num_3_7(comparison_el):
-    num = comparison_el['n']
+    num = comparison_el.get('n')
+    if not num:
+        return None
     return num
 
 def get_num_3_8(comparison_el):
