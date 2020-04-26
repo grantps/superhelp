@@ -4,7 +4,57 @@ Covers functions and methods.
 from ..advisors import filt_block_advisor
 from ..ast_funcs import get_el_lines_dets
 from .. import conf, utils
-from ..utils import layout_comment as layout
+from ..utils import get_python_version, layout_comment as layout
+
+def get_danger_status_3_7(child_el):
+    if (child_el.tag == 'NameConstant'
+            and child_el.get('value') in ['True', 'False']):
+        danger_status = 'Boolean'
+    elif child_el.tag == 'Num' and child_el.get('n'):
+        danger_status = 'Number'
+    else:
+        danger_status = None
+    return danger_status
+
+def get_danger_status_3_8(child_el):
+    if child_el.tag == 'Constant':
+        val = child_el.get('value')
+        if val in ['True', 'False']:
+            danger_status = 'Boolean'
+        else:
+            try:
+                float(val)
+            except TypeError:
+                danger_status = None
+            else:
+                danger_status = 'Number'
+    else:
+        danger_status = None
+    return danger_status
+
+def get_docstring_from_value_3_7(first_value_el):
+    if first_value_el.tag != 'Str':
+        docstring = None
+    else:
+        docstring = first_value_el.get('s')
+    return docstring
+
+def get_docstring_from_value_3_8(first_value_el):
+    if first_value_el.tag != 'Constant':
+        docstring = None
+    else:
+        docstring = first_value_el.get('value')
+    return docstring
+
+python_version = get_python_version()
+if python_version in (conf.PY3_6, conf.PY3_7):
+    get_danger_status = get_danger_status_3_7
+    get_docstring_from_value = get_docstring_from_value_3_7
+elif python_version == conf.PY3_8:
+    get_danger_status = get_danger_status_3_8
+    get_docstring_from_value = get_docstring_from_value_3_8
+else:
+    raise Exception(f"Unexpected Python version {python_version}")
 
 FUNC_DEFN_XPATH = 'descendant-or-self::FunctionDef'
 
@@ -234,8 +284,9 @@ def func_len_check(block_dets, *, repeated_message=False):
 
 def get_n_args(func_el):
     arg_els = func_el.xpath('args/arguments/args/arg')
+    posonlyarg_els = func_el.xpath('args/arguments/posonlyargs/arg')
     kwonlyarg_els = func_el.xpath('args/arguments/kwonlyargs/arg')
-    n_args = len(arg_els + kwonlyarg_els)
+    n_args = len(arg_els + posonlyarg_els + kwonlyarg_els)
     return n_args
 
 @filt_block_advisor(xpath=FUNC_DEFN_XPATH, warning=True)
@@ -285,13 +336,7 @@ def get_danger_args(func_el):
     danger_statuses = []
     for arg_default_el in arg_default_els:
         for child_el in arg_default_el.getchildren():
-            if (child_el.tag == 'NameConstant'
-                    and child_el.get('value') in ['True', 'False']):
-                danger_status = 'Boolean'
-            elif child_el.tag == 'Num' and child_el.get('n'):
-                danger_status = 'Number'
-            else:
-                danger_status = None
+            danger_status = get_danger_status(child_el)
             danger_statuses.append(danger_status)
     ## reversed because defaults are filled in rightwards e.g. a, b=1, c=2
     ## args = a,b,c and defaults=1,2 -> reversed c,b,a and 2,1 -> c: 2, b: 1
@@ -406,10 +451,7 @@ def get_func_name_docstring(func_el):
                         docstring = None
                     else:
                         first_value_el = value_els[0]
-                        if first_value_el.tag != 'Str':
-                            docstring = None
-                        else:
-                            docstring = first_value_el.get('s')
+                        docstring = get_docstring_from_value(first_value_el)
     return func_name, docstring
 
 def get_funcs_dets_and_docstring(func_els):

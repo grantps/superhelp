@@ -3,16 +3,41 @@ from collections import defaultdict
 from ..advisors import filt_block_advisor
 from ..ast_funcs import get_assign_name
 from .. import code_execution, conf
-from ..utils import get_nice_str_list, layout_comment as layout
+from ..utils import get_nice_str_list, get_python_version,\
+    layout_comment as layout
 
-ASSIGN_NUM_XPATH = 'descendant-or-self::Assign/value/Num'
+ASSIGN_VAL_XPATH = 'descendant-or-self::Assign/value'
 
-@filt_block_advisor(xpath=ASSIGN_NUM_XPATH)
+def get_num_els_3_7(block_el):
+    num_els = block_el.xpath('descendant-or-self::Assign/value/Num')
+    return num_els
+
+def get_num_els_3_8(block_el):
+    val_els = block_el.xpath(ASSIGN_VAL_XPATH)
+    num_els = []
+    for val_el in val_els:
+        constant_els = val_el.xpath('Constant') 
+        if len(constant_els) != 1:
+            continue
+        constant_el = constant_els[0]
+        if constant_el.get('type') in ('int', 'float'):
+            num_els.append(constant_el)
+    return num_els
+
+python_version = get_python_version()
+if python_version in (conf.PY3_6, conf.PY3_7):
+    get_num_els = get_num_els_3_7
+elif python_version == conf.PY3_8:
+    get_num_els = get_num_els_3_8
+else:
+    raise Exception(f"Unexpected Python version {python_version}")
+
+@filt_block_advisor(xpath=ASSIGN_VAL_XPATH)
 def num_overview(block_dets, *, repeated_message=False):
     """
     Get general advice about assigned numbers e.g. var = 123
     """
-    num_els = block_dets.element.xpath(ASSIGN_NUM_XPATH)
+    num_els = get_num_els(block_dets.element)
     val_types = defaultdict(list)
     has_num = False
     type_firsts = {}

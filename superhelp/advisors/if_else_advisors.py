@@ -2,7 +2,41 @@ from collections import defaultdict, namedtuple, Counter
 
 from ..advisors import filt_block_advisor
 from .. import conf
-from ..utils import int2nice, layout_comment as layout
+from ..utils import get_python_version, int2nice, layout_comment as layout
+
+def get_string_3_7(comparison_el):
+    string = comparison_el.get('s')
+    return string
+
+def get_string_3_8(comparison_el):
+    val = comparison_el.get('value')
+    if comparison_el.get('type') == 'str':
+        string = val
+    else:
+        string = None
+    return string
+
+def get_num_3_7(comparison_el):
+    num = comparison_el['n']
+    return num
+
+def get_num_3_8(comparison_el):
+    val = comparison_el.get('value')
+    if comparison_el.get('type') in ('int', 'float'):
+        num = val
+    else:
+        num = None
+    return num
+
+python_version = get_python_version()
+if python_version in (conf.PY3_6, conf.PY3_7):
+    get_string = get_string_3_7
+    get_num = get_num_3_7
+elif python_version == conf.PY3_8:
+    get_string = get_string_3_8
+    get_num = get_num_3_8
+else:
+    raise Exception(f"Unexpected Python version {python_version}")
 
 IfDets = namedtuple('IfDetails',
     'multiple_conditions, missing_else, if_clauses')
@@ -271,7 +305,7 @@ def get_split_membership_dets(if_el):
 
     If/test/BoolOp/values/Compare
                                  left/Name id 'x'
-                                 comparators/Str s 'a'
+                                 comparators/Constant s 'a'
                                  comparators/Num n  etc
 
     Only provide message using content if all items are of the same type and are
@@ -297,13 +331,13 @@ def get_split_membership_dets(if_el):
         if not comparison_els:
             continue
         comparison_el = comparison_els[0]  ## Str or Num etc
-        comp_val = comparison_el.get('s')
+        comp_val = get_string(comparison_el)
         if comp_val is not None:
             basic_types.add(STRING)
             if len(basic_types) > 1:
                 return None
         else:
-            comp_val = comparison_el['n']
+            comp_val = get_num(comparison_el)
             if comp_val is not None:
                 basic_types.add(NUMBER)
                 if len(basic_types) > 1:
@@ -419,7 +453,7 @@ def get_has_explicit_count(if_el):
     if not comparison_els:
         return False
     comparison_el = comparison_els[0]
-    n = comparison_el.get('n')
+    n = get_num(comparison_el)
     if n is None:
         return False
     explicit_booleans = [

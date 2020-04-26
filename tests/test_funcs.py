@@ -155,7 +155,7 @@ def test_misc():
             class Demo:
                 def demo(self):
                     '''
-                    A doc string of some sort ;-)
+                    A short doc string only
                     '''
                     return True
             """),
@@ -164,7 +164,7 @@ def test_misc():
                 ROOT + 'func_len_check': 0,
                 ROOT + 'func_excess_parameters': 0,
                 ROOT + 'positional_boolean': 0,
-                ROOT + 'docstring_issues': 0,
+                ROOT + 'docstring_issues': 1,
             }
         ),
     ]

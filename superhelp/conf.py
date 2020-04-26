@@ -165,6 +165,10 @@ def camelCase(a, b, c, d, f, *, g):
     pass
 """
 
+PY3_6 = '3.6'
+PY3_7 = '3.7'
+PY3_8 = '3.8'
+
 AST_OUTPUT_XML = Path(__file__).parent / 'ast_output.xml'
 
 PYTHON_CODE_START = '__python_code_start__'

@@ -1,7 +1,12 @@
 import logging
+import sys
 from textwrap import dedent
 
 from . import conf
+
+def get_python_version():
+    major, minor = sys.version_info[:2]
+    return f"{major}.{minor}"
 
 def get_nice_str_list(items, *, quoter='`'):
     """

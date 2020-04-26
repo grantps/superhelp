@@ -44,6 +44,18 @@ def test_misc():
         ),
         (
             dedent("""\
+            pet = 'jelly' + 'cat' + 'fish'
+            """),
+            {
+                ROOT + 'assigned_str_overview': 0,  ## only want to cover string combination / interpolation
+                ROOT + 'f_str_interpolation': 0,
+                ROOT + 'format_str_interpolation': 0,
+                ROOT + 'sprintf': 0,
+                ROOT + 'string_addition': 1,
+            }
+        ),
+        (
+            dedent("""\
             pet = '%s%s' % ('jelly', 'fish')
             """),
             {

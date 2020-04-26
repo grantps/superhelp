@@ -1,13 +1,13 @@
 from ..advisors import any_block_advisor, filt_block_advisor
 from .. import code_execution, conf
-from ..utils import layout_comment as layout
+from ..utils import get_python_version, layout_comment as layout
 
 F_STR = 'f-string'
 STR_FORMAT_FUNC = 'str_format'
 SPRINTF = 'sprintf'
 STR_ADDITION = 'string addition'
 
-ASSIGN_STR_XPATH = 'descendant-or-self::Assign/value/Str'
+ASSIGN_VALUE_XPATH = 'descendant-or-self::Assign/value'
 FUNC_ATTR_XPATH = 'descendant-or-self::value/Call/func/Attribute'
 JOINED_STR_XPATH = 'descendant-or-self::Assign/value/JoinedStr'
 SPRINTF_XPATH = 'descendant-or-self::value/BinOp/op/Mod'
@@ -15,13 +15,54 @@ STR_ADDITION_XPATH = 'descendant-or-self::BinOp/left/Str'  ## each left has a ri
 
 F_STR_REMINDER = False
 
-@filt_block_advisor(xpath=ASSIGN_STR_XPATH)
+def get_str_els_3_7(block_el):
+    str_els = block_el.xpath('descendant-or-self::Assign/value/Str')
+    return str_els
+
+def get_str_els_3_8(block_el):
+    assign_val_els = block_el.xpath(ASSIGN_VALUE_XPATH)
+    str_els = []
+    for assign_val_el in assign_val_els:
+        assign_str_els = assign_val_el.xpath('Constant')
+        if len(assign_str_els) != 1:
+            continue
+        assign_str_el = assign_str_els[0]
+        if assign_str_el.get('type') == 'str':
+            str_els.append(assign_str_el)
+    return str_els
+
+def get_str_els_being_combined_3_7(block_el):
+    str_els_being_combined = block_el.xpath(
+        'descendant-or-self::BinOp/left/Str')
+    return str_els_being_combined
+
+def get_str_els_being_combined_3_8(block_el):
+    left_str_els = block_el.xpath('descendant-or-self::BinOp/left/Constant')
+    str_els_being_combined = []
+    for left_str_el in left_str_els:
+        if left_str_el.get('type') == 'str':
+            str_els_being_combined.append(left_str_el)
+    return str_els_being_combined
+
+python_version = get_python_version()
+if python_version in (conf.PY3_6, conf.PY3_7):
+    get_str_els = get_str_els_3_7
+    get_str_els_being_combined = get_str_els_being_combined_3_7
+elif python_version == conf.PY3_8:
+    get_str_els = get_str_els_3_8
+    get_str_els_being_combined = get_str_els_being_combined_3_8
+else:
+    raise Exception(f"Unexpected Python version {python_version}")
+
+@filt_block_advisor(xpath=ASSIGN_VALUE_XPATH)
 def assigned_str_overview(block_dets, *, repeated_message=False):
     """
     Provide overview of assigned strings e.g. name = 'Hamish'.
     """
     brief_comment = ''
-    str_els = block_dets.element.xpath(ASSIGN_STR_XPATH)
+    str_els = get_str_els(block_dets.element)
+    if not str_els:
+        return None
     first_name = None
     first_val = None
     for i, str_el in enumerate(str_els):
@@ -240,7 +281,7 @@ def string_addition(block_dets, *, repeated_message=False):
     Advise on string combination using +. Explain how f-string alternative
     works.
     """
-    str_els_being_combined = block_dets.element.xpath(STR_ADDITION_XPATH)
+    str_els_being_combined = get_str_els_being_combined(block_dets.element)
     has_string_addition = False
     str_addition_els = []
     for str_el in str_els_being_combined:
