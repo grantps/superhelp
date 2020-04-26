@@ -9,7 +9,7 @@ f = False
 
 ## Release settings in (). Enforced by Makefile using good old sed :-)
 
-RECORD_AST = t  ## (f)
+RECORD_AST = f  ## (f)
 DEV_MODE = f  ## (f)
 DO_TEST = t  ## set test snippet as deafult rather than the larger demo snippet (t)
 DO_HTML = t  ## set html displayer as default (t)
