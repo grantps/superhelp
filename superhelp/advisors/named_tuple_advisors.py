@@ -43,7 +43,7 @@ def named_tuple_overview(blocks_dets):
         return None
     example_dets = named_tuples_dets[0]
     first_field = example_dets.fields_list[0]
-    brief_comment = (
+    brief_msg = (
             layout("""\
 
                 ### Named Tuple Enhancements
@@ -65,8 +65,8 @@ def named_tuple_overview(blocks_dets):
                 ## etc
                 """, is_code=True)
         )
-    main_comment = (
-        brief_comment
+    main_msg = (
+        brief_msg
         +
         layout("""\
 
@@ -85,8 +85,8 @@ def named_tuple_overview(blocks_dets):
             """)
     )
     message = {
-        conf.BRIEF: brief_comment,
-        conf.MAIN: main_comment,
+        conf.BRIEF: brief_msg,
+        conf.MAIN: main_msg,
     }
     return message
     

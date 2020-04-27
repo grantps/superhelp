@@ -30,14 +30,14 @@ def decorator_overview(block_dets, *, repeated_message=False):
         decorator_names.append(name)
     dec_name_list = get_nice_str_list(decorator_names, quoter='`')
     plural = 's' if len(decorator_names) > 1 else ''
-    brief_comment = layout(f"""\
+    brief_msg = layout(f"""\
             ### Decorator{plural} used
 
             The code uses the decorator{plural}: {dec_name_list}.
             """)
-    main_comment = brief_comment
+    main_msg = brief_msg
     if not repeated_message:
-        main_comment += (
+        main_msg += (
             layout("""\
 
                 Decorators are a common and handy feature of Python. Using them
@@ -96,7 +96,7 @@ def decorator_overview(block_dets, *, repeated_message=False):
                 ''', is_code=True)
         )
     message = {
-        conf.BRIEF: brief_comment,
-        conf.MAIN: main_comment,
+        conf.BRIEF: brief_msg,
+        conf.MAIN: main_msg,
     }
     return message

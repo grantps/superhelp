@@ -12,6 +12,7 @@ def test_misc():
             """),
             {
                 ROOT + 'one_method_classes': 0,
+                ROOT + 'selfless_methods': 0,
             }
         ),
         (
@@ -21,6 +22,7 @@ def test_misc():
             """),
             {
                 ROOT + 'one_method_classes': 1,
+                ROOT + 'selfless_methods': 0,
             }
         ),
         (
@@ -31,6 +33,7 @@ def test_misc():
             """),
             {
                 ROOT + 'one_method_classes': 1,
+                ROOT + 'selfless_methods': 1,
             }
         ),
         (
@@ -43,6 +46,7 @@ def test_misc():
             """),
             {
                 ROOT + 'one_method_classes': 1,
+                ROOT + 'selfless_methods': 1,
             }
         ),
         (
@@ -53,6 +57,7 @@ def test_misc():
             """),
             {
                 ROOT + 'one_method_classes': 1,
+                ROOT + 'selfless_methods': 1,
             }
         ),
         (
@@ -67,6 +72,7 @@ def test_misc():
             """),
             {
                 ROOT + 'one_method_classes': 0,
+                ROOT + 'selfless_methods': 1,
             }
         ),
         (
@@ -82,6 +88,7 @@ def test_misc():
             """),
             {
                 ROOT + 'one_method_classes': 0,
+                ROOT + 'selfless_methods': 1,
             }
         ),
         (
@@ -95,6 +102,7 @@ def test_misc():
             """),
             {
                 ROOT + 'one_method_classes': 1,
+                ROOT + 'selfless_methods': 1,
             }
         ),
         (
@@ -107,6 +115,70 @@ def test_misc():
             """),
             {
                 ROOT + 'one_method_classes': 0,
+                ROOT + 'selfless_methods': 1,
+            }
+        ),
+        (
+            dedent("""\
+            class Demo:
+                def one(self):
+                    print(self)
+                def two(self):
+                    print(self)
+            """),
+            {
+                ROOT + 'one_method_classes': 0,
+                ROOT + 'selfless_methods': 0,
+            }
+        ),
+        (
+            dedent("""\
+            for i in range(2):
+                class Demo:
+                    def one(self):
+                        pass
+                    def two(self):
+                        print(self)
+            """),
+            {
+                ROOT + 'one_method_classes': 0,
+                ROOT + 'selfless_methods': 1,
+            }
+        ),
+        (
+            dedent("""\
+            class Demo:
+                def one(self):
+                    print(self)
+                def two(self):
+                    print(self)
+            class Demo2:
+                def one(self):
+                    pass
+                def two(self):
+                    pass
+            """),
+            {
+                ROOT + 'one_method_classes': 0,
+                ROOT + 'selfless_methods': 1,
+            }
+        ),
+        (
+            dedent("""\
+            class Demo:
+                def one(self):
+                    pass
+                def two(self):
+                    pass
+            class Demo2:
+                def one(self):
+                    pass
+                def two(self):
+                    pass
+            """),
+            {
+                ROOT + 'one_method_classes': 0,
+                ROOT + 'selfless_methods': 2,
             }
         ),
     ]

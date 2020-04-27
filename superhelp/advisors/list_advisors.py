@@ -30,7 +30,7 @@ def get_type_for_example(list_items):
             type4example = DEFAULT_EXAMPLE_TYPE
     return type4example
 
-def _get_additional_main_comment(first_name, first_list_items):
+def _get_additional_main_msg(first_name, first_list_items):
     """
     :param list first_list_items: note - may be None if a list is defined in a
      function
@@ -54,7 +54,7 @@ def _get_additional_main_comment(first_name, first_list_items):
     friends = ['Selma', 'Willy', 'Principal Skinner']
     family = ['Bart', 'Lisa', 'Marge', 'Homer']
     guests = friends + family
-    additional_main_comment = (
+    additional_main_msg = (
         layout("""\
 
             Lists, along with dictionaries, are the workhorses of Python data
@@ -145,7 +145,7 @@ def _get_additional_main_comment(first_name, first_list_items):
 
             """)
         )
-    return additional_main_comment
+    return additional_main_msg
 
 ## only interested in lists when being assigned as a value
 ## (i.e. <body><Assign><value><List> so we're looking for List under value only)
@@ -155,8 +155,8 @@ def list_overview(block_dets, *, repeated_message=False):
     General overview of list taking content details into account.
     """
     list_els = block_dets.element.xpath(ASSIGN_LIST_XPATH)
-    brief_comment = ''
-    main_comment = ''
+    brief_msg = ''
+    main_msg = ''
     plural = 's' if len(list_els) > 1 else ''
     first_name = None
     first_list_items = None
@@ -173,8 +173,8 @@ def list_overview(block_dets, *, repeated_message=False):
                 ### List{plural} defined
     
                 """)
-            brief_comment += title
-            main_comment += title
+            brief_msg += title
+            main_msg += title
         if items is None:
             list_desc = layout(f"""\
 
@@ -190,10 +190,10 @@ def list_overview(block_dets, *, repeated_message=False):
     
                 `{name}` is a list with {utils.int2nice(len(items))} items.
                 """)
-        brief_comment += list_desc
-        main_comment += list_desc
+        brief_msg += list_desc
+        main_msg += list_desc
     if not repeated_message:
-        brief_comment += layout("""\
+        brief_msg += layout("""\
 
             Lists, along with dictionaries, are the workhorses of Python data
             structures.
@@ -201,11 +201,11 @@ def list_overview(block_dets, *, repeated_message=False):
             Lists have an order, and can contain duplicate items and items of
             different types (usually not advisable).
             """)
-        main_comment += _get_additional_main_comment(
+        main_msg += _get_additional_main_msg(
             first_name, first_list_items)
     message = {
-        conf.BRIEF: brief_comment,
-        conf.MAIN: main_comment,
+        conf.BRIEF: brief_msg,
+        conf.MAIN: main_msg,
     }
     return message
 
@@ -215,8 +215,8 @@ def mixed_list_types(block_dets, *, repeated_message=False):  # @UnusedVariable
     Warns about lists containing a mix of data types.
     """
     list_els = block_dets.element.xpath(ASSIGN_LIST_XPATH)
-    brief_comment = ''
-    main_comment = ''
+    brief_msg = ''
+    main_msg = ''
     has_mixed = False
     for i, list_el in enumerate(list_els):
         first = (i == 0)
@@ -235,22 +235,22 @@ def mixed_list_types(block_dets, *, repeated_message=False):  # @UnusedVariable
                 ### List(s) with mix of different data types
     
                 """)
-            brief_comment += title
-            main_comment += title
+            brief_msg += title
+            main_msg += title
         mixed_warning = layout(f"""
 
             `{name}` contains more than one data type - which is probably a bad
             idea.
             """)
-        brief_comment += mixed_warning
-        main_comment += mixed_warning
-        main_comment += layout(f"""\
+        brief_msg += mixed_warning
+        main_msg += mixed_warning
+        main_msg += layout(f"""\
              The data types found were: {", ".join(item_type_nice_names)}.
             """)
     if not has_mixed:
         return None
     message = {
-        conf.BRIEF: brief_comment,
-        conf.MAIN: main_comment,
+        conf.BRIEF: brief_msg,
+        conf.MAIN: main_msg,
     }
     return message

@@ -35,7 +35,7 @@ def unpacking(block_dets, *, repeated_message=False):
     Identify name unpacking e.g. x, y = coord
     """
     unpacked_els = block_dets.element.xpath(ASSIGN_UNPACKING_XPATH)
-    brief_comment = ''
+    brief_msg = ''
     for unpacked_el in unpacked_els:
         unpacked_names = [
             name_el.get('id') for name_el in unpacked_el.xpath('elts/Name')]
@@ -46,11 +46,11 @@ def unpacking(block_dets, *, repeated_message=False):
 
             Your code uses unpacking to assign names {nice_str_list}
             """)
-        brief_comment += unpacked_comment
-    extra_comment = '' if repeated_message else shared.UNPACKING_COMMENT
+        brief_msg += unpacked_comment
+    extra_msg = '' if repeated_message else shared.UNPACKING_COMMENT
     message = {
-        conf.BRIEF: brief_comment,
-        conf.EXTRA: extra_comment,
+        conf.BRIEF: brief_msg,
+        conf.EXTRA: extra_msg,
     }
     return message
 
@@ -88,17 +88,17 @@ def unpacking_opportunity(blocks_dets):
     multiple_items = len(sources2unpack) > 1
     if multiple_items:
         nice_sources_list = utils.get_nice_str_list(sources2unpack, quoter='`')
-        brief_comment = layout(f"""\
+        brief_msg = layout(f"""\
             {nice_sources_list} have multiple items extracted by
             indexing so might be suitable candidates for unpacking.
             """)
     else:
-        brief_comment = layout(f"""\
+        brief_msg = layout(f"""\
             Name (variable) `{sources2unpack[0]}` has multiple items extracted
             by indexing so might be a suitable candidate for unpacking.
             """)
     message = {
-        conf.BRIEF: brief_comment,
+        conf.BRIEF: brief_msg,
         conf.EXTRA: shared.UNPACKING_COMMENT,
     }
     return message

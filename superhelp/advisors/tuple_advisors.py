@@ -16,8 +16,8 @@ def tuple_overview(block_dets, *, repeated_message=False):
         #### Tuple Overview
 
         """)
-    brief_comment = title
-    main_comment = title
+    brief_msg = title
+    main_msg = title
     name_tups = []
     for tup_el in tup_els:
         name = get_assign_name(tup_el)
@@ -31,19 +31,19 @@ def tuple_overview(block_dets, *, repeated_message=False):
             `{name}` is a tuple with {utils.int2nice(len(tup))} items.
 
             """)
-        brief_comment += tup_desc
-        main_comment += tup_desc
+        brief_msg += tup_desc
+        main_msg += tup_desc
     if repeated_message:
-        extra_comment = ''
+        extra_msg = ''
     else:
-        brief_comment += layout("""\
+        brief_msg += layout("""\
 
             Tuples are like lists but the items inside cannot be replaced,
             removed, or added to. For example, if we have a list [1, 2] we can
             append a 3 to it. But if we have a tuple (1, 2) we cannot.
 
             """)
-        main_comment += layout("""\
+        main_msg += layout("""\
 
             Tuples are like lists but they are immutable. That means
             unchangeable.
@@ -57,9 +57,9 @@ def tuple_overview(block_dets, *, repeated_message=False):
             program is doing and what it cannot be doing. We can also use named
             tuples to improve readability.
             """)
-        brief_comment += why_immutability_comment
-        main_comment += why_immutability_comment
-        brief_comment += layout("""\
+        brief_msg += why_immutability_comment
+        main_msg += why_immutability_comment
+        brief_msg += layout("""\
 
             Tuples have an order, and can contain duplicate items and items of
             different types (usually not advisable).
@@ -95,8 +95,8 @@ def tuple_overview(block_dets, *, repeated_message=False):
                 * cannot be *removed*
                 * cannot be *added*
                 """)
-        main_comment += immutability_comment
-        main_comment += layout("""\
+        main_msg += immutability_comment
+        main_msg += layout("""\
 
             Tuples have an order, and can contain duplicate items and items of
             different types (usually not advisable).
@@ -107,7 +107,7 @@ def tuple_overview(block_dets, *, repeated_message=False):
         family = ['Bart', 'Lisa', 'Marge', 'Homer']
         original_guests = (friends, family)
         guests = (friends + ['Lenny'], family)
-        extra_comment = (
+        extra_msg = (
             layout(f"""\
 
                 #### GOTCHA - immutable means 100% unchangeable right?
@@ -189,8 +189,8 @@ def tuple_overview(block_dets, *, repeated_message=False):
                 """)
         )
     message = {
-        conf.BRIEF: brief_comment,
-        conf.MAIN: main_comment,
-        conf.EXTRA: extra_comment,
+        conf.BRIEF: brief_msg,
+        conf.MAIN: main_msg,
+        conf.EXTRA: extra_msg,
     }
     return message

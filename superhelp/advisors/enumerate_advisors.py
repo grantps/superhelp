@@ -346,15 +346,15 @@ def manual_incrementing(blocks_dets):
             break
     if not has_incrementing:
         return None
-    brief_comment = layout(f"""\
+    brief_msg = layout(f"""\
 
         ### Possible option of using `enumerate()`
 
         It looks like your code is manually incrementing `{incrementing_var}`.
         In Python you can use the `enumerate` function to handle this for you.
         """)
-    main_comment = (
-        brief_comment
+    main_msg = (
+        brief_msg
         +
         layout("""\
 
@@ -404,7 +404,7 @@ def manual_incrementing(blocks_dets):
         """)
     )
     message = {
-        conf.BRIEF: brief_comment,
-        conf.MAIN: main_comment,
+        conf.BRIEF: brief_msg,
+        conf.MAIN: main_msg,
     }
     return message

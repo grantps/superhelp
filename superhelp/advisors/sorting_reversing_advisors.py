@@ -42,14 +42,14 @@ def sorting_reversing_overview(block_dets, *, repeated_message=False):
     if not sorting_or_reversing_comment:
         return None
     if repeated_message:
-        brief_comment = layout(f"""\
+        brief_msg = layout(f"""\
             ### Sorting / reversing
 
             This block of code {sorting_or_reversing_comment}.
             """)
-        main_comment = brief_comment
+        main_msg = brief_msg
     else:
-        brief_comment = layout(f"""\
+        brief_msg = layout(f"""\
             ### Sorting / reversing
 
             This block of code {sorting_or_reversing_comment}. Sorting and, to a
@@ -60,7 +60,7 @@ def sorting_reversing_overview(block_dets, *, repeated_message=False):
 
             2) the list sort method e.g. my_list.`sort()` returns `None`, not the sorted list
             """)
-        main_comment = (
+        main_msg = (
             layout(f"""\
                 ### Sorting / reversing
 
@@ -130,8 +130,8 @@ def sorting_reversing_overview(block_dets, *, repeated_message=False):
                 """, is_code=True)
             )
     message = {
-        conf.BRIEF: brief_comment,
-        conf.MAIN: main_comment,
+        conf.BRIEF: brief_msg,
+        conf.MAIN: main_msg,
     }
     return message
 
@@ -151,7 +151,7 @@ def list_sort_as_value(block_dets, *, repeated_message=False):
             names_assigned_to_sort.append(name)
     if not names_assigned_to_sort:
         return None
-    brief_comment = layout(f"""\
+    brief_msg = layout(f"""\
         ### Assignment of `None` result from in-place `.sort()` on list
 
         """)
@@ -159,7 +159,7 @@ def list_sort_as_value(block_dets, *, repeated_message=False):
     if multiple:
         nice_str_list = get_nice_str_list(names_assigned_to_sort, quoter='`')
         if not repeated_message:
-            brief_comment += layout(f"""\
+            brief_msg += layout(f"""\
             {nice_str_list} are assigned to the results of in-place sort
             operations. This is almost certainly a mistake as the intention is
             probably not to set them each to `None` (the return value of the
@@ -167,13 +167,13 @@ def list_sort_as_value(block_dets, *, repeated_message=False):
             """)
     else:
         if not repeated_message:
-            brief_comment += layout(f"""\
+            brief_msg += layout(f"""\
                 `{name}` is assigned to the result of an in-place sort
                 operation. This is almost certainly a mistake as the intention
                 is probably not to set `{name}` to `None` (the return value of
                 the `.sort()` method).
                 """)
     message = {
-        conf.BRIEF: brief_comment,
+        conf.BRIEF: brief_msg,
     }
     return message

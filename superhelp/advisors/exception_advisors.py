@@ -38,17 +38,17 @@ def exception_overview(blocks_dets):
     exception_blocks = get_exception_blocks(blocks_dets)
     if not exception_blocks:
         return None
-    brief_comment = '### Exception handling'
+    brief_msg = '### Exception handling'
     for n, exception_block in enumerate(exception_blocks, 1):
         counter = '' if len(exception_blocks) == 1 else f" {int2nice(n)}"
-        brief_comment += layout(f"""\
+        brief_msg += layout(f"""\
 
             #### `try`-`except` block{counter}
 
             """)
-        brief_comment += _get_exception_block_comment(exception_block)
+        brief_msg += _get_exception_block_comment(exception_block)
     message = {
-        conf.BRIEF: layout(brief_comment),
+        conf.BRIEF: layout(brief_msg),
     }
     return message
 
@@ -60,7 +60,7 @@ def unspecific_exception(blocks_dets):
     exception_blocks = get_exception_blocks(blocks_dets)
     if not exception_blocks:
         return None
-    brief_comment = ''
+    brief_msg = ''
     unspecific_block_ns = []
     has_title = False
     has_unspecific = False
@@ -72,7 +72,7 @@ def unspecific_exception(blocks_dets):
         has_unspecific = True
         unspecific_block_ns.append(n)
         if not has_title:
-            brief_comment += layout("""\
+            brief_msg += layout("""\
 
                 #### Un-specific `Exception` only in `try`-`except` block(s)
 
@@ -89,7 +89,7 @@ def unspecific_exception(blocks_dets):
             for unspecific_block_n in unspecific_block_ns]
         blocks_ns = get_nice_str_list(unspecific_nice_block_ns, quoter='')
         block_n_specific_text = f"s {blocks_ns} have"
-    brief_comment += layout(f"""\
+    brief_msg += layout(f"""\
 
         `try`-`except` block{block_n_specific_text} an un-specific Exception
         only.
@@ -101,9 +101,9 @@ def unspecific_exception(blocks_dets):
         For example:
         """)
     message = {
-        conf.BRIEF: layout(brief_comment),
+        conf.BRIEF: layout(brief_msg),
         conf.MAIN: (
-            layout(brief_comment)
+            layout(brief_msg)
             +
             layout("""\
 

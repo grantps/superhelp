@@ -40,21 +40,21 @@ def comprehension_option(block_dets, *, repeated_message=False):
         comp_comment = shared.SET_COMPREHENSION_COMMENT
     else:
         return None
-    brief_comment = layout(f"""\
+    brief_msg = layout(f"""\
         ### Possible option of using a {comp_type}
 
         """)
     if not repeated_message:
-        brief_comment += layout(f"""\
+        brief_msg += layout(f"""\
             Simple for loops can sometimes be replaced with comprehensions. In
             this case a simple reading of the code suggests a {comp_type} might
             be possible. Of course, only use a comprehension if it makes your
             code easier to understand.
             """)
     message = {
-        conf.BRIEF: brief_comment,
+        conf.BRIEF: brief_msg,
         conf.MAIN: (
-            brief_comment
+            brief_msg
             +
             shared.GENERAL_COMPREHENSION_COMMENT + '\n\n' + comp_comment
         ),
@@ -140,7 +140,7 @@ def for_index_iteration(block_dets, *, repeated_message=False):
             break
     if not any_incremental_iteration:
         return None
-    brief_comment = layout(f"""\
+    brief_msg = layout(f"""\
 
         ### Possible option of using direct iteration
 
@@ -148,7 +148,7 @@ def for_index_iteration(block_dets, *, repeated_message=False):
         indexes. In Python you can iterate directly which is much easier.
         """)
     if not repeated_message:
-        brief_comment += (
+        brief_msg += (
             layout(f"""\
 
                 For example, instead of:
@@ -182,7 +182,7 @@ def for_index_iteration(block_dets, *, repeated_message=False):
                 """)
         )
     message = {
-        conf.BRIEF: brief_comment,
+        conf.BRIEF: brief_msg,
     }
     return message
 
@@ -201,7 +201,7 @@ def nested_fors(block_dets, *, repeated_message=False):
             break
     if not nested_iteration:
         return None
-    brief_comment = layout("""\
+    brief_msg = layout("""\
 
         ### Possible option of simplifying nested iteration
 
@@ -209,7 +209,7 @@ def nested_fors(block_dets, *, repeated_message=False):
 
         """)
     if not repeated_message:
-        brief_comment += (
+        brief_msg += (
             layout("""\
                 For example, you could replace:
 
@@ -234,9 +234,9 @@ def nested_fors(block_dets, *, repeated_message=False):
                     print(f"{person} might like a {pet} in {year}")
                 """, is_code=True)
         )
-    main_comment = brief_comment
+    main_msg = brief_msg
     if not repeated_message:
-        main_comment += layout("""\
+        main_msg += layout("""\
 
             Whether this is a good idea or not depends on your specific code but
             using `product` has the advantage of reducing indentation. It also
@@ -245,7 +245,7 @@ def nested_fors(block_dets, *, repeated_message=False):
             of items.
             """)
     message = {
-        conf.BRIEF: brief_comment,
-        conf.MAIN: main_comment,
+        conf.BRIEF: brief_msg,
+        conf.MAIN: main_msg,
     }
     return message

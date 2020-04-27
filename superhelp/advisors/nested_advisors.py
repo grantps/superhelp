@@ -42,27 +42,27 @@ def bloated_nested_block(block_dets, *, repeated_message=False):
             bloated_outer_types.add(lbl)
     if not bloated_outer_types:
         return None
-    brief_comment = layout("""\
+    brief_msg = layout("""\
         
         ### Possible option of replacing long nested block with function call
 
         """)
     for bloated_outer_type in bloated_outer_types:
-        brief_comment += layout(f"""\
+        brief_msg += layout(f"""\
             The code has at least one long nested block under
             `{bloated_outer_type}:`
             """)
     if repeated_message:
-        main_comment = brief_comment
-        extra_comment = ''
+        main_msg = brief_msg
+        extra_msg = ''
     else:  ## Hypocrisy alert LOL - I complain here about excessive nested blocks
-        brief_comment += layout("""\
+        brief_msg += layout("""\
 
             It may be possible to pull most of the nested code block into a
             function which can be called instead.
             """)
-        main_comment = brief_comment
-        main_comment += (
+        main_msg = brief_msg
+        main_msg += (
             layout("""
 
                 For example, instead of:
@@ -102,15 +102,15 @@ def bloated_nested_block(block_dets, *, repeated_message=False):
                 logging.info("Finished!")
                 ''', is_code=True)
         )
-        extra_comment = layout("""\
+        extra_msg = layout("""\
             Computers can handle lots of nesting without malfunctioning. Human
             brains are not so fortunate. As it says in The Zen of Python:
 
             > "Flat is better than nested."
             """)
     message = {
-        conf.BRIEF: brief_comment,
-        conf.MAIN: main_comment,
-        conf.EXTRA: extra_comment,
+        conf.BRIEF: brief_msg,
+        conf.MAIN: main_msg,
+        conf.EXTRA: extra_msg,
     }
     return message

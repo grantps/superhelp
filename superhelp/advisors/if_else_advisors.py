@@ -136,29 +136,29 @@ def _get_if_comment(ifs_details):
     Have to cope with multiple if statements and make it nice (unnumbered) when
     only one.
     """
-    brief_comment = '### Conditional statement detected'
+    brief_msg = '### Conditional statement detected'
     for n, if_details in enumerate(ifs_details, 1):
         counter = '' if len(ifs_details) == 1 else f" {int2nice(n)}"
         if if_details.multiple_conditions:
             n_elifs = if_details.if_clauses.count(ELIF)
-            brief_comment += layout(f"""\
+            brief_msg += layout(f"""\
 
                 `if` statement{counter} has {int2nice(n_elifs)} `elif` clauses
                 """)
             if if_details.missing_else:
-                brief_comment += " and no `else` clause."
+                brief_msg += " and no `else` clause."
             else:
-                brief_comment += " and an `else` clause."
-            brief_comment += (
+                brief_msg += " and an `else` clause."
+            brief_msg += (
                 " Note - `else` clauses with an `if`, and only an `if`, "
                 "underneath count as `elif` clauses not `else` clauses.")
         else:
-            brief_comment += layout(f"""\
+            brief_msg += layout(f"""\
 
                 `if` statement{counter} has no extra clauses e.g. `elif`s or an
                 `else`.
                 """)
-    return brief_comment
+    return brief_msg
 
 @filt_block_advisor(xpath=IF_XPATH)
 def if_else_overview(block_dets, *, repeated_message=False):
@@ -170,10 +170,10 @@ def if_else_overview(block_dets, *, repeated_message=False):
     if block_dets.block_code_str.startswith("if __name__ == "):
         return None
     ifs_details = get_ifs_details(block_dets)
-    brief_comment = _get_if_comment(ifs_details)
-    main_comment = brief_comment
+    brief_msg = _get_if_comment(ifs_details)
+    main_msg = brief_msg
     if not repeated_message:
-        main_comment += (
+        main_msg += (
             layout("""\
 
                 When using `if`, `elif`, or `else`, the item evaluated can
@@ -204,8 +204,8 @@ def if_else_overview(block_dets, *, repeated_message=False):
                 """, is_code=True)
         )
     message = {
-        conf.BRIEF: brief_comment,
-        conf.MAIN: main_comment,
+        conf.BRIEF: brief_msg,
+        conf.MAIN: main_msg,
     }
     return message
 
@@ -215,7 +215,7 @@ def missing_else(block_dets, *, repeated_message=False):
     Warn about benefits in many cases of adding else clause if missing.
     """
     ifs_details = get_ifs_details(block_dets)
-    brief_comment = ''
+    brief_msg = ''
     has_missing_else = False
     ifs_dets_missing_else = [
         if_details for if_details in ifs_details if if_details.missing_else]
@@ -223,13 +223,13 @@ def missing_else(block_dets, *, repeated_message=False):
         first = (n == 1)
         counter = '' if len(ifs_dets_missing_else) == 1 else f" {int2nice(n)}"
         if first:
-            brief_comment += layout(f"""\
+            brief_msg += layout(f"""\
 
                 ### Possibly better with `else` clause
 
                 """)
         if first and not repeated_message:
-            brief_comment += layout(f"""\
+            brief_msg += layout(f"""\
                 `if` block{counter} has `elif` clauses but lacks an `else`
                 clause. If your `elif` clauses are trying to handle all expected
                 cases it is probably best to include an `else` clause as well
@@ -242,10 +242,10 @@ def missing_else(block_dets, *, repeated_message=False):
     if not has_missing_else:
         return None
     if repeated_message:
-        main_comment = brief_comment
+        main_msg = brief_msg
     else:
-        main_comment = (
-            brief_comment
+        main_msg = (
+            brief_msg
             +
             layout("""\
 
@@ -297,8 +297,8 @@ def missing_else(block_dets, *, repeated_message=False):
                 """, is_code=True)
         )
     message = {
-        conf.BRIEF: brief_comment,
-        conf.MAIN: main_comment,
+        conf.BRIEF: brief_msg,
+        conf.MAIN: main_msg,
     }
     return message
 
@@ -389,7 +389,7 @@ def split_group_membership(block_dets, *, repeated_message=False):
             break
     if not has_split:
         return None
-    brief_comment = layout(f"""\
+    brief_msg = layout(f"""\
 
             ### Possible option of evaluating group membership
 
@@ -398,7 +398,7 @@ def split_group_membership(block_dets, *, repeated_message=False):
             membership instead.
         """)
     if not repeated_message:
-        brief_comment += (
+        brief_msg += (
             layout(f"""\
 
                 For example:
@@ -410,9 +410,9 @@ def split_group_membership(block_dets, *, repeated_message=False):
                     ...
                 """, is_code=True)
         )
-    main_comment = brief_comment
+    main_msg = brief_msg
     if not repeated_message:
-        main_comment += (
+        main_msg += (
             layout(f"""\
 
                 Or to check if a variable is NOT in a group:
@@ -425,8 +425,8 @@ def split_group_membership(block_dets, *, repeated_message=False):
                 """, is_code=True)
         )
     message = {
-        conf.BRIEF: brief_comment,
-        conf.MAIN: main_comment,
+        conf.BRIEF: brief_msg,
+        conf.MAIN: main_msg,
     }
     return message
 
@@ -487,7 +487,7 @@ def implicit_boolean_enough(block_dets, *, repeated_message=False):
             continue
     if not implicit_boolean_possible:
         return None
-    brief_comment = (
+    brief_msg = (
         layout("""\
 
             ### Possible option of using an implicit boolean
@@ -518,6 +518,6 @@ def implicit_boolean_enough(block_dets, *, repeated_message=False):
             """, is_code=True)
     )
     message = {
-        conf.BRIEF: brief_comment,
+        conf.BRIEF: brief_msg,
     }
     return message

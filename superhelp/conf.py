@@ -11,7 +11,7 @@ f = False
 
 RECORD_AST = f  ## (f)
 DEV_MODE = f  ## (f)
-DO_TEST = t  ## set test snippet as deafult rather than the larger demo snippet (t)
+DO_TEST = t  ## set test snippet as default rather than the larger demo snippet (t)
 DO_HTML = t  ## set html displayer as default (t)
 DO_DISPLAYER = t  ## f is only ever used when testing pre-display (t)
 
@@ -27,135 +27,13 @@ else:
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 
 TEST_SNIPPET = """\
-for i in range(2):
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-while True:
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    break
-if 1 == 1:
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-elif 2 == 2:
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
+class Demo:
+    def yell(text):
+        print(text)
+    def not_used(self, foo):
+        print(foo)
+    def used(self, text):
+        self.yell(text)
 """
 
 DEMO_SNIPPET = """\

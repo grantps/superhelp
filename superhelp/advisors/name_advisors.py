@@ -160,29 +160,29 @@ def unpythonic_name_check(block_dets, *, repeated_message=False):
     if not (reserved_names or bad_names or dubious_names):
         return None
     title = _get_shamed_names_title(reserved_names, bad_names, dubious_names)
-    brief_comment = layout(f"""\
+    brief_msg = layout(f"""\
         ### {title}
 
         """)
     if reserved_names:
         reserved_names_listed = utils.get_nice_str_list(
             reserved_names, quoter='`')
-        brief_comment += layout(f"""\
+        brief_msg += layout(f"""\
             Reserved name(s): {reserved_names_listed}
             """)
     if bad_names:
         bad_names_listed = utils.get_nice_str_list(bad_names, quoter='`')
-        brief_comment += layout(f"""\
+        brief_msg += layout(f"""\
             Un-pythonic name(s): {bad_names_listed}
             """)
     if dubious_names:
         dubious_names_listed = utils.get_nice_str_list(
             dubious_names, quoter='`')
-        brief_comment += layout(f"""\
+        brief_msg += layout(f"""\
             Possibly un-pythonic name(s): {dubious_names_listed}
             """)
     if not repeated_message:
-        brief_comment += layout("""\
+        brief_msg += layout("""\
 
             Python variables should not named using reserved words e.g.
             `collections` or `sorted`.
@@ -191,9 +191,9 @@ def unpythonic_name_check(block_dets, *, repeated_message=False):
             lower case, with multiple words joined by underscores e.g.
             `high_scores` (not `highScores` or `HighScores`)
             """)
-    main_comment = brief_comment
+    main_msg = brief_msg
     if not repeated_message:
-        main_comment += layout("""\
+        main_msg += layout("""\
             In Python class names and named tuples are expected to be in Pascal
             Case (also known as upper camel case) rather than the usual snake
             case. E.g. `collections.ChainMap`
@@ -203,8 +203,8 @@ def unpythonic_name_check(block_dets, *, repeated_message=False):
             non-Python code that Python is wrapping.
             """)
     message = {
-        conf.BRIEF: brief_comment,
-        conf.MAIN: main_comment,
+        conf.BRIEF: brief_msg,
+        conf.MAIN: main_msg,
     }
     return message
 
@@ -232,7 +232,7 @@ def short_name_check(block_dets, *, repeated_message=False):
         else:
             name = names.pop()
             short_comment += f"`{name}` is short."
-    brief_comment = layout(f"""\
+    brief_msg = layout(f"""\
         ### Short variable names
 
         Sometimes, short variable names are appropriate - even conventional -
@@ -240,9 +240,9 @@ def short_name_check(block_dets, *, repeated_message=False):
 
         {short_comment}
         """)
-    main_comment = brief_comment
+    main_msg = brief_msg
     if not repeated_message:
-        main_comment += (
+        main_msg += (
             layout("""\
 
                 In many programming languages it is idiomatic to use `i`, `j`,
@@ -283,7 +283,7 @@ def short_name_check(block_dets, *, repeated_message=False):
                 """)
         )
     message = {
-        conf.BRIEF: brief_comment,
-        conf.MAIN: main_comment,
+        conf.BRIEF: brief_msg,
+        conf.MAIN: main_msg,
     }
     return message

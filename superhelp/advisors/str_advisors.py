@@ -59,7 +59,7 @@ def assigned_str_overview(block_dets, *, repeated_message=False):
     """
     Provide overview of assigned strings e.g. name = 'Hamish'.
     """
-    brief_comment = ''
+    brief_msg = ''
     str_els = get_str_els(block_dets.element)
     if not str_els:
         return None
@@ -74,20 +74,20 @@ def assigned_str_overview(block_dets, *, repeated_message=False):
         if first:
             first_name = name
             first_val = val
-            brief_comment += layout("""\
+            brief_msg += layout("""\
 
                 #### String Overview
 
                 """)
-        brief_comment += layout(f"""\
+        brief_msg += layout(f"""\
             `{name}` is a string.
 
             """)
     if repeated_message:
-        main_comment = brief_comment
-        extra_comment = ''
+        main_msg = brief_msg
+        extra_msg = ''
     else:
-        brief_comment += layout(f"""\
+        brief_msg += layout(f"""\
             Python makes it easy to do lots of cool things with strings.
 
             """)
@@ -97,18 +97,18 @@ def assigned_str_overview(block_dets, *, repeated_message=False):
         else:
             name2use = 'address'
             val2use = 'Waiuku, New Zealand'
-            brief_comment += layout(f"""\
+            brief_msg += layout(f"""\
                 For illustration, imagine we have string '{val2use}' assigned to
                 `{name2use}`:
 
                 """)
-        main_comment = brief_comment  ## after this brief and main diverge
-        brief_comment += layout(f"""\
+        main_msg = brief_msg  ## after this brief and main diverge
+        brief_msg += layout(f"""\
             {name2use}.upper() returns {val2use.upper()}.
 
             """)
         black_heart = "\N{BLACK HEART}"
-        main_comment += layout(f"""\
+        main_msg += layout(f"""\
             Examples:
 
             {name2use}.upper() returns {val2use.upper()}.
@@ -128,7 +128,7 @@ def assigned_str_overview(block_dets, *, repeated_message=False):
 
             sorted({name2use}) returns {sorted(val2use)}
             """)
-        extra_comment = layout("""\
+        extra_msg = layout("""\
             .upper(), .center() etc are abilities available with all Python
             strings. Technically they are methods of string objects. They start
             with a dot and are on the end of the object.
@@ -142,15 +142,15 @@ def assigned_str_overview(block_dets, *, repeated_message=False):
             strings include sorted() and print().
             """)
     message = {
-        conf.BRIEF: brief_comment,
-        conf.MAIN: main_comment,
-        conf.EXTRA: extra_comment,
+        conf.BRIEF: brief_msg,
+        conf.MAIN: main_msg,
+        conf.EXTRA: extra_msg,
     }
     return message
 
 def str_combination(combination_type, str_els, *, repeated_message=False):
     global F_STR_REMINDER
-    brief_comment = ''
+    brief_msg = ''
     title = None
     for str_el in str_els:
         try:
@@ -172,14 +172,14 @@ def str_combination(combination_type, str_els, *, repeated_message=False):
 
             ### Strings created by combining or interpolating strings
             """)
-            brief_comment += title
-        brief_comment += layout(f"""\
+            brief_msg += title
+        brief_msg += layout(f"""\
 
             {name} is created using {combination_comment}.
             """)
     message = {
-        conf.BRIEF: brief_comment,
-        conf.MAIN: brief_comment,
+        conf.BRIEF: brief_msg,
+        conf.MAIN: brief_msg,
     }
     if combination_type != F_STR and not repeated_message:
         if not F_STR_REMINDER:

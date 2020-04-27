@@ -5,8 +5,8 @@ from ..utils import get_nice_str_list, layout_comment as layout
 
 ASSIGN_DICT_XPATH = 'descendant-or-self::Assign/value/Dict'
 
-def _get_additional_main_comment(first_name):
-    additional_main_comment = (
+def _get_additional_main_msg(first_name):
+    additional_main_msg = (
         layout(f"""
 
             It is common to iterate through the key-value pairs of a dictionary.
@@ -45,10 +45,10 @@ def _get_additional_main_comment(first_name):
 
             """, is_code=True)
     )
-    return additional_main_comment
+    return additional_main_msg
 
 def _get_minimal_dict_details(block_dets, dict_els, plural):
-    brief_comment = ''
+    brief_msg = ''
     for i, dict_el in enumerate(dict_els):
         first = (i == 0)
         name = get_assign_name(dict_el)
@@ -60,20 +60,20 @@ def _get_minimal_dict_details(block_dets, dict_els, plural):
                 ### Dictionar{plural} defined
 
                 """)
-            brief_comment += title
-        brief_comment += layout(f"""\
+            brief_msg += title
+        brief_msg += layout(f"""\
 
             `{name}` is a dictionary with {utils.int2nice(len(items))} items
             (i.e. {utils.int2nice(len(items))} mappings).
             """)
     message = {
-        conf.BRIEF: brief_comment,
+        conf.BRIEF: brief_msg,
     }
     return message
 
 def _get_full_dict_details(block_dets, dict_els, plural):
-    brief_comment = ''
-    main_comment = ''
+    brief_msg = ''
+    main_msg = ''
     first_name = None
     for i, dict_el in enumerate(dict_els):
         first = (i == 0)
@@ -87,15 +87,15 @@ def _get_full_dict_details(block_dets, dict_els, plural):
                 ### Dictionar{plural} defined
 
                 """)
-            brief_comment += title
-            main_comment += title
+            brief_msg += title
+            main_msg += title
 
-            brief_comment += layout("""\
+            brief_msg += layout("""\
 
                 Dictionaries map keys to values.
 
                 """)
-            main_comment += layout("""\
+            main_msg += layout("""\
 
                 Dictionaries, along with lists, are the workhorses of Python
                 data structures.
@@ -121,20 +121,20 @@ def _get_full_dict_details(block_dets, dict_els, plural):
                 `.values()` method e.g. `{name}`.`values()`.
 
                 """)
-        brief_comment += list_desc
-        main_comment += list_desc
+        brief_msg += list_desc
+        main_msg += list_desc
    
-        brief_comment += layout("""\
+        brief_msg += layout("""\
 
             Keys are unique but values can be repeated.
 
             Dictionaries, along with lists, are the workhorses of Python data
             structures.
             """)
-    main_comment += _get_additional_main_comment(first_name)
+    main_msg += _get_additional_main_msg(first_name)
     message = {
-        conf.BRIEF: brief_comment,
-        conf.MAIN: main_comment,
+        conf.BRIEF: brief_msg,
+        conf.MAIN: main_msg,
         conf.EXTRA: layout("""\
 
             Python dictionaries (now) keep the order in which items are added.
@@ -179,8 +179,8 @@ def mixed_key_types(block_dets, *, repeated_message=False):
     Warns about dictionaries with mix of string and integer keys.
     """
     dict_els = block_dets.element.xpath(ASSIGN_DICT_XPATH)
-    brief_comment = ''
-    main_comment = ''
+    brief_msg = ''
+    main_msg = ''
     has_mixed = False
     mixed_names = []
     for i, dict_el in enumerate(dict_els):
@@ -201,8 +201,8 @@ def mixed_key_types(block_dets, *, repeated_message=False):
                 ### Mix of integer and string keys in dictionary
 
                 """)
-            brief_comment += title
-            main_comment += title
+            brief_msg += title
+            main_msg += title
     if not has_mixed:
         return None
     multiple = len(mixed_names) > 1
@@ -219,11 +219,11 @@ def mixed_key_types(block_dets, *, repeated_message=False):
             `{name}`'s keys include both strings and integers which is probably
             a bad idea.
             """)
-    brief_comment += mixed_warning
-    main_comment += mixed_warning
+    brief_msg += mixed_warning
+    main_msg += mixed_warning
 
     if not repeated_message:
-        main_comment += layout("""\
+        main_msg += layout("""\
 
             For example, if you have both 1 and "1" as keys in a dictionary
             (which is allowed because they are not the same key) it is very easy
@@ -232,7 +232,7 @@ def mixed_key_types(block_dets, *, repeated_message=False):
             """)
 
     message = {
-        conf.BRIEF: brief_comment,
-        conf.MAIN: main_comment,
+        conf.BRIEF: brief_msg,
+        conf.MAIN: main_msg,
     }
     return message

@@ -12,7 +12,7 @@ def listcomp_overview(block_dets, *, repeated_message=False):
     comprehension available in Python.
     """
     listcomp_els = block_dets.element.xpath(ASSIGN_LISTCOMP_XPATH)
-    brief_comment = ''
+    brief_msg = ''
     plural = 's' if len(listcomp_els) > 1 else ''
     for i, dict_el in enumerate(listcomp_els):
         first = (i == 0)
@@ -25,16 +25,16 @@ def listcomp_overview(block_dets, *, repeated_message=False):
                 ### List comprehension{plural} used
 
                 """)
-            brief_comment += title
-        brief_comment += layout(f"""
+            brief_msg += title
+        brief_msg += layout(f"""
 
             `{name}` is a list comprehension returning a list
             with {utils.int2nice(len(items))} items: {items}
             """)
     if repeated_message:
-        extra_comment = ''
+        extra_msg = ''
     else:
-        extra_comment = (
+        extra_msg = (
             layout(f"""\
                 ### Other "comprehensions"
 
@@ -56,7 +56,7 @@ def listcomp_overview(block_dets, *, repeated_message=False):
                 """)
         )
     message = {
-        conf.BRIEF: brief_comment,
-        conf.EXTRA: extra_comment,
+        conf.BRIEF: brief_msg,
+        conf.EXTRA: extra_msg,
     }
     return message

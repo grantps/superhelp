@@ -52,7 +52,7 @@ def num_overview(block_dets, *, repeated_message=False):
         has_num = True
     if not has_num:
         return None
-    brief_comment = ''
+    brief_msg = ''
     for val_type, names in val_types.items():
         names_text = get_nice_str_list(names, quoter='`')
         if len(names) == 1:
@@ -65,7 +65,7 @@ def num_overview(block_dets, *, repeated_message=False):
 
                 {names_text} are numbers - specific type `{val_type}`.
                 """)
-        brief_comment += names_msg
+        brief_msg += names_msg
     if not repeated_message:
         for val_type, names in val_types.items():
             first_name = names[0]
@@ -93,9 +93,9 @@ def num_overview(block_dets, *, repeated_message=False):
                     e.g. int({name}) which returns {int(val)}
                     """)
             if specific_comment:
-                brief_comment += specific_comment
+                brief_msg += specific_comment
     message = {
-        conf.BRIEF: brief_comment,
+        conf.BRIEF: brief_msg,
     }
     if conf.FLOAT_TYPE in val_types and not repeated_message:
         message[conf.EXTRA] = layout(f"""\

@@ -27,13 +27,13 @@ def set_overview(block_dets, *, repeated_message=False):
         name_sets.append((name, my_set))
     if not has_set:
         return None
-    brief_comment = ''
+    brief_msg = ''
     no_duplicates_demo = ''
     for name, my_set in name_sets:
         empty_set = len(my_set) == 0
         if not empty_set:
             members = str(sorted(my_set)).strip('[').strip(']')
-            brief_comment += layout(f"""\
+            brief_msg += layout(f"""\
                 `{name}` is a set with {utils.int2nice(len(my_set))} members:
                 {members}
                 """)
@@ -52,11 +52,11 @@ def set_overview(block_dets, *, repeated_message=False):
                         """, is_code=True)
                 )
         else:
-            brief_comment += layout(f"""\
+            brief_msg += layout(f"""\
                 `{name}` is an empty set.
                 """)
     if not repeated_message:
-        brief_comment += (
+        brief_msg += (
             layout("""\
 
                 Python sets are brilliant. There are often cases in programming
@@ -77,11 +77,11 @@ def set_overview(block_dets, *, repeated_message=False):
                 """, is_code=True)
         )
     if repeated_message:
-        main_comment = brief_comment
-        extra_comment = ''
+        main_msg = brief_msg
+        extra_msg = ''
     else:
-        main_comment = (
-            brief_comment
+        main_msg = (
+            brief_msg
             +
             layout(f"""\
 
@@ -111,7 +111,7 @@ def set_overview(block_dets, *, repeated_message=False):
                 ## >>> {1, 2, 3, 4}
                 """, is_code=True)
         )
-        extra_comment = (
+        extra_msg = (
             layout("""\
                 Set operations can be expressed with operators such as
                 '-' (minus) or with methods such as .difference().
@@ -132,8 +132,8 @@ def set_overview(block_dets, *, repeated_message=False):
                 """, is_code=True)
         )
     message = {
-        conf.BRIEF: brief_comment,
-        conf.MAIN: main_comment,
-        conf.EXTRA: extra_comment,
+        conf.BRIEF: brief_msg,
+        conf.MAIN: main_msg,
+        conf.EXTRA: extra_msg,
     }
     return message
