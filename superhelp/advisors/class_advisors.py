@@ -51,7 +51,7 @@ def getters_setters(block_dets, *, repeated_message=False):
                 """)
     if not repeated_message:
         brief_msg += layout("""\
-    
+
             Python doesn't need getters and setters. Instead, you can use
             properties. These are easily added using decorators e.g.
             `@property`.

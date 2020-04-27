@@ -1,6 +1,6 @@
 # https://git.nzoss.org.nz/pyGrant/superhelp
 
-version number: 0.1.16
+version number: 0.9.0
 author: Grant Paton-Simpson
 
 ## Overview

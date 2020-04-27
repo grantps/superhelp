@@ -15,6 +15,7 @@ def test_misc():
                 ROOT + 'missing_else': 0,
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 0,
             }
         ),
         (
@@ -27,6 +28,7 @@ def test_misc():
                 ROOT + 'missing_else': 0,
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 0,
             }
         ),
         (
@@ -41,6 +43,7 @@ def test_misc():
                 ROOT + 'missing_else': 1,
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 0,
             }
         ),
         (
@@ -57,6 +60,7 @@ def test_misc():
                 ROOT + 'missing_else': 0,
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 0,
             }
         ),
         (
@@ -72,6 +76,7 @@ def test_misc():
                 ROOT + 'missing_else': 1,
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 0,
             }
         ),
         (
@@ -89,6 +94,7 @@ def test_misc():
                 ROOT + 'missing_else': 0,
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 0,
             }
         ),
         (
@@ -113,6 +119,7 @@ def test_misc():
                 ROOT + 'missing_else': 0,
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 0,
             }
         ),
         (
@@ -135,6 +142,7 @@ def test_misc():
                 ROOT + 'missing_else': 1,
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 0,
             }
         ),
         (
@@ -147,6 +155,7 @@ def test_misc():
                 ROOT + 'missing_else': 0,
                 ROOT + 'split_group_membership': 1,
                 ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 0,
             }
         ),
         (
@@ -159,6 +168,7 @@ def test_misc():
                 ROOT + 'missing_else': 0,
                 ROOT + 'split_group_membership': 0,  ## only dealing with simple cases of all same type and either str or num
                 ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 0,
             }
         ),
         (
@@ -172,6 +182,7 @@ def test_misc():
                 ROOT + 'missing_else': 0,
                 ROOT + 'split_group_membership': 1,
                 ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 0,
             }
         ),
         (
@@ -192,6 +203,7 @@ def test_misc():
                 ROOT + 'missing_else': 0,
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 1,  ## per block but no repeats
+                ROOT + 'short_circuit': 0,
             }
         ),
         (
@@ -212,6 +224,7 @@ def test_misc():
                 ROOT + 'missing_else': 0,
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,  ## explicit counts not used as empty/non-empty boolean
+                ROOT + 'short_circuit': 0,
             }
         ),
         (
@@ -229,6 +242,7 @@ def test_misc():
                 ROOT + 'missing_else': 0,  ## saved from being an elif by having a return inside the else:
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 0,
             }
         ),
         (
@@ -246,6 +260,114 @@ def test_misc():
                 ROOT + 'missing_else': 1,  ## the else: if is effectively an elif because nothing else under it
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 0,
+            }
+        ),
+        (
+            dedent("""\
+            if word is not None:
+                if len(word) > 20:
+                    pass
+                pass
+            """),
+            {
+                ROOT + 'if_else_overview': 1,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 0,  ## has other code relying on first expression
+            }
+        ),
+        (
+            dedent("""\
+            if word is not None:
+                if len(word) > 20:
+                    pass
+                else:
+                    pass
+            """),
+            {
+                ROOT + 'if_else_overview': 1,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 0,  ## has other code relying on first expression
+            }
+        ),
+        (
+            dedent("""\
+            if word is not None:
+                if len(word) > 20:
+                    pass
+            """),
+            {
+                ROOT + 'if_else_overview': 1,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 1,
+            }
+        ),
+        (
+            dedent("""\
+            for i in range(2):
+                if word is not None:
+                    if len(word) > 20:
+                        pass
+            """),
+            {
+                ROOT + 'if_else_overview': 1,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 1,
+            }
+        ),
+        (
+            dedent("""\
+            if word is not None:
+                if len(word) > 20:
+                    pass
+
+            if word is not None:
+                if len(word) > 20:
+                    pass
+                else:
+                    pass
+
+            if word is not None:
+                if len(word) > 20:
+                    pass
+                pass
+            """),
+            {
+                ROOT + 'if_else_overview': 3,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 1,
+            }
+        ),
+        (
+            dedent("""\
+            if word is not None:
+                if len(word) > 20:
+                    pass
+
+            if word is not None:
+                if len(word) > 20:
+                    pass
+
+            if word is not None:
+                if len(word) > 20:
+                    pass
+            """),
+            {
+                ROOT + 'if_else_overview': 3,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 3,
             }
         ),
     ]

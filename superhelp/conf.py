@@ -27,13 +27,20 @@ else:
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 
 TEST_SNIPPET = """\
-class Demo:
-    def __init__(self, x):
-        self.__x = x
-    def get_x(self):
-        return self.__x
-    def set_x(self, x):
-        self.__x  == x
+if word is not None:
+    if len(word) > 20:
+        pass
+
+if word is not None:
+    if len(word) > 20:
+        pass
+    else:
+        pass
+
+if word is not None:
+    if len(word) > 20:
+        pass
+    pass
 """
 
 DEMO_SNIPPET = """\

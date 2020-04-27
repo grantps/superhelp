@@ -521,3 +521,108 @@ def implicit_boolean_enough(block_dets, *, repeated_message=False):
         conf.BRIEF: brief_msg,
     }
     return message
+
+def could_short_circuit(if_el):
+    """
+    Is there the potential to take advantage of Python's ability to short-
+    circuit and collapse a nested IF into its parent as a single expression?
+
+    The if_el must have an IF as its only child AND that nested IF must have an
+    ORELSE as a child. But that ORELSE must have no children.
+
+    :param element if_el: If element
+    :return: True if the If has the potential to be short-circuited
+    :rtype: bool
+    """
+    body_els = if_el.xpath('body')
+    has_one_body = len(body_els) == 1
+    if not has_one_body:
+        return False
+    body_el = body_els[0]
+    body_children_els = body_el.getchildren()
+    body_one_child = len(body_children_els) == 1
+    if not body_one_child:
+        return False
+    body_child_el = body_children_els[0]
+    sole_child_is_if = body_child_el.tag == 'If'
+    if not sole_child_is_if:
+        return False
+    nested_if_el = body_child_el
+    nested_if_orelse_els = nested_if_el.xpath('orelse')
+    one_orelse = len(nested_if_orelse_els) == 1
+    if not one_orelse:
+        return False
+    nested_if_orelse_el = nested_if_orelse_els[0]
+    orelse_has_children = bool(nested_if_orelse_el.getchildren())
+    if orelse_has_children:
+        return False
+    ## we have an IF with one child which is an IF and the nested IF's ORELSE has no children
+    return True
+
+@filt_block_advisor(xpath=IF_XPATH)
+def short_circuit(block_dets, *, repeated_message=False):
+    """
+    Look for cases where short-circuiting is possible.
+    """
+    if_els = block_dets.element.xpath(IF_XPATH)
+    could_short_circuit_something = False
+    for if_el in if_els:
+        if could_short_circuit(if_el):
+            could_short_circuit_something = True
+            break
+    if not could_short_circuit_something:
+        return None
+    brief_msg = layout("""\
+
+        ### Potential to collapse `if`s (possibly relying on short-circuiting)
+
+        This code contains nested `if`s that could potentially be collapsed into
+        one single conditional expression.
+
+        """)
+    if not repeated_message:
+        brief_msg += layout("""\
+            If the second `if` can only be run once the first `if` has been
+            evaluated as True it is still possible to combine the two
+            expressions - as long as the two expressions are combined with `and`
+            AND the test to see if the nested expression can be run comes first.
+            We can do this because Python supports "short-circuiting" :-).
+            """)
+    main_msg = brief_msg
+    if not repeated_message:
+        main_msg += (
+            layout("""\
+
+                For example, we can rewrite the following:
+
+                """)
+            +
+            layout("""\
+
+                if word is not None:
+                    ## the next expression would raise TypeError: object of type
+                    ## 'NoneType' has no len() if word was None and it got this far
+                    if len(word) > 20:
+                        print(f"'{word}' is a long word")
+
+                """, is_code=True)
+            +
+            layout("""\
+
+                as:
+
+                """)
+            +
+            layout("""\
+                ## the second clause is only evaluated if the first evaluates as True
+                ## i.e. we have relied on short-circuiting
+                if word is not None and len(word) > 20:
+                    print(f"'{word}' is a long word")
+
+                """, is_code=True)
+        )
+    message = {
+        conf.BRIEF: brief_msg,
+        conf.MAIN: main_msg,
+    }
+    return message
