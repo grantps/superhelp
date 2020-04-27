@@ -47,3 +47,17 @@ def check_as_expected(test_conf):
              f"\n\nActual:\n{actual_source_freqs}"
             )
         )
+
+def get_repeated_lines(*, item='pass', lpad=16, n_lines=100):
+    """
+    :return: E.g.
+     '''pass
+     pass
+     pass
+     pass
+     pass
+     pass'''
+    :rtype: str
+    """
+    repeated_lines = ('\n' + (lpad * ' ')).join([item]*n_lines)
+    return repeated_lines

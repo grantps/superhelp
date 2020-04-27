@@ -26,20 +26,136 @@ else:
 
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 
-EXAMPLE_SNIPPET = """\
-def sorted(my_list):
-    sorted_list = my_list.sort()
-    return sorted_list
-"""
-
 TEST_SNIPPET = """\
-class Onsie:
-    def __init__(self):
-        pass
-    def one(self):
-        pass
-#     def two(self):
-#         pass
+for i in range(2):
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+while True:
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    break
+if 1 == 1:
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+elif 2 == 2:
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
+    pass
 """
 
 DEMO_SNIPPET = """\
@@ -221,6 +337,7 @@ MAX_BRIEF_FUNC_LOC = 35
 MAX_BRIEF_FUNC_ARGS = 6
 MIN_BRIEF_DOCSTRING = 3
 MIN_BRIEF_NAME = 3
+MAX_BRIEF_NESTED_BLOCK = 20
 
 FUNCTION_LBL = 'function'
 METHOD_LBL = 'method'

@@ -1,6 +1,6 @@
 
 git:
-
+	sed -i 's/^test_misc()/# test_misc()/' /home/g/projects/superhelp/tests/*.py
 	sed -i 's/RECORD_AST = t/RECORD_AST = f/' /home/g/projects/superhelp/superhelp/conf.py
 	sed -i 's/DEV_MODE = t/DEV_MODE = f/' /home/g/projects/superhelp/superhelp/conf.py
 	sed -i 's/DO_TEST = f/DO_TEST = t/' /home/g/projects/superhelp/superhelp/conf.py

@@ -1,20 +1,6 @@
 from textwrap import dedent
 
-from tests import check_as_expected
-
-def get_repeated_lines(*, item='pass', lpad=16, n_lines=100):
-    """
-    :return: E.g.
-     '''pass
-     pass
-     pass
-     pass
-     pass
-     pass'''
-    :rtype: str
-    """
-    repeated_lines = ('\n' + (lpad * ' ')).join([item]*n_lines)
-    return repeated_lines
+from tests import check_as_expected, get_repeated_lines
 
 excess_args = ', '.join(['arg' + str(i) for i in range(100)])
 

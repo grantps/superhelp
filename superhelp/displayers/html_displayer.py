@@ -397,6 +397,13 @@ li {
 label {
   font-size: 12px;
 }
+blockquote {
+  font-style: italic;
+  color: #666666;
+}
+blockquote p {
+  font-size: 13px;
+}
 svg {
   height: 50px;
   width: 60px;
