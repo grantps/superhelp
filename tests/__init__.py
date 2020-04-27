@@ -13,6 +13,10 @@ def get_actual_source_freqs(messages_dets, expected_source_freqs):
     those that we require (and how often) and those we ban (we expect those 0
     times).
 
+    Note - exclude system-generated messages e.g. a message fails to run so we
+    get a message all right but it is a message reporting the problem. Don't
+    count those ;-).
+
     :param list messages_dets: list of MessageDets named tuples
     :param dict expected_source_freqs: keys are sources (strings) and values are
      integers. The integer should be set to 0 if we want to explicitly ban a

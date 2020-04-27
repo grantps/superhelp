@@ -184,12 +184,14 @@ def get_message_dets_from_input(advisor_dets, *,
                 layout_comment(str(e))
             )
         }
+        source = conf.SYSTEM_MESSAGE
         warning = True
     else:
+        source = name
         warning = advisor_dets.warning
         if message is None:
             return None
-    message = complete_message(message, source=advisor_dets.advisor_name)
+    message = complete_message(message, source=source)
     message_dets = MessageDets(
         code_str, message, first_line_no, warning, source=name)
     return message_dets
