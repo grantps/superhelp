@@ -13,6 +13,7 @@ def test_misc():
             {
                 ROOT + 'one_method_classes': 0,
                 ROOT + 'selfless_methods': 0,
+                ROOT + 'getters_setters': 0,
             }
         ),
         (
@@ -23,6 +24,7 @@ def test_misc():
             {
                 ROOT + 'one_method_classes': 1,
                 ROOT + 'selfless_methods': 0,
+                ROOT + 'getters_setters': 0,
             }
         ),
         (
@@ -34,6 +36,7 @@ def test_misc():
             {
                 ROOT + 'one_method_classes': 1,
                 ROOT + 'selfless_methods': 1,
+                ROOT + 'getters_setters': 0,
             }
         ),
         (
@@ -47,6 +50,7 @@ def test_misc():
             {
                 ROOT + 'one_method_classes': 1,
                 ROOT + 'selfless_methods': 1,
+                ROOT + 'getters_setters': 0,
             }
         ),
         (
@@ -58,6 +62,7 @@ def test_misc():
             {
                 ROOT + 'one_method_classes': 1,
                 ROOT + 'selfless_methods': 1,
+                ROOT + 'getters_setters': 0,
             }
         ),
         (
@@ -73,6 +78,7 @@ def test_misc():
             {
                 ROOT + 'one_method_classes': 0,
                 ROOT + 'selfless_methods': 1,
+                ROOT + 'getters_setters': 0,
             }
         ),
         (
@@ -89,6 +95,7 @@ def test_misc():
             {
                 ROOT + 'one_method_classes': 0,
                 ROOT + 'selfless_methods': 1,
+                ROOT + 'getters_setters': 0,
             }
         ),
         (
@@ -103,6 +110,7 @@ def test_misc():
             {
                 ROOT + 'one_method_classes': 1,
                 ROOT + 'selfless_methods': 1,
+                ROOT + 'getters_setters': 0,
             }
         ),
         (
@@ -116,6 +124,7 @@ def test_misc():
             {
                 ROOT + 'one_method_classes': 0,
                 ROOT + 'selfless_methods': 1,
+                ROOT + 'getters_setters': 0,
             }
         ),
         (
@@ -129,6 +138,7 @@ def test_misc():
             {
                 ROOT + 'one_method_classes': 0,
                 ROOT + 'selfless_methods': 0,
+                ROOT + 'getters_setters': 0,
             }
         ),
         (
@@ -143,6 +153,7 @@ def test_misc():
             {
                 ROOT + 'one_method_classes': 0,
                 ROOT + 'selfless_methods': 1,
+                ROOT + 'getters_setters': 0,
             }
         ),
         (
@@ -161,6 +172,7 @@ def test_misc():
             {
                 ROOT + 'one_method_classes': 0,
                 ROOT + 'selfless_methods': 1,
+                ROOT + 'getters_setters': 0,
             }
         ),
         (
@@ -179,6 +191,23 @@ def test_misc():
             {
                 ROOT + 'one_method_classes': 0,
                 ROOT + 'selfless_methods': 2,
+                ROOT + 'getters_setters': 0,
+            }
+        ),
+        (
+            dedent("""\
+            class Demo:
+                def __init__(self, x):
+                    self.__x = x
+                def get_x(self):
+                    return self.__x
+                def set_x(self, x):
+                    self.__x  == x
+            """),
+            {
+                ROOT + 'one_method_classes': 0,
+                ROOT + 'selfless_methods': 0,
+                ROOT + 'getters_setters': 1,
             }
         ),
     ]

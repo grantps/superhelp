@@ -10,6 +10,188 @@ from ..utils import get_nice_str_list, layout_comment as layout
 CLASS_XPATH = ('descendant-or-self::ClassDef')
 
 @filt_block_advisor(xpath=CLASS_XPATH, warning=True)
+def getters_setters(block_dets, *, repeated_message=False):
+    """
+    Look for getters and setters and suggest @property if appropriate.
+    """
+    class_els = block_dets.element.xpath(CLASS_XPATH)
+    if not class_els:
+        return None
+    class_getter_setter_methods = defaultdict(list)
+    for class_el in class_els:
+        class_name = class_el.get('name')
+        method_els = class_el.xpath('body/FunctionDef')
+        for method_el in method_els:
+            method_name = method_el.get('name')
+            if method_name.startswith(('set_', 'get_')):
+                class_getter_setter_methods[class_name].append(method_name)
+    if not class_getter_setter_methods:
+        return None
+    brief_msg = layout("""\
+
+        ### Alternative to getters and setters
+
+        """)
+    for class_name, method_names in sorted(class_getter_setter_methods.items()):
+        multiple = len(method_names) > 1
+        if multiple:
+            nice_list = get_nice_str_list(method_names, quoter='`')
+            brief_msg += layout(f"""\
+
+                Class `{class_name}` has the following methods that look like
+                either getters or setters: {nice_list}.
+                """)
+        else:
+            method_type = (
+                'getter' if method_name.startswith('get_') else 'setter')
+            brief_msg += layout(f"""\
+
+                Class `{class_name}` has a `{method_names[0]}` method that
+                looks like a {method_type}.
+                """)
+    if not repeated_message:
+        brief_msg += layout("""\
+    
+            Python doesn't need getters and setters. Instead, you can use
+            properties. These are easily added using decorators e.g.
+            `@property`.
+
+            """)
+    main_msg = brief_msg
+    if not repeated_message:
+        tm = '\N{TRADE MARK SIGN}'
+        main_msg += (
+            layout(f"""\
+                A good discussion of getters, setters, and properties can be
+                found at <https://www.python-course.eu/python3_properties.php>.
+
+                Getters and setters are usually added in other languages such as
+                Java because direct attribute access doesn't give the ability to
+                calculate results or otherwise run a process when a value is
+                accessed / written.
+
+                And it is common for lots of getters and setters to be added,
+                whether or not they are actually needed - Just In Case{tm}. The
+                fear is that if you point other code to an attribute, and you
+                later need to process the attribute or derive it before it is
+                served up or stored, then you'll need to make a breaking change
+                to your code. All the client code referencing the attribute will
+                have to be rewritten to replace direct access with a reference
+                to the appropriate getter or setter. Understandably then the
+                inclination is to point to a getter or setter in the first case
+                even if it doesn't actually do anything different (for now at
+                least) from direct access. Using these getters and setters is
+                wasteful, and bloats code unnecessarily, but it avoids the worse
+                evil of regularly broken interfaces. The benefit is that you can
+                change implementation later if you need to and nothing will
+                break. But in Python there is a much better way :-).
+
+                Let's compare the getter / setter approach and the property
+                approach.
+
+                #### Using getters / setters
+
+            """)
+            +
+            layout("""
+
+                class Person:
+
+                    def __init__(self, name):
+                        self.__name = name
+
+                    def get_name(self):
+                        return self.__name
+
+                    def set_name(self, name):
+                        if name is not None:
+                            self.__name = name
+
+                """, is_code=True)
+            +
+            layout("""\
+
+                #### Using properties
+
+                """)
+            +
+            layout("""
+
+                class Person:
+
+                    def __init__(self, name):
+                        self.name = name
+
+                    @property  ## the getter
+                    def name(self):
+                        return self.__name
+
+                    @name.setter  ## the setter
+                    def name(self, name):
+                        if name is not None:
+                            self.__name = name
+
+                """, is_code=True)
+            +
+            layout("""\
+
+                We must define the getter earlier in the script than the setter
+                because the setter references the getter name. If it is not
+                already defined above it we will get a `NameError` because
+                Python doesn't yet know the variable_name part of the
+                `@<variable_name>.setter`.
+
+                In the `\_\_init\_\_` method we can either directly set the
+                "private" variable `self.__name` (note - unenforced in Python)
+                or set the public variable `self.name` and pass through the
+                setter. Passing through the setter makes more sense - presumably
+                there are some smarts in the setter we want applied otherwise we
+                wouldn't have gone to the trouble of making it ;-).
+
+                You will have also noticed that the method name is defined twice
+                without the second one overwriting the first (the standard
+                behaviour). The decorators take care of all that. The only thing
+                to remember is to use exactly the same attribute name in three
+                places (assuming both getting and setting):
+
+                """)
+            +
+            layout("""\
+
+                @property
+                def here():  ## <== 1
+                    ...
+
+                @here.setter  ## <== 2
+                def here():  ## <== 3
+                    ...
+
+                """, is_code=True)
+        )
+        if repeated_message:
+            extra_msg = ''
+        else:
+            extra_msg = (
+                layout("""\
+                    Python also has a `deleter` decorator which handle deletion
+                    of the attribute e.g.
+
+                    """)
+                +
+                layout("""\
+                    @name.deleter
+                    def name(self):
+                        ...
+                    """, is_code=True)
+            )
+        message = {
+            conf.BRIEF: brief_msg,
+            conf.MAIN: main_msg,
+            conf.EXTRA: extra_msg,
+        }
+        return message
+
+@filt_block_advisor(xpath=CLASS_XPATH, warning=True)
 def selfless_methods(block_dets, *, repeated_message=False):
     """
     Look for class methods that don't use self as candidates for @staticmethod
@@ -41,7 +223,7 @@ def selfless_methods(block_dets, *, repeated_message=False):
         ### Method doesn't use instance
 
         """)
-    for class_name, method_names in class_selfless_methods.items():
+    for class_name, method_names in sorted(class_selfless_methods.items()):
         multiple = len(method_names) > 1
         if multiple:
             nice_list = get_nice_str_list(method_names, quoter='`')
@@ -49,6 +231,12 @@ def selfless_methods(block_dets, *, repeated_message=False):
 
                 Class `{class_name}` has the following methods that don't use
                 the instance (usually called `self`): {nice_list}.
+                """)
+        else:
+            brief_msg += layout(f"""\
+
+                Class `{class_name}` has a `{method_names[0]}` method that
+                doesn't use the instance (usually called `self`).
                 """)
     if not repeated_message:
         brief_msg += layout("""\

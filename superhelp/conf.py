@@ -28,12 +28,12 @@ else:
 
 TEST_SNIPPET = """\
 class Demo:
-    def yell(text):
-        print(text)
-    def not_used(self, foo):
-        print(foo)
-    def used(self, text):
-        self.yell(text)
+    def __init__(self, x):
+        self.__x = x
+    def get_x(self):
+        return self.__x
+    def set_x(self, x):
+        self.__x  == x
 """
 
 DEMO_SNIPPET = """\

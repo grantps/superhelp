@@ -39,7 +39,7 @@ def check_as_expected(test_conf):
     :param list test_conf: list of tuples: snippet, dict of expected message
      sources and their expected frequencies
     """
-    conf.DEV_MODE = True  ## updates XML so we can check what is happening :-)
+    conf.RECORD_AST = True  ## updates XML so we can check what is happening :-)
     for snippet, expected_source_freqs in test_conf:
         messages_dets = get_separated_messages_dets(snippet)
         actual_source_freqs = get_actual_source_freqs(
