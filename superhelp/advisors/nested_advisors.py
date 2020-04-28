@@ -29,6 +29,112 @@ def has_long_block(block_el, xpath):
             break
     return long_block
 
+def get_short_circuit_alt_msgs(brief_msg, main_msg):
+    """
+    Messages exploring option of unnesting indented block by exiting early if
+    the conditional in the if expression is not met.
+    """
+    brief_msg += layout("""\
+
+        #### Short-circuit and exit early
+
+        It may be possible to unnest the indented code block by exiting early if
+        the condition in the `if` expression is not met.
+        """)
+    main_msg += brief_msg
+    main_msg += (
+        layout("""
+
+            For example, instead of:
+
+            """)
+        +
+        layout("""\
+            if tall_enough:
+                ## add to basketball team
+                line 1
+                line 2
+                line 3
+                ...
+                line 30
+            logging.info("Finished!")
+            """, is_code=True)
+        +
+        layout("""\
+
+            we could possibly write:
+
+            """)
+        +
+        layout('''\
+            if not tall_enough:
+                return
+            ## add to basketball team
+            line 1
+            line 2
+            line 3
+            ...
+            line 30
+            logging.info("Finished!")
+            ''', is_code=True)
+    )
+    return brief_msg, main_msg
+
+def get_func_alt_msgs(brief_msg, main_msg):
+    """
+    Messages exploring option of replacing nested block with a function call.
+    """
+    move_to_func_msg = layout("""\
+
+        #### Shift to function
+
+        It may be possible to pull most of the nested code block into a function
+        which can be called instead.
+        """)
+    brief_msg += move_to_func_msg
+    main_msg += move_to_func_msg
+    main_msg += (
+        layout("""
+
+            For example, instead of:
+
+            """)
+        +
+        layout("""\
+            for name in names:
+                ## contact name
+                line 1
+                line 2
+                line 3
+                ...
+                line 30
+            logging.info("Finished!")
+            """, is_code=True)
+        +
+        layout("""\
+
+            we could possibly write:
+
+            """)
+        +
+        layout('''\
+            def contact(name):
+                """
+                Contact person ...
+                """
+                line 1
+                line 2
+                line 3
+                ...
+                line 30
+
+            for name in names:
+                contact(name)
+            logging.info("Finished!")
+            ''', is_code=True)
+    )
+    return brief_msg, main_msg
+
 @filt_block_advisor(xpath=NESTING_XPATH, warning=True)
 def bloated_nested_block(block_dets, *, repeated_message=False):
     """
@@ -37,14 +143,17 @@ def bloated_nested_block(block_dets, *, repeated_message=False):
     main code.
     """
     bloated_outer_types = set()
+    included_if = False
     for lbl, outer_xpath in OUTER_XPATHS.items():
         if has_long_block(block_dets.element, outer_xpath):
             bloated_outer_types.add(lbl)
+            if lbl == 'if':
+                included_if = True
     if not bloated_outer_types:
         return None
     brief_msg = layout("""\
         
-        ### Possible option of replacing long nested block with function call
+        ### Possibility of avoiding excessively long nested blocks
 
         """)
     for bloated_outer_type in bloated_outer_types:
@@ -55,53 +164,16 @@ def bloated_nested_block(block_dets, *, repeated_message=False):
     if repeated_message:
         main_msg = brief_msg
         extra_msg = ''
-    else:  ## Hypocrisy alert LOL - I complain here about excessive nested blocks
+    else:
         brief_msg += layout("""\
-
-            It may be possible to pull most of the nested code block into a
-            function which can be called instead.
+            You might want to consider applying a strategy for avoiding
+            excessively long indented blocks:
             """)
-        main_msg = brief_msg
-        main_msg += (
-            layout("""
-
-                For example, instead of:
-
-                """)
-            +
-            layout("""\
-                for name in names:
-                    ## contact name
-                    line 1
-                    line 2
-                    line 3
-                    ...
-                    line 30
-                logging.info("Finished!")
-                """, is_code=True)
-            +
-            layout("""\
-
-                you could possibly write:
-
-                """)
-            +
-            layout('''\
-                def contact(name):
-                    """
-                    Contact person ...
-                    """
-                    line 1
-                    line 2
-                    line 3
-                    ...
-                    line 30
-
-                for name in names:
-                    contact(name)
-                logging.info("Finished!")
-                ''', is_code=True)
-        )
+        main_msg = ''
+        if included_if:
+            brief_msg, main_msg = get_short_circuit_alt_msgs(
+                brief_msg, main_msg)
+        brief_msg, main_msg = get_func_alt_msgs(brief_msg, main_msg)
         extra_msg = layout("""\
             Computers can handle lots of nesting without malfunctioning. Human
             brains are not so fortunate. As it says in The Zen of Python:

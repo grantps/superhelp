@@ -381,9 +381,6 @@ h3 {
 h4 {
   font-size: 11px;
 }
-.warning h4 {
-  margin: 0;
-}
 h5 {
   font-size: 9px;
   font-style: italic;
