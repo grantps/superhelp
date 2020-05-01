@@ -1,3 +1,5 @@
 include README.md
+include example_html_output_1.png
+include example_terminal_output_1.png
 include requirements.txt
 include superhelp/ansi_tables.json

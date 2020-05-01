@@ -27,11 +27,9 @@ else:
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 
 TEST_SNIPPET = """\
-for i in range(2):
-    a = 'jelly'
-    b = 'fish'
-    pet = f'{a}{b}'
-
+def powerMe(num, *, power=2):
+    poweredVal = num ** power
+    return poweredVal
 """
 
 DEMO_SNIPPET = """\

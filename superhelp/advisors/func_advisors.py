@@ -132,6 +132,10 @@ def _get_arg_comment(func_el, *, repeated_message=False):
 
 def _get_return_comment(func_type_lbl, return_elements, *,
         repeated_message=False):
+    """
+    Comment should end without a full stop because calling code adds that to
+    make the sentence structure more explicit.
+    """
     implicit_return_els = [return_element for return_element in return_elements
         if not return_element.getchildren()]
     implicit_returns_n = len(implicit_return_els)
@@ -150,17 +154,15 @@ def _get_return_comment(func_type_lbl, return_elements, *,
     keyword_returns_n = none_returns_n + val_returns_n + implicit_returns_n
     if not keyword_returns_n:
         returns_comment = (
-            f"The {func_type_lbl} does not explicitly return anything.")
+            f"The {func_type_lbl} does not explicitly return anything")
         if not repeated_message:
             returns_comment += (
-                " In which case, in Python, it implicitly returns None")
+                ". In which case, in Python, it implicitly returns `None`")
     else:
         returns_comment = (
             f"The {func_type_lbl} exits via an explicit `return` statement "
             f"{utils.int2nice(keyword_returns_n)} time")
-        if repeated_message:
-            returns_comment += '.'
-        else:
+        if not repeated_message:
             if keyword_returns_n > 1:
                 returns_comment += (
                     f"s. Some people prefer {func_type_lbl}s to have one, and "
@@ -170,8 +172,6 @@ def _get_return_comment(func_type_lbl, return_elements, *,
                     f" the bulk of the {func_type_lbl}. Whatever approach you "
                     f"take make sure your {func_type_lbl} is easy to reason "
                     "about in terms of what it returns and where it exits")
-            else:
-                returns_comment += '.'
     return returns_comment
 
 def _get_exit_comment(func_el, func_type_lbl, *, repeated_message=False):

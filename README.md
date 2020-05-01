@@ -1,6 +1,6 @@
 # https://git.nzoss.org.nz/pyGrant/superhelp
 
-version number: 0.9.2
+version number: 0.9.3
 author: Grant Paton-Simpson
 
 ## Overview
@@ -62,6 +62,14 @@ often.
 
 # Example Usage
 
+## Screenshot from HTML
+
+![Example HTML output](example_html_output_1.png)
+
+## Screenshot from Terminal
+
+![Example Terminal output](example_terminal_output_1.png)
+
 ## Notebook
 
 Add new cell at end with content like:
@@ -95,5 +103,4 @@ The notebook has more detailed instructions at the top.
 
 2) Perhaps add style linting as an option
 
-3) Extend beyond standard library into popular libraries like requests, bottle,
-flask etc.
+3) Extend beyond standard library into popular libraries like requests, bottle, flask etc.
