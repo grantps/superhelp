@@ -1,6 +1,6 @@
 import logging
 import sys
-from textwrap import dedent
+from textwrap import dedent, wrap
 
 from . import conf
 
@@ -58,6 +58,24 @@ def layout_comment(raw_comment, *, is_code=False):
         )
         indented_lines = [f"{' ' * 4}{line}" for line in lines]
         comment = f'\n'.join(indented_lines) + '\n'  ## new line at end needed otherwise content of next str (if any) becomes part of code highlighting
+        comment = f'\n'.join(indented_lines) + '\n'  ## new line at end needed otherwise content of next str (if any) becomes part of code highlighting
     else:
-        comment = dedent(raw_comment)
+        raw_paragraphs = dedent(raw_comment).split('\n\n')  ## we only split paragraphs if two new lines
+        new_paragraphs = []
+        for raw_paragraph in raw_paragraphs:
+            ## replace internal new lines only - we need to preserve the outer ones
+            n_start_new_lines = (
+                len(raw_paragraph) - len(raw_paragraph.lstrip('\n')))
+            n_end_new_lines = (
+                len(raw_paragraph) - len(raw_paragraph.rstrip('\n')))
+            paragraph = raw_paragraph.strip()
+            one_line_paragraph = paragraph.replace('\n', ' ')  ## actually continuations of same line so no need to put on separate lines
+            wrapped_paragraph_lines = wrap(one_line_paragraph)
+            new_paragraph = (
+                (n_start_new_lines * '\n\n')
+                + '\n'.join(wrapped_paragraph_lines)
+                + (n_end_new_lines * '\n\n')
+            )
+            new_paragraphs.append(new_paragraph)
+        comment = '\n' + '\n\n'.join(new_paragraphs)
     return comment

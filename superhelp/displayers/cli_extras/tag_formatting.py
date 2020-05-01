@@ -6,7 +6,7 @@ def _get_vertical_padding_line(length):
 def h(text, level):
     level_colour = cli_conf.LEVEL2COLOUR.get(level)
     bold = False
-    if level == 1:
+    if level <= 2:
         text = text.center(cli_conf.TERMINAL_WIDTH)
         vertical_padding_line = _get_vertical_padding_line(
             length=cli_conf.TERMINAL_WIDTH)
@@ -21,8 +21,8 @@ def h(text, level):
     if level <= 2:
         text = f"{vertical_padding_line}\n{text}\n{vertical_padding_line}"
         bold = True
-    return '\n' + cli_colour.colourise(
-        text, level_colour, reverse=True, bold=bold)
+    return cli_colour.colourise(
+        text, level_colour, reverse=True, bold=bold) + '\n'
 
 def h1(s, **_kwargs):
     return h(s, level=1)
@@ -40,7 +40,7 @@ def h5(s, **_kwargs):
     return h(s, level=5)
 
 def p(text, **_kwargs):
-    return cli_colour.colourise(text, cli_conf.T)
+    return cli_colour.colourise(text.strip('\n') + '\n', cli_conf.T)
 
 def a(text, **_kwargs):
     return cli_colour.colourise_low_vis(text)

@@ -46,6 +46,7 @@ def exception_overview(blocks_dets):
         block_comment_bits.append(layout(f"""\
 
             #### `try`-`except` block{counter}
+
             The following exception handlers were detected: {handlers}
             """))
     block_comments = ''.join(block_comment_bits)

@@ -17,6 +17,7 @@ UNPACKING_COMMENT = (
         """)
     +
     layout(f"""\
+
         #### Un-pythonic :-(
 
         location = (-37, 174, 'Auckland', 'Mt Albert')
@@ -26,6 +27,7 @@ UNPACKING_COMMENT = (
         suburb = location[3]
 
         #### Pythonic :-)
+
         lat, lon, city, suburb = location
         """, is_code=True)
     +
@@ -86,7 +88,9 @@ GENERAL_COMPREHENSION_COMMENT = layout(f"""\
 
 LIST_COMPREHENSION_COMMENT = (
     layout("""\
+
         #### Example List Comprehension:
+
         """)
     +
     layout(f"""\
@@ -140,7 +144,9 @@ LIST_COMPREHENSION_COMMENT = (
 
 DICT_COMPREHENSION_COMMENT = (
     layout("""\
+
     #### Example Dictionary Comprehension:
+
     """)
     +
     layout(f"""\
@@ -196,7 +202,9 @@ DICT_COMPREHENSION_COMMENT = (
 
 SET_COMPREHENSION_COMMENT = (
     layout("""\
+
         #### Example Set Comprehension
+
         """)
     +
     layout(f"""\

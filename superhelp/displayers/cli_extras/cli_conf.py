@@ -105,4 +105,10 @@ BOUNDS2COLOUR = {
     EMPH_BOUNDS: H3_COLOUR,
 }
 
+## https://en.wikipedia.org/wiki/Control_character
+STX = '\x02'  ## Start of transmission of non-data characters
+ETX = '\x03'  ## End of transmission
+
+BADLY_PARSED_UNDERSCORE = f'{STX}95{ETX}'
+
 LINK_START_ORD = ord("①")

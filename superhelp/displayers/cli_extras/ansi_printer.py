@@ -159,7 +159,7 @@ class AnsiPrinter(Treeprocessor):
             return
 
         is_text = (
-            el.text
+            bool(el.text)
             or el.tag == 'p'
             or el.tag == 'li'
             or el.tag.startswith('h')
@@ -187,7 +187,10 @@ class AnsiPrinter(Treeprocessor):
                 text = unescape(text)
             else:
                 text = el.text
+            if cli_conf.BADLY_PARSED_UNDERSCORE in text:
+                text = text.replace(cli_conf.BADLY_PARSED_UNDERSCORE, '_')  ## so __doc__ is displayed not 9595doc9595 when the source md has \_\_doc|_|_
             text = text.strip()
+
             admon_res = AnsiPrinter.handle_admonitions(text)
             text, prefix, body_prefix, admon_lbl_used = admon_res
             # set the parent, e.g. nrs in ols:

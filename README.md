@@ -1,20 +1,20 @@
 # https://git.nzoss.org.nz/pyGrant/superhelp
 
-version number: 0.9.3
+version number: 0.9.4
 author: Grant Paton-Simpson
 
 ## Overview
 
-Superhelp is Help for Humans! The goal is to provide customised help for simple
-code snippets. Superhelp is not intended to replace the built-in Python help but
-to supplement it for basic Python code structures. Superhelp will also be
-opinionated. Help can be provided in a variety of contexts including the
-terminal and web browsers (perhaps as part of on-line tutorials).
+Superhelp is Help for Humans! The goal is to provide customised help for
+simple code snippets. Superhelp is not intended to replace the built-in Python
+help but to supplement it for basic Python code structures. Superhelp will
+also be opinionated. Help can be provided in a variety of contexts including
+the terminal and web browsers (perhaps as part of on-line tutorials).
 
 ## Quick Start
 
-Click the button below to open a Binder Jupyter Notebook you can play around in
-e.g. get advice on a line or snippet of Python
+Click the button below to open a Binder Jupyter Notebook you can play around
+in e.g. get advice on a line or snippet of Python
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/git/https%3A%2F%2Fgit.nzoss.org.nz%2FpyGrant%2Fsuperhelp.git/master?filepath=notebooks%2FSuperhelpDemo.ipynb)
 
@@ -40,12 +40,12 @@ or similar
 
 ## Example Use Cases
 
-* Charlotte is a Python beginner and wants to get advice on a five-line function
-she wrote to display greetings to a list of people. She learns about Python
-conventions for variable naming and better ways of combining strings.
+* Charlotte is a Python beginner and wants to get advice on a five-line
+function she wrote to display greetings to a list of people. She learns about
+Python conventions for variable naming and better ways of combining strings.
 
-* Avi wants to get advice on a named tuple. He learns how to add doc strings to
-individual fields.
+* Avi wants to get advice on a named tuple. He learns how to add doc strings
+to individual fields.
 
 * Zach is considering submitting some code to Stack Overflow but wants to
 improve it first (or possibly get ideas for a solution directly). He discovers
@@ -57,18 +57,18 @@ anything which can be improved. She learns how to use functool.wrap from an
 example provided.
 
 * Al is an experienced Python developer but tends to forget things like doc
-strings in his functions. He learns a standard approach and starts using it more
-often.
+strings in his functions. He learns a standard approach and starts using it
+more often.
 
 # Example Usage
 
 ## Screenshot from HTML
 
-![Example HTML output](example_html_output_1.png)
+![Example HTML output](https://git.nzoss.org.nz/pyGrant/superhelp/-/raw/master/example_html_output_1.png)
 
 ## Screenshot from Terminal
 
-![Example Terminal output](example_terminal_output_1.png)
+![Example Terminal output](https://git.nzoss.org.nz/pyGrant/superhelp/-/raw/master/example_terminal_output_1.png)
 
 ## Notebook
 

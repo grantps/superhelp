@@ -48,15 +48,6 @@ def _get_shamed_names_title(reserved_names, bad_names, dubious_names):
                 title = 'Possibly some un-pythonic names'
     return title
 
-def _get_shamed_names_comment(shamed_names):
-    multiple_shamed_names = len(shamed_names) > 1
-    if multiple_shamed_names:
-        shamed_names_listed = utils.get_nice_str_list(shamed_names, quoter='`')
-        shamed_names_comment = f"{shamed_names_listed} are un-pythonic."
-    else:
-        shamed_names_comment = f"`{shamed_names[0]}` is un-pythonic."
-    return shamed_names_comment
-
 def get_standard_assigned_names(block_dets):
     """
     Only get names where we expect standard pythonic naming. So not named tuple
@@ -201,6 +192,7 @@ def unpythonic_name_check(block_dets, *, repeated_message=False):
             `high_scores` (not `highScores` or `HighScores`)
             """)
         pascal = layout("""\
+
             In Python class names and named tuples are expected to be in Pascal
             Case (also known as upper camel case) rather than the usual snake
             case. E.g. `collections.ChainMap`

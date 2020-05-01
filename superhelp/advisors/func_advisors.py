@@ -219,6 +219,7 @@ def func_overview(block_dets, *, repeated_message=False):
     details = ''.join(detail_bits)
     if not repeated_message:
         args_vs_params = layout(f"""\
+
             There is often confusion about the difference between arguments and
             parameters. {overall_func_type_lbl.title()}s define parameters but
             receive arguments. You can think of parameters as being like car
@@ -539,6 +540,7 @@ def docstring_issues(block_dets, *, repeated_message=False):
             if first and not repeated_message:  ## only want to say it once ;-)
                 summary_bits.append((
                     layout(f"""\
+
                         #### {func_type_lbl.title()} missing doc string
 
                         `{func_name}` lacks a doc string - you should probably add one.
@@ -546,9 +548,9 @@ def docstring_issues(block_dets, *, repeated_message=False):
                         Note - # comments at the top of the {func_type_lbl} do
                         not work as doc strings. Python completely ignores them.
                         If you add a proper doc string, however, it can be
-                        accessed by running help({func_name}) or
-                        {func_name}.\_\_doc\_\_. Which is useful when using this
-                        {func_type_lbl} in bigger projects e.g. in an IDE
+                        accessed by running `help({func_name})` or
+                        `{func_name}.`\_\_doc\_\_. Which is useful when using
+                        this {func_type_lbl} in bigger projects e.g. in an IDE
                         (Integrated Development Environment).
 
                         Here is an example doc string for a simple function
@@ -563,11 +565,12 @@ def docstring_issues(block_dets, *, repeated_message=False):
 
                     #### `{func_name}` lacks a doc string
 
-                    You should probably add a doc tring to `{func_name}`
+                    You should probably add a doc string to `{func_name}`
                     """))
         elif problem == DOCSTRING_TOO_SHORT:
             if first and not repeated_message:
                 summary_bits.append((layout(f"""\
+
                     #### Function doc string too brief?
 
                     The doc string for `{func_name}` seems a little
@@ -580,6 +583,7 @@ def docstring_issues(block_dets, *, repeated_message=False):
                 ))
             else:
                 summary_bits.append(layout(f"""\
+
                     #### Function doc string too brief?
 
                     The doc string for `{func_name}` seems a little short.
