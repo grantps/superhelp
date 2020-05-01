@@ -27,74 +27,11 @@ else:
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 
 TEST_SNIPPET = """\
-if tall_enough:
-    ## add to basketball team
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
+for i in range(2):
+    a = 'jelly'
+    b = 'fish'
+    pet = f'{a}{b}'
+
 """
 
 DEMO_SNIPPET = """\
@@ -125,7 +62,8 @@ def powerMe(num, *, power=2):
 coord = ('lat', 'lon')
 latitude = coord[0]
 longitude = coord[1]
-x, y = coord
+demo = (1, 2, 3, 4)
+x, yy, zz, aaa = demo
 people = set(['Sam', 'Avi', 'Terri', 'Noor'])
 no_email = set(['Sam', 'Terri'])
 people2email = people - no_email
@@ -281,13 +219,15 @@ MAX_BRIEF_NESTED_BLOCK = 20
 FUNCTION_LBL = 'function'
 METHOD_LBL = 'method'
 
+EMAIL2USE = 'superhelp@p-s.co.nz'
+
 NO_ADVICE_MESSAGE = ("No advice to give - looks fine :-). But if you think "
-    "there should have been some advice given, contact grant@p-s.co.nz with "
-    "the subject line 'Advice' and explain. Please include a snippet to test as"
-    " well.")
-MISSING_ADVICE_MESSAGE = ("If there was some advice you think should have been "
-    "given that wasn't, contact grant@p-s.co.nz with the subject line 'Advice' "
-    "and explain. Please include a snippet to test as well.")
+    f"there should have been some advice given, contact {EMAIL2USE} "
+    "with the subject line 'Advice' and explain. Please include a snippet to "
+    "test as well.")
+MISSING_ADVICE_MESSAGE = ("If there was some advice you think should have "
+    f"been given that wasn't, contact {EMAIL2USE} with the subject line "
+    "'Advice' and explain. Please include a snippet to test as well.")
 SYSTEM_MESSAGE = 'System message'
 
 LINE_FEED = '&#10;'

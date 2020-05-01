@@ -193,7 +193,7 @@ def get_message_dets_from_input(advisor_dets, *,
             return None
     message = complete_message(message, source=source)
     message_dets = MessageDets(
-        code_str, message, first_line_no, warning, source=name)
+        code_str, message, first_line_no, warning, source=source)
     return message_dets
 
 def _get_ancestor_block_element(element):

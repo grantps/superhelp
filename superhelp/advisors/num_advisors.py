@@ -52,21 +52,28 @@ def num_overview(block_dets, *, repeated_message=False):
         has_num = True
     if not has_num:
         return None
-    brief_msg = ''
+
+    title = layout("""\
+
+        ### Number details
+
+        """)
+    names_msg_bits = []
     for val_type, names in val_types.items():
         names_text = get_nice_str_list(names, quoter='`')
         if len(names) == 1:
-            names_msg = layout(f"""\
+            names_msg_bits.append(layout(f"""\
 
                 {names_text} is a number - specific type `{val_type}`.
-                """)
+                """))
         else:
-            names_msg = layout(f"""\
+            names_msg_bits.append(layout(f"""\
 
                 {names_text} are numbers - specific type `{val_type}`.
-                """)
-        brief_msg += names_msg
+                """))
+    names_msg = ''.join(names_msg_bits)
     if not repeated_message:
+        specifics_bits = []
         for val_type, names in val_types.items():
             first_name = names[0]
             val = type_firsts[val_type]
@@ -93,19 +100,27 @@ def num_overview(block_dets, *, repeated_message=False):
                     e.g. int({name}) which returns {int(val)}
                     """)
             if specific_comment:
-                brief_msg += specific_comment
+                specifics_bits.append(specific_comment)
+        specifics = ''.join(specifics_bits)
+        if conf.FLOAT_TYPE in val_types:
+            floats = layout(f"""\
+                Floats, or floating point numbers, are stored in computers as
+                binary fractions. "Unfortunately, most decimal fractions cannot
+                be represented exactly as binary fractions. A consequence is
+                that, in general, the decimal floating-point numbers you enter
+                are only approximated by the binary floating-point numbers
+                actually stored in the machine." For more information, read the
+                rest of <https://docs.python.org/3/tutorial/floatingpoint.html>.
+                It is really interesting - honest!
+                """)
+        else:
+            floats = ''
+    else:
+        specifics = ''
+        floats = ''
+
     message = {
-        conf.BRIEF: brief_msg,
+        conf.BRIEF: title + names_msg + specifics,
+        conf.EXTRA: floats,
     }
-    if conf.FLOAT_TYPE in val_types and not repeated_message:
-        message[conf.EXTRA] = layout(f"""\
-            Floats, or floating point numbers, are stored in computers as binary
-            fractions. "Unfortunately, most decimal fractions cannot be
-            represented exactly as binary fractions. A consequence is that, in
-            general, the decimal floating-point numbers you enter are only
-            approximated by the binary floating-point numbers actually stored
-            in the machine." For more information, read the rest of
-            <https://docs.python.org/3/tutorial/floatingpoint.html>. It is
-            really interesting - honest!
-            """)
     return message

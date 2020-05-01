@@ -11,13 +11,6 @@ def tuple_overview(block_dets, *, repeated_message=False):
     Explain usage of tuples.
     """
     tup_els = block_dets.element.xpath(ASSIGN_TUPLE_XPATH)
-    title = layout("""\
-
-        #### Tuple Overview
-
-        """)
-    brief_msg = title
-    main_msg = title
     name_tups = []
     for tup_el in tup_els:
         name = get_assign_name(tup_el)
@@ -26,30 +19,37 @@ def tuple_overview(block_dets, *, repeated_message=False):
         tup = code_execution.get_val(
             block_dets.pre_block_code_str, block_dets.block_code_str, name)
         name_tups.append((name, tup))
-        tup_desc = layout(f"""\
+    if not name_tups:
+        return None
+
+    title = layout("""\
+
+        #### Tuple Overview
+
+        """)
+    summary_bits = []
+    for name, tup in name_tups:
+        summary_bits.append(layout(f"""\
 
             `{name}` is a tuple with {utils.int2nice(len(tup))} items.
 
-            """)
-        brief_msg += tup_desc
-        main_msg += tup_desc
-    if repeated_message:
-        extra_msg = ''
-    else:
-        brief_msg += layout("""\
+            """))
+    summary = ''.join(summary_bits)
+    if not repeated_message:
+        quick_immutability = layout("""\
 
             Tuples are like lists but the items inside cannot be replaced,
             removed, or added to. For example, if we have a list [1, 2] we can
             append a 3 to it. But if we have a tuple (1, 2) we cannot.
 
             """)
-        main_msg += layout("""\
+        pre_immutability = layout("""\
 
             Tuples are like lists but they are immutable. That means
             unchangeable.
 
             """)
-        why_immutability_comment = layout("""
+        why_immutability = layout("""
             But why would we want a data structure with all those limitations -
             wouldn't a list always be better? In practice it is often useful to
             know that a data structure is not being mutated somewhere inside the
@@ -57,16 +57,15 @@ def tuple_overview(block_dets, *, repeated_message=False):
             program is doing and what it cannot be doing. We can also use named
             tuples to improve readability.
             """)
-        brief_msg += why_immutability_comment
-        main_msg += why_immutability_comment
-        brief_msg += layout("""\
+        ordered = layout("""\
 
             Tuples have an order, and can contain duplicate items and items of
             different types (usually not advisable).
 
             """)
-
-        non_empty_name_tups = [(name, tup) for name, tup in name_tups if tup] 
+        non_empty_name_tups = [(name, tup) for name, tup in name_tups if tup]
+        immutability_question = ("So what is tuple immutability in practice? "
+            "It means that tuple items:")
         if non_empty_name_tups:
             first_name, first_tup = non_empty_name_tups[0]
             tup_replaced = list(first_tup)
@@ -78,7 +77,9 @@ def tuple_overview(block_dets, *, repeated_message=False):
             tup_appended = list(first_tup)
             tup_appended.append(3)
             tup_appended = tuple(tup_appended)
-            immutability_comment = layout(f"""
+            longer_immutability = layout(f"""
+                {immutability_question}
+
                 * cannot be *replaced* -
                 so we can't run `{first_name}`[0] = 100 to get {tup_replaced}.
                 It will raise an exception -
@@ -89,25 +90,19 @@ def tuple_overview(block_dets, *, repeated_message=False):
                 get {tup_appended}.
                 """)
         else:
-            immutability_comment = layout(f"""
+            longer_immutability = layout(f"""
+                {immutability_question}
+
                 * cannot be *replaced*. It will raise an exception - TypeError:
                 'tuple' object does not support item assignment)
                 * cannot be *removed*
                 * cannot be *added*
                 """)
-        main_msg += immutability_comment
-        main_msg += layout("""\
-
-            Tuples have an order, and can contain duplicate items and items of
-            different types (usually not advisable).
-
-            """)
-
         friends = ['Selma', 'Willy', 'Principal Skinner']
         family = ['Bart', 'Lisa', 'Marge', 'Homer']
         original_guests = (friends, family)
         guests = (friends + ['Lenny'], family)
-        extra_msg = (
+        extra = (
             layout(f"""\
 
                 #### GOTCHA - immutable means 100% unchangeable right?
@@ -188,9 +183,19 @@ def tuple_overview(block_dets, *, repeated_message=False):
                 spelling and say "tupple".
                 """)
         )
+    else:
+        quick_immutability = ''
+        pre_immutability = ''
+        why_immutability = ''
+        ordered = ''
+        longer_immutability = ''
+        extra = ''
+
     message = {
-        conf.BRIEF: brief_msg,
-        conf.MAIN: main_msg,
-        conf.EXTRA: extra_msg,
+        conf.BRIEF: (title + summary + quick_immutability + why_immutability
+            + ordered),
+        conf.MAIN: (title + summary + pre_immutability + why_immutability
+            + longer_immutability + ordered),
+        conf.EXTRA: extra,
     }
     return message

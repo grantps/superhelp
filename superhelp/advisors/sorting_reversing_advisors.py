@@ -41,33 +41,30 @@ def sorting_reversing_overview(block_dets, *, repeated_message=False):
     sorting_or_reversing_comment = _get_sorting_or_reversing_comment(block_dets)
     if not sorting_or_reversing_comment:
         return None
-    if repeated_message:
-        brief_msg = layout(f"""\
-            ### Sorting / reversing
 
-            This block of code {sorting_or_reversing_comment}.
-            """)
-        main_msg = brief_msg
-    else:
-        brief_msg = layout(f"""\
-            ### Sorting / reversing
+    title = layout("""\
 
-            This block of code {sorting_or_reversing_comment}. Sorting and, to a
-            lesser extent, reversing are very common needs in programming. Two
-            key points:
+        ### Sorting / reversing
+
+        """)
+    minimal = layout(f"""\
+        This block of code {sorting_or_reversing_comment}.
+        """)
+    if not repeated_message:
+        summary = layout(f"""\
+            Sorting and, to a lesser extent, reversing are very common needs in
+            programming. Two key points:
 
             1) reversing is not the same as sorting with `reverse=True`
 
-            2) the list sort method e.g. my_list.`sort()` returns `None`, not the sorted list
+            2) the list sort method e.g. my_list.`sort()` returns `None`, not
+            the sorted list
             """)
-        main_msg = (
+        details = (
             layout(f"""\
-                ### Sorting / reversing
+                Sorting and, to a lesser extent, reversing are very common needs
+                in programming. Two key points:
 
-                This block of code {sorting_or_reversing_comment}. Sorting and,
-                to a lesser extent, reversing are very common needs in
-                programming. Two key points:
-    
                 1) reversing is not the same as sorting with `reverse=True`
 
                 To illustrate:
@@ -91,7 +88,8 @@ def sorting_reversing_overview(block_dets, *, repeated_message=False):
                 sequence being reversed - it merely flips the (possibly)
                 unordered sequence the other way.
 
-                2) the list sort method e.g. `my_list.sort()` returns `None`, not the sorted list
+                2) the list sort method e.g. `my_list.sort()` returns `None`, 
+                not the sorted list
 
                 `sorted(my_list)` returns a sorted list but `my_list.sort()` is
                 an in-place process. It mutates something rather than returning
@@ -129,9 +127,15 @@ def sorting_reversing_overview(block_dets, *, repeated_message=False):
                 ## >>> ['apple', 'banana', 'cranberry']
                 """, is_code=True)
             )
+    else:
+        summary = layout(f"""\
+            This block of code {sorting_or_reversing_comment}.
+            """)
+        details = summary
+
     message = {
-        conf.BRIEF: brief_msg,
-        conf.MAIN: main_msg,
+        conf.BRIEF: title + minimal + summary,
+        conf.MAIN: title + minimal + details,
     }
     return message
 
@@ -151,29 +155,34 @@ def list_sort_as_value(block_dets, *, repeated_message=False):
             names_assigned_to_sort.append(name)
     if not names_assigned_to_sort:
         return None
-    brief_msg = layout(f"""\
+
+    title = layout("""\
+    
         ### Assignment of `None` result from in-place `.sort()` on list
 
         """)
-    multiple = len(names_assigned_to_sort) > 1
-    if multiple:
-        nice_str_list = get_nice_str_list(names_assigned_to_sort, quoter='`')
-        if not repeated_message:
-            brief_msg += layout(f"""\
-            {nice_str_list} are assigned to the results of in-place sort
-            operations. This is almost certainly a mistake as the intention is
-            probably not to set them each to `None` (the return value of the
-            `.sort()` method).
-            """)
-    else:
-        if not repeated_message:
-            brief_msg += layout(f"""\
+    if not repeated_message:
+        multiple = len(names_assigned_to_sort) > 1
+        if multiple:
+            nice_str_list = get_nice_str_list(
+                names_assigned_to_sort, quoter='`')
+            details = layout(f"""\
+                {nice_str_list} are assigned to the results of in-place sort
+                operations. This is almost certainly a mistake as the intention
+                is probably not to set them each to `None` (the return value of
+                the `.sort()` method).
+                """)
+        else:
+            details = layout(f"""\
                 `{name}` is assigned to the result of an in-place sort
                 operation. This is almost certainly a mistake as the intention
                 is probably not to set `{name}` to `None` (the return value of
                 the `.sort()` method).
                 """)
+    else:
+        details = ''
+
     message = {
-        conf.BRIEF: brief_msg,
+        conf.BRIEF: title + details,
     }
     return message

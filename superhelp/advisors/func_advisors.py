@@ -42,6 +42,8 @@ def get_docstring_from_value_3_7(first_value_el):
 def get_docstring_from_value_3_8(first_value_el):
     if first_value_el.tag != 'Constant':
         docstring = None
+    elif first_value_el.get('type') != 'str':
+        docstring = None
     else:
         docstring = first_value_el.get('value')
     return docstring
@@ -197,9 +199,12 @@ def func_overview(block_dets, *, repeated_message=False):
     """
     func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
     overall_func_type_lbl = get_overall_func_type_lbl(func_els)
-    brief_msg = layout(f"""\
+
+    title = layout(f"""\
+
         ### {overall_func_type_lbl.title()} Details
         """)
+    detail_bits = []
     for func_el in func_els:
         func_type_lbl = get_func_type_lbl(func_el)
         name = func_el.get('name')
@@ -207,17 +212,21 @@ def func_overview(block_dets, *, repeated_message=False):
             func_el, repeated_message=repeated_message)
         exit_comment = _get_exit_comment(
             func_el, func_type_lbl, repeated_message=repeated_message)
-        brief_msg += layout(f"""\
+        detail_bits.append(layout(f"""\
 
             The {func_type_lbl} named `{name}` {arg_comment}. {exit_comment}.
+            """))
+    details = ''.join(detail_bits)
+    if not repeated_message:
+        args_vs_params = layout(f"""\
+            There is often confusion about the difference between arguments and
+            parameters. {overall_func_type_lbl.title()}s define parameters but
+            receive arguments. You can think of parameters as being like car
+            parks and arguments as the cars that fill them. You supply arguments
+            to a {overall_func_type_lbl} depending on its parameters.
             """)
-
-    main_msg = brief_msg
-    if repeated_message:
-        extra_msg = ''
-    else:
         if func_type_lbl == conf.METHOD_LBL:
-            main_msg += layout("""\
+            methods = layout("""\
 
                 Methods are functions that sit directly inside a class
                 definition. Unless they are defined as static methods e.g. using
@@ -225,16 +234,16 @@ def func_overview(block_dets, *, repeated_message=False):
                 class as the first parameter - almost always named `self`. But
                 they are basically functions.
                 """)
-        extra_msg = layout(f"""\
-            There is often confusion about the difference between arguments and
-            parameters. {overall_func_type_lbl.title()}s define parameters but
-            receive arguments. You can think of parameters as being like car
-            parks and arguments as the cars that fill them. You supply arguments
-            to a {overall_func_type_lbl} depending on its parameters.
-            """)
+        else:
+            methods = ''
+    else:
+        args_vs_params = ''
+        methods = ''
+
     message = {
-        conf.BRIEF: brief_msg,
-        conf.EXTRA: extra_msg,
+        conf.BRIEF: title + details,
+        conf.MAIN: title + details + methods,
+        conf.EXTRA: args_vs_params,
     }
     return message
 
@@ -245,8 +254,7 @@ def func_len_check(block_dets, *, repeated_message=False):
     """
     func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
     overall_func_type_lbl = get_overall_func_type_lbl(func_els)
-    brief_msg = ''
-    has_short_comment = False
+    long_func_dets = []
     for func_el in func_els:
         func_type_lbl = get_func_type_lbl(func_el)
         name = func_el.get('name')
@@ -259,26 +267,33 @@ def func_len_check(block_dets, *, repeated_message=False):
         if func_lines_n <= conf.MAX_BRIEF_FUNC_LOC:
             continue
         else:
-            if not has_short_comment:
-                brief_msg += layout(f"""\
-                    ### {overall_func_type_lbl.title()} possibly too long
+            long_func_dets.append((name, func_lines_n))
+    if not long_func_dets:
+        return None
 
-                    """)
-                has_short_comment = True
-            brief_msg += layout(f"""\
+    title = layout(f"""\
+
+        ### {overall_func_type_lbl.title()} possibly too long
+
+        """)
+    summary_bits = []
+    for name, func_lines_n in long_func_dets:
+        summary_bits.append(layout(f"""\
 
             `{name}` has {utils.int2nice(func_lines_n)} lines of code
             (including comments but with empty lines ignored).
-            """)
-            if not repeated_message:
-                brief_msg += (
-                    f" Sometimes it is OK for a {func_type_lbl} to be "
-                    "that long but you should consider refactoring the code "
-                    "into smaller units.")
-    if not brief_msg:
-        return None
+            """))
+    summary = ''.join(summary_bits)
+    if not repeated_message:
+        sometimes_ok = (
+            f" Sometimes it is OK for a {func_type_lbl} to be "
+            "that long but you should consider refactoring the code "
+            "into smaller units.")
+    else:
+        sometimes_ok = ''
+
     message = {
-        conf.BRIEF: brief_msg,
+        conf.BRIEF: title + summary + sometimes_ok,
     }
     return message
 
@@ -295,37 +310,43 @@ def func_excess_parameters(block_dets, *, repeated_message=False):
     Warn about functions that might have too many parameters.
     """
     func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
-    brief_msg = ''
-    has_high = False
     overall_func_type_lbl = get_overall_func_type_lbl(func_els)
+    excess_param_dets = []
     for func_el in func_els:
         func_type_lbl = get_func_type_lbl(func_el)
         name = func_el.get('name')
         n_args = get_n_args(func_el)
         high_args = n_args > conf.MAX_BRIEF_FUNC_ARGS
         if high_args:
-            brief_msg += layout(f"""\
-                ### Possibly too many {overall_func_type_lbl} parameters
+            excess_param_dets.append((name, n_args, func_type_lbl))
+    if not excess_param_dets:
+        return None
 
-                """)
-            brief_msg += layout(f"""\
+    title = layout(f"""\
+
+        ### Possibly too many {overall_func_type_lbl} parameters
+
+        """)
+    summary_bits = []
+    for i, (name, n_args, func_type_lbl) in enumerate(excess_param_dets):
+        first = (i == 0)
+        summary_bits.append(layout(f"""\
 
             `{name}` has {n_args:,} parameters.
 
-            """)
-            if not (has_high or repeated_message):
-                brief_msg += layout(f"""\
-                    Sometimes it is OK for a {func_type_lbl} to have that many
-                    but you should consider refactoring the code or collecting
-                    related parameters into single parameters e.g. instead of
-                    receiving image size arguments separately perhaps you could
-                    receive a dictionary of image size argument details.
-                    """)
-            has_high = True
-    if not has_high:
-        return None
+            """))
+        if first and not repeated_message:
+            summary_bits.append(layout(f"""\
+                Sometimes it is OK for a {func_type_lbl} to have that many but
+                you should consider refactoring the code or collecting related
+                parameters into single parameters e.g. instead of receiving
+                image size arguments separately perhaps you could receive a
+                dictionary of image size argument details.
+                """))
+    summary = ''.join(summary_bits)
+
     message = {
-        conf.BRIEF: brief_msg,
+        conf.BRIEF: title + summary,
     }
     return message
 
@@ -359,60 +380,59 @@ def positional_boolean(block_dets, *, repeated_message=False):
     """
     func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
     overall_func_type_lbl = get_overall_func_type_lbl(func_els)
-    brief_msg = ''
-    has_positional_comment = False
+    positional_dets = []
     for func_el in func_els:
         func_type_lbl = get_func_type_lbl(func_el)
         name = func_el.get('name')
         danger_args = get_danger_args(func_el)
         if danger_args:
-            if not has_positional_comment:
-                brief_msg += layout(f"""\
-
-                    ### {overall_func_type_lbl.title()} expects risky positional
-                    arguments
-                    """)
-                if not repeated_message:
-                    brief_msg += layout(f"""\
-
-                    {func_type_lbl.title}s which expect numbers or booleans
-                    (True/False) without requiring keywords are risky. They are
-                    risky when if the {func_type_lbl} is changed later to have
-                    different parameters. For example, greeting(formal=True) is
-                    more intelligible than greeting(True). And intelligible code
-                    is safer to alter / maintain over time than mysterious code.
-                    """)
-            brief_msg += layout(f"""\
-                A partial analysis of `{name}` found the following risky non-
-                keyword (positional) parameters: {danger_args}.
-                """)
-            if not (has_positional_comment) or repeated_message:
-                brief_msg += (
-                    layout("""\
-
-                        Using an asterisk as a pseudo-parameter forces all
-                        parameters to the right to be keywords e.g.
-                        """)
-                    +
-                    layout(f"""\
-                        def greeting(name, *, formal=False):
-                            ...
-                        """, is_code=True)
-                    +
-                    layout(f"""\
-
-                        In this example you couldn't now call the function
-                        greeting('Jo', True) - it would need to be
-                        greeting('Jo', formal=True)
-                        """)
-                )
-            has_positional_comment = True
-    if not has_positional_comment:
+            positional_dets.append((name, func_type_lbl, danger_args))
+    if not positional_dets:
         return None
-    if repeated_message:
-        extra_msg = ''
-    else:
-        extra_msg = layout(f"""\
+
+    title = layout(f"""\
+
+        ### {overall_func_type_lbl.title()} expects risky positional arguments
+        """)
+    summary_bits = []
+    for i, (name, func_type_lbl, danger_args) in enumerate(positional_dets):
+        first = (i == 0)
+        summary_bits.append(layout(f"""\
+            A partial analysis of `{name}` found the following risky non-
+            keyword (positional) parameters: {danger_args}.
+            """))
+        if first and not repeated_message:  ## explaining once is enough ;-)
+            summary_bits.append(layout(f"""\
+
+                {func_type_lbl.title}s which expect numbers or booleans
+                (True/False) without requiring keywords are risky. They are
+                risky when if the {func_type_lbl} is changed later to have
+                different parameters. For example, greeting(formal=True) is more
+                intelligible than greeting(True). And intelligible code is safer
+                to alter / maintain over time than mysterious code.
+                """))
+    summary = ''.join(summary_bits)
+    if not repeated_message:
+        asterisk_demo = (
+            layout("""\
+
+                Using an asterisk as a pseudo-parameter forces all parameters to
+                the right to be keywords e.g.
+                """)
+            +
+            layout(f"""\
+                def greeting(name, *, formal=False):
+                    ...
+                """, is_code=True)
+            +
+            layout(f"""\
+
+                In this example you couldn't now call the function
+                greeting('Jo', True) - it would need to be greeting('Jo',
+                formal=True)
+                """)
+        )
+        asterisk_explained = layout(f"""\
             Putting an asterisk in the parameters has the effect of forcing all
             parameters to the right to be keyword parameters because the
             asterisk mops up any remaining positional arguments supplied (if
@@ -420,9 +440,13 @@ def positional_boolean(block_dets, *, repeated_message=False):
             positional arguments, because they have all been handled already, so
             only keyword parameters are allowed thereafter.
             """)
+    else:
+        asterisk_demo = ''
+        asterisk_explained = ''
+
     message = {
-        conf.BRIEF: brief_msg,
-        conf.EXTRA: extra_msg,
+        conf.BRIEF: title + summary + asterisk_demo,
+        conf.EXTRA: asterisk_explained,
     }
     return message
 
@@ -469,6 +493,32 @@ def docstring_issues(block_dets, *, repeated_message=False):
     cover params, return etc.
     """
     WRAPPING_NEWLINE_N = 2
+    MISSING_DOCSTRING = 'missing_docstring'
+    DOCSTRING_TOO_SHORT = 'docstring_too_short'
+    func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
+    funcs_dets_and_docstring = get_funcs_dets_and_docstring(func_els)
+    docstring_issues = []
+    for func_el, func_name, docstring in funcs_dets_and_docstring:
+        func_type_lbl = get_func_type_lbl(func_el)
+        if docstring is None:
+            docstring_issues.append(
+                (func_name, func_type_lbl, MISSING_DOCSTRING))
+        else:
+            n_args = get_n_args(func_el)
+            n_doc_lines = len(docstring.split('\n')) - WRAPPING_NEWLINE_N
+            too_short = n_doc_lines < (conf.MIN_BRIEF_DOCSTRING + n_args)
+            param_str = ' given the number of parameters' if n_args > 1 else ''
+            if too_short:
+                docstring_issues.append(
+                (func_name, func_type_lbl, DOCSTRING_TOO_SHORT))
+    if not docstring_issues:
+        return None
+
+    title = layout("""\
+
+        ### Function / Method missing doc string
+
+        """)
     example_docstring = layout(f'''\
         def greet(name, greet_word='Hi'):
             """
@@ -482,22 +532,16 @@ def docstring_issues(block_dets, *, repeated_message=False):
             greeting = f"{{greet_word}} {{name}} - how are you?"
             return greeting
         ''', is_code=True)
-    func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
-    overall_func_type_lbl = get_overall_func_type_lbl(func_els)
-    funcs_dets_and_docstring = get_funcs_dets_and_docstring(func_els)
-    brief_msg = ''
-    missing_commented = False
-    inadequate_commented = False
-    for func_el, func_name, docstring in funcs_dets_and_docstring:
-        func_type_lbl = get_func_type_lbl(func_el)
-        if docstring is None:
-            if not (missing_commented or repeated_message):
-                brief_msg += (
+    summary_bits = []
+    for i, (func_name, func_type_lbl, problem) in enumerate(docstring_issues):
+        first = (i == 0)
+        if problem == MISSING_DOCSTRING:
+            if first and not repeated_message:  ## only want to say it once ;-)
+                summary_bits.append((
                     layout(f"""\
-                        ### {overall_func_type_lbl.title()} missing doc string
+                        #### {func_type_lbl.title()} missing doc string
 
-                        `{func_name}` lacks a doc string - you should probably
-                        add one.
+                        `{func_name}` lacks a doc string - you should probably add one.
 
                         Note - # comments at the top of the {func_type_lbl} do
                         not work as doc strings. Python completely ignores them.
@@ -513,41 +557,36 @@ def docstring_issues(block_dets, *, repeated_message=False):
                         """)
                     +
                     example_docstring
-                )
-                missing_commented = True
+                ))
             else:
-                brief_msg += layout(f"""\
+                summary_bits.append(layout(f"""\
 
-                    `{func_name}` lacks a doc string - you should probably add
-                    one.
+                    #### `{func_name}` lacks a doc string
+
+                    You should probably add a doc tring to `{func_name}`
+                    """))
+        elif problem == DOCSTRING_TOO_SHORT:
+            if first and not repeated_message:
+                summary_bits.append((layout(f"""\
+                    #### Function doc string too brief?
+
+                    The doc string for `{func_name}` seems a little
+                    short{param_str}. You might want to rework it. Here is an
+                    example using one of several valid formats:
+
                     """)
-        else:
-            n_args = get_n_args(func_el)
-            n_doc_lines = len(docstring.split('\n')) - WRAPPING_NEWLINE_N
-            too_short = n_doc_lines < (conf.MIN_BRIEF_DOCSTRING + n_args)
-            param_str = ' given the number of parameters' if n_args > 1 else ''
-            if too_short:
-                if not (inadequate_commented or repeated_message):
-                    brief_msg += (
-                        layout(f"""\
-                            ### Function doc string too brief?
+                +
+                example_docstring
+                ))
+            else:
+                summary_bits.append(layout(f"""\
+                    #### Function doc string too brief?
 
-                            The doc string for {func_name} seems a little
-                            short{param_str}. You might want to rework it. Here
-                            is an example using one of several valid formats:
+                    The doc string for `{func_name}` seems a little short.
+                    """))
+    summary = ''.join(summary_bits)
 
-                            """)
-                        +
-                        example_docstring
-                    )
-                    inadequate_commented = True
-                else:
-                    brief_msg += layout(f"""\
-                        The doc string for {func_name} seems a little short.
-                        """)
-    if not (missing_commented or inadequate_commented):
-        return None
     message = {
-        conf.BRIEF: brief_msg,
+        conf.BRIEF: title + summary,
     }
     return message

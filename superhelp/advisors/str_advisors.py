@@ -1,6 +1,7 @@
 from ..advisors import any_block_advisor, filt_block_advisor
 from .. import code_execution, conf
-from ..utils import get_python_version, layout_comment as layout
+from ..utils import get_nice_str_list, get_python_version, \
+    layout_comment as layout
 
 F_STR = 'f-string'
 STR_FORMAT_FUNC = 'str_format'
@@ -59,56 +60,58 @@ def assigned_str_overview(block_dets, *, repeated_message=False):
     """
     Provide overview of assigned strings e.g. name = 'Hamish'.
     """
-    brief_msg = ''
     str_els = get_str_els(block_dets.element)
     if not str_els:
         return None
-    first_name = None
-    first_val = None
-    for i, str_el in enumerate(str_els):
+
+    title = layout("""\
+
+        #### String Overview
+
+        """)
+    names = set()
+    for str_el in str_els:
         assign_el = str_el.xpath('ancestor::Assign')[0]
-        first = (i == 0)
         name = assign_el.xpath('targets/Name')[0].get('id')
-        val = code_execution.get_val(
-            block_dets.pre_block_code_str, block_dets.block_code_str, name)
-        if first:
-            first_name = name
-            first_val = val
-            brief_msg += layout("""\
-
-                #### String Overview
-
-                """)
-        brief_msg += layout(f"""\
+        names.add(name)
+    multiple = (len(names) > 1)
+    if multiple:
+        nice_list_str = get_nice_str_list(sorted(names), quoter='`')
+        summary = layout(f"""\
+            {nice_list_str} are all strings
+            """)
+    else:
+        summary = layout(f"""\
             `{name}` is a string.
 
             """)
-    if repeated_message:
-        main_msg = brief_msg
-        extra_msg = ''
-    else:
-        brief_msg += layout(f"""\
+    if not repeated_message:
+        cool = layout("""\
             Python makes it easy to do lots of cool things with strings.
 
             """)
+        first_str_el = str_els[0]
+        first_assign_el = first_str_el.xpath('ancestor::Assign')[0]
+        first_name = first_assign_el.xpath('targets/Name')[0].get('id')
+        first_val = code_execution.get_val(
+            block_dets.pre_block_code_str, block_dets.block_code_str, first_name)
         if first_val:
             name2use = first_name
             val2use = first_val
         else:
             name2use = 'address'
             val2use = 'Waiuku, New Zealand'
-            brief_msg += layout(f"""\
-                For illustration, imagine we have string '{val2use}' assigned to
-                `{name2use}`:
+        short_demo = layout(f"""\
+            For illustration, imagine we have string '{val2use}' assigned to
+            `{name2use}`:
 
-                """)
-        main_msg = brief_msg  ## after this brief and main diverge
-        brief_msg += layout(f"""\
+            """)
+        upper = layout(f"""\
             {name2use}.upper() returns {val2use.upper()}.
 
             """)
         black_heart = "\N{BLACK HEART}"
-        main_msg += layout(f"""\
+        longer_demo = layout(f"""\
             Examples:
 
             {name2use}.upper() returns {val2use.upper()}.
@@ -128,7 +131,7 @@ def assigned_str_overview(block_dets, *, repeated_message=False):
 
             sorted({name2use}) returns {sorted(val2use)}
             """)
-        extra_msg = layout("""\
+        more = layout("""\
             .upper(), .center() etc are abilities available with all Python
             strings. Technically they are methods of string objects. They start
             with a dot and are on the end of the object.
@@ -141,17 +144,33 @@ def assigned_str_overview(block_dets, *, repeated_message=False):
             functions that are not string-specific but are commonly used with
             strings include sorted() and print().
             """)
+    else:
+        cool = ''
+        short_demo = ''
+        upper = ''
+        longer_demo = ''
+        more = ''
+
     message = {
-        conf.BRIEF: brief_msg,
-        conf.MAIN: main_msg,
-        conf.EXTRA: extra_msg,
+        conf.BRIEF: title + summary + cool + short_demo + upper,
+        conf.MAIN: title + summary + cool + short_demo + upper + longer_demo,
+        conf.EXTRA: more,
     }
     return message
 
 def str_combination(combination_type, str_els, *, repeated_message=False):
     global F_STR_REMINDER
-    brief_msg = ''
-    title = None
+    combination_type2comment = {
+        F_STR: "f-string interpolation",
+        STR_FORMAT_FUNC: "the format function",
+        SPRINTF: "sprintf string interpolation",
+        STR_ADDITION: "string addition (e.g. animal = 'jelly' + 'fish')",
+    }
+    title = layout("""\
+
+        ### Strings created by combining or interpolating strings
+        """)
+    how_combined_bits = []
     for str_el in str_els:
         try:
             assign_el = str_el.xpath('ancestor::Assign')[-1]
@@ -160,39 +179,24 @@ def str_combination(combination_type, str_els, *, repeated_message=False):
         else:
             raw_name = assign_el.xpath('targets/Name')[0].get('id')
             name = f"`{raw_name}`"
-        combination_type2comment = {
-            F_STR: "f-string interpolation",
-            STR_FORMAT_FUNC: "the format function",
-            SPRINTF: "sprintf string interpolation",
-            STR_ADDITION: "string addition (e.g. animal = 'jelly' + 'fish')",
-        }
         combination_comment = combination_type2comment[combination_type]
-        if not title:
-            title = layout(f"""\
-
-            ### Strings created by combining or interpolating strings
-            """)
-            brief_msg += title
-        brief_msg += layout(f"""\
+        how_combined_bits.append(layout(f"""\
 
             {name} is created using {combination_comment}.
-            """)
-    message = {
-        conf.BRIEF: brief_msg,
-        conf.MAIN: brief_msg,
-    }
-    if combination_type != F_STR and not repeated_message:
-        if not F_STR_REMINDER:
+            """))
+    how_combined = ''.join(how_combined_bits)
+    if not repeated_message:
+        if combination_type != F_STR and not F_STR_REMINDER:
             F_STR_REMINDER = True
-            message[conf.BRIEF] += layout("""\
-    
+            brief_fstring_msg = layout("""\
+
                 Your snippet uses a non-f-string approach to constructing a
                 string.
 
                 Have you considered using an f-string approach to constructing
                 your string?
                 """)
-            message[conf.MAIN] += (
+            longer_fstring_msg = (
                 layout("""\
 
                     Have you considered using an f-string approach to
@@ -235,6 +239,17 @@ def str_combination(combination_type, str_els, *, repeated_message=False):
                     # >>> '0525'
                     """, is_code=True)
             )
+        else:
+            brief_fstring_msg = ''
+            longer_fstring_msg = ''
+    else:
+        brief_fstring_msg = ''
+        longer_fstring_msg = ''
+
+    message = {
+        conf.BRIEF: title + how_combined + brief_fstring_msg,
+        conf.MAIN: title + how_combined + longer_fstring_msg,
+    }
     return message
 
 @filt_block_advisor(xpath=JOINED_STR_XPATH)

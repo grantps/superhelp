@@ -159,30 +159,39 @@ def unpythonic_name_check(block_dets, *, repeated_message=False):
             dubious_names.append(name)
     if not (reserved_names or bad_names or dubious_names):
         return None
-    title = _get_shamed_names_title(reserved_names, bad_names, dubious_names)
-    brief_msg = layout(f"""\
-        ### {title}
+
+    shamed_names_title = _get_shamed_names_title(
+        reserved_names, bad_names, dubious_names)
+    title = layout(f"""\
+
+        ### {shamed_names_title}
 
         """)
     if reserved_names:
         reserved_names_listed = utils.get_nice_str_list(
             reserved_names, quoter='`')
-        brief_msg += layout(f"""\
+        reserved_comment = layout(f"""\
             Reserved name(s): {reserved_names_listed}
             """)
+    else:
+        reserved_comment = ''
     if bad_names:
         bad_names_listed = utils.get_nice_str_list(bad_names, quoter='`')
-        brief_msg += layout(f"""\
+        bad_comment = layout(f"""\
             Un-pythonic name(s): {bad_names_listed}
             """)
+    else:
+        bad_comment = ''
     if dubious_names:
         dubious_names_listed = utils.get_nice_str_list(
             dubious_names, quoter='`')
-        brief_msg += layout(f"""\
+        dubious_comment = layout(f"""\
             Possibly un-pythonic name(s): {dubious_names_listed}
             """)
+    else:
+        dubious_comment = ''
     if not repeated_message:
-        brief_msg += layout("""\
+        snake_case = layout("""\
 
             Python variables should not named using reserved words e.g.
             `collections` or `sorted`.
@@ -191,9 +200,7 @@ def unpythonic_name_check(block_dets, *, repeated_message=False):
             lower case, with multiple words joined by underscores e.g.
             `high_scores` (not `highScores` or `HighScores`)
             """)
-    main_msg = brief_msg
-    if not repeated_message:
-        main_msg += layout("""\
+        pascal = layout("""\
             In Python class names and named tuples are expected to be in Pascal
             Case (also known as upper camel case) rather than the usual snake
             case. E.g. `collections.ChainMap`
@@ -202,9 +209,15 @@ def unpythonic_name_check(block_dets, *, repeated_message=False):
             with other code e.g. a library the Python is ported from, or the
             non-Python code that Python is wrapping.
             """)
+    else:
+        snake_case = ''
+        pascal = ''
+
     message = {
-        conf.BRIEF: brief_msg,
-        conf.MAIN: main_msg,
+        conf.BRIEF: (title + reserved_comment + bad_comment
+            + dubious_comment + snake_case + pascal),
+        conf.MAIN: (title + reserved_comment + bad_comment
+            + dubious_comment + snake_case + pascal),
     }
     return message
 
@@ -220,29 +233,36 @@ def short_name_check(block_dets, *, repeated_message=False):
             short_names[len(name)].add(name)
     if not short_names:
         return None
-    short_comment = ''
+
+    title = layout("""
+
+        ### Short variable name
+
+        """)
+    short_comment_bits = []
     for length, names in sorted(short_names.items()):
         freq = len(names)
         multiple = (freq > 1)
+        plural = 's' if length > 1 else ''
         if multiple:
             nice_list = get_nice_str_list(list(names), quoter='`')
-            short_comment += (
-                f" {int2nice(freq).title()} variables have names "
-                f"{int2nice(length)} characters long: {nice_list}.")
+            short_comment_bits.append((
+                f"{int2nice(freq)} variables have names "
+                f"{int2nice(length)} character{plural} long: {nice_list}."))
         else:
             name = names.pop()
-            short_comment += f"`{name}` is short."
-    brief_msg = layout(f"""\
-        ### Short variable names
+            short_comment_bits.append(f"`{name}` is short (only "
+                f"{int2nice(length)} character{plural} long).")
+    short_comment = '; '.join(short_comment_bits)
+    sometimes_ok = layout(f"""\
 
         Sometimes, short variable names are appropriate - even conventional -
         but they should be avoided outside of a few special cases. In your code:
 
         {short_comment}
         """)
-    main_msg = brief_msg
     if not repeated_message:
-        main_msg += (
+        idiomatic = (
             layout("""\
 
                 In many programming languages it is idiomatic to use `i`, `j`,
@@ -282,8 +302,11 @@ def short_name_check(block_dets, *, repeated_message=False):
                 well. They may also indicate the code needs to be reworked.
                 """)
         )
+    else:
+        idiomatic = ''
+
     message = {
-        conf.BRIEF: brief_msg,
-        conf.MAIN: main_msg,
+        conf.BRIEF: title + sometimes_ok,
+        conf.MAIN: title + sometimes_ok + idiomatic,
     }
     return message

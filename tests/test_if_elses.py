@@ -328,13 +328,13 @@ def test_misc():
             if word is not None:
                 if len(word) > 20:
                     pass
-
+ 
             if word is not None:
                 if len(word) > 20:
                     pass
                 else:
                     pass
-
+ 
             if word is not None:
                 if len(word) > 20:
                     pass
@@ -353,11 +353,11 @@ def test_misc():
             if word is not None:
                 if len(word) > 20:
                     pass
-
+ 
             if word is not None:
                 if len(word) > 20:
                     pass
-
+ 
             if word is not None:
                 if len(word) > 20:
                     pass
@@ -368,6 +368,28 @@ def test_misc():
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
                 ROOT + 'short_circuit': 3,
+            }
+        ),
+        (
+            dedent("""\
+            len_word = 10
+            if len_word == 1:
+                status = 'single-letter'
+            elif len_word < 4:
+                status = 'short'
+            elif len_word > 12:
+                status = 'long'
+            elif len_word > 20:
+                status = 'very_long'
+            else:
+                status = 'typical'
+            """),
+            {
+                ROOT + 'if_else_overview': 1,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 0,
             }
         ),
     ]

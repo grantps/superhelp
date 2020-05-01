@@ -89,6 +89,19 @@ def test_misc():
         ),
         (
             dedent(f"""\
+            def demo(too_many=True, n_lines=2):
+                return None
+            """),
+            {
+                ROOT + 'func_overview': 1,
+                ROOT + 'func_len_check': 0,
+                ROOT + 'func_excess_parameters': 0,
+                ROOT + 'positional_boolean': 1,
+                ROOT + 'docstring_issues': 1,
+            }
+        ),
+        (
+            dedent(f"""\
             def demo():
                 '''
                 One line
@@ -142,6 +155,25 @@ def test_misc():
                 def demo(self):
                     '''
                     A short doc string only
+                    '''
+                    return True
+            """),
+            {
+                ROOT + 'func_overview': 1,
+                ROOT + 'func_len_check': 0,
+                ROOT + 'func_excess_parameters': 0,
+                ROOT + 'positional_boolean': 0,
+                ROOT + 'docstring_issues': 1,
+            }
+        ),
+        (
+            dedent(f"""\
+            class Demo:
+                def lacks_any_docstring(self):
+                    666
+                    name = 'Grant'
+                    '''
+                    Ho
                     '''
                     return True
             """),

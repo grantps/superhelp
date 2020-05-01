@@ -28,16 +28,16 @@ def decorator_overview(block_dets, *, repeated_message=False):
             if namespace:
                 name = f"{namespace}.{name}"
         decorator_names.append(name)
+
     dec_name_list = get_nice_str_list(decorator_names, quoter='`')
     plural = 's' if len(decorator_names) > 1 else ''
-    brief_msg = layout(f"""\
+    summary = layout(f"""\
             ### Decorator{plural} used
 
             The code uses the decorator{plural}: {dec_name_list}.
             """)
-    main_msg = brief_msg
     if not repeated_message:
-        main_msg += (
+        dec_dets = (
             layout("""\
 
                 Decorators are a common and handy feature of Python. Using them
@@ -95,8 +95,11 @@ def decorator_overview(block_dets, *, repeated_message=False):
                 say("sausage!")
                 ''', is_code=True)
         )
+    else:
+        dec_dets = ''
+
     message = {
-        conf.BRIEF: brief_msg,
-        conf.MAIN: main_msg,
+        conf.BRIEF: summary,
+        conf.MAIN: summary + dec_dets,
     }
     return message

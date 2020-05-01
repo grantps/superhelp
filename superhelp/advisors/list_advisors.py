@@ -30,7 +30,7 @@ def get_type_for_example(list_items):
             type4example = DEFAULT_EXAMPLE_TYPE
     return type4example
 
-def _get_additional_main_msg(first_name, first_list_items):
+def _get_detailed_list_comment(first_name, first_list_items):
     """
     :param list first_list_items: note - may be None if a list is defined in a
      function
@@ -54,7 +54,7 @@ def _get_additional_main_msg(first_name, first_list_items):
     friends = ['Selma', 'Willy', 'Principal Skinner']
     family = ['Bart', 'Lisa', 'Marge', 'Homer']
     guests = friends + family
-    additional_main_msg = (
+    detailed_list_comment = (
         layout("""\
 
             Lists, along with dictionaries, are the workhorses of Python data
@@ -145,7 +145,7 @@ def _get_additional_main_msg(first_name, first_list_items):
 
             """)
         )
-    return additional_main_msg
+    return detailed_list_comment
 
 ## only interested in lists when being assigned as a value
 ## (i.e. <body><Assign><value><List> so we're looking for List under value only)
@@ -155,11 +155,15 @@ def list_overview(block_dets, *, repeated_message=False):
     General overview of list taking content details into account.
     """
     list_els = block_dets.element.xpath(ASSIGN_LIST_XPATH)
-    brief_msg = ''
-    main_msg = ''
     plural = 's' if len(list_els) > 1 else ''
     first_name = None
     first_list_items = None
+
+    title = layout(f"""\
+
+        ### List{plural} defined
+
+        """)
     for i, list_el in enumerate(list_els):
         first = (i == 0)
         name = get_assign_name(list_el)
@@ -168,13 +172,6 @@ def list_overview(block_dets, *, repeated_message=False):
         if first:
             first_name = name
             first_list_items = items
-            title = layout(f"""\
-
-                ### List{plural} defined
-    
-                """)
-            brief_msg += title
-            main_msg += title
         if items is None:
             list_desc = layout(f"""\
 
@@ -190,10 +187,8 @@ def list_overview(block_dets, *, repeated_message=False):
     
                 `{name}` is a list with {utils.int2nice(len(items))} items.
                 """)
-        brief_msg += list_desc
-        main_msg += list_desc
     if not repeated_message:
-        brief_msg += layout("""\
+        brief_overview = layout("""\
 
             Lists, along with dictionaries, are the workhorses of Python data
             structures.
@@ -201,11 +196,15 @@ def list_overview(block_dets, *, repeated_message=False):
             Lists have an order, and can contain duplicate items and items of
             different types (usually not advisable).
             """)
-        main_msg += _get_additional_main_msg(
+        detailed_list_comment = _get_detailed_list_comment(
             first_name, first_list_items)
+    else:
+        brief_overview = ''
+        detailed_list_comment = ''
+
     message = {
-        conf.BRIEF: brief_msg,
-        conf.MAIN: main_msg,
+        conf.BRIEF: title + list_desc + brief_overview,
+        conf.MAIN: title + list_desc + detailed_list_comment,
     }
     return message
 
@@ -215,11 +214,9 @@ def mixed_list_types(block_dets, *, repeated_message=False):  # @UnusedVariable
     Warns about lists containing a mix of data types.
     """
     list_els = block_dets.element.xpath(ASSIGN_LIST_XPATH)
-    brief_msg = ''
-    main_msg = ''
+    list_dets = []
     has_mixed = False
-    for i, list_el in enumerate(list_els):
-        first = (i == 0)
+    for list_el in list_els:
         name = get_assign_name(list_el)
         items = code_execution.get_val(  ## might be None if defined in a function
             block_dets.pre_block_code_str, block_dets.block_code_str, name)
@@ -230,27 +227,29 @@ def mixed_list_types(block_dets, *, repeated_message=False):  # @UnusedVariable
             ## No explanation needed if there aren't multiple types.
             continue
         has_mixed = True
-        if first:
-            title = layout(f"""\
-                ### List(s) with mix of different data types
-    
-                """)
-            brief_msg += title
-            main_msg += title
-        mixed_warning = layout(f"""
+        list_dets.append((name, item_type_nice_names))
+    if not has_mixed:
+        return None
+
+    title = layout("""\
+
+        ### List(s) with mix of different data types
+
+        """)
+    mixed_warning_bits = []
+    for name, item_type_nice_names in list_dets:
+        mixed_warning_bits.append(layout(f"""
 
             `{name}` contains more than one data type - which is probably a bad
             idea.
-            """)
-        brief_msg += mixed_warning
-        main_msg += mixed_warning
-        main_msg += layout(f"""\
-             The data types found were: {", ".join(item_type_nice_names)}.
-            """)
-    if not has_mixed:
-        return None
+            """))
+    mixed_warning = ''.join(mixed_warning_bits)
+    mixed_dets = layout(f"""\
+        The data types found were: {", ".join(item_type_nice_names)}.
+        """)
+
     message = {
-        conf.BRIEF: brief_msg,
-        conf.MAIN: main_msg,
+        conf.BRIEF: title + mixed_warning,
+        conf.MAIN: title + mixed_warning + mixed_dets,
     }
     return message

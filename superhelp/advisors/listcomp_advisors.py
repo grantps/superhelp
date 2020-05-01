@@ -12,29 +12,31 @@ def listcomp_overview(block_dets, *, repeated_message=False):
     comprehension available in Python.
     """
     listcomp_els = block_dets.element.xpath(ASSIGN_LISTCOMP_XPATH)
-    brief_msg = ''
-    plural = 's' if len(listcomp_els) > 1 else ''
-    for i, dict_el in enumerate(listcomp_els):
-        first = (i == 0)
-        name = get_assign_name(dict_el)
+    listcomp_dets = []
+    for listcomp_el in listcomp_els:
+        name = get_assign_name(listcomp_el)
         items = code_execution.get_val(
             block_dets.pre_block_code_str, block_dets.block_code_str, name)
-        if first:
-            title = layout(f"""\
+        listcomp_dets.append((name, items))
+    if not listcomp_dets:
+        return None
 
-                ### List comprehension{plural} used
+    plural = 's' if len(listcomp_dets) > 1 else ''
+    title = layout(f"""\
 
-                """)
-            brief_msg += title
-        brief_msg += layout(f"""
+        ### List comprehension{plural} used
 
-            `{name}` is a list comprehension returning a list
-            with {utils.int2nice(len(items))} items: {items}
-            """)
-    if repeated_message:
-        extra_msg = ''
-    else:
-        extra_msg = (
+        """)
+    summary_bits = []
+    for name, items in listcomp_dets:
+        summary_bits.append(layout(f"""
+
+        `{name}` is a list comprehension returning a list
+        with {utils.int2nice(len(items))} items: {items}
+        """))
+    summary = ''.join(summary_bits)
+    if not repeated_message:
+        other_comprehensions = (
             layout(f"""\
                 ### Other "comprehensions"
 
@@ -42,8 +44,9 @@ def listcomp_overview(block_dets, *, repeated_message=False):
             + shared.GENERAL_COMPREHENSION_COMMENT
             + layout("""\
 
-                List comprehensions aren't the only type of comprehension you can
-                make. Python also lets you write Dictionary and Set Comprehensions:
+                List comprehensions aren't the only type of comprehension you
+                can make. Python also lets you write Dictionary and Set
+                Comprehensions:
 
                 """)
             + shared.DICT_COMPREHENSION_COMMENT
@@ -51,12 +54,16 @@ def listcomp_overview(block_dets, *, repeated_message=False):
             + shared.SET_COMPREHENSION_COMMENT
             + '\n\n'
             + layout("""\
-                Pro tip: don't make comprehension *in*comprehensions ;-). If it is
-                hard to read it is probably better written as a looping structure.
+                Pro tip: don't make comprehension *in*comprehensions ;-). If it
+                is hard to read it is probably better written as a looping
+                structure.
                 """)
         )
+    else:
+        other_comprehensions = ''
+
     message = {
-        conf.BRIEF: brief_msg,
-        conf.EXTRA: extra_msg,
+        conf.BRIEF: title + summary,
+        conf.EXTRA: other_comprehensions,
     }
     return message

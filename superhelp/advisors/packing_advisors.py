@@ -12,7 +12,7 @@ def get_slice_n_3_7(assign_el):
 def get_slice_n_3_8(assign_el):
     val_els = assign_el.xpath('value/Subscript/slice/Index/value/Constant')
     val_el = val_els[0]
-    if val_el.get('type') not in ('int', 'float'):
+    if val_el.get('type') in ('int', 'float'):
         slice_n = val_el.get('value')
     else:
         raise TypeError("slice index value not an int or a float - actual type "
@@ -35,22 +35,32 @@ def unpacking(block_dets, *, repeated_message=False):
     Identify name unpacking e.g. x, y = coord
     """
     unpacked_els = block_dets.element.xpath(ASSIGN_UNPACKING_XPATH)
-    brief_msg = ''
+
+    title = layout("""\
+
+        ### Name uppacking
+
+        """)
+    summary_bits = []
     for unpacked_el in unpacked_els:
         unpacked_names = [
             name_el.get('id') for name_el in unpacked_el.xpath('elts/Name')]
         if not unpacked_names:
             continue
         nice_str_list = utils.get_nice_str_list(unpacked_names, quoter='`')
-        unpacked_comment = layout(f"""\
+        summary_bits.append(layout(f"""\
 
             Your code uses unpacking to assign names {nice_str_list}
-            """)
-        brief_msg += unpacked_comment
-    extra_msg = '' if repeated_message else shared.UNPACKING_COMMENT
+            """))
+    summary = ''.join(summary_bits)
+    if not repeated_message:
+        unpacking_msg = shared.UNPACKING_COMMENT
+    else:
+        unpacking_msg = ''
+
     message = {
-        conf.BRIEF: brief_msg,
-        conf.EXTRA: extra_msg,
+        conf.BRIEF: title + summary,
+        conf.EXTRA: unpacking_msg,
     }
     return message
 
@@ -85,20 +95,27 @@ def unpacking_opportunity(blocks_dets):
         if len(slice_ns) > 1]
     if not sources2unpack:
         return None
+
+    title = layout("""\
+
+        ### Unpacking opportunity
+
+        """)
     multiple_items = len(sources2unpack) > 1
     if multiple_items:
         nice_sources_list = utils.get_nice_str_list(sources2unpack, quoter='`')
-        brief_msg = layout(f"""\
+        unpackable = layout(f"""\
             {nice_sources_list} have multiple items extracted by
             indexing so might be suitable candidates for unpacking.
             """)
     else:
-        brief_msg = layout(f"""\
+        unpackable = layout(f"""\
             Name (variable) `{sources2unpack[0]}` has multiple items extracted
             by indexing so might be a suitable candidate for unpacking.
             """)
+
     message = {
-        conf.BRIEF: brief_msg,
+        conf.BRIEF: title + unpackable,
         conf.EXTRA: shared.UNPACKING_COMMENT,
     }
     return message

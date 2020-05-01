@@ -51,6 +51,14 @@ def test_misc():
                 ROOT + 'set_overview': 1,
             }
         ),
+        (
+            dedent("""\
+            people = set(['Sam', 'Avi', 'Terri', 'Noor'])
+            """),
+            {
+                ROOT + 'set_overview': 1,
+            }
+        ),
     ]
     check_as_expected(test_conf)
 

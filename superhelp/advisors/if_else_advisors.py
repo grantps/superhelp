@@ -113,7 +113,7 @@ def get_ifs_details(block_dets):
         ## ignore if really an elif
         parent_el = raw_if_el.getparent()
         has_or_else_parent = (parent_el.tag == 'orelse')
-        has_siblings = bool(parent_el.getchildren())
+        has_siblings = len(parent_el.getchildren()) > 1
         actually_elif = (has_or_else_parent and not has_siblings)
         if not actually_elif:
             if_elements.append(raw_if_el)
@@ -131,34 +131,38 @@ def get_ifs_details(block_dets):
             IfDets(multiple_conditions, missing_else, if_clauses))
     return ifs_details
 
-def _get_if_comment(ifs_details):
+def _get_if_comment(block_dets):
     """
     Have to cope with multiple if statements and make it nice (unnumbered) when
     only one.
     """
-    brief_msg = '### Conditional statement detected'
+    ifs_details = get_ifs_details(block_dets)
+    if_comment = layout("""
+
+        ### Conditional statement detected
+        """)
     for n, if_details in enumerate(ifs_details, 1):
         counter = '' if len(ifs_details) == 1 else f" {int2nice(n)}"
         if if_details.multiple_conditions:
             n_elifs = if_details.if_clauses.count(ELIF)
-            brief_msg += layout(f"""\
+            if_comment += layout(f"""\
 
                 `if` statement{counter} has {int2nice(n_elifs)} `elif` clauses
                 """)
             if if_details.missing_else:
-                brief_msg += " and no `else` clause."
+                if_comment += " and no `else` clause."
             else:
-                brief_msg += " and an `else` clause."
-            brief_msg += (
+                if_comment += " and an `else` clause."
+            if_comment += (
                 " Note - `else` clauses with an `if`, and only an `if`, "
                 "underneath count as `elif` clauses not `else` clauses.")
         else:
-            brief_msg += layout(f"""\
+            if_comment += layout(f"""\
 
                 `if` statement{counter} has no extra clauses e.g. `elif`s or an
                 `else`.
                 """)
-    return brief_msg
+    return if_comment
 
 @filt_block_advisor(xpath=IF_XPATH)
 def if_else_overview(block_dets, *, repeated_message=False):
@@ -166,14 +170,12 @@ def if_else_overview(block_dets, *, repeated_message=False):
     Look at conditional statements using if (apart from if __name__ ==
     '__main__").
     """
-    ## skip when if __name__ == '__main__'
     if block_dets.block_code_str.startswith("if __name__ == "):
         return None
-    ifs_details = get_ifs_details(block_dets)
-    brief_msg = _get_if_comment(ifs_details)
-    main_msg = brief_msg
+
+    if_comment = _get_if_comment(block_dets)
     if not repeated_message:
-        main_msg += (
+        demo = (
             layout("""\
 
                 When using `if`, `elif`, or `else`, the item evaluated can
@@ -203,9 +205,12 @@ def if_else_overview(block_dets, *, repeated_message=False):
                     phrase = chop(phrase)
                 """, is_code=True)
         )
+    else:
+        demo = ''
+
     message = {
-        conf.BRIEF: brief_msg,
-        conf.MAIN: main_msg,
+        conf.BRIEF: if_comment,
+        conf.MAIN: if_comment + demo,
     }
     return message
 
@@ -215,90 +220,88 @@ def missing_else(block_dets, *, repeated_message=False):
     Warn about benefits in many cases of adding else clause if missing.
     """
     ifs_details = get_ifs_details(block_dets)
-    brief_msg = ''
-    has_missing_else = False
     ifs_dets_missing_else = [
         if_details for if_details in ifs_details if if_details.missing_else]
-    for n, if_details in enumerate(ifs_dets_missing_else, 1):
-        first = (n == 1)
-        counter = '' if len(ifs_dets_missing_else) == 1 else f" {int2nice(n)}"
-        if first:
-            brief_msg += layout(f"""\
+    if not ifs_dets_missing_else:
+        return None
 
-                ### Possibly better with `else` clause
+    title = layout("""\
 
-                """)
+        ### Possibly better with `else` clause
+
+        """)
+    summary_bits = []
+    for i, if_details in enumerate(ifs_dets_missing_else):
+        first = (i == 0)
+        counter = (
+            '' if len(ifs_dets_missing_else) == 1 else f" {int2nice(i + 1)}")
+        summary_bits.append(layout(f"""\
+            `if` block{counter} has `elif` clauses but lacks an `else` clause.
+
+            """))
         if first and not repeated_message:
-            brief_msg += layout(f"""\
-                `if` block{counter} has `elif` clauses but lacks an `else`
-                clause. If your `elif` clauses are trying to handle all expected
-                cases it is probably best to include an `else` clause as well
-                just in case something unexpected happens.
+            summary_bits.append(layout(f"""\
+                If your `elif` clauses are trying to handle all expected cases
+                it is probably best to include an `else` clause as well just in
+                case something unexpected happens.
 
                 Note - `else` clauses with an `if` and only the `if` underneath
                 count as `elif` clauses.
-                """)
-        has_missing_else = True
-    if not has_missing_else:
-        return None
-    if repeated_message:
-        main_msg = brief_msg
-    else:
-        main_msg = (
-            brief_msg
-            +
-            layout("""\
+                """))
+    summary = ''.join(summary_bits)
+    dets = (
+        layout("""\
 
-                You may have left out the `else` because it is currently
-                impossible that this branch will ever be called. You know that
-                you can only receive the items currently handled by the `elif`s
-                so `else` can logically never be called. And that it true -
-                until it isn't later ;-) - for example, if the calling code
-                starts supplying more types of whatever is being evaluated in
-                the `elif`s. This problem happens surprisingly often and can
-                create nasty bugs that are hard to trace. If you add an `else`
-                clause that raises an exception you will instantly know if the
-                expected conditions for your conditional are breached and
-                exactly what to fix.
+            You may have left out the `else` because it is currently impossible
+            that this branch will ever be called. You know that you can only
+            receive the items currently handled by the `elif`s so `else` can
+            logically never be called. And that it true - until it isn't later
+            ;-) - for example, if the calling code starts supplying more types
+            of whatever is being evaluated in the `elif`s. This problem happens
+            surprisingly often and can create nasty bugs that are hard to trace.
+            If you add an `else` clause that raises an exception you will
+            instantly know if the expected conditions for your conditional are
+            breached and exactly what to fix.
 
-                For example:
+            For example:
 
-                """)
-            +
-            layout("""\
-                ## At the point this code is written we absolutely know
-                ## there are only two user types: managers and staff
+            """)
+        +
+        layout("""\
+            ## At the point this code is written we absolutely know
+            ## there are only two user types: managers and staff
 
-                if user == 'manager':
-                    create_alert()
-                    set_up_manager(user)
-                elif user == 'staff':
-                    set_up_staff(user)
-                else:
-                    ## This can logically never happen so
-                    ## we might be tempted to leave out the else clause
-                    pass
-                """, is_code=True)
-            +
-            layout("""\
+            if user == 'manager':
+                create_alert()
+                set_up_manager(user)
+            elif user == 'staff':
+                set_up_staff(user)
+            else:
+                ## This can logically never happen so
+                ## we might be tempted to leave out the else clause
+                pass
+            """, is_code=True)
+        +
+        layout("""\
 
-                But then a new user type is created (e.g. admin) and the logic
-                of the entire program breaks all over the place with no clarity
-                about the real source.
+            But then a new user type is created (e.g. admin) and the logic of
+            the entire program breaks all over the place with no clarity about
+            the real source.
 
-                It would be better to have an `else` clause as follows so you
-                know exactly what violated the program's assumptions:
+            It would be better to have an `else` clause as follows so you know
+            exactly what violated the program's assumptions:
 
-                """)
-            +
-            layout("""\
-                else:
-                    raise Exception(f"Unexpected user: '{user}'")
-                """, is_code=True)
+            """)
+        +
+        layout("""\
+            else:
+                raise Exception(f"Unexpected user: '{user}'")
+            """, is_code=True)
         )
+
     message = {
-        conf.BRIEF: brief_msg,
-        conf.MAIN: main_msg,
+        conf.BRIEF: title + summary,
+        conf.MAIN: title + summary + dets,
     }
     return message
 
@@ -389,7 +392,8 @@ def split_group_membership(block_dets, *, repeated_message=False):
             break
     if not has_split:
         return None
-    brief_msg = layout(f"""\
+
+    summary = layout(f"""\
 
             ### Possible option of evaluating group membership
 
@@ -398,7 +402,7 @@ def split_group_membership(block_dets, *, repeated_message=False):
             membership instead.
         """)
     if not repeated_message:
-        brief_msg += (
+        demo = (
             layout(f"""\
 
                 For example:
@@ -410,9 +414,7 @@ def split_group_membership(block_dets, *, repeated_message=False):
                     ...
                 """, is_code=True)
         )
-    main_msg = brief_msg
-    if not repeated_message:
-        main_msg += (
+        extra_demo = (
             layout(f"""\
 
                 Or to check if a variable is NOT in a group:
@@ -424,9 +426,13 @@ def split_group_membership(block_dets, *, repeated_message=False):
                     ...
                 """, is_code=True)
         )
+    else:
+        demo = ''
+        extra_demo = ''
+
     message = {
-        conf.BRIEF: brief_msg,
-        conf.MAIN: main_msg,
+        conf.BRIEF: summary + demo,
+        conf.MAIN: summary + demo + extra_demo,
     }
     return message
 
@@ -487,38 +493,46 @@ def implicit_boolean_enough(block_dets, *, repeated_message=False):
             continue
     if not implicit_boolean_possible:
         return None
-    brief_msg = (
-        layout("""\
+    title = layout("""\
 
-            ### Possible option of using an implicit boolean
+        ### Possible option of using an implicit boolean
 
-            In Python, "", 0, [], {}, (), `None` all evaluate to False when we
-            ask if they are `True` or `False`. And they all evaluate to `True`
-            if they contain something. WAT?!
+        """)
+    if not repeated_message:
+        summary = (
+            layout("""\
+                There is often no need to check a non-zero length explicitly. In
+                Python, "", 0, [], {}, (), `None` all evaluate to False when we
+                ask if they are `True` or `False`. And they all evaluate to
+                `True` if they contain something.
 
-            Well, if we have a list `my_list` we can replace:
+                So if we have a list `my_list` we can replace:
 
+                """)
+            +
+            layout("""\
+                if len(my_list) > 0:
+                    ...
+
+                """, is_code=True)
+            +
+            layout("""\
+                with:
+
+                """)
+            +
+            layout("""\
+                if my_list:  ## if empty, evaluates to False otherwise True
+                    ...
+
+                """, is_code=True)
+        )
+    else:
+        summary = layout("""\
+            There is often no need to check a non-zero length explicitly.
             """)
-        +
-        layout("""\
-            if len(my_list) > 0:
-                ...
-
-            """, is_code=True)
-        +
-        layout("""\
-            with:
-
-            """)
-        +
-        layout("""\
-            if my_list:  ## if empty, evaluates to False otherwise True
-                ...
-
-            """, is_code=True)
-    )
     message = {
-        conf.BRIEF: brief_msg,
+        conf.BRIEF: title + summary,
     }
     return message
 
@@ -572,7 +586,8 @@ def short_circuit(block_dets, *, repeated_message=False):
             break
     if not could_short_circuit_something:
         return None
-    brief_msg = layout("""\
+
+    summary = layout("""\
 
         ### Potential to collapse `if`s (possibly relying on short-circuiting)
 
@@ -581,16 +596,14 @@ def short_circuit(block_dets, *, repeated_message=False):
 
         """)
     if not repeated_message:
-        brief_msg += layout("""\
+        how2short_circuit = layout("""\
             If the second `if` can only be run once the first `if` has been
             evaluated as True it is still possible to combine the two
             expressions - as long as the two expressions are combined with `and`
             AND the test to see if the nested expression can be run comes first.
             We can do this because Python supports "short-circuiting" :-).
             """)
-    main_msg = brief_msg
-    if not repeated_message:
-        main_msg += (
+        demo = (
             layout("""\
 
                 For example, we can rewrite the following:
@@ -621,8 +634,12 @@ def short_circuit(block_dets, *, repeated_message=False):
 
                 """, is_code=True)
         )
+    else:
+        how2short_circuit = ''
+        demo = ''
+
     message = {
-        conf.BRIEF: brief_msg,
-        conf.MAIN: main_msg,
+        conf.BRIEF: summary + how2short_circuit,
+        conf.MAIN: summary + how2short_circuit + demo,
     }
     return message

@@ -29,20 +29,43 @@ def has_long_block(block_el, xpath):
             break
     return long_block
 
-def get_short_circuit_alt_msgs(brief_msg, main_msg):
+@filt_block_advisor(xpath=NESTING_XPATH, warning=True)
+def bloated_nested_block(block_dets, *, repeated_message=False):
     """
-    Messages exploring option of unnesting indented block by exiting early if
-    the conditional in the if expression is not met.
+    Look for long indented blocks under conditionals, inside loops etc that are
+    candidates for separating into functions to simplify the narrative of the
+    main code.
     """
-    brief_msg += layout("""\
+    bloated_outer_types = set()
+    included_if = False
+    for lbl, outer_xpath in OUTER_XPATHS.items():
+        if has_long_block(block_dets.element, outer_xpath):
+            bloated_outer_types.add(lbl)
+            if lbl == 'if':
+                included_if = True
+    if not bloated_outer_types:
+        return None
+
+    title = layout("""\
+
+        ### Possibility of avoiding excessively long nested blocks
+
+        """)
+    summary_bits = []
+    for bloated_outer_type in bloated_outer_types:
+        summary_bits.append(layout(f"""\
+            The code has at least one long nested block under
+            `{bloated_outer_type}:`
+            """))
+    summary = ''.join(summary_bits)
+    short_circuit_msg = layout("""\
 
         #### Short-circuit and exit early
 
         It may be possible to unnest the indented code block by exiting early if
         the condition in the `if` expression is not met.
         """)
-    main_msg += brief_msg
-    main_msg += (
+    short_circuit_demo_msg = (
         layout("""
 
             For example, instead of:
@@ -78,12 +101,6 @@ def get_short_circuit_alt_msgs(brief_msg, main_msg):
             logging.info("Finished!")
             ''', is_code=True)
     )
-    return brief_msg, main_msg
-
-def get_func_alt_msgs(brief_msg, main_msg):
-    """
-    Messages exploring option of replacing nested block with a function call.
-    """
     move_to_func_msg = layout("""\
 
         #### Shift to function
@@ -91,9 +108,7 @@ def get_func_alt_msgs(brief_msg, main_msg):
         It may be possible to pull most of the nested code block into a function
         which can be called instead.
         """)
-    brief_msg += move_to_func_msg
-    main_msg += move_to_func_msg
-    main_msg += (
+    move_to_func_demo_msg = (
         layout("""
 
             For example, instead of:
@@ -133,56 +148,38 @@ def get_func_alt_msgs(brief_msg, main_msg):
             logging.info("Finished!")
             ''', is_code=True)
     )
-    return brief_msg, main_msg
-
-@filt_block_advisor(xpath=NESTING_XPATH, warning=True)
-def bloated_nested_block(block_dets, *, repeated_message=False):
-    """
-    Look for long indented blocks under conditionals, inside loops etc that are
-    candidates for separating into functions to simplify the narrative of the
-    main code.
-    """
-    bloated_outer_types = set()
-    included_if = False
-    for lbl, outer_xpath in OUTER_XPATHS.items():
-        if has_long_block(block_dets.element, outer_xpath):
-            bloated_outer_types.add(lbl)
-            if lbl == 'if':
-                included_if = True
-    if not bloated_outer_types:
-        return None
-    brief_msg = layout("""\
-        
-        ### Possibility of avoiding excessively long nested blocks
-
-        """)
-    for bloated_outer_type in bloated_outer_types:
-        brief_msg += layout(f"""\
-            The code has at least one long nested block under
-            `{bloated_outer_type}:`
-            """)
-    if repeated_message:
-        main_msg = brief_msg
-        extra_msg = ''
-    else:
-        brief_msg += layout("""\
+    if not repeated_message:
+        brief_strategy = layout("""\
             You might want to consider applying a strategy for avoiding
             excessively long indented blocks:
             """)
-        main_msg = ''
         if included_if:
-            brief_msg, main_msg = get_short_circuit_alt_msgs(
-                brief_msg, main_msg)
-        brief_msg, main_msg = get_func_alt_msgs(brief_msg, main_msg)
-        extra_msg = layout("""\
+            short_circuit = short_circuit_msg
+            short_circuit_demo = short_circuit_demo_msg
+        else:
+            short_circuit = ''
+            short_circuit_demo = ''
+        move_to_func = move_to_func_msg
+        move_to_func_demo = move_to_func_demo_msg
+        human = layout("""\
             Computers can handle lots of nesting without malfunctioning. Human
             brains are not so fortunate. As it says in The Zen of Python:
 
             > "Flat is better than nested."
             """)
+    else:
+        brief_strategy = ''
+        short_circuit = ''
+        short_circuit_demo = ''
+        move_to_func = ''
+        move_to_func_demo = ''
+        human = ''
+
     message = {
-        conf.BRIEF: brief_msg,
-        conf.MAIN: main_msg,
-        conf.EXTRA: extra_msg,
+        conf.BRIEF: (title + summary + brief_strategy + short_circuit
+            + move_to_func),
+        conf.MAIN: (title + summary + brief_strategy + short_circuit
+            + short_circuit_demo + move_to_func + move_to_func_demo),
+        conf.EXTRA: human,
     }
     return message
