@@ -12,5 +12,5 @@ git:
 upload:
 
 	rm -f dist/*
-	python3 setup.py sdist bdist_wheel
-	python3 -m twine upload dist/*
+	/home/g/projects/superhelp/superhelp/env/bin/python3 setup.py sdist bdist_wheel
+	/home/g/projects/superhelp/superhelp/env/bin/python3 -m twine upload dist/*
