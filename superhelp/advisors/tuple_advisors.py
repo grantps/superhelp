@@ -6,7 +6,7 @@ from ..utils import layout_comment as layout
 ASSIGN_TUPLE_XPATH = 'descendant-or-self::Assign/value/Tuple'
 
 @filt_block_advisor(xpath=ASSIGN_TUPLE_XPATH)
-def tuple_overview(block_dets, *, repeated_message=False):
+def tuple_overview(block_dets, *, repeat=False):
     """
     Explain usage of tuples.
     """
@@ -35,7 +35,7 @@ def tuple_overview(block_dets, *, repeated_message=False):
 
             """))
     summary = ''.join(summary_bits)
-    if not repeated_message:
+    if not repeat:
         quick_immutability = layout("""\
 
             Tuples are like lists but the items inside cannot be replaced,

@@ -150,7 +150,7 @@ def _get_detailed_list_comment(first_name, first_list_items):
 ## only interested in lists when being assigned as a value
 ## (i.e. <body><Assign><value><List> so we're looking for List under value only)
 @filt_block_advisor(xpath=ASSIGN_LIST_XPATH)
-def list_overview(block_dets, *, repeated_message=False):
+def list_overview(block_dets, *, repeat=False):
     """
     General overview of list taking content details into account.
     """
@@ -187,7 +187,7 @@ def list_overview(block_dets, *, repeated_message=False):
     
                 `{name}` is a list with {utils.int2nice(len(items))} items.
                 """)
-    if not repeated_message:
+    if not repeat:
         brief_overview = layout("""\
 
             Lists, along with dictionaries, are the workhorses of Python data
@@ -209,7 +209,7 @@ def list_overview(block_dets, *, repeated_message=False):
     return message
 
 @filt_block_advisor(xpath=ASSIGN_LIST_XPATH, warning=True)
-def mixed_list_types(block_dets, *, repeated_message=False):  # @UnusedVariable
+def mixed_list_types(block_dets, *, repeat=False):  # @UnusedVariable
     """
     Warns about lists containing a mix of data types.
     """

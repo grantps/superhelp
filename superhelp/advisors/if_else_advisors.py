@@ -165,7 +165,7 @@ def _get_if_comment(block_dets):
     return if_comment
 
 @filt_block_advisor(xpath=IF_XPATH)
-def if_else_overview(block_dets, *, repeated_message=False):
+def if_else_overview(block_dets, *, repeat=False):
     """
     Look at conditional statements using if (apart from if __name__ ==
     '__main__").
@@ -174,7 +174,7 @@ def if_else_overview(block_dets, *, repeated_message=False):
         return None
 
     if_comment = _get_if_comment(block_dets)
-    if not repeated_message:
+    if not repeat:
         demo = (
             layout("""\
 
@@ -215,7 +215,7 @@ def if_else_overview(block_dets, *, repeated_message=False):
     return message
 
 @filt_block_advisor(xpath=IF_XPATH, warning=True)
-def missing_else(block_dets, *, repeated_message=False):
+def missing_else(block_dets, *, repeat=False):
     """
     Warn about benefits in many cases of adding else clause if missing.
     """
@@ -239,7 +239,7 @@ def missing_else(block_dets, *, repeated_message=False):
             `if` block{counter} has `elif` clauses but lacks an `else` clause.
 
             """))
-        if first and not repeated_message:
+        if first and not repeat:
             summary_bits.append(layout(f"""\
                 If your `elif` clauses are trying to handle all expected cases
                 it is probably best to include an `else` clause as well just in
@@ -369,7 +369,7 @@ def get_split_membership_dets(if_el):
     return comp_var, comp_vals_gp_str
 
 @filt_block_advisor(xpath=IF_XPATH)
-def split_group_membership(block_dets, *, repeated_message=False):
+def split_group_membership(block_dets, *, repeat=False):
     """
     Explain how to use in group and not in group rather than multiple
     comparisons.
@@ -401,7 +401,7 @@ def split_group_membership(block_dets, *, repeated_message=False):
             comparisons. In Python it is possible to do a simple check of group
             membership instead.
         """)
-    if not repeated_message:
+    if not repeat:
         demo = (
             layout(f"""\
 
@@ -477,11 +477,11 @@ def get_has_explicit_count(if_el):
     return has_explicit_boolean
 
 @filt_block_advisor(xpath=IF_XPATH)
-def implicit_boolean_enough(block_dets, *, repeated_message=False):
+def implicit_boolean_enough(block_dets, *, repeat=False):
     """
     Look for cases where an implicit boolean comparison is enough.
     """
-    if repeated_message:
+    if repeat:
         return None
     if_els = block_dets.element.xpath(IF_XPATH)
     implicit_boolean_possible = False
@@ -498,7 +498,7 @@ def implicit_boolean_enough(block_dets, *, repeated_message=False):
         ### Possible option of using an implicit boolean
 
         """)
-    if not repeated_message:
+    if not repeat:
         summary = (
             layout("""\
                 There is often no need to check a non-zero length explicitly. In
@@ -574,7 +574,7 @@ def could_short_circuit(if_el):
     return True
 
 @filt_block_advisor(xpath=IF_XPATH)
-def short_circuit(block_dets, *, repeated_message=False):
+def short_circuit(block_dets, *, repeat=False):
     """
     Look for cases where short-circuiting is possible.
     """
@@ -595,7 +595,7 @@ def short_circuit(block_dets, *, repeated_message=False):
         one single conditional expression.
 
         """)
-    if not repeated_message:
+    if not repeat:
         how2short_circuit = layout("""\
             If the second `if` can only be run once the first `if` has been
             evaluated as True it is still possible to combine the two

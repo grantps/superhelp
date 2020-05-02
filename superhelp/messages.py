@@ -156,7 +156,7 @@ def complete_message(message, *, source):
     return message
 
 def get_message_dets_from_input(advisor_dets, *,
-        advisor_input, code_str, first_line_no, repeated_message):
+        advisor_input, code_str, first_line_no, repeat):
     name = advisor_dets.advisor_name
     docstring = advisor_dets.advisor.__doc__
     if not docstring:
@@ -164,9 +164,9 @@ def get_message_dets_from_input(advisor_dets, *,
     try:
         try:
             message = advisor_dets.advisor(advisor_input,
-                repeated_message=repeated_message)
+                repeat=repeat)
         except TypeError as e:
-            if "unexpected keyword argument 'repeated_message'" in str(e):
+            if "unexpected keyword argument 'repeat'" in str(e):
                 message = advisor_dets.advisor(advisor_input)
             else:
                 raise
@@ -251,15 +251,15 @@ def get_block_level_messages_dets(blocks_dets, xml):
                 f"{len(blocks_dets2use)} matching blocks")
         else:  ## no filtering by element type so process all blocks
             blocks_dets2use = blocks_dets
-        repeated_message = False
+        repeat = False
         for block_dets in blocks_dets2use:
             message_dets = get_message_dets_from_input(advisor_dets,
                 advisor_input=block_dets, code_str=block_dets.block_code_str,
                 first_line_no=block_dets.first_line_no,
-                repeated_message=repeated_message)
+                repeat=repeat)
             if message_dets:
                 messages_dets.append(message_dets)
-                repeated_message = True
+                repeat = True
     return messages_dets
 
 def get_overall_snippet_messages_dets(snippet, blocks_dets):
@@ -271,7 +271,7 @@ def get_overall_snippet_messages_dets(snippet, blocks_dets):
     for advisor_dets in advisors.SNIPPET_ADVISORS:
         message_dets = get_message_dets_from_input(advisor_dets,
             advisor_input=blocks_dets, code_str=snippet, first_line_no=None,
-            repeated_message=False)
+            repeat=False)
         if message_dets:
             messages_dets.append(message_dets)
     return messages_dets

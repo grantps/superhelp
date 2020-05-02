@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from ..advisors import shared, snippet_advisor, filt_block_advisor
+from ..advisors import UNPACKING_COMMENT, snippet_advisor, filt_block_advisor
 from .. import conf, utils
 from ..utils import get_python_version, layout_comment as layout
 
@@ -30,7 +30,7 @@ else:
 ASSIGN_UNPACKING_XPATH = 'descendant-or-self::Assign/targets/Tuple'
 
 @filt_block_advisor(xpath=ASSIGN_UNPACKING_XPATH)
-def unpacking(block_dets, *, repeated_message=False):
+def unpacking(block_dets, *, repeat=False):
     """
     Identify name unpacking e.g. x, y = coord
     """
@@ -53,8 +53,8 @@ def unpacking(block_dets, *, repeated_message=False):
             Your code uses unpacking to assign names {nice_str_list}
             """))
     summary = ''.join(summary_bits)
-    if not repeated_message:
-        unpacking_msg = shared.UNPACKING_COMMENT
+    if not repeat:
+        unpacking_msg = UNPACKING_COMMENT
     else:
         unpacking_msg = ''
 
@@ -116,6 +116,6 @@ def unpacking_opportunity(blocks_dets):
 
     message = {
         conf.BRIEF: title + unpackable,
-        conf.EXTRA: shared.UNPACKING_COMMENT,
+        conf.EXTRA: UNPACKING_COMMENT,
     }
     return message

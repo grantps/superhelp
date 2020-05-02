@@ -6,7 +6,7 @@ from ..utils import get_nice_str_list, layout_comment as layout
 ASSIGN_DICT_XPATH = 'descendant-or-self::Assign/value/Dict'
 
 @filt_block_advisor(xpath=ASSIGN_DICT_XPATH)
-def dict_overview(block_dets, *, repeated_message=False):
+def dict_overview(block_dets, *, repeat=False):
     """
     Look at assigned dictionaries e.g. location = {'country' 'New Zealand',
     'city': 'Auckland'}
@@ -29,7 +29,7 @@ def dict_overview(block_dets, *, repeated_message=False):
             (i.e. {utils.int2nice(len(items))} mappings).
             """))
     brief_desc = ''.join(brief_desc_bits)
-    if not repeated_message:
+    if not repeat:
         dict_def = layout("""\
 
             Dictionaries map keys to values.
@@ -151,7 +151,7 @@ def get_key_type_names(items):
     return key_type_names, key_type_nice_names
 
 @filt_block_advisor(xpath=ASSIGN_DICT_XPATH, warning=True)
-def mixed_key_types(block_dets, *, repeated_message=False):
+def mixed_key_types(block_dets, *, repeat=False):
     """
     Warns about dictionaries with mix of string and integer keys.
     """
@@ -189,7 +189,7 @@ def mixed_key_types(block_dets, *, repeated_message=False):
             `{name}`'s keys include both strings and integers which is probably
             a bad idea.
             """)
-    if not repeated_message:
+    if not repeat:
         one_vs_1 = layout("""\
 
             For example, if you have both 1 and "1" as keys in a dictionary

@@ -1,4 +1,6 @@
-from ..advisors import shared, filt_block_advisor
+from ..advisors import  DICT_COMPREHENSION_COMMENT, \
+    GENERAL_COMPREHENSION_COMMENT, SET_COMPREHENSION_COMMENT, \
+    filt_block_advisor
 from ..ast_funcs import get_assign_name
 from .. import code_execution, conf, utils
 from ..utils import layout_comment as layout
@@ -6,7 +8,7 @@ from ..utils import layout_comment as layout
 ASSIGN_LISTCOMP_XPATH = 'descendant-or-self::Assign/value/ListComp'
 
 @filt_block_advisor(xpath=ASSIGN_LISTCOMP_XPATH)
-def listcomp_overview(block_dets, *, repeated_message=False):
+def listcomp_overview(block_dets, *, repeat=False):
     """
     Provide advice on list comprehensions and explain other types of
     comprehension available in Python.
@@ -35,13 +37,13 @@ def listcomp_overview(block_dets, *, repeated_message=False):
         with {utils.int2nice(len(items))} items: {items}
         """))
     summary = ''.join(summary_bits)
-    if not repeated_message:
+    if not repeat:
         other_comprehensions = (
             layout(f"""\
                 ### Other "comprehensions"
 
                 """)
-            + shared.GENERAL_COMPREHENSION_COMMENT
+            + GENERAL_COMPREHENSION_COMMENT
             + layout("""\
 
                 List comprehensions aren't the only type of comprehension you
@@ -49,9 +51,9 @@ def listcomp_overview(block_dets, *, repeated_message=False):
                 Comprehensions:
 
                 """)
-            + shared.DICT_COMPREHENSION_COMMENT
+            + DICT_COMPREHENSION_COMMENT
             + '\n\n'
-            + shared.SET_COMPREHENSION_COMMENT
+            + SET_COMPREHENSION_COMMENT
             + '\n\n'
             + layout("""\
                 Pro tip: don't make comprehension *in*comprehensions ;-). If it

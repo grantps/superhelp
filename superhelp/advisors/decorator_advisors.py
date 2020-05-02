@@ -1,5 +1,6 @@
 from ..advisors import filt_block_advisor
 from .. import conf
+from ..advisors import AOP_COMMENT
 from ..utils import get_nice_str_list, layout_comment as layout
 
 DECORATOR_XPATH = (
@@ -11,7 +12,7 @@ DECORATOR_XPATH = (
 )
 
 @filt_block_advisor(xpath=DECORATOR_XPATH)
-def decorator_overview(block_dets, *, repeated_message=False):
+def decorator_overview(block_dets, *, repeat=False):
     """
     Look for decorators and explain some options for improving them.
     """
@@ -36,7 +37,7 @@ def decorator_overview(block_dets, *, repeated_message=False):
 
             The code uses the decorator{plural}: {dec_name_list}.
             """)
-    if not repeated_message:
+    if not repeat:
         dec_dets = (
             layout("""\
 
@@ -95,11 +96,14 @@ def decorator_overview(block_dets, *, repeated_message=False):
                 say("sausage!")
                 ''', is_code=True)
         )
+        aop = AOP_COMMENT
     else:
         dec_dets = ''
+        aop = ''
 
     message = {
         conf.BRIEF: summary,
         conf.MAIN: summary + dec_dets,
+        conf.EXTRA: aop,
     }
     return message

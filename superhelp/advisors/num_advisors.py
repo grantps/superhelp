@@ -33,7 +33,7 @@ else:
     raise Exception(f"Unexpected Python version {python_version}")
 
 @filt_block_advisor(xpath=ASSIGN_VAL_XPATH)
-def num_overview(block_dets, *, repeated_message=False):
+def num_overview(block_dets, *, repeat=False):
     """
     Get general advice about assigned numbers e.g. var = 123
     """
@@ -72,7 +72,7 @@ def num_overview(block_dets, *, repeated_message=False):
                 {names_text} are numbers - specific type `{val_type}`.
                 """))
     names_msg = ''.join(names_msg_bits)
-    if not repeated_message:
+    if not repeat:
         specifics_bits = []
         for val_type, names in val_types.items():
             first_name = names[0]

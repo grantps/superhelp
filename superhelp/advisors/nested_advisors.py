@@ -30,7 +30,7 @@ def has_long_block(block_el, xpath):
     return long_block
 
 @filt_block_advisor(xpath=NESTING_XPATH, warning=True)
-def bloated_nested_block(block_dets, *, repeated_message=False):
+def bloated_nested_block(block_dets, *, repeat=False):
     """
     Look for long indented blocks under conditionals, inside loops etc that are
     candidates for separating into functions to simplify the narrative of the
@@ -148,7 +148,7 @@ def bloated_nested_block(block_dets, *, repeated_message=False):
             logging.info("Finished!")
             ''', is_code=True)
     )
-    if not repeated_message:
+    if not repeat:
         brief_strategy = layout("""\
             You might want to consider applying a strategy for avoiding
             excessively long indented blocks:

@@ -56,7 +56,7 @@ else:
     raise Exception(f"Unexpected Python version {python_version}")
 
 @filt_block_advisor(xpath=ASSIGN_VALUE_XPATH)
-def assigned_str_overview(block_dets, *, repeated_message=False):
+def assigned_str_overview(block_dets, *, repeat=False):
     """
     Provide overview of assigned strings e.g. name = 'Hamish'.
     """
@@ -85,7 +85,7 @@ def assigned_str_overview(block_dets, *, repeated_message=False):
             `{name}` is a string.
 
             """)
-    if not repeated_message:
+    if not repeat:
         cool = layout("""\
             Python makes it easy to do lots of cool things with strings.
 
@@ -158,7 +158,7 @@ def assigned_str_overview(block_dets, *, repeated_message=False):
     }
     return message
 
-def str_combination(combination_type, str_els, *, repeated_message=False):
+def str_combination(combination_type, str_els, *, repeat=False):
     global F_STR_REMINDER
     combination_type2comment = {
         F_STR: "f-string interpolation",
@@ -185,7 +185,7 @@ def str_combination(combination_type, str_els, *, repeated_message=False):
             {name} is created using {combination_comment}.
             """))
     how_combined = ''.join(how_combined_bits)
-    if not repeated_message:
+    if not repeat:
         if combination_type != F_STR and not F_STR_REMINDER:
             F_STR_REMINDER = True
             brief_fstring_msg = layout("""\
@@ -253,16 +253,16 @@ def str_combination(combination_type, str_els, *, repeated_message=False):
     return message
 
 @filt_block_advisor(xpath=JOINED_STR_XPATH)
-def f_str_interpolation(block_dets, *, repeated_message=False):
+def f_str_interpolation(block_dets, *, repeat=False):
     """
     Examine f-string interpolation.
     """
     joined_els = block_dets.element.xpath(JOINED_STR_XPATH)
     return str_combination(F_STR,
-        joined_els, repeated_message=repeated_message)
+        joined_els, repeat=repeat)
 
 @filt_block_advisor(xpath=FUNC_ATTR_XPATH)
-def format_str_interpolation(block_dets, repeated_message=False):
+def format_str_interpolation(block_dets, repeat=False):
     """
     Look at use of .format() to interpolate into strings.
     """
@@ -275,10 +275,10 @@ def format_str_interpolation(block_dets, repeated_message=False):
     if not format_funcs:
         return None
     return str_combination(STR_FORMAT_FUNC,
-        format_funcs, repeated_message=repeated_message)
+        format_funcs, repeat=repeat)
 
 @any_block_advisor()
-def sprintf(block_dets, *, repeated_message=False):
+def sprintf(block_dets, *, repeat=False):
     """
     Look at use of sprintf for string interpolation e.g. greeting = "Hi %s" %
     name
@@ -288,10 +288,10 @@ def sprintf(block_dets, *, repeated_message=False):
     if not has_sprintf:
         return None
     return str_combination(SPRINTF,
-        sprintf_els, repeated_message=repeated_message)
+        sprintf_els, repeat=repeat)
 
 @any_block_advisor()
-def string_addition(block_dets, *, repeated_message=False):
+def string_addition(block_dets, *, repeat=False):
     """
     Advise on string combination using +. Explain how f-string alternative
     works.
@@ -312,5 +312,5 @@ def string_addition(block_dets, *, repeated_message=False):
     if not has_string_addition:
         return None
     addition_message = str_combination(STR_ADDITION,
-        str_addition_els, repeated_message=repeated_message)
+        str_addition_els, repeat=repeat)
     return addition_message

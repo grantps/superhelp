@@ -6,7 +6,7 @@ from ..utils import layout_comment as layout
 ASSIGN_FUNC_NAME_XPATH = 'descendant-or-self::Assign/value/Call/func/Name'
 
 @filt_block_advisor(xpath=ASSIGN_FUNC_NAME_XPATH)
-def set_overview(block_dets, *, repeated_message=False):
+def set_overview(block_dets, *, repeat=False):
     """
     Look for sets and provide general advice on using them and finding out more.
     """
@@ -47,7 +47,7 @@ def set_overview(block_dets, *, repeated_message=False):
                 {members}
                 """))
     summary = ''.join(summary_bits)
-    if not repeated_message:
+    if not repeat:
         sets_rock = (
             layout("""\
 

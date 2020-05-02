@@ -27,9 +27,10 @@ else:
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 
 TEST_SNIPPET = """\
-def powerMe(num, *, power=2):
-    poweredVal = num ** power
-    return poweredVal
+with open('using_cm.txt') as f:
+    text = f.read()
+f = open('no_cm,txt')
+text = f.read()
 """
 
 DEMO_SNIPPET = """\

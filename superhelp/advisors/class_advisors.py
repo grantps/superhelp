@@ -10,7 +10,7 @@ from ..utils import get_nice_str_list, layout_comment as layout
 CLASS_XPATH = ('descendant-or-self::ClassDef')
 
 @filt_block_advisor(xpath=CLASS_XPATH, warning=True)
-def getters_setters(block_dets, *, repeated_message=False):
+def getters_setters(block_dets, *, repeat=False):
     """
     Look for getters and setters and suggest @property if appropriate.
     """
@@ -52,7 +52,7 @@ def getters_setters(block_dets, *, repeated_message=False):
                 looks like a {method_type}.
                 """))
     simple_class_msg = ''.join(simple_class_msg_bits)
-    if not repeated_message:
+    if not repeat:
         properties_option = layout("""\
 
             Python doesn't need getters and setters. Instead, you can use
@@ -201,7 +201,7 @@ def getters_setters(block_dets, *, repeated_message=False):
     return message
 
 @filt_block_advisor(xpath=CLASS_XPATH, warning=True)
-def selfless_methods(block_dets, *, repeated_message=False):
+def selfless_methods(block_dets, *, repeat=False):
     """
     Look for class methods that don't use self as candidates for @staticmethod
     decorator. Note - not worried about detecting sophisticated cases with
@@ -250,7 +250,7 @@ def selfless_methods(block_dets, *, repeated_message=False):
                 doesn't use the instance (usually called `self`).
                 """))
     simple_class_msg = ''.join(simple_class_msg_bits)
-    if not repeated_message:
+    if not repeat:
         staticmethod_msg = layout("""\
 
             If a method doesn't use the instance it can be either pulled into a
@@ -304,7 +304,7 @@ def selfless_methods(block_dets, *, repeated_message=False):
     return message
 
 @filt_block_advisor(xpath=CLASS_XPATH, warning=True)
-def one_method_classes(block_dets, *, repeated_message=False):
+def one_method_classes(block_dets, *, repeat=False):
     """
     Look for classes with only one method (other than __init__) and suggest a
     simple function as an alternative..
@@ -349,7 +349,7 @@ def one_method_classes(block_dets, *, repeated_message=False):
         - {class_name}: {method2use}
         """))
     n_methods_msg = ''.join(n_methods_msg_bits)
-    if not repeated_message:
+    if not repeat:
         not_just_oo = layout("""\
             Python allows procedural, object-oriented, and functional styles of
             programming. Event-based programming is also used in GUI contexts,

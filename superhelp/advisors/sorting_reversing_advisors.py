@@ -33,7 +33,7 @@ def _get_sorting_or_reversing_comment(block_dets):
     return comment
 
 @any_block_advisor()
-def sorting_reversing_overview(block_dets, *, repeated_message=False):
+def sorting_reversing_overview(block_dets, *, repeat=False):
     """
     Provide an overview of sorting and/or reversing. Advise on common
     confusions.
@@ -50,7 +50,7 @@ def sorting_reversing_overview(block_dets, *, repeated_message=False):
     minimal = layout(f"""\
         This block of code {sorting_or_reversing_comment}.
         """)
-    if not repeated_message:
+    if not repeat:
         summary = layout(f"""\
             Sorting and, to a lesser extent, reversing are very common needs in
             programming. Two key points:
@@ -142,7 +142,7 @@ def sorting_reversing_overview(block_dets, *, repeated_message=False):
 ASSIGN_FUNC_ATTRIBUTE_XPATH = 'descendant-or-self::Assign/value/Call/func/Attribute'
 
 @filt_block_advisor(xpath=ASSIGN_FUNC_ATTRIBUTE_XPATH, warning=True)
-def list_sort_as_value(block_dets, *, repeated_message=False):
+def list_sort_as_value(block_dets, *, repeat=False):
     """
     Warn about assigning a name to the result using .sort() on a list.
     """
@@ -161,7 +161,7 @@ def list_sort_as_value(block_dets, *, repeated_message=False):
         ### Assignment of `None` result from in-place `.sort()` on list
 
         """)
-    if not repeated_message:
+    if not repeat:
         multiple = len(names_assigned_to_sort) > 1
         if multiple:
             nice_str_list = get_nice_str_list(

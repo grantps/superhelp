@@ -21,6 +21,8 @@ def h(text, level):
     if level <= 2:
         text = f"{vertical_padding_line}\n{text}\n{vertical_padding_line}"
         bold = True
+    if level == 1:
+        text = f"\n{text}"
     return cli_colour.colourise(
         text, level_colour, reverse=True, bold=bold) + '\n'
 

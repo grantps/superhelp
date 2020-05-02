@@ -86,7 +86,7 @@ def get_overall_func_type_lbl(func_els):
         conf.FUNCTION_LBL if includes_plain_function else conf.METHOD_LBL)
     return overall_func_type_lbl
 
-def _get_arg_comment(func_el, *, repeated_message=False):
+def _get_arg_comment(func_el, *, repeat=False):
     """
     Must cope with positional arguments, keyword arguments, keyword-only
     arguments, packed positional arguments, and packed keyword arguments.
@@ -102,7 +102,7 @@ def _get_arg_comment(func_el, *, repeated_message=False):
     has_packing = (vararg or kwarg)
     if has_packing:
         arg_comment = 'receives a variable number of arguments'
-        if repeated_message:
+        if repeat:
             arg_comment += '.'
         else:
             if vararg:
@@ -131,7 +131,7 @@ def _get_arg_comment(func_el, *, repeated_message=False):
     return arg_comment
 
 def _get_return_comment(func_type_lbl, return_elements, *,
-        repeated_message=False):
+        repeat=False):
     """
     Comment should end without a full stop because calling code adds that to
     make the sentence structure more explicit.
@@ -155,14 +155,14 @@ def _get_return_comment(func_type_lbl, return_elements, *,
     if not keyword_returns_n:
         returns_comment = (
             f"The {func_type_lbl} does not explicitly return anything")
-        if not repeated_message:
+        if not repeat:
             returns_comment += (
                 ". In which case, in Python, it implicitly returns `None`")
     else:
         returns_comment = (
             f"The {func_type_lbl} exits via an explicit `return` statement "
             f"{utils.int2nice(keyword_returns_n)} time")
-        if not repeated_message:
+        if not repeat:
             if keyword_returns_n > 1:
                 returns_comment += (
                     f"s. Some people prefer {func_type_lbl}s to have one, and "
@@ -174,7 +174,7 @@ def _get_return_comment(func_type_lbl, return_elements, *,
                     "about in terms of what it returns and where it exits")
     return returns_comment
 
-def _get_exit_comment(func_el, func_type_lbl, *, repeated_message=False):
+def _get_exit_comment(func_el, func_type_lbl, *, repeat=False):
     """
     Look for 'return' and 'yield'.
     """
@@ -188,11 +188,11 @@ def _get_exit_comment(func_el, func_type_lbl, *, repeated_message=False):
             exit_comment = "It is a generator function."
     else:
         exit_comment = _get_return_comment(func_type_lbl,
-            return_elements, repeated_message=repeated_message)
+            return_elements, repeat=repeat)
     return exit_comment
 
 @filt_block_advisor(xpath=FUNC_DEFN_XPATH)
-def func_overview(block_dets, *, repeated_message=False):
+def func_overview(block_dets, *, repeat=False):
     """
     Advise on function (or method) definition statements.
     e.g. def greeting(): ...
@@ -209,15 +209,15 @@ def func_overview(block_dets, *, repeated_message=False):
         func_type_lbl = get_func_type_lbl(func_el)
         name = func_el.get('name')
         arg_comment = _get_arg_comment(
-            func_el, repeated_message=repeated_message)
+            func_el, repeat=repeat)
         exit_comment = _get_exit_comment(
-            func_el, func_type_lbl, repeated_message=repeated_message)
+            func_el, func_type_lbl, repeat=repeat)
         detail_bits.append(layout(f"""\
 
             The {func_type_lbl} named `{name}` {arg_comment}. {exit_comment}.
             """))
     details = ''.join(detail_bits)
-    if not repeated_message:
+    if not repeat:
         args_vs_params = layout(f"""\
 
             There is often confusion about the difference between arguments and
@@ -249,7 +249,7 @@ def func_overview(block_dets, *, repeated_message=False):
     return message
 
 @filt_block_advisor(xpath=FUNC_DEFN_XPATH, warning=True)
-def func_len_check(block_dets, *, repeated_message=False):
+def func_len_check(block_dets, *, repeat=False):
     """
     Warn about functions that might be too long.
     """
@@ -285,7 +285,7 @@ def func_len_check(block_dets, *, repeated_message=False):
             (including comments but with empty lines ignored).
             """))
     summary = ''.join(summary_bits)
-    if not repeated_message:
+    if not repeat:
         sometimes_ok = (
             f" Sometimes it is OK for a {func_type_lbl} to be "
             "that long but you should consider refactoring the code "
@@ -306,7 +306,7 @@ def get_n_args(func_el):
     return n_args
 
 @filt_block_advisor(xpath=FUNC_DEFN_XPATH, warning=True)
-def func_excess_parameters(block_dets, *, repeated_message=False):
+def func_excess_parameters(block_dets, *, repeat=False):
     """
     Warn about functions that might have too many parameters.
     """
@@ -336,7 +336,7 @@ def func_excess_parameters(block_dets, *, repeated_message=False):
             `{name}` has {n_args:,} parameters.
 
             """))
-        if first and not repeated_message:
+        if first and not repeat:
             summary_bits.append(layout(f"""\
                 Sometimes it is OK for a {func_type_lbl} to have that many but
                 you should consider refactoring the code or collecting related
@@ -371,7 +371,7 @@ def get_danger_args(func_el):
     return danger_args
 
 @filt_block_advisor(xpath=FUNC_DEFN_XPATH, warning=True)
-def positional_boolean(block_dets, *, repeated_message=False):
+def positional_boolean(block_dets, *, repeat=False):
     """
     Look for any obvious candidates for forced keyword use e.g. where a
     parameter is a boolean or a number.
@@ -402,7 +402,7 @@ def positional_boolean(block_dets, *, repeated_message=False):
             A partial analysis of `{name}` found the following risky non-
             keyword (positional) parameters: {danger_args}.
             """))
-        if first and not repeated_message:  ## explaining once is enough ;-)
+        if first and not repeat:  ## explaining once is enough ;-)
             summary_bits.append(layout(f"""\
 
                 {func_type_lbl.title}s which expect numbers or booleans
@@ -413,7 +413,7 @@ def positional_boolean(block_dets, *, repeated_message=False):
                 to alter / maintain over time than mysterious code.
                 """))
     summary = ''.join(summary_bits)
-    if not repeated_message:
+    if not repeat:
         asterisk_demo = (
             layout("""\
 
@@ -488,7 +488,7 @@ def get_funcs_dets_and_docstring(func_els):
     return funcs_dets_and_docstring
 
 @filt_block_advisor(xpath=FUNC_DEFN_XPATH, warning=True)
-def docstring_issues(block_dets, *, repeated_message=False):
+def docstring_issues(block_dets, *, repeat=False):
     """
     Check over function doc strings. Missing doc string, not enough lines to
     cover params, return etc.
@@ -537,7 +537,7 @@ def docstring_issues(block_dets, *, repeated_message=False):
     for i, (func_name, func_type_lbl, problem) in enumerate(docstring_issues):
         first = (i == 0)
         if problem == MISSING_DOCSTRING:
-            if first and not repeated_message:  ## only want to say it once ;-)
+            if first and not repeat:  ## only want to say it once ;-)
                 summary_bits.append((
                     layout(f"""\
 
@@ -568,7 +568,7 @@ def docstring_issues(block_dets, *, repeated_message=False):
                     You should probably add a doc string to `{func_name}`
                     """))
         elif problem == DOCSTRING_TOO_SHORT:
-            if first and not repeated_message:
+            if first and not repeat:
                 summary_bits.append((layout(f"""\
 
                     #### Function doc string too brief?

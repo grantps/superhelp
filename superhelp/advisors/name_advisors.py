@@ -1,8 +1,7 @@
 from collections import defaultdict
 
-from ..advisors import any_block_advisor
+from ..advisors import any_block_advisor, is_reserved_name
 from .. import conf, utils
-from .shared import is_reserved_name
 from ..utils import get_nice_str_list, int2nice, layout_comment as layout
 
 def _get_shamed_names_title(reserved_names, bad_names, dubious_names):
@@ -130,7 +129,7 @@ def get_all_names(block_dets, *, include_non_standard=False):
     return all_names
 
 @any_block_advisor(warning=True)
-def unpythonic_name_check(block_dets, *, repeated_message=False):
+def unpythonic_name_check(block_dets, *, repeat=False):
     """
     Check names used for use of reserved words and camel case.
     """
@@ -181,7 +180,7 @@ def unpythonic_name_check(block_dets, *, repeated_message=False):
             """)
     else:
         dubious_comment = ''
-    if not repeated_message:
+    if not repeat:
         snake_case = layout("""\
 
             Python variables should not named using reserved words e.g.
@@ -214,7 +213,7 @@ def unpythonic_name_check(block_dets, *, repeated_message=False):
     return message
 
 @any_block_advisor(warning=True)
-def short_name_check(block_dets, *, repeated_message=False):
+def short_name_check(block_dets, *, repeat=False):
     """
     Check for short variable names.
     """
@@ -253,7 +252,7 @@ def short_name_check(block_dets, *, repeated_message=False):
 
         {short_comment}
         """)
-    if not repeated_message:
+    if not repeat:
         idiomatic = (
             layout("""\
 

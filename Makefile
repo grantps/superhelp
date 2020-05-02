@@ -13,4 +13,4 @@ upload:
 
 	rm -f dist/*
 	/home/g/projects/superhelp/superhelp/env/bin/python3 setup.py sdist bdist_wheel
-	/home/g/projects/superhelp/superhelp/env/bin/python3 -m twine upload dist/* example_*.png
+	/home/g/projects/superhelp/superhelp/env/bin/python3 -m twine upload dist/*

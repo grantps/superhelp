@@ -1,4 +1,6 @@
-from ..advisors import shared, filt_block_advisor
+from ..advisors import DICT_COMPREHENSION_COMMENT, \
+    GENERAL_COMPREHENSION_COMMENT, LIST_COMPREHENSION_COMMENT, \
+    SET_COMPREHENSION_COMMENT, filt_block_advisor
 from ..ast_funcs import get_el_lines_dets
 from .. import conf
 from ..utils import layout_comment as layout
@@ -6,7 +8,7 @@ from ..utils import layout_comment as layout
 FOR_XPATH = 'descendant-or-self::For'
 
 @filt_block_advisor(xpath=FOR_XPATH)
-def comprehension_option(block_dets, *, repeated_message=False):
+def comprehension_option(block_dets, *, repeat=False):
     """
     Provide overview of for loop to see if simple enough to be a possible
     candidate for a comprehension.
@@ -31,13 +33,13 @@ def comprehension_option(block_dets, *, repeated_message=False):
     comp_comment = ''
     if 'append' in block_dets.block_code_str:
         comp_type = 'List Comprehension'
-        comp_comment = shared.LIST_COMPREHENSION_COMMENT
+        comp_comment = LIST_COMPREHENSION_COMMENT
     elif len(block_dets.element.cssselect('Subscript')):  ## Seems a reasonable indicator
         comp_type = 'Dictionary Comprehension'
-        comp_comment = shared.DICT_COMPREHENSION_COMMENT
+        comp_comment = DICT_COMPREHENSION_COMMENT
     elif 'set' in block_dets.block_code_str:
         comp_type = 'Set Comprehension'
-        comp_comment = shared.SET_COMPREHENSION_COMMENT
+        comp_comment = SET_COMPREHENSION_COMMENT
     else:
         return None
 
@@ -46,7 +48,7 @@ def comprehension_option(block_dets, *, repeated_message=False):
         ### Possible option of using a {comp_type}
 
         """)
-    if not repeated_message:
+    if not repeat:
         option = layout(f"""\
             Simple for loops can sometimes be replaced with comprehensions. In
             this case a simple reading of the code suggests a {comp_type} might
@@ -58,7 +60,7 @@ def comprehension_option(block_dets, *, repeated_message=False):
 
     message = {
         conf.BRIEF: title + option,
-        conf.MAIN: (title + option + shared.GENERAL_COMPREHENSION_COMMENT
+        conf.MAIN: (title + option + GENERAL_COMPREHENSION_COMMENT
             + '\n\n' + comp_comment),
     }
     return message
@@ -120,7 +122,7 @@ def get_incremental_iteration_dets(for_el):
     return index_name, iterable_name
 
 @filt_block_advisor(xpath=FOR_XPATH)
-def for_index_iteration(block_dets, *, repeated_message=False):
+def for_index_iteration(block_dets, *, repeat=False):
     """
     Look to see if an opportunity for simple iteration available as more
     pythonic alternative to incremental indexing.
@@ -150,7 +152,7 @@ def for_index_iteration(block_dets, *, repeated_message=False):
         It looks like your snippet iterates through `{iterable_name}` using
         indexes. In Python you can iterate directly which is much easier.
         """)
-    if not repeated_message:
+    if not repeat:
         examples = (
             layout(f"""\
 
@@ -193,7 +195,7 @@ def for_index_iteration(block_dets, *, repeated_message=False):
     return message
 
 @filt_block_advisor(xpath=FOR_XPATH)
-def nested_fors(block_dets, *, repeated_message=False):
+def nested_fors(block_dets, *, repeat=False):
     """
     Look to see if an opportunity for using itertools.product instead of nested
     iteration.
@@ -215,7 +217,7 @@ def nested_fors(block_dets, *, repeated_message=False):
         Consider replacing nested iteration with `itertools.product`.
 
         """)
-    if not repeated_message:
+    if not repeat:
         demo = (
             layout("""\
                 For example, you could replace:
