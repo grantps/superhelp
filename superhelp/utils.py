@@ -79,3 +79,8 @@ def layout_comment(raw_comment, *, is_code=False):
             new_paragraphs.append(new_paragraph)
         comment = '\n' + '\n\n'.join(new_paragraphs)
     return comment
+
+def get_docstring_start(docstring):
+    docstring_start = (
+        docstring.lstrip('\n').split('\n\n')[0].strip().replace('\n    ', ' '))
+    return docstring_start

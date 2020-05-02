@@ -2,39 +2,34 @@
 Add advisors modules inside this folder.
 
 To add more advice, just declare more advisor functions inside the advisors
-modules with the @..._advisor decorators :-).
+modules with the @..._advisor decorators :-). Make sure the first paragraph of
+the docstring is a good, user-facing description of its purpose so it can be
+automatically processed into lists of available advice in SuperHELP.
 
-Advisors return None if a selected element doesn't match.
+The basic pattern within an advisor function is:
 
-WARNING: Dedenting can be broken by a single line which is not indented like the
-rest. It is surprisingly easy to create this problem using new line characters
-in your strings. So don't ;-). Use triple quotes and actual line breaks. Don't
-believe me? See examples below:
+* Get the correct elements and see if the target pattern is found e.g. a value
+  being assigned to a name
 
-Note - the backslash after the triple quotes below is a standard Python trick to
-prevent an extra implicit new line character.
+* If not, exit returning None
 
-E.g. dedent(
-'''\
-    line 1
-    line 2
+* Otherwise create all the different message parts ready to assemble in the
+  message.
 
-    line 100\n Extra text  FAIL - will not dedent beyond the one space before 'Extra text'.
-''')
+  Some parts will have two versions - one for the first time the message appears
+  for a block of the code snippet; and one for subsequent appearances. These
+  "repeat" versions are sometimes empty strings; other times they are simply
+  much shorter versions.
 
-E.g. dedent(
-'''\
-    line 1
-    \nline 2  ## FAIL - no indentation for line 2 so no dedenting possible
-''')
+  Don't manually try to dedent etc the message parts - use the layout_comment
+  function and follow the example of other advisor modules. It is very easy to
+  break markdown in ways which mess up the terminal output.
 
-E.g. dedent(
-'''\
-    line 1\n  ## SUCCESS - lines 1 and 2 are indented and the new line character won't interfere
-    line 2
-''')
+* Assemble the message. There can be up to three parts: brief, main, and extra.
+  Only the brief component is mandatory. If not supplied, the main component is
+  just a repeat of the brief component.
 
-Subtle huh!!? And you thought whitespace in Python was a risk!
+* Add to the appropriate test module. Only test advisors within the module.
 """
 import builtins
 from collections import namedtuple
@@ -45,7 +40,7 @@ import sys
 from textwrap import dedent
 
 from .. import conf
-from ..utils import layout_comment as layout
+from ..utils import get_docstring_start, layout_comment as layout
 
 
 FILT_BLOCK_ADVISORS = []  ## block-based advisors which only apply to blocks filtered to contain specified element types
@@ -140,9 +135,17 @@ def load_advisors():
     for submodule in submodules:
         import_module(submodule.name)
 
+def get_advisor_comments():
+    advisor_comments = []
+    all_advisors_dets = (
+        FILT_BLOCK_ADVISORS + ANY_BLOCK_ADVISORS + SNIPPET_ADVISORS)
+    for advisor_dets in all_advisors_dets:
+        docstring = advisor_dets.advisor.__doc__
+        advisor_comment = get_docstring_start(docstring)
+        advisor_comments.append(advisor_comment)
+    return advisor_comments
 
 ## =============================================================================
-
 
 def is_reserved_name(name):
     is_reserved = name in set(keyword.kwlist + dir(builtins) + conf.STD_LIBS)
@@ -413,4 +416,3 @@ SET_COMPREHENSION_COMMENT = (
         }
         ))
 )
-

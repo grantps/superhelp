@@ -13,7 +13,7 @@ RECORD_AST = f  ## (f)
 DEV_MODE = f  ## (f)
 DO_TEST = t  ## set test snippet as default rather than the larger demo snippet (t)
 DO_HTML = t  ## set html displayer as default (t)
-DO_DISPLAYER = t  ## f is only ever used when testing pre-display (t)
+DO_DISPLAYER = f  ## f is only ever used when testing pre-display (t)
 
 ## =============================================================================
 

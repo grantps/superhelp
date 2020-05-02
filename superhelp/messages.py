@@ -84,7 +84,7 @@ astpath.asts.convert_to_xml = convert_to_xml
 ## importing from superhelp only works properly after I've installed superhelp as a pip package (albeit as a link to this code using python3 -m pip install --user -e <path_to_proj_folder>)
 ## Using this as a library etc works with . instead of superhelp but I want to be be able to run the helper module from within my IDE
 from superhelp import advisors, ast_funcs, conf  # @UnresolvedImport
-from superhelp.utils import layout_comment  # @UnresolvedImport
+from superhelp.utils import get_docstring_start, layout_comment  # @UnresolvedImport
 
 BlockDets = namedtuple(
     'BlockDets', 'element, pre_block_code_str, block_code_str, first_line_no')
@@ -179,7 +179,7 @@ def get_message_dets_from_input(advisor_dets, *,
                     Advisor {name} unable to run. Advisor description:
                     """)
                 +  ## show first line of docstring (subsequent lines might have more technical, internally-oriented comments)
-                layout_comment(docstring.lstrip('\n').split('\n\n')[0] + '\n')
+                layout_comment(get_docstring_start(docstring) + '\n')
                 +
                 layout_comment(str(e))
             )

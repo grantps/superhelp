@@ -74,6 +74,8 @@ def get_advice(snippet=None, *, file_path=None, displayer='html',
             message_level=message_level, in_notebook=in_notebook)
         if in_notebook:
             return res
+    for comment in advisors.get_advisor_comments():
+        print(comment)
 
 def shelp():
     """

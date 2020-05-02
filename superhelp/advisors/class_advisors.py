@@ -307,7 +307,7 @@ def selfless_methods(block_dets, *, repeat=False):
 def one_method_classes(block_dets, *, repeat=False):
     """
     Look for classes with only one method (other than __init__) and suggest a
-    simple function as an alternative..
+    simple function as an alternative.
     """
     class_els = block_dets.element.xpath(CLASS_XPATH)
     if not class_els:
