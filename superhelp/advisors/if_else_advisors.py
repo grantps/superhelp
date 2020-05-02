@@ -643,3 +643,169 @@ def short_circuit(block_dets, *, repeat=False):
         conf.MAIN: summary + how2short_circuit + demo,
     }
     return message
+
+def could_any_or_all(if_el):
+    could_any = False
+    could_all = False
+    boolop_val_els = if_el.xpath('descendant::BoolOp/values')
+    for boolop_val_el in boolop_val_els:
+        n_items = len(boolop_val_el.getchildren())
+        if n_items < conf.MIN4ANY_OR_ALL:  ## worth doing any or all
+            continue
+        boolop_el = boolop_val_el.getparent()
+        op_els = boolop_el.xpath('op')
+        op_el = op_els[0]
+        op_type_el = op_el.getchildren()[0]
+        if op_type_el.tag == 'Or':
+            could_any = True
+        elif op_type_el.tag == 'And':
+            could_all = True
+        if all([could_any, could_all]):
+            break
+    return could_any, could_all
+
+@filt_block_advisor(xpath=IF_XPATH)
+def any_all(block_dets, *, repeat=False):
+    """
+    Look for cases where using built-in any or all functions makes sense.
+    """
+    if_els = block_dets.element.xpath(IF_XPATH)
+    could_any_something = False
+    could_all_something = False
+    for if_el in if_els:
+        could_any, could_all = could_any_or_all(if_el)
+        if could_any:
+            could_any_something = True
+        if could_all:
+            could_all_something = True
+        if all([could_any_something, could_all_something]):  ## LOL - thought I might use 'all' given the context even though only two items
+            break
+    if not any([could_any_something, could_all_something]):
+        return None
+
+    if all([could_any_something, could_all_something]):
+        title_content = "Consider using `any` and `all`"
+    elif could_any_something:
+        title_content = "Consider using `any`"
+    elif could_all_something:
+        title_content = "Consider using `all`"
+    else:
+        raise Exception("Unexpected situation with "
+            f"could_any_something ({could_any_something}) "
+            f"and could_all_something ({could_all_something})")
+    title = layout(f"""\
+
+        ### {title_content}
+
+        """)
+    if not repeat:
+        summary = layout("""\
+
+            Python has built-in `any` and `all` functions that make your code
+            more readable when you're evaluating whether all or any of a group
+            of items are True (or whether _not_ all or _not_ any are True). The
+            argument has to be an iterable e.g. a list.
+
+            """)
+        demo = (
+            layout("""\
+
+                For example, instead of:
+
+                """)
+            +
+            layout("""\
+
+                if current or valid or safe or permitted:
+                    proceed()
+
+                """, is_code=True)
+            +
+            layout("""\
+
+                you could write the more semantic:
+
+                """)
+            +
+            layout("""\
+
+                if all([current, valid, safe, permitted]):
+                    proceed()
+
+                """, is_code=True)
+            +
+            layout("""\
+
+                or the equivalent, and, arguably, more readable:
+
+                """)
+            +
+            layout("""\
+
+                conditions = [current, valid, safe, permitted]
+                if all(conditions):
+                    proceed()
+
+                """, is_code=True)
+            +
+            layout("""\
+
+                Or if you wanted the negation the syntax would be:
+
+                """)
+            +
+            layout("""\
+
+                if not all(conditions):
+                    exit()
+
+                """, is_code=True)
+            +
+            layout("""\
+
+                The `any` function works the same way
+
+                """)
+            +
+            layout("""\
+
+                flatmate_positives = [
+                    has_car, has_appliances, has_tv, great_cook, funny]
+                if any(flatmate_positives):
+                    recruit_to_flat()
+
+                """, is_code=True)
+        )
+        extra = (
+            layout("""\
+
+                It is easy to forget that an iterable has to be passed in as the
+                argument rather than the individual items. So:
+
+                """)
+            +
+            layout("""\
+
+                if any(books, magazines, comics, games):  ## FAIL TypeError: any() takes exactly one argument (4 given)
+                    relax()
+
+                if any([books, magazines, comics, games]):  ## SUCCESS
+                    relax()
+                """, is_code=True)
+        )
+    else:
+        summary = layout("""\
+
+            Python has built-in `any` and `all` functions that can make your
+            code more readable.
+
+            """)
+        demo = ''
+        extra = ''
+
+    message = {
+        conf.BRIEF: title + summary,
+        conf.MAIN: title + summary + demo,
+        conf.EXTRA: extra,
+    }
+    return message

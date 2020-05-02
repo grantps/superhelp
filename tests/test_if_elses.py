@@ -16,6 +16,7 @@ def test_misc():
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
                 ROOT + 'short_circuit': 0,
+                ROOT + 'any_all': 0,
             }
         ),
         (
@@ -29,6 +30,7 @@ def test_misc():
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
                 ROOT + 'short_circuit': 0,
+                ROOT + 'any_all': 0,
             }
         ),
         (
@@ -44,6 +46,7 @@ def test_misc():
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
                 ROOT + 'short_circuit': 0,
+                ROOT + 'any_all': 0,
             }
         ),
         (
@@ -61,6 +64,7 @@ def test_misc():
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
                 ROOT + 'short_circuit': 0,
+                ROOT + 'any_all': 0,
             }
         ),
         (
@@ -77,6 +81,7 @@ def test_misc():
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
                 ROOT + 'short_circuit': 0,
+                ROOT + 'any_all': 0,
             }
         ),
         (
@@ -95,6 +100,7 @@ def test_misc():
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
                 ROOT + 'short_circuit': 0,
+                ROOT + 'any_all': 0,
             }
         ),
         (
@@ -120,6 +126,7 @@ def test_misc():
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
                 ROOT + 'short_circuit': 0,
+                ROOT + 'any_all': 0,
             }
         ),
         (
@@ -143,6 +150,7 @@ def test_misc():
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
                 ROOT + 'short_circuit': 0,
+                ROOT + 'any_all': 0,
             }
         ),
         (
@@ -156,6 +164,7 @@ def test_misc():
                 ROOT + 'split_group_membership': 1,
                 ROOT + 'implicit_boolean_enough': 0,
                 ROOT + 'short_circuit': 0,
+                ROOT + 'any_all': 1,
             }
         ),
         (
@@ -169,6 +178,7 @@ def test_misc():
                 ROOT + 'split_group_membership': 0,  ## only dealing with simple cases of all same type and either str or num
                 ROOT + 'implicit_boolean_enough': 0,
                 ROOT + 'short_circuit': 0,
+                ROOT + 'any_all': 1,
             }
         ),
         (
@@ -183,6 +193,7 @@ def test_misc():
                 ROOT + 'split_group_membership': 1,
                 ROOT + 'implicit_boolean_enough': 0,
                 ROOT + 'short_circuit': 0,
+                ROOT + 'any_all': 1,
             }
         ),
         (
@@ -204,6 +215,7 @@ def test_misc():
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 1,  ## per block but no repeats
                 ROOT + 'short_circuit': 0,
+                ROOT + 'any_all': 0,
             }
         ),
         (
@@ -225,6 +237,7 @@ def test_misc():
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,  ## explicit counts not used as empty/non-empty boolean
                 ROOT + 'short_circuit': 0,
+                ROOT + 'any_all': 0,
             }
         ),
         (
@@ -243,6 +256,7 @@ def test_misc():
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
                 ROOT + 'short_circuit': 0,
+                ROOT + 'any_all': 0,
             }
         ),
         (
@@ -261,6 +275,7 @@ def test_misc():
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
                 ROOT + 'short_circuit': 0,
+                ROOT + 'any_all': 0,
             }
         ),
         (
@@ -276,6 +291,7 @@ def test_misc():
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
                 ROOT + 'short_circuit': 0,  ## has other code relying on first expression
+                ROOT + 'any_all': 0,
             }
         ),
         (
@@ -292,6 +308,7 @@ def test_misc():
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
                 ROOT + 'short_circuit': 0,  ## has other code relying on first expression
+                ROOT + 'any_all': 0,
             }
         ),
         (
@@ -306,6 +323,7 @@ def test_misc():
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
                 ROOT + 'short_circuit': 1,
+                ROOT + 'any_all': 0,
             }
         ),
         (
@@ -321,6 +339,7 @@ def test_misc():
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
                 ROOT + 'short_circuit': 1,
+                ROOT + 'any_all': 0,
             }
         ),
         (
@@ -328,13 +347,13 @@ def test_misc():
             if word is not None:
                 if len(word) > 20:
                     pass
- 
+
             if word is not None:
                 if len(word) > 20:
                     pass
                 else:
                     pass
- 
+
             if word is not None:
                 if len(word) > 20:
                     pass
@@ -346,6 +365,7 @@ def test_misc():
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
                 ROOT + 'short_circuit': 1,
+                ROOT + 'any_all': 0,
             }
         ),
         (
@@ -353,11 +373,11 @@ def test_misc():
             if word is not None:
                 if len(word) > 20:
                     pass
- 
+
             if word is not None:
                 if len(word) > 20:
                     pass
- 
+
             if word is not None:
                 if len(word) > 20:
                     pass
@@ -368,6 +388,7 @@ def test_misc():
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
                 ROOT + 'short_circuit': 3,
+                ROOT + 'any_all': 0,
             }
         ),
         (
@@ -390,6 +411,93 @@ def test_misc():
                 ROOT + 'split_group_membership': 0,
                 ROOT + 'implicit_boolean_enough': 0,
                 ROOT + 'short_circuit': 0,
+                ROOT + 'any_all': 0,
+            }
+        ),
+        (
+            dedent("""\
+            if apple or banana:
+                eat_fuit()
+            """),
+            {
+                ROOT + 'if_else_overview': 1,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 0,
+                ROOT + 'any_all': 0,  ## not enough items
+            }
+        ),
+        (
+            dedent("""\
+            if apple or banana or cherry:
+                eat_fuit()
+            """),
+            {
+                ROOT + 'if_else_overview': 1,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 0,
+                ROOT + 'any_all': 1,
+            }
+        ),
+        (
+            dedent("""\
+            if apple or banana or cherry and sausage:
+                eat_fuit()
+            """),
+            {
+                ROOT + 'if_else_overview': 1,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 0,
+                ROOT + 'any_all': 1,
+            }
+        ),
+        (
+            dedent("""\
+            if apple or cherry and sausage:
+                eat_fuit()
+            """),
+            {
+                ROOT + 'if_else_overview': 1,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 0,
+                ROOT + 'any_all': 0,  ## need at least one part to have 3 or more items
+            }
+        ),
+        (
+            dedent("""\
+            for i in range(2):
+                if apple or banana or cherry and sausage:
+                    eat_fuit()
+            """),
+            {
+                ROOT + 'if_else_overview': 1,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 0,
+                ROOT + 'any_all': 1,
+            }
+        ),
+        (
+            dedent("""\
+            for i in range(2):
+                if apple and banana and cherry and sausage:
+                    eat_fuit()
+            """),
+            {
+                ROOT + 'if_else_overview': 1,
+                ROOT + 'missing_else': 0,
+                ROOT + 'split_group_membership': 0,
+                ROOT + 'implicit_boolean_enough': 0,
+                ROOT + 'short_circuit': 0,
+                ROOT + 'any_all': 1,
             }
         ),
     ]

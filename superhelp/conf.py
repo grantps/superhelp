@@ -27,10 +27,12 @@ else:
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 
 TEST_SNIPPET = """\
-with open('using_cm.txt') as f:
-    text = f.read()
-f = open('no_cm,txt')
-text = f.read()
+if apple or banana or cherry or date or elderberry:
+    pass
+if date and elderberry and feijoia:
+    pass
+if (apple or banana or cherry) and (date and elderberry and feijoia):
+    pass
 """
 
 DEMO_SNIPPET = """\
@@ -214,6 +216,7 @@ MAX_BRIEF_FUNC_ARGS = 6
 MIN_BRIEF_DOCSTRING = 3
 MIN_BRIEF_NAME = 3
 MAX_BRIEF_NESTED_BLOCK = 20
+MIN4ANY_OR_ALL = 3
 
 FUNCTION_LBL = 'function'
 METHOD_LBL = 'method'
