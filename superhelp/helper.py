@@ -1,6 +1,8 @@
 import argparse
 import logging
+
 from superhelp import conf
+
 logging.basicConfig(
     level=conf.LOG_LEVEL,
     format='%(asctime)s %(levelname)-8s %(message)s',
@@ -18,9 +20,10 @@ do_html = conf.DO_HTML  ## use html displayer vs cli displayer
 do_displayer = conf.DO_DISPLAYER  ## for dev testing only
 
 def display_messages(displayer, snippet, messages_dets, *,
-        message_level=conf.BRIEF, in_notebook=False):
-    res = displayer.display(snippet,
-        messages_dets, message_level=message_level, in_notebook=in_notebook)
+        message_level=conf.BRIEF, in_notebook=False, multi_block=False):
+    res = displayer.display(snippet, messages_dets,
+        message_level=message_level, in_notebook=in_notebook,
+        multi_block=multi_block)
     if in_notebook:
         return res
 
@@ -65,17 +68,30 @@ def get_advice(snippet=None, *, file_path=None, displayer='html',
     """
     snippet = _get_snippet(snippet, file_path)
     try:
-        messages_dets = messages.get_separated_messages_dets(snippet)
+        messages_dets, multi_block = messages.get_snippet_dets(snippet)
     except Exception as e:
         messages_dets = messages.get_error_messages_dets(e, snippet)
+        multi_block = False
     displayer_module = _get_displayer_module(displayer)
     if displayer_module:
         res = display_messages(displayer_module, snippet, messages_dets,
-            message_level=message_level, in_notebook=in_notebook)
+            message_level=message_level, in_notebook=in_notebook,
+            multi_block=multi_block)
         if in_notebook:
             return res
-    for comment in advisors.get_advisor_comments():
-        print(comment)
+        
+        
+        
+        
+        
+    #TODO: allow extra in help    
+#     for comment in advisors.get_advisor_comments():
+#         print(comment)
+
+
+
+
+
 
 def shelp():
     """

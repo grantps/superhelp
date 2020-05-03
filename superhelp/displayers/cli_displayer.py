@@ -27,8 +27,20 @@ def get_message(message_dets, message_level):
     message = md2cli.main(md=message.replace('`', ''))  ## They create problems in formatting
     return message
 
+def _need_snippet_displayed(block_messages_dets, *, multi_block=False):
+    """
+    Don't need to see the code snippet displayed when it is already visible:
+    * because there is only one block in snippet and there is a block message
+      for it (which will display the block i.e. the entire snippet)
+    Otherwise we need it displayed.
+    """
+    mono_block_snippet = not multi_block
+    if mono_block_snippet and block_messages_dets:
+        return False
+    return True
+
 def display(snippet, messages_dets, *,
-        message_level=conf.BRIEF, in_notebook=False):
+        message_level=conf.BRIEF, in_notebook=False, multi_block=False):
     """
     Show by code blocks.
     """
@@ -47,12 +59,15 @@ def display(snippet, messages_dets, *,
             """
         )),
     ]
-    text.append(md2cli.main(dedent(
-        "## Overall Snippet"
-        f"\n{MDV_CODE_BOUNDARY}\n"
-        + snippet
-        + f"\n{MDV_CODE_BOUNDARY}")))
     overall_messages_dets, block_messages_dets = messages_dets
+    display_snippet = _need_snippet_displayed(
+        block_messages_dets, multi_block=multi_block)
+    if display_snippet:
+        text.append(md2cli.main(dedent(
+            "## Overall Snippet"
+            f"\n{MDV_CODE_BOUNDARY}\n"
+            + snippet
+            + f"\n{MDV_CODE_BOUNDARY}")))
     for message_dets in overall_messages_dets:
         message = get_message(message_dets, message_level)
         text.append(message)

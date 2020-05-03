@@ -13,7 +13,7 @@ RECORD_AST = f  ## (f)
 DEV_MODE = f  ## (f)
 DO_TEST = t  ## set test snippet as default rather than the larger demo snippet (t)
 DO_HTML = t  ## set html displayer as default (t)
-DO_DISPLAYER = f  ## f is only ever used when testing pre-display (t)
+DO_DISPLAYER = t  ## f is only ever used when testing pre-display (t)
 
 ## =============================================================================
 
@@ -27,12 +27,10 @@ else:
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 
 TEST_SNIPPET = """\
-if apple or banana or cherry or date or elderberry:
-    pass
-if date and elderberry and feijoia:
-    pass
-if (apple or banana or cherry) and (date and elderberry and feijoia):
-    pass
+#import re
+from re import match
+#flag = re.VERBOSE
+#t_OPERATOR = r'(?x) <> | <= | >= | = | < | >'
 """
 
 DEMO_SNIPPET = """\
@@ -231,6 +229,9 @@ MISSING_ADVICE_MESSAGE = ("If there was some advice you think should have "
     f"been given that wasn't, contact {EMAIL2USE} with the subject line "
     "'Advice' and explain. Please include a snippet to test as well.")
 SYSTEM_MESSAGE = 'System message'
+
+VERBOSE_FLAG = 'VERBOSE'
+INLINE_RE_VERBOSE_FLAG = '(?x)'
 
 LINE_FEED = '&#10;'
 

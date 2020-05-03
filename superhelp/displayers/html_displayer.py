@@ -570,8 +570,24 @@ def repeat_overall_snippet(snippet):
     html_strs.append(overall_code_str_highlighted)
     return html_strs
 
+def _need_snippet_displayed(block_messages_dets, *,
+        in_notebook=False, multi_block=False):
+    """
+    Don't need to see the code snippet displayed when it is already visible:
+    * because in notebook (it is already in the cell straight above)
+    * because there is only one block in snippet and there is a block message
+      for it (which will display the block i.e. the entire snippet)
+    Otherwise we need it displayed.
+    """
+    if in_notebook:
+        return False
+    mono_block_snippet = not multi_block
+    if mono_block_snippet and block_messages_dets:
+        return False
+    return True
+
 def _get_all_html_strs(snippet, overall_messages_dets, block_messages_dets, *,
-        in_notebook=False):
+        in_notebook=False, multi_block=False):
     """
     Display all message types - eventually will show brief and, if the user
     clicks to expand, main instead with the option of expanding to show Extra.
@@ -582,11 +598,9 @@ def _get_all_html_strs(snippet, overall_messages_dets, block_messages_dets, *,
     all_html_strs = []
 
     ## overall snippet display
-    first_lines = {
-        message_dets.first_line_no for message_dets in block_messages_dets}
-    multi_block = (len(first_lines) > 1)
-    in_browser = not in_notebook
-    if in_browser and multi_block:
+    display_snippet = _need_snippet_displayed(block_messages_dets,
+        in_notebook=in_notebook, multi_block=multi_block)
+    if display_snippet:
         overall_snippet_html_strs = repeat_overall_snippet(snippet)
         all_html_strs.extend(overall_snippet_html_strs)
 
@@ -634,7 +648,7 @@ def _get_head(*, in_notebook=False):
     return head
 
 def display(snippet, messages_dets, *,
-        message_level=conf.BRIEF, in_notebook=False):
+        message_level=conf.BRIEF, in_notebook=False, multi_block=False):
     """
     Show for overall snippet and then by code blocks as appropriate.
 
@@ -644,7 +658,8 @@ def display(snippet, messages_dets, *,
     radio_buttons = _get_radio_buttons(message_level=message_level)
     overall_messages_dets, block_messages_dets = messages_dets
     all_html_strs = _get_all_html_strs(snippet,
-        overall_messages_dets, block_messages_dets, in_notebook=in_notebook)
+        overall_messages_dets, block_messages_dets,
+        in_notebook=in_notebook, multi_block=multi_block)
     body_inner = '\n'.join(all_html_strs)
     head = _get_head(in_notebook=in_notebook)
     if in_notebook:

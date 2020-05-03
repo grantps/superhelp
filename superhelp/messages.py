@@ -98,7 +98,7 @@ MessageDets.__doc__ += (
 MessageDets.source.__doc__ = ("A unique identifier of the source of message "
     "- useful for auditing / testing")
 
-def get_tree(snippet):
+def _get_tree(snippet):
     try:
         tree = ast.parse(snippet)
     except SyntaxError as e:
@@ -106,7 +106,7 @@ def get_tree(snippet):
             f"Oops - something seems broken in the snippet - details: {e}")
     return tree
 
-def get_blocks_dets(xml, snippet_lines):
+def get_blocks_dets(snippet, snippet_block_els):
     """
     Returning a list of all the details needed to process a line
     (namely BlockDets named tuples)
@@ -116,18 +116,18 @@ def get_blocks_dets(xml, snippet_lines):
     :return: list of BlockDets named tuples
     :rtype: list
     """
+    snippet_lines = snippet.split('\n')
     blocks_dets = []
-    all_elements = xml.xpath('body')[0].getchildren()  ## [0] because there is only one body under root
-    for element in all_elements:
+    for snippet_block_el in snippet_block_els:
         first_line_no, last_line_no, _el_lines_n = ast_funcs.get_el_lines_dets(
-            element)
+            snippet_block_el)
         block_code_str = (
             '\n'.join(snippet_lines[first_line_no - 1: last_line_no]).strip())
         pre_block_code_str = (
             '\n'.join(snippet_lines[0: first_line_no - 1]).strip()
             + '\n')
         blocks_dets.append(BlockDets(
-            element, pre_block_code_str, block_code_str, first_line_no))
+            snippet_block_el, pre_block_code_str, block_code_str, first_line_no))
     return blocks_dets
 
 def complete_message(message, *, source):
@@ -276,33 +276,21 @@ def get_overall_snippet_messages_dets(snippet, blocks_dets):
             messages_dets.append(message_dets)
     return messages_dets
 
-def get_separated_messages_dets(snippet):
+def get_separated_messages_dets(snippet, snippet_block_els, xml):
     """
     Break snippet up into syntactical parts and blocks of code. Apply advisor
     functions and get message details. Split into overall messages and block-
     specific messages.
 
     :param str snippet: code snippet
+    :param list snippet_block_els: list of block elements for snippet
+    :param xml xml: snippet code as xml object
     :return: a tuple of two MessageDets lists
      (overall_snippet_messages_dets, block_level_messages_dets)
      or None if no messages
     :rtype: tuple (or None)
     """
-    tree = get_tree(snippet)
-    xml = astpath.asts.convert_to_xml(tree)
-    if conf.RECORD_AST:
-        xml.getroottree().write(str(conf.AST_OUTPUT_XML), pretty_print=True)
-        logging.info("""\
-
-
-
-        Updating AST
-
-
-
-        """)
-    snippet_lines = snippet.split('\n')
-    blocks_dets = get_blocks_dets(xml, snippet_lines)
+    blocks_dets = get_blocks_dets(snippet, snippet_block_els)
     overall_snippet_messages_dets = get_overall_snippet_messages_dets(
         snippet, blocks_dets)
     block_level_messages_dets = get_block_level_messages_dets(blocks_dets, xml)
@@ -320,6 +308,21 @@ def get_separated_messages_dets(snippet):
             MessageDets(snippet, message,
                 first_line_no=None, warning=False, source=conf.SYSTEM_MESSAGE)]
     return overall_snippet_messages_dets, block_level_messages_dets
+
+def store_ast_output(xml):
+    xml.getroottree().write(str(conf.AST_OUTPUT_XML), pretty_print=True)
+    logging.info("\n\n\n\n\nUpdating AST\n\n\n\n\n")
+
+def get_snippet_dets(snippet):
+    tree = _get_tree(snippet)
+    xml = astpath.asts.convert_to_xml(tree)
+    if conf.RECORD_AST:
+        store_ast_output(xml)
+    snippet_block_els = xml.xpath('body')[0].getchildren()  ## [0] because there is only one body under root
+    multi_block_snippet = len(snippet_block_els) > 1
+    snippet_messages_dets = get_separated_messages_dets(
+        snippet, snippet_block_els, xml)
+    return snippet_messages_dets, multi_block_snippet
 
 def get_error_messages_dets(e, snippet):
     """

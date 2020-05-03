@@ -1,9 +1,10 @@
 ## cd ~/projects/superhelp && superhelp/env/bin/python3 -m nose
-
+import astpath
 from nose.tools import assert_equal, assert_not_equal, assert_true, assert_false  # @UnusedImport @UnresolvedImport
 
 from superhelp import conf
-from superhelp.messages import get_separated_messages_dets
+from superhelp.messages import _get_tree, get_separated_messages_dets, \
+    store_ast_output
 
 def get_actual_source_freqs(messages_dets, expected_source_freqs):
     """
@@ -39,9 +40,13 @@ def check_as_expected(test_conf):
     :param list test_conf: list of tuples: snippet, dict of expected message
      sources and their expected frequencies
     """
-    conf.RECORD_AST = True  ## updates XML so we can check what is happening :-)
     for snippet, expected_source_freqs in test_conf:
-        messages_dets = get_separated_messages_dets(snippet)
+        tree = _get_tree(snippet)
+        xml = astpath.asts.convert_to_xml(tree)
+        store_ast_output(xml)
+        snippet_block_els = xml.xpath('body')[0].getchildren()  ## [0] because there is only one body under root
+        messages_dets = get_separated_messages_dets(
+            snippet, snippet_block_els, xml)
         actual_source_freqs = get_actual_source_freqs(
             messages_dets, expected_source_freqs)
         assert_equal(actual_source_freqs, expected_source_freqs,
