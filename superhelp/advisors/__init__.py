@@ -63,13 +63,26 @@ AnyBlockAdvisorDets.__doc__ += (
 AnyBlockAdvisorDets.advisor.__doc__ = ('Functions which take block dets '
     '(including element and block code string) and return message')
 
-SNIPPET_ADVISORS = []  ## snippet-based advisors (have to look at multiple blocks at once)
-SnippetAdvisorDets = namedtuple('SnippetAdvisorDets',
-    'advisor_name, advisor, warning')
-SnippetAdvisorDets.__doc__ += (
+ALL_BLOCKS_ADVISORS = []  ## all-blocks-based advisors (have to look at multiple blocks together at once)
+AllBlocksAdvisorDets = namedtuple('AllBlocksAdvisorDets',
+    'advisor_name, advisor, warning, input_type')
+AllBlocksAdvisorDets.__doc__ += (
     '\n\nDetails for advisors that work on all blocks together')
-SnippetAdvisorDets.advisor.__doc__ = ('Functions which take blocks dets '
+AllBlocksAdvisorDets.advisor.__doc__ = ('Functions which take blocks dets '
     '(multiple) and return message')
+AllBlocksAdvisorDets.input_type.__doc__ = (
+    'Input type for all blocks advisor functions')
+
+SNIPPET_STR_ADVISORS = []  ## works on entire code snippet as a single string
+
+SnippetStrAdvisorDets = namedtuple('SnippetStrAdvisorDets',
+    'advisor_name, advisor, warning, input_type')
+SnippetStrAdvisorDets.__doc__ += (
+    '\n\nDetails for advisors that work on code snippet as a single string')
+SnippetStrAdvisorDets.advisor.__doc__ = ('Functions which take the snippet as a'
+    ' single code str and return message')
+SnippetStrAdvisorDets.input_type.__doc__ = (
+    'Input type for all blocks advisor functions')
 
 def filt_block_advisor(*, xpath, warning=False):
     """
@@ -109,10 +122,10 @@ def any_block_advisor(*, warning=False):
         return func
     return decorator
 
-def snippet_advisor(*, warning=False):
+def all_blocks_advisor(*, warning=False):
     """
     Simple decorator that registers an unchanged advisor function in the list of
-    ANY_BLOCK_ADVISORS.
+    ALL_BLOCKS_ADVISORS.
 
     :param bool warning: tags messages as warning or not - up to displayer
      e.g. HTML to decide what to do with that information, if anything.
@@ -121,9 +134,28 @@ def snippet_advisor(*, warning=False):
         """
         :param func func: func expecting blocks_dets (note plural)
         """
-        SNIPPET_ADVISORS.append(
-            SnippetAdvisorDets(
-                f"{func.__module__}.{func.__name__}", func, warning))
+        ALL_BLOCKS_ADVISORS.append(
+            AllBlocksAdvisorDets(f"{func.__module__}.{func.__name__}", func,
+                warning, conf.BLOCKS_DETS))
+        return func
+    return decorator
+
+def snippet_str_advisor(*, warning=False):
+    """
+    Simple decorator that registers an unchanged advisor function in the list of
+    SNIPPET_STR_ADVISORS.
+
+    :param bool warning: tags messages as warning or not - up to displayer
+     e.g. HTML to decide what to do with that information, if anything.
+    """
+    def decorator(func):
+        """
+        :param func func: func expecting a single code string for the entire
+         snippet as input
+        """
+        SNIPPET_STR_ADVISORS.append(
+            SnippetStrAdvisorDets(f"{func.__module__}.{func.__name__}", func,\
+                warning, conf.SNIPPET_STR))
         return func
     return decorator
 
@@ -138,7 +170,7 @@ def load_advisors():
 def get_advisor_comments():
     advisor_comments = []
     all_advisors_dets = (
-        FILT_BLOCK_ADVISORS + ANY_BLOCK_ADVISORS + SNIPPET_ADVISORS)
+        FILT_BLOCK_ADVISORS + ANY_BLOCK_ADVISORS + ALL_BLOCKS_ADVISORS)
     for advisor_dets in all_advisors_dets:
         source = advisor_dets.advisor.__module__.split('.')[-1]
         docstring = advisor_dets.advisor.__doc__
@@ -148,272 +180,282 @@ def get_advisor_comments():
 
 ## =============================================================================
 
+## Put into functions so layout etc overheads only incurred in cases when
+## actually used
+
 def is_reserved_name(name):
     is_reserved = name in set(keyword.kwlist + dir(builtins) + conf.STD_LIBS)
     return is_reserved
 
-AOP_COMMENT = layout("""
+def get_aop_msg():
+    return layout("""
 
-    Some aspects of code apply to lots of different parts of the code base e.g.
-    logging, or security. These can be thought of as "cross-cutting concerns"
-    from an Aspect-Oriented Programming point of view. The problem is that a lot
-    of code gets repeated e.g. if every function has to implement its own
-    logging or has to handle its own security. Even if there is some shared
-    functionality it can often require special wiring into other code. In
-    short, coping with cross-cutting concerns can be painful.
+        Some aspects of code apply to lots of different parts of the code base
+        e.g. logging, or security. These can be thought of as "cross-cutting
+        concerns" from an Aspect-Oriented Programming point of view. The problem
+        is that a lot of code gets repeated e.g. if every function has to
+        implement its own logging or has to handle its own security. Even if
+        there is some shared functionality it can often require special wiring
+        into other code. In short, coping with cross-cutting concerns can be
+        painful.
 
-    Decorators and Context Managers are ways Python provides of concentrating
-    cross-cutting concerns into single pieces of code in an elegant way. They
-    DRY out your code (see
-    <https://en.wikipedia.org/wiki/Don%27t_repeat_yourself>). And because they
-    are very widely used, it is worth learning how to use them, even if you
-    don't take the step of writing your own.
-
-    """)
-
-UNPACKING_COMMENT = (
-    layout("""\
-        Unpacking is much more pythonic than using indexes to pull a sequence
-        apart into names (variables). For example:
-
-        """)
-    +
-    layout("""\
-
-        #### Un-pythonic :-(
-
-        location = (-37, 174, 'Auckland', 'Mt Albert')
-        lat = location[0]
-        lon = location[1]
-        city = location[2]
-        suburb = location[3]
-
-        #### Pythonic :-)
-
-        lat, lon, city, suburb = location
-        """, is_code=True)
-    +
-    layout(f"""\
-
-        If you don't need all the values you can indicate which you want to
-        ignore or even mop up multiple unused values into a single value using
-        an asterisk.
-
-        For example:
-
-        """)
-    +
-    layout("""\
-        lat, lon, _city, _suburb = location
-        """, is_code=True)
-    +
-    layout(f"""\
-
-        or:
-
-        """)
-    +
-    layout(f"""\
-        lat, lon, *_ = location
-        """, is_code=True)
-    +
-    layout("""\
-
-        or:
-
-        """)
-    +
-    layout("""\
-        lat, lon, *unused = location
-        """, is_code=True)
-    +
-    layout(f"""\
-
-        Note - unused, in this case, would be ['Auckland', 'Mt Albert']
-
-        """)
-)
-
-GENERAL_COMPREHENSION_COMMENT = layout("""\
-    Comprehensions are one the great things about Python. To see why, have a
-    look at Raymond Hettinger's classic talk "Transforming Code into Beautiful,
-    Idiomatic Python" <https://youtu.be/OSGv2VnC0go?t=2738> where he explains
-    the rationale. In short, if the goal of your code can be expressed as a
-    single English sentence then it might belong on one line. The code should
-    say what it is doing more than how it is doing it. Comprehensions are
-    declarative and that is A Very Good Thing™.
-
-    Pro tip: don't make comprehensions *in*comprehensions ;-). If your
-    comprehension is hard to read it is probably better rewritten as a looping
-    structure.
-    """)
-
-LIST_COMPREHENSION_COMMENT = (
-    layout("""\
-
-        #### Example List Comprehension:
-
-        """)
-    +
-    layout("""\
-        names_lengths = [
-            len(name)
-            for name in ['Tinky Winky', 'Dipsy', 'La La', 'Po']
-        ]
-        """, is_code=True)
-    +
-    layout("""\
-
-        produces an ordinary list:
-
-        """)
-    +
-    layout(str(
-        {
-            len(name)
-            for name in ['Tinky Winky', 'Dipsy', 'La La', 'Po']
-        }
-        ))
-    +
-    layout("""\
-
-        It is also possible to add a simple filter using `if`
-
-        """)
-    +
-    layout("""\
-        names_lengths = [
-            len(name)
-            for name in ['Tinky Winky', 'Dipsy', 'La La', 'Po']
-            if not name.startswith('T')
-        ]
-        """, is_code=True)
-    +
-    layout("""\
-
-        produces an ordinary list:
-
-        """)
-    +
-    layout(str(
-        {
-            len(name)
-            for name in ['Tinky Winky', 'Dipsy', 'La La', 'Po']
-            if not name.startswith('T')
-        }
-        ))
-)
-
-DICT_COMPREHENSION_COMMENT = (
-    layout("""\
-
-    #### Example Dictionary Comprehension:
+        Decorators and Context Managers are ways Python provides of
+        concentrating cross-cutting concerns into single pieces of code in an
+        elegant way. They DRY out your code (see
+        <https://en.wikipedia.org/wiki/Don%27t_repeat_yourself>). And because
+        they are very widely used, it is worth learning how to use them, even if
+        you don't take the step of writing your own.
 
     """)
-    +
-    layout("""\
-        country2capital = {{
-            country: capital
-            for country, capital in [('NZ', 'Wellington'), ('Italy', 'Rome')]
-        }}
-        """, is_code=True)
-    +
-    layout("""\
 
-        produces an ordinary dictionary:
+def get_unpacking_msg():
+    return (
+        layout("""\
+            Unpacking is much more pythonic than using indexes to pull a
+            sequence apart into names (variables). For example:
+
+            """)
+        +
+        layout("""\
+
+            #### Un-pythonic :-(
+
+            location = (-37, 174, 'Auckland', 'Mt Albert')
+            lat = location[0]
+            lon = location[1]
+            city = location[2]
+            suburb = location[3]
+
+            #### Pythonic :-)
+
+            lat, lon, city, suburb = location
+            """, is_code=True)
+        +
+        layout(f"""\
+
+            If you don't need all the values you can indicate which you want to
+            ignore or even mop up multiple unused values into a single value
+            using an asterisk.
+
+            For example:
+
+            """)
+        +
+        layout("""\
+            lat, lon, _city, _suburb = location
+            """, is_code=True)
+        +
+        layout(f"""\
+
+            or:
+
+            """)
+        +
+        layout(f"""\
+            lat, lon, *_ = location
+            """, is_code=True)
+        +
+        layout("""\
+
+            or:
+
+            """)
+        +
+        layout("""\
+            lat, lon, *unused = location
+            """, is_code=True)
+        +
+        layout(f"""\
+
+            Note - unused, in this case, would be ['Auckland', 'Mt Albert']
+
+            """)
+        )
+
+def get_general_comprehension_msg():
+    return layout("""\
+        Comprehensions are one the great things about Python. To see why, have a
+        look at Raymond Hettinger's classic talk "Transforming Code into
+        Beautiful, Idiomatic Python" <https://youtu.be/OSGv2VnC0go?t=2738> where
+        he explains the rationale. In short, if the goal of your code can be
+        expressed as a single English sentence then it might belong on one line.
+        The code should say what it is doing more than how it is doing it.
+        Comprehensions are declarative and that is A Very Good Thing™.
+
+        Pro tip: don't make comprehensions *in*comprehensions ;-). If your
+        comprehension is hard to read it is probably better rewritten as a
+        looping structure.
+        """)
+
+def get_list_comprehension_msg():
+    return (
+        layout("""\
+
+            #### Example List Comprehension:
+
+            """)
+        +
+        layout("""\
+            names_lengths = [
+                len(name)
+                for name in ['Tinky Winky', 'Dipsy', 'La La', 'Po']
+            ]
+            """, is_code=True)
+        +
+        layout("""\
+
+            produces an ordinary list:
+
+            """)
+        +
+        layout(str(
+            {
+                len(name)
+                for name in ['Tinky Winky', 'Dipsy', 'La La', 'Po']
+            }
+            ))
+        +
+        layout("""\
+
+            It is also possible to add a simple filter using `if`
+
+            """)
+        +
+        layout("""\
+            names_lengths = [
+                len(name)
+                for name in ['Tinky Winky', 'Dipsy', 'La La', 'Po']
+                if not name.startswith('T')
+            ]
+            """, is_code=True)
+        +
+        layout("""\
+
+            produces an ordinary list:
+
+            """)
+        +
+        layout(str(
+            {
+                len(name)
+                for name in ['Tinky Winky', 'Dipsy', 'La La', 'Po']
+                if not name.startswith('T')
+            }
+            ))
+    )
+
+def get_dict_comprehension_msg():
+    return (
+        layout("""\
+
+        #### Example Dictionary Comprehension:
 
         """)
-    +
-    layout(str(
-        {
-            country: capital
-            for country, capital
-            in [('NZ', 'Wellington'), ('Italy', 'Rome')]
-        }
-        ))
-    +
-    layout("""\
+        +
+        layout("""\
+            country2capital = {{
+                country: capital
+                for country, capital in [('NZ', 'Wellington'), ('Italy', 'Rome')]
+            }}
+            """, is_code=True)
+        +
+        layout("""\
 
-        It is also possible to add a simple filter using `if`
+            produces an ordinary dictionary:
 
-        """)
-    +
-    layout("""\
-        country2capital = {{
-            country: capital
-            for country, capital in [('NZ', 'Wellington'), ('Italy', 'Rome')]
-            if country == 'NZ'
-        }}
-        """, is_code=True)
-    +
-    layout("""\
+            """)
+        +
+        layout(str(
+            {
+                country: capital
+                for country, capital
+                in [('NZ', 'Wellington'), ('Italy', 'Rome')]
+            }
+            ))
+        +
+        layout("""\
 
-        produces an ordinary dictionary:
+            It is also possible to add a simple filter using `if`
 
-        """)
-    +
-    layout(str(
-        {
-            country: capital
-            for country, capital
-            in [('NZ', 'Wellington'), ('Italy', 'Rome')]
-            if country == 'NZ'
-        }
-        ))
-)
+            """)
+        +
+        layout("""\
+            country2capital = {{
+                country: capital
+                for country, capital in [('NZ', 'Wellington'), ('Italy', 'Rome')]
+                if country == 'NZ'
+            }}
+            """, is_code=True)
+        +
+        layout("""\
 
-SET_COMPREHENSION_COMMENT = (
-    layout("""\
+            produces an ordinary dictionary:
 
-        #### Example Set Comprehension
+            """)
+        +
+        layout(str(
+            {
+                country: capital
+                for country, capital
+                in [('NZ', 'Wellington'), ('Italy', 'Rome')]
+                if country == 'NZ'
+            }
+            ))
+    )
 
-        """)
-    +
-    layout("""\
-        pets = {{
-            pet for _person, pet
-            in [('Rachel', 'cat'), ('Elliot', 'goat'), ('Giles', 'cat'),]
-        }}
-        """, is_code=True)
-    +
-    layout("""\
+def get_set_comprehension_msg():
+    return (
+        layout("""\
 
-        produces an ordinary set (i.e. unique members only):
+            #### Example Set Comprehension
 
-        """)
-    +
-    layout(str(
-        {
-            pet for _person, pet
+            """)
+        +
+        layout("""\
+            pets = {{
+                pet for _person, pet
                 in [('Rachel', 'cat'), ('Elliot', 'goat'), ('Giles', 'cat'),]
-        }
-        ))
-    +
-    layout("""\
+            }}
+            """, is_code=True)
+        +
+        layout("""\
 
-        It is also possible to add a simple filter using `if`
+            produces an ordinary set (i.e. unique members only):
 
-        """)
-    +
-    layout("""\
-        pets = {{
-            pet for person, pet
-            in [('Rachel', 'cat'), ('Elliot', 'goat'), ('Giles', 'cat'),]
-            if person != 'Elliot'
-        }}
-        """, is_code=True)
-    +
-    layout("""\
+            """)
+        +
+        layout(str(
+            {
+                pet for _person, pet
+                    in [('Rachel', 'cat'), ('Elliot', 'goat'), ('Giles', 'cat'),]
+            }
+            ))
+        +
+        layout("""\
 
-        produces an ordinary set (i.e. unique members only):
+            It is also possible to add a simple filter using `if`
 
-        """)
-    +
-    layout(str(
-        {
-            pet for person, pet
+            """)
+        +
+        layout("""\
+            pets = {{
+                pet for person, pet
                 in [('Rachel', 'cat'), ('Elliot', 'goat'), ('Giles', 'cat'),]
                 if person != 'Elliot'
-        }
-        ))
-)
+            }}
+            """, is_code=True)
+        +
+        layout("""\
+
+            produces an ordinary set (i.e. unique members only):
+
+            """)
+        +
+        layout(str(
+            {
+                pet for person, pet
+                    in [('Rachel', 'cat'), ('Elliot', 'goat'), ('Giles', 'cat'),]
+                    if person != 'Elliot'
+            }
+            ))
+    )

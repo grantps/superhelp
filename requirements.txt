@@ -1,16 +1,12 @@
+
 astpath>=0.9.0
 cssselect>=1.1.0
 lxml>=4.5.0
 Markdown>=3.2.1
+flake8>=3.5
 nose
 Pygments>=2.6.1
 PyYAML>=5.3.1
 tabulate>=0.8.7
-## numerous others because I installed cookiecutter in same env - not needed for superhelp itself
+## numerous others because I installed cookiecutter and flake8 in same env - not needed for superhelp itself
 
-## Dev/Deployment
-#sphinx
-#sphinx_rtd_theme
-#nose
-#coverage
-#pypi-publisher

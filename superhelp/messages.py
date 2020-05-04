@@ -86,14 +86,14 @@ astpath.asts.convert_to_xml = convert_to_xml
 
 try:
     from . import advisors, ast_funcs, conf  # @UnresolvedImport @UnusedImport
-    from ..utils import get_docstring_start, layout_comment as layout, make_tmp_file  # @UnresolvedImport @UnusedImport
+    from ..utils import get_docstring_start, layout_comment as layout, make_open_tmp_file  # @UnresolvedImport @UnusedImport
 except (ImportError, ValueError):
     from pathlib import Path
     import sys
     parent = str(Path.cwd().parent)
     sys.path.insert(0, parent)
     from superhelp import advisors, ast_funcs, conf  # @Reimport
-    from superhelp.utils import get_docstring_start, layout_comment as layout, make_tmp_file  # @Reimport
+    from superhelp.utils import get_docstring_start, layout_comment as layout, make_open_tmp_file  # @Reimport
 
 BlockDets = namedtuple(
     'BlockDets', 'element, pre_block_code_str, block_code_str, first_line_no')
@@ -181,13 +181,14 @@ def get_message_dets_from_input(advisor_dets, *,
             else:
                 raise
     except Exception as e:
+        brief_name = '.'.join(name.split('.')[-2:])  ## last two parts only
         message = {
             conf.BRIEF: (
                 layout(f"""\
 
-                    ### Advisor "`{name}`" unable to run
+                    ### Advisor "`{brief_name}`" unable to run
 
-                    Advisor {name} unable to run. Advisor description:
+                    Advisor {brief_name} unable to run. Advisor description:
                     """)
                 +  ## show first line of docstring (subsequent lines might have more technical, internally-oriented comments)
                 layout(get_docstring_start(docstring) + '\n')
@@ -276,12 +277,22 @@ def get_block_level_messages_dets(blocks_dets, xml):
 def get_overall_snippet_messages_dets(snippet, blocks_dets):
     """
     Returns messages which apply to snippet as a whole, not just specific
-    blocks. E.g. looking at every block to look for opportunities to unpack.
+    blocks. E.g. looking at every block to look for opportunities to unpack. Or
+    reporting on linting results.
     """
     messages_dets = []
-    for advisor_dets in advisors.SNIPPET_ADVISORS:
+    all_advisors_dets = (
+        advisors.ALL_BLOCKS_ADVISORS + advisors.SNIPPET_STR_ADVISORS)
+    for advisor_dets in all_advisors_dets:
+        if advisor_dets.input_type == conf.BLOCKS_DETS:
+            advisor_input = blocks_dets
+        elif advisor_dets.input_type == conf.SNIPPET_STR:
+            advisor_input = snippet
+        else:
+            raise Exception(
+                f"Unexpected input_type: '{advisor_dets.input_type}'")
         message_dets = get_message_dets_from_input(advisor_dets,
-            advisor_input=blocks_dets, code_str=snippet, first_line_no=None,
+            advisor_input=advisor_input, code_str=snippet, first_line_no=None,
             repeat=False)
         if message_dets:
             messages_dets.append(message_dets)
@@ -321,7 +332,7 @@ def get_separated_messages_dets(snippet, snippet_block_els, xml):
     return overall_snippet_messages_dets, block_level_messages_dets
 
 def store_ast_output(xml):
-    _tmp_ast_fh, tmp_ast_output_xml_fpath = make_tmp_file(
+    _tmp_ast_fh, tmp_ast_output_xml_fpath = make_open_tmp_file(
         conf.AST_OUTPUT_XML_FNAME, mode='w')
     xml.getroottree().write(str(tmp_ast_output_xml_fpath), pretty_print=True)
     logging.info("\n\n\n\n\nUpdating AST\n\n\n\n\n")

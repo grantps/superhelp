@@ -13,6 +13,7 @@ DEV_MODE = f  ## (f)
 DO_TEST = t  ## set test snippet as default rather than the larger demo snippet (t)
 DO_HTML = t  ## set html displayer as default (t)
 DO_DISPLAYER = t  ## f is only ever used when testing pre-display (t)
+INCLUDE_LINTING = t  ## f when running unit tests to massively speed them up (otherwise every snippet in tests is linted each time) (t)
 
 ## =============================================================================
 
@@ -26,9 +27,7 @@ else:
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 
 TEST_SNIPPET = """\
-pets = 'seagull'
-home = 'super volcano'
-appliance = 'garbage disposal'
+home = 'super volcano'  
 """
 
 DEMO_SNIPPET = """\
@@ -228,10 +227,19 @@ MISSING_ADVICE_MESSAGE = ("If there was some advice you think should have "
     "'Advice' and explain. Please include a snippet to test as well.")
 SYSTEM_MESSAGE = 'System message'
 
+## input types
+BLOCKS_DETS = 'blocks_dets'
+SNIPPET_STR = 'snippet_str'
+
 XKCD_WARNING_WORDS = ['supervolcano', 'seagull', 'garbage disposal']
 
 VERBOSE_FLAG = 'VERBOSE'
 INLINE_RE_VERBOSE_FLAG = '(?x)'
+
+SNIPPET_FNAME = 'snippet.py'
+LINT_MSG_TYPE = 'msg_type'
+LINT_MSG = 'msg'
+LINT_LINE_NO = 'line_no'
 
 LINE_FEED = '&#10;'
 

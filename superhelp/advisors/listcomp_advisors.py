@@ -1,5 +1,5 @@
-from ..advisors import  DICT_COMPREHENSION_COMMENT, \
-    GENERAL_COMPREHENSION_COMMENT, SET_COMPREHENSION_COMMENT, \
+from ..advisors import  get_dict_comprehension_msg, \
+    get_general_comprehension_msg, get_set_comprehension_msg, \
     filt_block_advisor
 from ..ast_funcs import get_assign_name
 from .. import code_execution, conf, utils
@@ -43,7 +43,7 @@ def listcomp_overview(block_dets, *, repeat=False):
                 ### Other "comprehensions"
 
                 """)
-            + GENERAL_COMPREHENSION_COMMENT
+            + get_general_comprehension_msg()
             + layout("""\
 
                 List comprehensions aren't the only type of comprehension you
@@ -51,9 +51,9 @@ def listcomp_overview(block_dets, *, repeat=False):
                 Comprehensions:
 
                 """)
-            + DICT_COMPREHENSION_COMMENT
+            + get_dict_comprehension_msg()
             + '\n\n'
-            + SET_COMPREHENSION_COMMENT
+            + get_set_comprehension_msg()
             + '\n\n'
             + layout("""\
                 Pro tip: don't make comprehension *in*comprehensions ;-). If it

@@ -1,6 +1,6 @@
 from ..advisors import filt_block_advisor
 from .. import conf
-from ..advisors import AOP_COMMENT
+from ..advisors import get_aop_msg
 from ..utils import get_nice_str_list, layout_comment as layout
 
 DECORATOR_XPATH = (
@@ -96,7 +96,7 @@ def decorator_overview(block_dets, *, repeat=False):
                 say("sausage!")
                 ''', is_code=True)
         )
-        aop = AOP_COMMENT
+        aop = get_aop_msg()
     else:
         dec_dets = ''
         aop = ''

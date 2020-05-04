@@ -1,6 +1,6 @@
 import logging
 
-from ..advisors import snippet_advisor
+from ..advisors import all_blocks_advisor
 from .. import conf
 from ..utils import get_python_version, layout_comment as layout
 
@@ -328,7 +328,7 @@ def get_incrementing_var(block_dets, vars_initialised, vars_incremented):
         incrementing_var = vars_incremented.pop()
     return incrementing_var
 
-@snippet_advisor()
+@all_blocks_advisor()
 def manual_incrementing(blocks_dets):
     """
     Look for manual handling of incrementing inside loops.

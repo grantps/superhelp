@@ -1,6 +1,5 @@
-from ..advisors import DICT_COMPREHENSION_COMMENT, \
-    GENERAL_COMPREHENSION_COMMENT, LIST_COMPREHENSION_COMMENT, \
-    SET_COMPREHENSION_COMMENT, filt_block_advisor
+from ..advisors import get_dict_comprehension_msg, \
+    get_general_comprehension_msg, get_set_comprehension_msg, filt_block_advisor
 from ..ast_funcs import get_el_lines_dets
 from .. import conf
 from ..utils import layout_comment as layout
@@ -33,13 +32,13 @@ def comprehension_option(block_dets, *, repeat=False):
     comp_comment = ''
     if 'append' in block_dets.block_code_str:
         comp_type = 'List Comprehension'
-        comp_comment = LIST_COMPREHENSION_COMMENT
+        comp_comment = get_dict_comprehension_msg()
     elif len(block_dets.element.cssselect('Subscript')):  ## Seems a reasonable indicator
         comp_type = 'Dictionary Comprehension'
-        comp_comment = DICT_COMPREHENSION_COMMENT
+        comp_comment = get_dict_comprehension_msg()
     elif 'set' in block_dets.block_code_str:
         comp_type = 'Set Comprehension'
-        comp_comment = SET_COMPREHENSION_COMMENT
+        comp_comment = get_set_comprehension_msg()
     else:
         return None
 
@@ -60,7 +59,7 @@ def comprehension_option(block_dets, *, repeat=False):
 
     message = {
         conf.BRIEF: title + option,
-        conf.MAIN: (title + option + GENERAL_COMPREHENSION_COMMENT
+        conf.MAIN: (title + option + get_general_comprehension_msg()
             + '\n\n' + comp_comment),
     }
     return message

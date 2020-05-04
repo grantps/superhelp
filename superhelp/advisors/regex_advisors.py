@@ -1,4 +1,4 @@
-from ..advisors import snippet_advisor
+from ..advisors import all_blocks_advisor
 from .. import conf
 from ..utils import get_python_version, layout_comment as layout
 
@@ -92,7 +92,7 @@ def used_verbose(block_el):
 def used_compile(block_el):
     pass
 
-@snippet_advisor()
+@all_blocks_advisor()
 def verbose_option(blocks_dets):
     """
     Check for use of regex without verbose mode and introduce the idea.

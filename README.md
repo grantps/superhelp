@@ -1,6 +1,6 @@
 # https://git.nzoss.org.nz/pyGrant/superhelp
 
-version number: 0.9.9
+version number: 0.9.10
 author: Grant Paton-Simpson
 
 ## Overview
@@ -97,10 +97,6 @@ The notebook has more detailed instructions at the top.
     $ shelp  ## to see advice on an example snippet displayed (level Extra)
 
     
-## TODO Options
+## Stretch Ideas
 
-1) Extend advice further to encourage sound practice
-
-2) Perhaps add style linting as an option
-
-3) Extend beyond standard library into popular libraries like requests, bottle, flask etc.
+* Extend beyond standard library into popular libraries like requests, bottle, flask etc.

@@ -12,6 +12,8 @@ except (ImportError, ValueError):
     from superhelp import conf  # @Reimport
     from superhelp.messages import _get_tree, get_separated_messages_dets, store_ast_output  # @Reimport
 
+conf.INCLUDE_LINTING = False
+
 def get_actual_source_freqs(messages_dets, expected_source_freqs):
     """
     Check the message sources are as expected. Note - we don't have to know what

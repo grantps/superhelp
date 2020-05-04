@@ -1,6 +1,7 @@
 from collections import defaultdict
 
-from ..advisors import UNPACKING_COMMENT, snippet_advisor, filt_block_advisor
+from ..advisors import get_unpacking_msg, all_blocks_advisor, \
+    filt_block_advisor
 from .. import conf, utils
 from ..utils import get_python_version, layout_comment as layout
 
@@ -54,7 +55,7 @@ def unpacking(block_dets, *, repeat=False):
             """))
     summary = ''.join(summary_bits)
     if not repeat:
-        unpacking_msg = UNPACKING_COMMENT
+        unpacking_msg = get_unpacking_msg()
     else:
         unpacking_msg = ''
 
@@ -64,7 +65,7 @@ def unpacking(block_dets, *, repeat=False):
     }
     return message
 
-@snippet_advisor()
+@all_blocks_advisor()
 def unpacking_opportunity(blocks_dets):
     """
     Look for opportunities to unpack values into multiple names instead of
@@ -116,6 +117,6 @@ def unpacking_opportunity(blocks_dets):
 
     message = {
         conf.BRIEF: title + unpackable,
-        conf.EXTRA: UNPACKING_COMMENT,
+        conf.EXTRA: get_unpacking_msg(),
     }
     return message

@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-from ..advisors import snippet_advisor
+from ..advisors import all_blocks_advisor
 from .. import conf
 from ..utils import get_python_version, layout_comment as layout
 
@@ -51,7 +51,7 @@ def get_named_tuples_dets(blocks_dets):
         all_named_tuples_dets.extend(named_tuples_dets)
     return all_named_tuples_dets
 
-@snippet_advisor()
+@all_blocks_advisor()
 def named_tuple_overview(blocks_dets):
     """
     Look for named tuples and explain how they can be enhanced.

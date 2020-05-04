@@ -1,4 +1,4 @@
-from ..advisors import snippet_advisor
+from ..advisors import all_blocks_advisor
 from .. import conf
 from ..utils import get_nice_str_list, int2nice, layout_comment as layout
 
@@ -25,7 +25,7 @@ def get_exception_blocks(blocks_dets):
             exception_blocks.append(block_exception_types)
     return exception_blocks
 
-@snippet_advisor()
+@all_blocks_advisor()
 def exception_overview(blocks_dets):
     """
     Provide overview of exception handling.
@@ -56,7 +56,7 @@ def exception_overview(blocks_dets):
     }
     return message
 
-@snippet_advisor(warning=True)
+@all_blocks_advisor(warning=True)
 def unspecific_exception(blocks_dets):
     """
     Look for unspecific exceptions.
