@@ -3,6 +3,7 @@ from textwrap import dedent, indent
 import webbrowser
 
 from .. import conf
+from ..utils import make_tmp_file
 
 from markdown import markdown  ## https://coderbook.com/@marcus/how-to-render-markdown-syntax-as-html-using-python/ @UnresolvedImport
 
@@ -677,8 +678,7 @@ def display(snippet, messages_dets, *,
             missing_advice_message=conf.MISSING_ADVICE_MESSAGE,
             body_inner=body_inner,
             visibility_script=VISIBILITY_SCRIPT)
-        explained_fpath = Path.cwd() / 'explained.html'
-        with open(explained_fpath, 'w') as f:
-            f.write(html2write)
-        url = explained_fpath.as_uri()
+        tmp_fh, fpath = make_tmp_file('superhelp_output.html', mode='w')
+        tmp_fh.write(html2write)
+        url = fpath.as_uri()
         webbrowser.open_new_tab(url)

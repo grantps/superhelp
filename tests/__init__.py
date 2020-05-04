@@ -1,10 +1,16 @@
 ## cd ~/projects/superhelp && superhelp/env/bin/python3 -m nose
 import astpath
 from nose.tools import assert_equal, assert_not_equal, assert_true, assert_false  # @UnusedImport @UnresolvedImport
-
-from superhelp import conf
-from superhelp.messages import _get_tree, get_separated_messages_dets, \
-    store_ast_output
+try:
+    from ..superhelp import conf  # @UnresolvedImport
+    from ..superhelp.messages import _get_tree, get_separated_messages_dets, store_ast_output  # @UnresolvedImport
+except (ImportError, ValueError):
+    from pathlib import Path
+    import sys
+    parent = Path.cwd().parent
+    sys.path.insert(0, parent)
+    from superhelp import conf  # @Reimport
+    from superhelp.messages import _get_tree, get_separated_messages_dets, store_ast_output  # @Reimport
 
 def get_actual_source_freqs(messages_dets, expected_source_freqs):
     """

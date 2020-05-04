@@ -1,17 +1,24 @@
 import argparse
 import logging
 
-from superhelp import conf
+try:
+    from .. import conf  # @UnresolvedImport @UnusedImport
+    ## importing from superhelp only works properly after I've installed superhelp as a pip package (albeit as a link to this code using python3 -m pip install --user -e <path_to_proj_folder>)
+    ## Using this as a library etc works with . instead of superhelp but I want to be be able to run the helper module from within my IDE
+    from . import advisors, messages  # @UnusedImport
+    from .displayers import cli_displayer, html_displayer  # @UnusedImport
+except (ImportError, ValueError):
+    from pathlib import Path
+    import sys
+    parent = Path.cwd().parent
+    sys.path.insert(0, parent)
+    from superhelp import conf, advisors, messages  # @Reimport
+    from superhelp.displayers import cli_displayer, html_displayer  # @Reimport
 
 logging.basicConfig(
     level=conf.LOG_LEVEL,
     format='%(asctime)s %(levelname)-8s %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S')
-
-## importing from superhelp only works properly after I've installed superhelp as a pip package (albeit as a link to this code using python3 -m pip install --user -e <path_to_proj_folder>)
-## Using this as a library etc works with . instead of superhelp but I want to be be able to run the helper module from within my IDE
-from superhelp import advisors, messages
-from superhelp.displayers import cli_displayer, html_displayer
 
 advisors.load_advisors()
 
@@ -67,11 +74,18 @@ def get_advice(snippet=None, *, file_path=None, displayer='html',
      not sent to browser but returned for display by notebook itself
     """
     snippet = _get_snippet(snippet, file_path)
-    try:
-        messages_dets, multi_block = messages.get_snippet_dets(snippet)
-    except Exception as e:
-        messages_dets = messages.get_error_messages_dets(e, snippet)
+    if snippet.strip() == 'import community':
+        messages_dets = messages.get_community_message(snippet)
         multi_block = False
+    elif all([word in snippet for word in conf.XKCD_WARNING_WORDS]):
+        messages_dets = messages.get_xkcd_warning(snippet)
+        multi_block = False
+    else:
+        try:
+            messages_dets, multi_block = messages.get_snippet_dets(snippet)
+        except Exception as e:
+            messages_dets = messages.get_error_messages_dets(e, snippet)
+            multi_block = False
     displayer_module = _get_displayer_module(displayer)
     if displayer_module:
         res = display_messages(displayer_module, snippet, messages_dets,
@@ -79,19 +93,6 @@ def get_advice(snippet=None, *, file_path=None, displayer='html',
             multi_block=multi_block)
         if in_notebook:
             return res
-        
-        
-        
-        
-        
-    #TODO: allow extra in help    
-#     for comment in advisors.get_advisor_comments():
-#         print(comment)
-
-
-
-
-
 
 def shelp():
     """
@@ -115,7 +116,17 @@ def shelp():
     parser.add_argument('-d', '--displayer', type=str,
         required=False, default=default_displayer,
         help="Where do you want your help shown? html, cli, etc")
+    parser.add_argument('-a', '--advice-list', action='store_true',
+        default=False,
+        help="List available advice")
     args = parser.parse_args()
+    if args.advice_list:
+        advisor_comments = advisors.get_advisor_comments()
+        num_width = len(str(len(advisor_comments)))
+        for n, (comment, source) in enumerate(
+                advisor_comments, 1):
+            print(f"{n:>{num_width}}) {comment} ({source})")
+        return
     displayer = args.displayer if do_displayer else None
     get_advice(args.snippet,
         file_path=args.file_path, displayer=displayer, message_level=args.level)

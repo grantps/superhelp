@@ -140,9 +140,10 @@ def get_advisor_comments():
     all_advisors_dets = (
         FILT_BLOCK_ADVISORS + ANY_BLOCK_ADVISORS + SNIPPET_ADVISORS)
     for advisor_dets in all_advisors_dets:
+        source = advisor_dets.advisor.__module__.split('.')[-1]
         docstring = advisor_dets.advisor.__doc__
         advisor_comment = get_docstring_start(docstring)
-        advisor_comments.append(advisor_comment)
+        advisor_comments.append((advisor_comment, source))
     return advisor_comments
 
 ## =============================================================================

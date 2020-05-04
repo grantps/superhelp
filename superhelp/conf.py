@@ -1,6 +1,5 @@
 import datetime
 import logging
-from pathlib import Path
 
 t = True
 f = False
@@ -27,10 +26,9 @@ else:
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 
 TEST_SNIPPET = """\
-#import re
-from re import match
-#flag = re.VERBOSE
-#t_OPERATOR = r'(?x) <> | <= | >= | = | < | >'
+pets = 'seagull'
+home = 'super volcano'
+appliance = 'garbage disposal'
 """
 
 DEMO_SNIPPET = """\
@@ -161,7 +159,7 @@ PY3_6 = '3.6'
 PY3_7 = '3.7'
 PY3_8 = '3.8'
 
-AST_OUTPUT_XML = Path(__file__).parent / 'ast_output.xml'
+AST_OUTPUT_XML_FNAME = 'ast_output.xml'
 
 PYTHON_CODE_START = '__python_code_start__'
 PYTHON_CODE_END = '__python_code_end__'
@@ -229,6 +227,8 @@ MISSING_ADVICE_MESSAGE = ("If there was some advice you think should have "
     f"been given that wasn't, contact {EMAIL2USE} with the subject line "
     "'Advice' and explain. Please include a snippet to test as well.")
 SYSTEM_MESSAGE = 'System message'
+
+XKCD_WARNING_WORDS = ['supervolcano', 'seagull', 'garbage disposal']
 
 VERBOSE_FLAG = 'VERBOSE'
 INLINE_RE_VERBOSE_FLAG = '(?x)'

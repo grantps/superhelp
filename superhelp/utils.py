@@ -1,8 +1,18 @@
 import logging
+from os import rename
+from pathlib import Path
 import sys
+import tempfile
 from textwrap import dedent, wrap
 
 from . import conf
+
+def make_tmp_file(fname, mode='w'):
+    tmp_fh = tempfile.NamedTemporaryFile(mode=mode, delete=False)
+    randomly_named_fpath = Path(tmp_fh.name)
+    fpath = Path(randomly_named_fpath.parent) / fname
+    rename(randomly_named_fpath, fpath)
+    return tmp_fh, fpath
 
 def get_python_version():
     major, minor = sys.version_info[:2]

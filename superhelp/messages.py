@@ -83,8 +83,17 @@ astpath.asts.convert_to_xml = convert_to_xml
 
 ## importing from superhelp only works properly after I've installed superhelp as a pip package (albeit as a link to this code using python3 -m pip install --user -e <path_to_proj_folder>)
 ## Using this as a library etc works with . instead of superhelp but I want to be be able to run the helper module from within my IDE
-from superhelp import advisors, ast_funcs, conf  # @UnresolvedImport
-from superhelp.utils import get_docstring_start, layout_comment  # @UnresolvedImport
+
+try:
+    from . import advisors, ast_funcs, conf  # @UnresolvedImport @UnusedImport
+    from ..utils import get_docstring_start, layout_comment as layout, make_tmp_file  # @UnresolvedImport @UnusedImport
+except (ImportError, ValueError):
+    from pathlib import Path
+    import sys
+    parent = Path.cwd().parent
+    sys.path.insert(0, parent)
+    from superhelp import advisors, ast_funcs, conf  # @Reimport
+    from superhelp.utils import get_docstring_start, layout_comment as layout, make_tmp_file  # @Reimport
 
 BlockDets = namedtuple(
     'BlockDets', 'element, pre_block_code_str, block_code_str, first_line_no')
@@ -95,6 +104,7 @@ MessageDets = namedtuple('MessageDets',
     'code_str, message, first_line_no, warning, source')
 MessageDets.__doc__ += (
     "All the bits and pieces that might be needed to craft a message")
+MessageDets.code_str.__doc__ = ("The block of code the message relates to")
 MessageDets.source.__doc__ = ("A unique identifier of the source of message "
     "- useful for auditing / testing")
 
@@ -173,15 +183,16 @@ def get_message_dets_from_input(advisor_dets, *,
     except Exception as e:
         message = {
             conf.BRIEF: (
-                layout_comment(f"""\
+                layout(f"""\
+
                     ### Advisor "`{name}`" unable to run
 
                     Advisor {name} unable to run. Advisor description:
                     """)
                 +  ## show first line of docstring (subsequent lines might have more technical, internally-oriented comments)
-                layout_comment(get_docstring_start(docstring) + '\n')
+                layout(get_docstring_start(docstring) + '\n')
                 +
-                layout_comment(str(e))
+                layout(str(e))
             )
         }
         source = conf.SYSTEM_MESSAGE
@@ -310,7 +321,9 @@ def get_separated_messages_dets(snippet, snippet_block_els, xml):
     return overall_snippet_messages_dets, block_level_messages_dets
 
 def store_ast_output(xml):
-    xml.getroottree().write(str(conf.AST_OUTPUT_XML), pretty_print=True)
+    _tmp_ast_fh, tmp_ast_output_xml_fpath = make_tmp_file(
+        conf.AST_OUTPUT_XML_FNAME, mode='w')
+    xml.getroottree().write(str(tmp_ast_output_xml_fpath), pretty_print=True)
     logging.info("\n\n\n\n\nUpdating AST\n\n\n\n\n")
 
 def get_snippet_dets(snippet):
@@ -324,25 +337,55 @@ def get_snippet_dets(snippet):
         snippet, snippet_block_els, xml)
     return snippet_messages_dets, multi_block_snippet
 
+def get_system_messages_dets(snippet, brief_message, *, warning=True):
+    """
+    Even though only one message is needed, supplying the details in the
+    standard format the displayers expect means they can operate in their usual
+    messages_dets consuming ways :-).
+    """
+    message = {
+        conf.BRIEF: brief_message,
+    }
+    message = complete_message(message, source=conf.SYSTEM_MESSAGE)
+    overall_messages_dets = [
+        MessageDets(snippet, message,
+            first_line_no=None, warning=warning, source=conf.SYSTEM_MESSAGE)]
+    block_messages_dets = []
+    messages_dets = (overall_messages_dets, block_messages_dets)
+    return messages_dets
+
 def get_error_messages_dets(e, snippet):
     """
     If unable to produce any messages, supply the problem in the form of
     standard messages_dets so the displayers can operate in their usual
     messages_dets consuming ways :-).
     """
-    message = {
-        conf.BRIEF: layout_comment(f"""\
-            ### No advice sorry :-(
+    brief_message = layout(f"""\
+        ### No advice sorry :-(
 
-            Unable to provide advice - some sort of problem.
+        Unable to provide advice - some sort of problem.
 
-            Details: {e}
-            """),
-    }
-    message = complete_message(message, source=conf.SYSTEM_MESSAGE)
-    overall_messages_dets = [
-        MessageDets(snippet, message,
-            first_line_no=None, warning=True, source=conf.SYSTEM_MESSAGE)]
-    block_messages_dets = []
-    messages_dets = (overall_messages_dets, block_messages_dets)
-    return messages_dets
+        Details: {e}
+        """)
+    return get_system_messages_dets(snippet, brief_message)
+
+def get_community_message(snippet):
+    brief_message = layout("""\
+
+        ### Join in!
+
+        Python has always had a great community. Learn more at
+        <https://www.python.org/community/>. Better still - get involved :-)
+
+        """)
+    return get_system_messages_dets(snippet, brief_message)
+
+def get_xkcd_warning(snippet):
+    brief_message = layout("""\
+
+        ### According to XKCD this code could be *very* dangerous
+
+        See <https://xkcd.com/2261/>
+
+        """)
+    return get_system_messages_dets(snippet, brief_message)
