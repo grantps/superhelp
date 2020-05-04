@@ -10,7 +10,7 @@ try:
 except (ImportError, ValueError):
     from pathlib import Path
     import sys
-    parent = Path.cwd().parent
+    parent = str(Path.cwd().parent)
     sys.path.insert(0, parent)
     from superhelp import conf, advisors, messages  # @Reimport
     from superhelp.displayers import cli_displayer, html_displayer  # @Reimport

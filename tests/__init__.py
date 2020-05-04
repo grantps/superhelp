@@ -7,7 +7,7 @@ try:
 except (ImportError, ValueError):
     from pathlib import Path
     import sys
-    parent = Path.cwd().parent
+    parent = str(Path.cwd().parent)
     sys.path.insert(0, parent)
     from superhelp import conf  # @Reimport
     from superhelp.messages import _get_tree, get_separated_messages_dets, store_ast_output  # @Reimport

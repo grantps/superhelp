@@ -90,7 +90,7 @@ try:
 except (ImportError, ValueError):
     from pathlib import Path
     import sys
-    parent = Path.cwd().parent
+    parent = str(Path.cwd().parent)
     sys.path.insert(0, parent)
     from superhelp import advisors, ast_funcs, conf  # @Reimport
     from superhelp.utils import get_docstring_start, layout_comment as layout, make_tmp_file  # @Reimport
