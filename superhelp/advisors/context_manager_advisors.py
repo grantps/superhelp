@@ -66,7 +66,7 @@ def get_open_cm_msg():
             try:
                 idx = text.index(TAG)
             except ValueError:
-                f.close()  # <----------------- Three already! I'm lucky it's only a 
+                f.close()  # <----------------- Three already! I'm lucky it's only a
                 raise      #                    one-liner each time.
             f.close()
             """, is_code=True)
@@ -86,7 +86,7 @@ def get_open_cm_msg():
                     raise Exception(f"{fname} is empty")
                 idx = text.index(TAG)
             ## If my code gets here, i.e. past the indented block inside the context
-            ## manager,  we are guaranteed to have freed up the file - nice! 
+            ## manager,  we are guaranteed to have freed up the file - nice!
             """, is_code=True)
     )
 

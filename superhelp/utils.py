@@ -1,11 +1,18 @@
 import logging
 from os import rename
 from pathlib import Path
+import platform
 import sys
 import tempfile
 from textwrap import dedent, wrap
 
 from . import conf
+
+def get_os_platform():
+    platforms = {
+        'Linux': conf.LINUX, 'Windows': conf.WINDOWS, 'Darwin': conf.MAC}
+    os_platform = platforms.get(platform.system())
+    return os_platform
 
 def make_open_tmp_file(fname, mode='w'):
     """

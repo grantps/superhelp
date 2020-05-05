@@ -158,6 +158,10 @@ PY3_6 = '3.6'
 PY3_7 = '3.7'
 PY3_8 = '3.8'
 
+LINUX = 'linux'
+WINDOWS = 'windows'
+MAC = 'mac'
+
 AST_OUTPUT_XML_FNAME = 'ast_output.xml'
 
 PYTHON_CODE_START = '__python_code_start__'
