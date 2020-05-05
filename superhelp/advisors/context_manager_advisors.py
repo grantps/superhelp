@@ -92,7 +92,7 @@ def get_open_cm_msg():
 
 WITH_XPATH = 'descendant-or-self::With'
 
-def is_using_open(with_el):
+def with_is_using_open(with_el):
     func_name_els = with_el.xpath(
         'descendant::items/withitem/context_expr/Call/func/Name')
     if len(func_name_els) != 1:
@@ -107,7 +107,7 @@ def content_manager_overview(block_dets, *, repeat=False):
     Explain context managers.
     """
     with_els = block_dets.element.xpath(WITH_XPATH)
-    using_open_cm = any([is_using_open(with_el) for with_el in with_els])
+    using_open_cm = any([with_is_using_open(with_el) for with_el in with_els])
     if not with_els:
         return None
 
@@ -156,16 +156,37 @@ def content_manager_overview(block_dets, *, repeat=False):
     }
     return message
 
-ASSIGN_OPEN_XPATH = 'descendant-or-self::Assign/value/Call/func/Name'
+def has_with_ancestor(open_el):
+    with_els = open_el.xpath('ancestor::With')
+    if not with_els:
+        return False
+    with_el = with_els[-1]
+    func_name_els = with_el.xpath('items/withitem/context_expr/Call/func/Name')
+    if len(func_name_els) != 1:
+        return False
+    func_name_el_under_with = func_name_els[0]
+    return open_el == func_name_el_under_with
 
-@filt_block_advisor(xpath=ASSIGN_OPEN_XPATH, warning=True)
+FUNC_NAME_XPATH = 'descendant-or-self::Call/func/Name'
+
+@filt_block_advisor(xpath=FUNC_NAME_XPATH, warning=True)
 def file_cm_needed(block_dets, *, repeat=False):
     """
     Look for opening of file without a context managers - recommend use of the
     "with open" context manager.
     """
-    assign_open_els = block_dets.element.xpath(ASSIGN_OPEN_XPATH)
-    if not assign_open_els:
+    func_name_els = block_dets.element.xpath(FUNC_NAME_XPATH)
+    if not func_name_els:
+        return None
+    open_els = []
+    for func_name_el in func_name_els:
+        func_name = func_name_el.get('id')
+        if func_name == 'open':
+            open_els.append(func_name_el)
+    if not open_els:
+        return None
+    missing_cm = not all([has_with_ancestor(open_el) for open_el in open_els])
+    if not missing_cm:
         return None
 
     title = layout("""\

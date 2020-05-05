@@ -28,7 +28,7 @@ def _get_flake8_fpath():
     if os_platform == conf.WINDOWS:
         """
         The Joys of Where
-        
+
         The "where" statement won't always point to an actual executable -
         sometimes it finds a stub which, when executed, opens up an MS app store
         LOL FAIL. Sometimes refers to two places - one on a C: drive and another
@@ -37,8 +37,8 @@ def _get_flake8_fpath():
         which_statement = 'where'
     else:
         which_statement = 'which'
-    cmd = [which_statement, 'flake8']
-    res = run(args=cmd, stdout=PIPE)
+    args = [which_statement, 'flake8']
+    res = run(args=args, stdout=PIPE)
     flake8_fpath = str(res.stdout, encoding='utf-8').strip()
     if not flake8_fpath:
         flake8_fpath = _get_env_flake8_fpath()
@@ -46,8 +46,11 @@ def _get_flake8_fpath():
 
 def _get_flake8_results(fpath):
     flake8_fpath = _get_flake8_fpath()
-    cmd = [flake8_fpath, str(fpath)]
-    res = run(args=cmd, stdout=PIPE)
+    args = [flake8_fpath, str(fpath)]
+    if conf.IGNORED_LINT_RULES:
+        ignored = ','.join(conf.IGNORED_LINT_RULES)
+        args.append(f"--extend-ignore={ignored}")
+    res = run(args=args, stdout=PIPE)
     return res
 
 @snippet_str_advisor(warning=True)
@@ -79,7 +82,9 @@ def lint_snippet(snippet):
         spending all their time restyling each other's code and arguing about
         "standards".
 
-        Here is what the linter reported about your snippet:
+        Here is what the linter reported about your snippet. Note - if your
+        snippet is taken from a broader context the linter might be concerned
+        about names it doesn't know about - i.e. some unavoidable false alarms.
 
         """)
     lint_lines = [line.strip()

@@ -27,7 +27,19 @@ else:
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 
 TEST_SNIPPET = """\
-home = 'super volcano'  
+try:
+    from .. import conf  # @UnresolvedImport @UnusedImport
+    ## importing from superhelp only works properly after I've installed superhelp as a pip package (albeit as a link to this code using python3 -m pip install --user -e <path_to_proj_folder>)
+    ## Using this as a library etc works with . instead of superhelp but I want to be be able to run the helper module from within my IDE
+    from . import advisors, messages  # @UnusedImport
+    from .displayers import cli_displayer, html_displayer  # @UnusedImport
+except (ImportError, ValueError):
+    from pathlib import Path
+    import sys
+    parent = str(Path.cwd().parent)
+    sys.path.insert(0, parent)
+    from superhelp import conf, advisors, messages  # @Reimport
+    from superhelp.displayers import cli_displayer, html_displayer  # @Reimport
 """
 
 DEMO_SNIPPET = """\
@@ -244,6 +256,11 @@ SNIPPET_FNAME = 'snippet.py'
 LINT_MSG_TYPE = 'msg_type'
 LINT_MSG = 'msg'
 LINT_LINE_NO = 'line_no'
+## https://pycodestyle.pycqa.org/en/latest/intro.html#error-codes
+## https://flake8.pycqa.org/en/latest/user/error-codes.html
+IGNORED_LINT_RULES = [
+    'E128',  ## flake8 wants visual alignment on line continuation - I don't - I want standardised alignment on indent multiples of 4
+]
 
 LINE_FEED = '&#10;'
 

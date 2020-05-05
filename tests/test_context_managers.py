@@ -91,6 +91,16 @@ def test_misc():
                 ROOT + 'file_cm_needed': 1,
             }
         ),
+        (
+            dedent("""\
+            def test():
+                pass
+            """),
+            {
+                ROOT + 'content_manager_overview': 0,
+                ROOT + 'file_cm_needed': 0,
+            }
+        ),
     ]
     check_as_expected(test_conf)
 

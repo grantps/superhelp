@@ -571,19 +571,21 @@ def repeat_overall_snippet(snippet):
     html_strs.append(overall_code_str_highlighted)
     return html_strs
 
-def _need_snippet_displayed(block_messages_dets, *,
+def _need_snippet_displayed(overall_messages_dets, block_messages_dets, *,
         in_notebook=False, multi_block=False):
     """
-    Don't need to see the code snippet displayed when it is already visible:
+    Don't need to see the code snippet displayed when it is already visible
+    right next to it:
     * because in notebook (it is already in the cell straight above)
     * because there is only one block in snippet and there is a block message
-      for it (which will display the block i.e. the entire snippet)
+      for it (which will display the block i.e. the entire snippet) UNLESS there
+      is an overall message separating them
     Otherwise we need it displayed.
     """
     if in_notebook:
         return False
     mono_block_snippet = not multi_block
-    if mono_block_snippet and block_messages_dets:
+    if mono_block_snippet and block_messages_dets and not overall_messages_dets:
         return False
     return True
 
@@ -599,7 +601,8 @@ def _get_all_html_strs(snippet, overall_messages_dets, block_messages_dets, *,
     all_html_strs = []
 
     ## overall snippet display
-    display_snippet = _need_snippet_displayed(block_messages_dets,
+    display_snippet = _need_snippet_displayed(
+        overall_messages_dets, block_messages_dets,
         in_notebook=in_notebook, multi_block=multi_block)
     if display_snippet:
         overall_snippet_html_strs = repeat_overall_snippet(snippet)
