@@ -5,7 +5,7 @@ from subprocess import run, PIPE
 import sys
 
 from ..advisors import snippet_str_advisor
-from .. import conf
+from .. import conf, lint_conf
 from ..utils import get_nice_str_list, get_os_platform, \
     layout_comment as layout, make_open_tmp_file
 
@@ -59,8 +59,8 @@ def _get_flake8_fpath():
 def _get_flake8_results(fpath):
     flake8_fpath = _get_flake8_fpath()
     args = [flake8_fpath, str(fpath)]
-    if conf.IGNORED_LINT_RULES:
-        ignored = ','.join(conf.IGNORED_LINT_RULES)
+    if lint_conf.IGNORED_LINT_RULES:
+        ignored = ','.join(lint_conf.IGNORED_LINT_RULES)
         args.append(f"--extend-ignore={ignored}")
     res = run(args=args, stdout=PIPE)
     return res
@@ -98,7 +98,7 @@ def _get_lint_dets_by_msg_type(lint_regex_dicts):
         msg_type = lint_regex_dict[conf.LINT_MSG_TYPE]
         msg = lint_regex_dict[conf.LINT_MSG]
         try:
-            msg_dets = conf.CUSTOM_LINT_MSGS[msg_type]
+            msg_dets = lint_conf.CUSTOM_LINT_MSGS[msg_type]
         except KeyError:
             pass
         else:
@@ -139,9 +139,9 @@ def _get_msg_lines(lint_dets_by_msg_type):
         msg_line = _get_msg_line(msg_lineno_pairs)
         msg_lines.append(msg_line)
         ## add supplementary line?
-        supplement_configured = msg_type in conf.CUSTOM_LINT_MSGS
+        supplement_configured = msg_type in lint_conf.CUSTOM_LINT_MSGS
         if msg_type not in already_supplemented and supplement_configured:
-            msg_dets = conf.CUSTOM_LINT_MSGS[msg_type]
+            msg_dets = lint_conf.CUSTOM_LINT_MSGS[msg_type]
             supplement_needed = not msg_dets.replacement
             if supplement_needed:
                 msg_placeholder = _msg_type_to_placeholder(msg_type)
@@ -157,7 +157,7 @@ def _get_lint_msg(raw_lint_message, msg_level):
     """
     msg_type_to_msg_level = {
         _msg_type_to_placeholder_key(msg_type): getattr(msg_dets, msg_level)
-        for msg_type, msg_dets in conf.CUSTOM_LINT_MSGS.items()
+        for msg_type, msg_dets in lint_conf.CUSTOM_LINT_MSGS.items()
     }
     lint_msg = raw_lint_message.format(**msg_type_to_msg_level)  ## e.g. E501_msg="Line too long", E666_msg='Code is generally evil'
     return lint_msg
@@ -166,7 +166,7 @@ def _get_extra_msg(lint_dets_by_msg_type):
     msg_types_used = lint_dets_by_msg_type.keys()
     extra_lines = []
     for msg_type in msg_types_used:
-        msgs = conf.CUSTOM_LINT_MSGS.get(msg_type)
+        msgs = lint_conf.CUSTOM_LINT_MSGS.get(msg_type)
         if not msgs:
             continue
         extra_lines.append(msgs.extra)

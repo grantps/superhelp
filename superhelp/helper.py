@@ -22,7 +22,6 @@ logging.basicConfig(
 
 advisors.load_advisors()
 
-do_test = conf.DO_TEST  ## use test snippet rather than the larger demo snippet
 do_html = conf.DO_HTML  ## use html displayer vs cli displayer
 do_displayer = conf.DO_DISPLAYER  ## for dev testing only
 
@@ -43,7 +42,7 @@ def _get_snippet(snippet, file_path):
     elif snippet:
         pass
     else:
-        snippet = conf.TEST_SNIPPET if do_test else conf.DEMO_SNIPPET
+        snippet = conf.TEST_SNIPPET
         logging.info("Using default snippet because no snippet provided")
     return snippet
 

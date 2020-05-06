@@ -1,4 +1,3 @@
-from collections import namedtuple
 import datetime
 import logging
 
@@ -11,7 +10,6 @@ f = False
 
 RECORD_AST = f  ## (f)
 DEV_MODE = f  ## (f)
-DO_TEST = t  ## set test snippet as default rather than the larger demo snippet (t)
 DO_HTML = t  ## set html displayer as default (t)
 DO_DISPLAYER = t  ## f is only ever used when testing pre-display (t)
 INCLUDE_LINTING = t  ## f when running unit tests to massively speed them up (otherwise every snippet in tests is linted each time) (t)
@@ -27,7 +25,6 @@ else:
 
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 ## All snippets here should be raw strings (see https://stackoverflow.com/questions/53636723/python-parsing-code-with-new-line-character-in-them-using-ast)
-
 TEST_SNIPPET = r"""
 
 def sorted(*G, **kwargs):
@@ -38,130 +35,6 @@ def sorted(*G, **kwargs):
 G = [['Ahmad', 3.8], ['Rizwan', 3.68], ['Bilal', 3.9]]
 sorted(G)
 print(G)
-"""
-
-DEMO_SNIPPET = r"""
-import datetime
-from math import pi as π
-mixed_keys = {1: 'cat', '1': 'dog'}
-mixedTypes = [
-    datetime.datetime.strptime('2020-02-10', '%Y-%m-%d'),
-    π, 5, 1.234, 'Noor', False,
-]
-names = ['Noor', 'Grant', 'Hyeji', 'Vicky', 'Olek', 'Marzena', 'Jess', 'Nicole']
-names_lower = [name.lower() for name in names]
-name_lengths = []
-for name in ['Noor', 'Grant', ]:
-    name_lengths.append(len(name))
-fullName = 'Guido van Rossum'
-evens_squared = [x**2 for x in range(1, 6) if x % 2 == 0]
-empty = []
-myint = 666
-myfloat = 6.667
-myscinot = 1.23E-7
-my_tup = ('alpha', 'beta')
-greeting = f"Hi {names[0]}!"
-greeting = "Hi " + names[0] + "!"
-def powerMe(num, *, power=2):
-    poweredVal = num ** power
-    return poweredVal
-coord = ('lat', 'lon')
-latitude = coord[0]
-longitude = coord[1]
-demo = (1, 2, 3, 4)
-x, yy, zz, aaa = demo
-people = set(['Sam', 'Avi', 'Terri', 'Noor'])
-no_email = set(['Sam', 'Terri'])
-people2email = people - no_email
-empty_set = set()
-len_word = len(fullName)
-if len_word == 1:
-    status = 'single-letter'
-elif len_word < 4:
-    status = 'short'
-elif len_word > 12:
-    status = 'long'
-elif len_word > 20:
-    status = 'very_long'
-# else:
-#     status = 'typical'
-if len('chicken') > 2:
-    print('cluck!')
-phrase = "His age is %i" % 21
-
-fruit = ['banana']
-try:
-    lunch = fruit[100]
-except (IndexError, TypeError):
-    print("No lunch for you!")
-except Exception as e:
-    print(f"Unknown error - details: {e}")
-
-try:
-    float('boat')
-except ValueError:
-    print("You can't float a boat! Only a number of some sort!")
-
-try:
-    names[100]
-except Exception:
-    print(names)
-
-sorted_names = sorted(names)
-faulty_val = names.sort()
-
-## modified and given more problems and features, from https://stackoverflow.com/questions/61154079/sorting-using-list-built-in-method-and-user-defined-function-sorts-the-list-with
-def sorted(*G, **kwargs):
-    for i in range(len(G)):
-        for j in range(1,len(G)):
-            if G[j-1]<G[j]:
-                G[j-1],G[j]=G[j],G[j-1]
-G = [['Ahmad', 3.8], ['Rizwan', 3.68], ['Bilal', 3.9]]
-sorted(G)
-print(G)
-
-from functools import wraps
-def tweet(func):
-    @wraps(func)
-    def wrapper(message):
-        func(message)
-        print(f"I'm tweeting the message {message}")
-    return wrapper
-
-@tweet
-def say(message):
-    print(message)
-
-say("sausage!")
-
-def has_docstring():
-    '''
-    Hi
-    '''
-    pass
-def lacks_proper_docstring():
-    # Not a doc string
-    pass
-def lacks_any_docstring():
-    666
-    name = 'Grant'
-    '''
-    Ho
-    '''
-def random():
-    '''
-    This is line 1
-    Line 2
-    Line 3
-    '''
-    pass
-def camelCase(a, b, c, d, f, *, g):
-    '''
-    This is line 1
-    Line 2
-    Line 3
-    '''
-    pass
 """
 
 PY3_6 = '3.6'
@@ -254,47 +127,6 @@ SNIPPET_FNAME = 'snippet.py'
 LINT_MSG_TYPE = 'msg_type'
 LINT_MSG = 'msg'
 LINT_LINE_NO = 'line_no'
-## https://pycodestyle.pycqa.org/en/latest/intro.html#error-codes
-## https://flake8.pycqa.org/en/latest/user/error-codes.html
-IGNORED_LINT_RULES = [
-    'E128',  ## flake8 wants visual alignment on line continuation - I don't - I want standardised alignment on indent multiples of 4 (idea taken from Brandon Rhodes thanks Brandon!)
-    'E266', 'E262',  ## I like ## before comments and # before commented out code (idea copied off Tom Eastman - thanks Tom!)
-    'E305',  ## for classes I agree with 2 spaces but not functions
-]
-LintMsgs = namedtuple('LintMsgs', 'brief, main, extra, replacement')
-CUSTOM_LINT_MSGS = {
-    'E501': LintMsgs(
-        """\
-        One or more lines are longer than the recommended 79 characters. This is
-        not necessarily a problem but long lines should be an exception to the
-        rule
-        """,
-        """\
-        One or more lines are longer than the recommended 79 characters. This is
-        not necessarily a problem given that we have wider monitors than when
-        the guidelines were formulated. But long lines should be an exception to
-        the rule. All being equal, short lines are easier to read and understand
-        than long lines. There are multiple strategies for shortening lines but
-        the overall goal has to be readability. Sometimes we have to live with
-        broken "rules". And that's official. Read PEP 8 - the official Python
-        style guide - especially the section "A Foolish Consistency is the
-        Hobgoblin of Little Minds".
-        """,
-        '',
-        True),
-    'F401': LintMsgs(
-        """\
-        One or more imports not used in snippet.
-        """,
-        """\
-        One or more imports not used in snippet. If the snippet was extracted
-        from a larger piece of code and the imports are used in that code then
-        there is no problem.
-        """,
-        '',
-        False
-        )
-}
 
 LINE_FEED = '&#10;'
 
