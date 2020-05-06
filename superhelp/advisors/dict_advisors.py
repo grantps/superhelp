@@ -21,13 +21,20 @@ def dict_overview(block_dets, *, repeat=False):
     brief_desc_bits = []
     for dict_el in dict_els:
         name = get_assign_name(dict_el)
-        items = code_execution.get_val(
-            block_dets.pre_block_code_str, block_dets.block_code_str, name)
-        brief_desc_bits.append(layout(f"""\
+        try:
+            items = code_execution.get_val(
+                block_dets.pre_block_code_str, block_dets.block_code_str, name)
+        except KeyError:
+            brief_desc_bits.append(layout(f"""\
 
-            `{name}` is a dictionary with {utils.int2nice(len(items))} items
-            (i.e. {utils.int2nice(len(items))} mappings).
-            """))
+                `{name}` is a dictionary. Unable to evaluate items.
+                """))
+        else:
+            brief_desc_bits.append(layout(f"""\
+
+                `{name}` is a dictionary with {utils.int2nice(len(items))} items
+                (i.e. {utils.int2nice(len(items))} mappings).
+                """))
     brief_desc = ''.join(brief_desc_bits)
     if not repeat:
         dict_def = layout("""\
@@ -51,28 +58,36 @@ def dict_overview(block_dets, *, repeat=False):
             name = get_assign_name(dict_el)
             if i == 0:
                 first_name = name
-            items = code_execution.get_val(
-                block_dets.pre_block_code_str, block_dets.block_code_str, name)
-            empty_dict = (len(items) == 0)
-            if empty_dict:
+            try:
+                items = code_execution.get_val(block_dets.pre_block_code_str,
+                    block_dets.block_code_str, name)
+            except KeyError:
                 dict_desc_bits.append(layout(f"""\
 
-                    `{name}` is an empty dictionary.
-
+                    `{name}` is a dictionary. Unable to evaluate items.
                     """))
             else:
-                plural = '' if len(items) == 1 else 's'
-                dict_desc_bits.append(layout(f"""\
+                empty_dict = (len(items) == 0)
+                if empty_dict:
+                    dict_desc_bits.append(layout(f"""\
 
-                    `{name}` is a dictionary with {utils.int2nice(len(items))}
-                    item{plural} (i.e. {utils.int2nice(len(items))}
-                    mapping{plural}). In this case, the keys are:
-                    {list(items.keys())}. We can get the keys using the `.keys()`
-                    method e.g. `{name}`.`keys()`. The values are
-                    {list(items.values())}. We can get the values using the
-                    `.values()` method e.g. `{name}`.`values()`.
+                        `{name}` is an empty dictionary.
 
-                    """))
+                        """))
+                else:
+                    plural = '' if len(items) == 1 else 's'
+                    dict_desc_bits.append(layout(f"""\
+
+                        `{name}` is a dictionary with
+                        {utils.int2nice(len(items))} item{plural} (i.e.
+                        {utils.int2nice(len(items))} mapping{plural}). In this
+                        case, the keys are: {list(items.keys())}. We can get the
+                        keys using the `.keys()` method e.g. `{name}`.`keys()`.
+                        The values are {list(items.values())}. We can get the
+                        values using the `.values()` method e.g.
+                        `{name}`.`values()`.
+
+                        """))
         main_dict_desc = ''.join(dict_desc_bits)
         general = (
             layout(f"""
@@ -159,8 +174,11 @@ def mixed_key_types(block_dets, *, repeat=False):
     mixed_names = []
     for dict_el in dict_els:
         name = get_assign_name(dict_el)
-        items = code_execution.get_val(
-            block_dets.pre_block_code_str, block_dets.block_code_str, name)
+        try:
+            items = code_execution.get_val(
+                block_dets.pre_block_code_str, block_dets.block_code_str, name)
+        except KeyError:
+            continue
         key_type_names, _key_type_nice_names = get_key_type_names(items)
         bad_key_type_combo = (
             conf.INT_TYPE in key_type_names and conf.STR_TYPE in key_type_names)

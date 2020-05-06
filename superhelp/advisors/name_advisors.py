@@ -286,8 +286,8 @@ def short_name_check(block_dets, *, repeat=False):
 
                 In the words of the legendary Donald Knuth:
 
-                > "Programs are meant to be read by humans
-                >  and only incidentally for computers to execute."
+                > "Programs are meant to be read by humans and only incidentally
+                for computers to execute."
 
                 Note - excessively long variable names can be unreadable as
                 well. They may also indicate the code needs to be reworked.

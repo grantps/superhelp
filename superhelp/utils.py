@@ -2,11 +2,20 @@ import logging
 from os import rename
 from pathlib import Path
 import platform
+import re
 import sys
 import tempfile
 from textwrap import dedent, wrap
 
 from . import conf
+
+starting_num_space_pattern = r"""(?x)
+    ^      ## start
+    \d{1}  ## one digit
+    \s{1}  ## one whitespace
+    \S+    ## at least one non-whitespace
+    """
+starting_num_space_prog = re.compile(starting_num_space_pattern)
 
 def get_os_platform():
     platforms = {
@@ -73,6 +82,8 @@ def layout_comment(raw_comment, *, is_code=False):
     """
     Don't break up long lines which are titles otherwise the subsequent parts
     won't carry appropriate heading-level formatting.
+
+    :rtype: str
     """
     if '`' in raw_comment and is_code:
         logging.debug("Backtick detected in code which is probably a mistake")
@@ -96,7 +107,16 @@ def layout_comment(raw_comment, *, is_code=False):
                 len(raw_paragraph) - len(raw_paragraph.rstrip('\n')))
             paragraph = raw_paragraph.strip()
             one_line_paragraph = paragraph.replace('\n', ' ')  ## actually continuations of same line so no need to put on separate lines
-            if one_line_paragraph.startswith('#'):
+            special_line = False
+            res = starting_num_space_prog.match(one_line_paragraph)
+            if res is not None:
+                special_line = True
+            if one_line_paragraph.startswith((
+                '#',  ## could be one hash or multiple depending on heading level
+                '* '  ## trying to detect bulleted (unordered) lists
+                )):
+                special_line = True
+            if special_line:
                 wrapped_paragraph_lines = [one_line_paragraph, ]
             else:
                 wrapped_paragraph_lines = wrap(one_line_paragraph)

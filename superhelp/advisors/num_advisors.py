@@ -43,13 +43,17 @@ def num_overview(block_dets, *, repeat=False):
     type_firsts = {}
     for num_el in num_els:
         name = get_assign_name(num_el)
-        val = code_execution.get_val(
-            block_dets.pre_block_code_str, block_dets.block_code_str, name)
-        val_type = type(val).__name__
-        val_types[val_type].append(name)
-        if not type_firsts.get(val_type):
-            type_firsts[val_type] = val
-        has_num = True
+        try:
+            val = code_execution.get_val(
+                block_dets.pre_block_code_str, block_dets.block_code_str, name)
+        except KeyError:
+            continue
+        else:
+            val_type = type(val).__name__
+            val_types[val_type].append(name)
+            if not type_firsts.get(val_type):
+                type_firsts[val_type] = val
+            has_num = True
     if not has_num:
         return None
 

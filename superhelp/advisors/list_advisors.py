@@ -30,12 +30,12 @@ def get_type_for_example(list_items):
             type4example = DEFAULT_EXAMPLE_TYPE
     return type4example
 
-def _get_detailed_list_comment(first_name, first_list_items):
+def _get_detailed_list_comment(first_name, first_items):
     """
-    :param list first_list_items: note - may be None if a list is defined in a
+    :param list first_items: note - may be None if a list is defined in a
      function
     """
-    type4example = get_type_for_example(first_list_items)
+    type4example = get_type_for_example(first_items)
     try:
         example_items = conf.EXAMPLES_OF_TYPES[type4example]
     except KeyError:
@@ -43,10 +43,10 @@ def _get_detailed_list_comment(first_name, first_list_items):
     example_item = example_items[0]
     listable_example_item = (f"'{example_item}'"
         if type4example == conf.STR_TYPE else example_item)
-    if first_list_items is None:
+    if first_items is None:
         appended_list = []
     else:
-        appended_list = first_list_items.copy()
+        appended_list = first_items.copy()
     appended_list.append(example_item)
     extended_list = appended_list.copy()
     items2extend = example_items[1:3]  ## don't repeat the appended item - might confuse the user at this stage
@@ -156,37 +156,37 @@ def list_overview(block_dets, *, repeat=False):
     """
     list_els = block_dets.element.xpath(ASSIGN_LIST_XPATH)
     plural = 's' if len(list_els) > 1 else ''
-    first_name = None
-    first_list_items = None
-
     title = layout(f"""\
 
         ### List{plural} defined
 
         """)
-    for i, list_el in enumerate(list_els):
-        first = (i == 0)
+    first_name = None
+    first_items = None
+    for list_el in list_els:
         name = get_assign_name(list_el)
-        items = code_execution.get_val(  ## might be None if defined in a function
-            block_dets.pre_block_code_str, block_dets.block_code_str, name)
-        if first:
-            first_name = name
-            first_list_items = items
-        if items is None:
+        try:
+            items = code_execution.get_val(
+                block_dets.pre_block_code_str, block_dets.block_code_str, name)
+        except KeyError:
             list_desc = layout(f"""\
 
-                `{name}` is a list.
-                """)
-        elif items == []:
-            list_desc = layout(f"""\
-
-                `{name}` is an empty list.
-                """)
+                    `{name}` is a list.
+                    """)
         else:
-            list_desc = layout(f"""\
-    
-                `{name}` is a list with {utils.int2nice(len(items))} items.
-                """)
+            if not first_name:
+                first_name = name
+                first_items = items
+            if items == []:
+                list_desc = layout(f"""\
+
+                    `{name}` is an empty list.
+                    """)
+            else:
+                list_desc = layout(f"""\
+
+                    `{name}` is a list with {utils.int2nice(len(items))} items.
+                    """)
     if not repeat:
         brief_overview = layout("""\
 
@@ -197,7 +197,7 @@ def list_overview(block_dets, *, repeat=False):
             different types (usually not advisable).
             """)
         detailed_list_comment = _get_detailed_list_comment(
-            first_name, first_list_items)
+            first_name, first_items)
     else:
         brief_overview = ''
         detailed_list_comment = ''
@@ -218,16 +218,18 @@ def mixed_list_types(block_dets, *, repeat=False):  # @UnusedVariable
     has_mixed = False
     for list_el in list_els:
         name = get_assign_name(list_el)
-        items = code_execution.get_val(  ## might be None if defined in a function
-            block_dets.pre_block_code_str, block_dets.block_code_str, name)
-        if not items:
+        try:
+            items = code_execution.get_val(
+                block_dets.pre_block_code_str, block_dets.block_code_str, name)
+        except KeyError:
             continue
-        _item_type_names, item_type_nice_names = get_item_type_names(items)
-        if len(item_type_nice_names) <= 1:
-            ## No explanation needed if there aren't multiple types.
-            continue
-        has_mixed = True
-        list_dets.append((name, item_type_nice_names))
+        else:
+            _item_type_names, item_type_nice_names = get_item_type_names(items)
+            if len(item_type_nice_names) <= 1:
+                ## No explanation needed if there aren't multiple types.
+                continue
+            has_mixed = True
+            list_dets.append((name, item_type_nice_names))
     if not has_mixed:
         return None
 

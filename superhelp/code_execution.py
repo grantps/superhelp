@@ -8,6 +8,8 @@ def get_val(pre_block_code_str, block_code_str, name):
 
     Note - can be the source of mysterious output in stdout (e.g. exec a print
     function).
+
+    Raises KeyError if unable to get value.
     """
     exp_dets = {}
     try:
@@ -21,7 +23,6 @@ def get_val(pre_block_code_str, block_code_str, name):
     try:
         val = exp_dets[name]
     except KeyError:
-        val = None
-#         raise KeyError(
-#             f"Unable to find name '{name}' in code_str\n{block_code_str}")
+        raise KeyError(
+            f"Unable to find name '{name}' in code_str\n{block_code_str}")
     return val

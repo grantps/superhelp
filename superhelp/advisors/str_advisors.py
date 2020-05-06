@@ -93,14 +93,15 @@ def assigned_str_overview(block_dets, *, repeat=False):
         first_str_el = str_els[0]
         first_assign_el = first_str_el.xpath('ancestor::Assign')[0]
         first_name = first_assign_el.xpath('targets/Name')[0].get('id')
-        first_val = code_execution.get_val(
-            block_dets.pre_block_code_str, block_dets.block_code_str, first_name)
-        if first_val:
-            name2use = first_name
-            val2use = first_val
-        else:
+        try:
+            first_val = code_execution.get_val(block_dets.pre_block_code_str,
+                block_dets.block_code_str, first_name)
+        except KeyError:
             name2use = 'address'
             val2use = 'Waiuku, New Zealand'
+        else:
+            name2use = first_name
+            val2use = first_val
         short_demo = layout(f"""\
             For illustration, imagine we have string '{val2use}' assigned to
             `{name2use}`:

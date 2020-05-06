@@ -1,3 +1,4 @@
+from collections import namedtuple
 import datetime
 import logging
 
@@ -25,24 +26,21 @@ else:
     RECORD_AST = True
 
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
+## All snippets here should be raw strings (see https://stackoverflow.com/questions/53636723/python-parsing-code-with-new-line-character-in-them-using-ast)
 
-TEST_SNIPPET = """\
-try:
-    from .. import conf  # @UnresolvedImport @UnusedImport
-    ## importing from superhelp only works properly after I've installed superhelp as a pip package (albeit as a link to this code using python3 -m pip install --user -e <path_to_proj_folder>)
-    ## Using this as a library etc works with . instead of superhelp but I want to be be able to run the helper module from within my IDE
-    from . import advisors, messages  # @UnusedImport
-    from .displayers import cli_displayer, html_displayer  # @UnusedImport
-except (ImportError, ValueError):
-    from pathlib import Path
-    import sys
-    parent = str(Path.cwd().parent)
-    sys.path.insert(0, parent)
-    from superhelp import conf, advisors, messages  # @Reimport
-    from superhelp.displayers import cli_displayer, html_displayer  # @Reimport
+TEST_SNIPPET = r"""
+
+def sorted(*G, **kwargs):
+    for i in range(len(G)):
+        for j in range(1,len(G)):
+            if G[j-1]<G[j]:
+                G[j-1],G[j]=G[j],G[j-1]
+G = [['Ahmad', 3.8], ['Rizwan', 3.68], ['Bilal', 3.9]]
+sorted(G)
+print(G)
 """
 
-DEMO_SNIPPET = """\
+DEMO_SNIPPET = r"""
 import datetime
 from math import pi as π
 mixed_keys = {1: 'cat', '1': 'dog'}
@@ -259,8 +257,44 @@ LINT_LINE_NO = 'line_no'
 ## https://pycodestyle.pycqa.org/en/latest/intro.html#error-codes
 ## https://flake8.pycqa.org/en/latest/user/error-codes.html
 IGNORED_LINT_RULES = [
-    'E128',  ## flake8 wants visual alignment on line continuation - I don't - I want standardised alignment on indent multiples of 4
+    'E128',  ## flake8 wants visual alignment on line continuation - I don't - I want standardised alignment on indent multiples of 4 (idea taken from Brandon Rhodes thanks Brandon!)
+    'E266', 'E262',  ## I like ## before comments and # before commented out code (idea copied off Tom Eastman - thanks Tom!)
+    'E305',  ## for classes I agree with 2 spaces but not functions
 ]
+LintMsgs = namedtuple('LintMsgs', 'brief, main, extra, replacement')
+CUSTOM_LINT_MSGS = {
+    'E501': LintMsgs(
+        """\
+        One or more lines are longer than the recommended 79 characters. This is
+        not necessarily a problem but long lines should be an exception to the
+        rule
+        """,
+        """\
+        One or more lines are longer than the recommended 79 characters. This is
+        not necessarily a problem given that we have wider monitors than when
+        the guidelines were formulated. But long lines should be an exception to
+        the rule. All being equal, short lines are easier to read and understand
+        than long lines. There are multiple strategies for shortening lines but
+        the overall goal has to be readability. Sometimes we have to live with
+        broken "rules". And that's official. Read PEP 8 - the official Python
+        style guide - especially the section "A Foolish Consistency is the
+        Hobgoblin of Little Minds".
+        """,
+        '',
+        True),
+    'F401': LintMsgs(
+        """\
+        One or more imports not used in snippet.
+        """,
+        """\
+        One or more imports not used in snippet. If the snippet was extracted
+        from a larger piece of code and the imports are used in that code then
+        there is no problem.
+        """,
+        '',
+        False
+        )
+}
 
 LINE_FEED = '&#10;'
 

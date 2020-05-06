@@ -16,9 +16,13 @@ def tuple_overview(block_dets, *, repeat=False):
         name = get_assign_name(tup_el)
         if name is None:  ## no names - e.g. just assignment to other tuples
             continue
-        tup = code_execution.get_val(
-            block_dets.pre_block_code_str, block_dets.block_code_str, name)
-        name_tups.append((name, tup))
+        try:
+            tup = code_execution.get_val(
+                block_dets.pre_block_code_str, block_dets.block_code_str, name)
+        except KeyError:
+            continue
+        else:
+            name_tups.append((name, tup))
     if not name_tups:
         return None
 
@@ -80,12 +84,13 @@ def tuple_overview(block_dets, *, repeat=False):
             longer_immutability = layout(f"""
                 {immutability_question}
 
-                * cannot be *replaced* -
-                so we can't run `{first_name}`[0] = 100 to get {tup_replaced}.
-                It will raise an exception -
-                TypeError: 'tuple' object does not support item assignment)
-                * cannot be *removed* -
-                so we can't run `{first_name}`.pop() to get {tup_popped}.
+                * cannot be *replaced* - so we can't run `{first_name}`[0] = 100
+                to get {tup_replaced}. It will raise an exception - TypeError:
+                'tuple' object does not support item assignment)
+
+                * cannot be *removed* - so we can't run `{first_name}`.pop() to
+                get {tup_popped}.
+
                 * cannot be *added* - so we can't run `{name}`.append(3) to
                 get {tup_appended}.
                 """)
@@ -95,7 +100,9 @@ def tuple_overview(block_dets, *, repeat=False):
 
                 * cannot be *replaced*. It will raise an exception - TypeError:
                 'tuple' object does not support item assignment)
+
                 * cannot be *removed*
+
                 * cannot be *added*
                 """)
         friends = ['Selma', 'Willy', 'Principal Skinner']

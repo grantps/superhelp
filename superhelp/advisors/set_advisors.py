@@ -11,7 +11,6 @@ def set_overview(block_dets, *, repeat=False):
     Look for sets and provide general advice on using them and finding out more.
     """
     func_type_els = block_dets.element.xpath(ASSIGN_FUNC_NAME_XPATH)
-    has_set = False
     name_sets = []
     for func_type_el in func_type_els:
         try:
@@ -20,12 +19,15 @@ def set_overview(block_dets, *, repeat=False):
             is_set = False        
         if not is_set:
             continue
-        has_set = True
         name = get_assign_name(func_type_el)
-        my_set = code_execution.get_val(
-            block_dets.pre_block_code_str, block_dets.block_code_str, name)
-        name_sets.append((name, my_set))
-    if not has_set:
+        try:
+            my_set = code_execution.get_val(
+                block_dets.pre_block_code_str, block_dets.block_code_str, name)
+        except KeyError:
+            continue
+        else:
+            name_sets.append((name, my_set))
+    if not name_sets:
         return None
 
     title = layout("""\

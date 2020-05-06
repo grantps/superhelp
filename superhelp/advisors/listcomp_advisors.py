@@ -17,8 +17,11 @@ def listcomp_overview(block_dets, *, repeat=False):
     listcomp_dets = []
     for listcomp_el in listcomp_els:
         name = get_assign_name(listcomp_el)
-        items = code_execution.get_val(
-            block_dets.pre_block_code_str, block_dets.block_code_str, name)
+        try:
+            items = code_execution.get_val(
+                block_dets.pre_block_code_str, block_dets.block_code_str, name)
+        except KeyError:
+            items = None
         listcomp_dets.append((name, items))
     if not listcomp_dets:
         return None
@@ -31,15 +34,22 @@ def listcomp_overview(block_dets, *, repeat=False):
         """)
     summary_bits = []
     for name, items in listcomp_dets:
-        summary_bits.append(layout(f"""
+        if items is None:
+            summary_bits.append(layout(f"""
 
-        `{name}` is a list comprehension returning a list
-        with {utils.int2nice(len(items))} items: {items}
-        """))
+            `{name}` is a list comprehension. Unable to get items.
+            """))
+        else:
+            summary_bits.append(layout(f"""
+
+            `{name}` is a list comprehension returning a list
+            with {utils.int2nice(len(items))} items: {items}
+            """))
     summary = ''.join(summary_bits)
     if not repeat:
         other_comprehensions = (
             layout(f"""\
+
                 ### Other "comprehensions"
 
                 """)

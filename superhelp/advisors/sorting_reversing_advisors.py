@@ -47,11 +47,11 @@ def sorting_reversing_overview(block_dets, *, repeat=False):
         ### Sorting / reversing
 
         """)
-    minimal = layout(f"""\
-        This block of code {sorting_or_reversing_comment}.
-        """)
     if not repeat:
         summary = layout(f"""\
+
+            This block of code {sorting_or_reversing_comment}.
+
             Sorting and, to a lesser extent, reversing are very common needs in
             programming. Two key points:
 
@@ -134,8 +134,8 @@ def sorting_reversing_overview(block_dets, *, repeat=False):
         details = summary
 
     message = {
-        conf.BRIEF: title + minimal + summary,
-        conf.MAIN: title + minimal + details,
+        conf.BRIEF: title + summary,
+        conf.MAIN: title + details,
     }
     return message
 
