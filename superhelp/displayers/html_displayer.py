@@ -259,7 +259,7 @@ BROWSER_HTML_WRAPPER = """\
 <body>
 {logo_svg}
 <h1>SuperHELP - Help for Humans!</h1>
-<p>Help is provided for each block of code in your snippet.</p>
+{intro}
 <p>{missing_advice_message}</p>
 <p>Toggle between different levels of detail.</p>
 {radio_buttons}
@@ -274,7 +274,7 @@ NOTEBOOK_HTML_WRAPPER = """\
 {head}
 <body>
 <h1>Look here for some help on the snippet in the cell above</h1>
-<p>Help is provided for each block of code in your snippet.</p>
+{intro}
 <p>{missing_advice_message}</p>
 <p>Toggle between different levels of detail.</p>
 {radio_buttons}
@@ -659,6 +659,7 @@ def display(snippet, messages_dets, *,
     :param bool in_notebook: if True, return HTML as string; else open browser
      and display
     """
+    intro = f"<p>{conf.INTRO}</p>"
     radio_buttons = _get_radio_buttons(message_level=message_level)
     overall_messages_dets, block_messages_dets = messages_dets
     all_html_strs = _get_all_html_strs(snippet,
@@ -670,6 +671,7 @@ def display(snippet, messages_dets, *,
         html2write = NOTEBOOK_HTML_WRAPPER.format(
             head=head,
             radio_buttons=radio_buttons,
+            intro=intro,
             missing_advice_message=conf.MISSING_ADVICE_MESSAGE,
             body_inner=body_inner,
             visibility_script=VISIBILITY_SCRIPT)
@@ -678,6 +680,7 @@ def display(snippet, messages_dets, *,
         html2write = BROWSER_HTML_WRAPPER.format(
             head=head, logo_svg=LOGO_SVG,
             radio_buttons=radio_buttons,
+            intro=intro,
             missing_advice_message=conf.MISSING_ADVICE_MESSAGE,
             body_inner=body_inner,
             visibility_script=VISIBILITY_SCRIPT)

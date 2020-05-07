@@ -180,8 +180,9 @@ def if_else_overview(block_dets, *, repeat=False):
 
                 When using `if`, `elif`, or `else`, the item evaluated can
                 either be an expression or a name (variable). Sometimes your
-                code can be more readable if the expression is precalculated and
-                a name is supplied instead. For example:
+                code can be more readable if you make an intermediate variable
+                and use that instead. Shorter, more readable, easier to check
+                the parts. For example:
 
                 """)
             +

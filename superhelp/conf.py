@@ -27,14 +27,58 @@ else:
 ## All snippets here should be raw strings (see https://stackoverflow.com/questions/53636723/python-parsing-code-with-new-line-character-in-them-using-ast)
 TEST_SNIPPET = r"""
 
-def sorted(*G, **kwargs):
-    for i in range(len(G)):
-        for j in range(1,len(G)):
-            if G[j-1]<G[j]:
-                G[j-1],G[j]=G[j],G[j-1]
-G = [['Ahmad', 3.8], ['Rizwan', 3.68], ['Bilal', 3.9]]
-sorted(G)
-print(G)
+def function_with_really_long_name(parameter_1, parameter_2,
+                                   parameter_3):
+    pass
+
+def function_with_really_long_name2(
+        parameter_1, parameter_2, parameter_3):
+    pass
+
+def function_with_really_long_name3(
+        parameter_1,
+        parameter_2,
+        parameter_3):
+    pass
+
+def function_with_really_long_name4(
+           parameter_1,
+           parameter_2,
+           parameter_3):
+    pass
+
+def function_with_really_long_name5(
+                                       parameter_1,
+                                       parameter_2,
+                                       parameter_3):
+    pass
+
+my_list = [
+        'a',
+     ]
+
+my_list2 = [
+             'a',
+]
+
+my_list3 = [
+    'a',
+]
+
+my_list4 = [
+    'a',
+    ]
+
+a = 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvaaaavvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'
+b = 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvbbvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'
+c = 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvcvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'
+
+func1("abc"
+    "def")
+func2("abc"
+            "def")
+func3("abc"
+      "def")
 """
 
 PY3_6 = '3.6'
@@ -105,6 +149,8 @@ METHOD_LBL = 'method'
 
 EMAIL2USE = 'superhelp@p-s.co.nz'
 
+INTRO = ("Help is provided for your overall snippet and for each block of code "
+    "as appropriate.")
 NO_ADVICE_MESSAGE = ("No advice to give - looks fine :-). But if you think "
     f"there should have been some advice given, contact {EMAIL2USE} "
     "with the subject line 'Advice' and explain. Please include a snippet to "

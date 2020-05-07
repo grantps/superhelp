@@ -52,8 +52,7 @@ def display(snippet, messages_dets, *,
         md2cli.main(layout(f"""\
             # SuperHELP - Help for Humans!
 
-            Help is provided for your overall snippet and for each block of code
-            as appropriate.
+            {conf.INTRO}
 
             Currently showing {message_level} content as requested.
 

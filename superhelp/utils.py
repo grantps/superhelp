@@ -111,9 +111,9 @@ def layout_comment(raw_comment, *, is_code=False):
             if res is not None:
                 special_line = True
             if one_line_paragraph.startswith((
-                '#',  ## could be one hash or multiple depending on heading level
-                '* '  ## trying to detect bulleted (unordered) lists
-                )):
+                    '#',  ## could be one hash or multiple depending on heading level
+                    '* '  ## trying to detect bulleted (unordered) lists
+                    )):
                 special_line = True
             if special_line:
                 wrapped_paragraph_lines = [one_line_paragraph, ]
