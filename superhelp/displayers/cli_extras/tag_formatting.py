@@ -66,6 +66,7 @@ def code(text, from_fenced_block=None, **kw):
         text = ('\n' + text).replace('\n    ', '\n')[1:]
     # funny: ":-" confuses the tokenizer. replace/backreplace:
     raw_code = text.replace(':-', '\x01--')
+    raw_code = raw_code.replace('## &gt;&gt;&gt;', '## >>>')
     text = cli_utils.style_ansi(raw_code)
     # unnested level has indent of N_LEFT_INDENT, use it for fenced
     indent = ' ' * kw.get('nesting_level', cli_conf.N_LEFT_INDENT)
