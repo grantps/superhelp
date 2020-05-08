@@ -2,7 +2,7 @@ import logging
 from textwrap import dedent
 
 from .cli_extras import md2cli
-from ..utils import layout_comment as layout
+from ..utils import get_line_numbered_snippet, layout_comment as layout
 
 """
 Note - displays properly in the terminal but not necessarily in other output
@@ -64,10 +64,11 @@ def display(snippet, messages_dets, *,
     display_snippet = _need_snippet_displayed(
         overall_messages_dets, block_messages_dets, multi_block=multi_block)
     if display_snippet:
+        line_numbered_snippet = get_line_numbered_snippet(snippet)
         text.append(md2cli.main(dedent(
             "## Overall Snippet"
             f"\n{MDV_CODE_BOUNDARY}\n"
-            + snippet
+            + line_numbered_snippet
             + f"\n{MDV_CODE_BOUNDARY}")))
     for message_dets in overall_messages_dets:
         message = get_message(message_dets, message_level)

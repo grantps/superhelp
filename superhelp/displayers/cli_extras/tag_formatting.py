@@ -64,6 +64,7 @@ def code(text, from_fenced_block=None, **kw):
     """
     if not from_fenced_block:
         text = ('\n' + text).replace('\n    ', '\n')[1:]
+    n_text_lines = len(text.split('\n'))
     # funny: ":-" confuses the tokenizer. replace/backreplace:
     raw_code = text.replace(':-', '\x01--')
     raw_code = raw_code.replace('## &gt;&gt;&gt;', '## >>>')
@@ -75,7 +76,15 @@ def code(text, from_fenced_block=None, **kw):
     firstl = text.split('\n')[0]
     n_spaces2delete = len(firstl) - len(firstl.lstrip())
     spaces2delete = ' ' * n_spaces2delete
-    text = '\n' + (f"\n{text}").replace(f"\n{spaces2delete}", '\n')[1:]
+    width = len(str(n_text_lines))  ## e.g. 3 so we can cope with line number 100 onwards
+    width_of_line_num_1 = 1
+    missing_indents = width - width_of_line_num_1  ## so if 3 wide to handle 100+ we need 2
+    indent_for_first_line_num = missing_indents * ' '
+    text = (
+            '\n'
+            + indent_for_first_line_num
+            + (f"\n{text}").replace(f"\n{spaces2delete}", '\n')[1:]
+        )
     # we want an indent of one and low vis prefix. this does it:
     code_lines = text.splitlines()
     code_prefix = cli_colour.colourise_low_vis(cli_conf.CODE_PREFIX)
@@ -83,6 +92,6 @@ def code(text, from_fenced_block=None, **kw):
     prefix = f"\n{indent}{code_prefix} {empty}"
     if code_lines[-1] == '\x1b[0m':
         code_lines.pop()
-    code = prefix.join(code_lines)
-    code = code.replace('\x01--', ':-')
-    return code + '\n' + cli_conf.DEFAULT_ANSI_COLOUR_BYTE_STR
+    code_str = prefix.join(code_lines)
+    code_str = code_str.replace('\x01--', ':-')
+    return code_str + '\n' + cli_conf.DEFAULT_ANSI_COLOUR_BYTE_STR

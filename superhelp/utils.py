@@ -17,6 +17,16 @@ starting_num_space_pattern = r"""(?x)
     """
 starting_num_space_prog = re.compile(starting_num_space_pattern)
 
+def get_line_numbered_snippet(snippet):
+    snippet_lines = snippet.split('\n')
+    n_lines = len(snippet_lines)
+    width = len(str(n_lines))
+    new_snippet_lines = []
+    for n, line in enumerate(snippet_lines, 1):
+        new_snippet_lines.append(f"{n:>{width}}   {line}".rstrip())
+    lined_snippet = '\n'.join(new_snippet_lines)
+    return lined_snippet
+
 def get_os_platform():
     platforms = {
         'Linux': conf.LINUX, 'Windows': conf.WINDOWS, 'Darwin': conf.MAC}

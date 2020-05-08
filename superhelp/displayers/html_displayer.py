@@ -1,9 +1,8 @@
-from pathlib import Path  #@UnresovedImport
 from textwrap import dedent, indent
 import webbrowser
 
 from .. import conf
-from ..utils import make_open_tmp_file
+from ..utils import get_line_numbered_snippet, make_open_tmp_file
 
 from markdown import markdown  ## https://coderbook.com/@marcus/how-to-render-markdown-syntax-as-html-using-python/ @UnresolvedImport
 
@@ -510,7 +509,7 @@ def get_separate_code_message_parts(message):
             open_code_block = False
     return message_parts
 
-def get_html_strs(message, message_type, *, warning=False):
+def get_html_strs(message, message_type, *, warning=False):  # @UnusedVariable
     if not message:
         return []
     message_type_class = MESSAGE_LEVEL2CLASS[message_type]
@@ -563,8 +562,9 @@ def get_message_html_strs(message_dets):
 def repeat_overall_snippet(snippet):
     html_strs = []
     html_strs.append("<h2>Overall Snippet</h2>")
+    line_numbered_snippet = get_line_numbered_snippet(snippet)
     overall_code_str = indent(
-        f"{conf.MD_PYTHON_CODE_START}\n{snippet}",
+        f"{conf.MD_PYTHON_CODE_START}\n{line_numbered_snippet}",
         ' '*4)
     overall_code_str_highlighted = markdown(
         overall_code_str, extensions=['codehilite'])

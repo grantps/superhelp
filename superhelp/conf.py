@@ -26,59 +26,13 @@ else:
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 ## All snippets here should be raw strings (see https://stackoverflow.com/questions/53636723/python-parsing-code-with-new-line-character-in-them-using-ast)
 TEST_SNIPPET = r"""
-
-def function_with_really_long_name(parameter_1, parameter_2,
-                                   parameter_3):
-    pass
-
-def function_with_really_long_name2(
-        parameter_1, parameter_2, parameter_3):
-    pass
-
-def function_with_really_long_name3(
-        parameter_1,
-        parameter_2,
-        parameter_3):
-    pass
-
-def function_with_really_long_name4(
-           parameter_1,
-           parameter_2,
-           parameter_3):
-    pass
-
-def function_with_really_long_name5(
-                                       parameter_1,
-                                       parameter_2,
-                                       parameter_3):
-    pass
-
-my_list = [
-        'a',
-     ]
-
-my_list2 = [
-             'a',
-]
-
-my_list3 = [
-    'a',
-]
-
-my_list4 = [
-    'a',
-    ]
-
-a = 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvaaaavvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'
-b = 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvbbvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'
-c = 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvcvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'
-
-func1("abc"
-    "def")
-func2("abc"
-            "def")
-func3("abc"
-      "def")
+def get_overall_snippet_messages_dets(snippet, blocks_dets):
+    '''
+    Returns messages which apply to snippet as a whole, not just specific
+    blocks. E.g. looking at every block to look for opportunities to unpack. Or
+    reporting on linting results.
+    '''
+    messages_dets = []
 """
 
 PY3_6 = '3.6'

@@ -18,53 +18,97 @@ LINT_PATTERN = fr"""^.+?:                                  ## starts with misc u
 IGNORED_LINT_RULES = [
     'E266', 'E262',  ## I like ## before comments and # before commented out code (idea copied off Tom Eastman - thanks Tom!)
     'E305',  ## for classes I agree with 2 spaces but not functions
+    'W292',  ## no newline at end of file inappropriate for snippets as opposed to modules
 ]
 
 def title2msg_type(title):
     return title.upper().replace(' ', '_') + '_MSG_TYPE'
 ## Ensure brief AND main are the same so titles don't shift when
 ## changing message level
-line_continuation_title = "Line continuation"
-line_length_title = "Line length"
-unused_imports = "Unused imports"
+line_indentation_title = "Line indentation issues"
+line_length_title = "Excessive line length"
+unused_imports_title = "Unused imports"
+whitespace_title = "White space issues"
+blank_line_title = "Blank line issues"
 ## nice to keep placeholder names etc aligned with actual titles but nothing breaks if we don't
-LINE_CONTINUATION_MSG_TYPE = title2msg_type(line_continuation_title)
+LINE_INDENTATION_MSG_TYPE = title2msg_type(line_indentation_title)
 LINE_LENGTH_MSG_TYPE = title2msg_type(line_length_title)
-UNUSED_IMPORT_MSG_TYPE = title2msg_type(unused_imports)
+UNUSED_IMPORT_MSG_TYPE = title2msg_type(unused_imports_title)
+WHITESPACE_MSG_TYPE = title2msg_type(whitespace_title)
+BLANK_LINES_MSG_TYPE = title2msg_type(blank_line_title)
 
-CONSOLIDATE_MSG_TYPE = {
-    'E123': LINE_CONTINUATION_MSG_TYPE,
-    'E124': LINE_CONTINUATION_MSG_TYPE,
-    'E125': LINE_CONTINUATION_MSG_TYPE,
-    'E126': LINE_CONTINUATION_MSG_TYPE,
-    'E127': LINE_CONTINUATION_MSG_TYPE,
-    'E128': LINE_CONTINUATION_MSG_TYPE,
-    'E129': LINE_CONTINUATION_MSG_TYPE,
-    'E131': LINE_CONTINUATION_MSG_TYPE,
-    'E501': LINE_LENGTH_MSG_TYPE,
-    'F401': UNUSED_IMPORT_MSG_TYPE,
-}
-LintMsgs = namedtuple('LintMsgs', 'brief, main, extra, replacement')
+def consolidated_msg_type(msg_type):
+    if msg_type == 'E501':
+        msg_type = LINE_LENGTH_MSG_TYPE
+    elif msg_type == 'F401':
+        msg_type = UNUSED_IMPORT_MSG_TYPE
+    elif msg_type.startswith('E1'):
+        msg_type = LINE_INDENTATION_MSG_TYPE
+    elif msg_type.startswith('E2'):
+        msg_type = WHITESPACE_MSG_TYPE
+    elif msg_type.startswith('E3'):
+        msg_type = BLANK_LINES_MSG_TYPE
+    return msg_type
+
+LevelMsgs = namedtuple('LintMsgsByLevel', 'brief, main, extra')
 CUSTOM_LINT_MSGS = {
-    LINE_CONTINUATION_MSG_TYPE: LintMsgs(
+    BLANK_LINES_MSG_TYPE: LevelMsgs(
         layout(f"""
 
-            #### {line_continuation_title}
+            #### {blank_line_title}
 
-            The linter has raised questions about line continuation. There are
-            at least two styles of line continuation. Whichever you follow be
-            consistent.
+            The linter has raised questions about blank lines.
+
+            """),
+        layout(f"""
+
+            #### {blank_line_title}
+
+            The linter has raised questions about blank lines. Class definitions
+            should have two blank lines before. On function definitions there is
+            more flexibility. It should either be one or two.
+
+            """),
+        '',
+        ),
+    WHITESPACE_MSG_TYPE: LevelMsgs(
+        layout(f"""
+
+            #### {whitespace_title}
+
+            The linter has raised questions about "whitespace" (tabs, spaces).
+
+            """),
+        layout(f"""
+
+            #### {whitespace_title}
+
+            The linter has raised questions about "whitespace" (tabs, spaces).
+            Even when whitespace doesn't seem to matter it is best to follow
+            Python whitespace conventions when writing Python. Conventions may
+            differ in other languages.
+
+            """),
+        '',
+        ),
+    LINE_INDENTATION_MSG_TYPE: LevelMsgs(
+        layout(f"""
+
+            #### {line_indentation_title}
+
+            The linter has raised questions about indentation. There are at
+            least two styles of indentation. Whichever you follow be consistent.
         """),
         (
             layout(f"""\
 
-                #### {line_continuation_title}
+                #### {line_indentation_title}
 
-                The linter has raised questions about line continuation. There
-                are at least two styles of line continuation:
+                The linter has raised questions about indentation. There are at
+                least two styles of indentation:
 
-                1) Visual line continuation e.g. note how parameter_3 lines up
-                with the opening parenthesis
+                1) Visual line continuation e.g. note how `parameter_3` lines up
+                with the opening parenthesis:
 
                 """)
             +
@@ -165,8 +209,8 @@ CUSTOM_LINT_MSGS = {
             for some thought-provoking ideas on code style and much more.
 
             """),
-        True),
-    LINE_LENGTH_MSG_TYPE: LintMsgs(
+        ),
+    LINE_LENGTH_MSG_TYPE: LevelMsgs(
         layout(f"""\
 
             #### {line_length_title}
@@ -191,26 +235,24 @@ CUSTOM_LINT_MSGS = {
             section "A Foolish Consistency is the Hobgoblin of Little Minds".
 
             """),
-        '',
-        True),
-    UNUSED_IMPORT_MSG_TYPE: LintMsgs(
+        '',),
+    UNUSED_IMPORT_MSG_TYPE: LevelMsgs(
         layout(f"""\
 
-            #### {unused_imports}
+            #### {unused_imports_title}
 
             One or more imports not used in snippet.
 
             """),
         layout(f"""\
 
-            #### {unused_imports}
+            #### {unused_imports_title}
 
             One or more imports not used in snippet. If the snippet was
             extracted from a larger piece of code and the imports are used in
             that code then there is no problem.
 
             """),
-        '',
-        False
+        ''
         )
 }

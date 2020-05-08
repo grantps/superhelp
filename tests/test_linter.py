@@ -1,15 +1,18 @@
 import re
+from textwrap import dedent
 
 from nose.tools import assert_equal, assert_not_equal, assert_true, assert_false  # @UnusedImport @UnresolvedImport
 
+from tests import check_as_expected
+
 try:
-    from ..superhelp import lint_conf  # @UnresolvedImport @UnusedImport
+    from ..superhelp import conf, lint_conf  # @UnresolvedImport @UnusedImport
 except (ImportError, ValueError):
     from pathlib import Path
     import sys
     parent = str(Path.cwd().parent.parent)
     sys.path.insert(0, parent)
-    from superhelp import lint_conf  # @Reimport
+    from superhelp import conf, lint_conf  # @Reimport
 
 def test_linter_regex():
     tests = [
@@ -27,4 +30,97 @@ def test_linter_regex():
             lint_conf.LINT_PATTERN, lint_str, flags=re.VERBOSE).groupdict()  # @UndefinedVariable
         assert_equal(actual_dict, expected_dict)
 
+ROOT = 'superhelp.advisors.lint_advisors.'
+
+def test_misc():
+    test_conf = [
+        (
+            "pet = 'cat'",
+            {
+                ROOT + 'lint_snippet': 0,
+            }
+        ),
+        (
+            "names = ['Noor', 'Grant', 'Hyeji', 'Vicky', 'Olek', ]",
+            {
+                ROOT + 'lint_snippet': 0,
+            }
+        ),
+        (
+            "names = ( 'Noor', 'Grant', 'Hyeji', 'Vicky', 'Olek', )",  ## spaces around parentheses
+            {
+                ROOT + 'lint_snippet': 1,
+            }
+        ),
+        (
+            "names = ('Noor' , 'Grant', 'Hyeji', 'Vicky', 'Olek')",  ## spaces before comma
+            {
+                ROOT + 'lint_snippet': 1,
+            }
+        ),
+        (
+            "a = 2+1",  ## no spaces around operators
+            {
+                ROOT + 'lint_snippet': 1,
+            }
+        ),
+        (
+            "a = 2 + 1",  ## OK now it has spaces around operators
+            {
+                ROOT + 'lint_snippet': 0,
+            }
+        ),
+        (
+            "a=2",
+            {
+                ROOT + 'lint_snippet': 1,
+            }
+        ),
+        (
+            dedent("""\
+            def TooJammedUp():
+                pass
+            class LetMeBreathe:
+                pass
+                """),
+            {
+                ROOT + 'lint_snippet': 1,
+            }
+        ),
+        (
+            "a = 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'",
+            {
+                ROOT + 'lint_snippet': 1,
+            }
+        ),
+        (
+            "a = 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'",
+            {
+                ROOT + 'lint_snippet': 0,
+            }
+        ),
+        (
+            dedent("""
+                print("abc"
+                    "def")
+                """),
+            {
+                ROOT + 'lint_snippet': 1,
+            }
+        ),
+        (
+            dedent("""
+                print("abc"
+                      "def")
+                """),
+            {
+                ROOT + 'lint_snippet': 0,
+            }
+        ),
+    ]
+    conf.INCLUDE_LINTING = True  ## or else never gets even run to make or fail to make a message!
+    check_as_expected(test_conf)
+    conf.INCLUDE_LINTING = False
+
+# test_misc()
 # test_linter_regex()

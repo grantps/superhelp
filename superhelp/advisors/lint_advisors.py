@@ -20,8 +20,14 @@ MISC_ISSUES_TITLE = layout("""\
     """)
 
 def _store_snippet(snippet):
+    """
+    At least one test (E501 line too long) only triggered if a trailing newline.
+    Note - if more than one newline we trigger W391 (blank line at end of file)
+    so an rstrip('\n') needed.
+    Having done this need to deactivate W292 (blank line at end of file) LOL
+    """
     tmp_fh, fpath = make_open_tmp_file(conf.SNIPPET_FNAME, mode='w')
-    tmp_fh.write(snippet)
+    tmp_fh.write(snippet.rstrip('\n') + '\n')
     tmp_fh.close()
     return fpath
 
@@ -60,7 +66,7 @@ def _get_flake8_results(fpath):
     args = [flake8_fpath, str(fpath)]
     if lint_conf.IGNORED_LINT_RULES:
         ignored = ','.join(lint_conf.IGNORED_LINT_RULES)
-        args.append(f"--extend-ignore={ignored}")
+        args.append(f"--ignore={ignored}")
     res = run(args=args, stdout=PIPE)
     return res
 
@@ -101,30 +107,14 @@ def _get_msg_type_and_dets(lint_regex_dicts):
      Basically a list of pulled apart lint messages.
     :return: dict of message types as keys (possibly consolidated e.g.
      E123-9 -> line continuation message type) and MsgDets tuples as values.
-     Note - messages being replaced are consolidated into a placeholder.
     :rtype: dict
     """
     msg_type_and_dets = defaultdict(list)
     for lint_regex_dict in lint_regex_dicts:
-        line_no = int(lint_regex_dict[conf.LINT_LINE_NO])
         raw_msg_type = lint_regex_dict[conf.LINT_MSG_TYPE]
-        msg_type = lint_conf.CONSOLIDATE_MSG_TYPE.get(
-            raw_msg_type, raw_msg_type)
+        msg_type = lint_conf.consolidated_msg_type(raw_msg_type)
         msg = layout(lint_regex_dict[conf.LINT_MSG])
-        try:
-            msg_dets = lint_conf.CUSTOM_LINT_MSGS[msg_type]
-        except KeyError:
-            pass
-        else:
-            if msg_dets.replacement:
-                ## Can't consolidate on the actual replacement message because
-                ## we need different versions for different message levels.
-                ## So we store a placeholder which enables us to consolidate AND
-                ## replace for brief and then main. Will be using .format() so
-                ## want to do something like:
-                ## "{E123_msg} (lines 1 and 2)".format(E123_msg=e123_brief_msg)
-                msg_placeholder = _msg_type_to_placeholder(msg_type)
-                msg = msg_placeholder
+        line_no = int(lint_regex_dict[conf.LINT_LINE_NO])
         msg_dets = MsgDets(msg, line_no)
         msg_type_and_dets[msg_type].append(msg_dets)
     return msg_type_and_dets
@@ -162,17 +152,17 @@ def _get_unfinished_messages(msg_type_and_dets):
         generic_msg_type = msg_type not in lint_conf.CUSTOM_LINT_MSGS
         if generic_msg_type:
             unfinished_msg = '* ' + unfinished_msg.lstrip('\n')  ## bullet points for generic messages (custom messages have full layout treatment e.g. code highlighting)
-        unfinished_msgs.append(unfinished_msg)
         ## add supplementary line?
         supplement_configured = msg_type in lint_conf.CUSTOM_LINT_MSGS
         if msg_type not in already_supplemented and supplement_configured:
-            msg_part_dets = lint_conf.CUSTOM_LINT_MSGS[msg_type]
-            supplement_needed = not msg_part_dets.replacement
-            if supplement_needed:
-                msg_placeholder = _msg_type_to_placeholder(msg_type)
-                last_msg = unfinished_msgs[-1]
-                last_msg = last_msg + '\n\n' + msg_placeholder  ## will be replaced by appropriate level message in brief and main
-                already_supplemented.add(msg_type)
+            msg_placeholder = _msg_type_to_placeholder(msg_type)
+            unfinished_msg = (
+                msg_placeholder
+                    + '\n\nDetails: '
+                    + unfinished_msg.lstrip('\n')
+                )  ## will be replaced by appropriate level message in brief and main
+            already_supplemented.add(msg_type)
+        unfinished_msgs.append(unfinished_msg)
     return unfinished_msgs
 
 def _get_extra_msg(msg_type_and_dets):
