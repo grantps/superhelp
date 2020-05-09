@@ -26,13 +26,10 @@ else:
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 ## All snippets here should be raw strings (see https://stackoverflow.com/questions/53636723/python-parsing-code-with-new-line-character-in-them-using-ast)
 TEST_SNIPPET = r"""
-def get_overall_snippet_messages_dets(snippet, blocks_dets):
-    '''
-    Returns messages which apply to snippet as a whole, not just specific
-    blocks. E.g. looking at every block to look for opportunities to unpack. Or
-    reporting on linting results.
-    '''
-    messages_dets = []
+p1 = print
+p2 = 'print'
+print = 'sausage'
+p3 = print
 """
 
 PY3_6 = '3.6'
@@ -104,7 +101,7 @@ METHOD_LBL = 'method'
 EMAIL2USE = 'superhelp@p-s.co.nz'
 
 INTRO = ("Help is provided for your overall snippet and for each block of code "
-    "as appropriate.")
+    "as appropriate. If there is nothing to say about a block it is skipped.")
 NO_ADVICE_MESSAGE = ("No advice to give - looks fine :-). But if you think "
     f"there should have been some advice given, contact {EMAIL2USE} "
     "with the subject line 'Advice' and explain. Please include a snippet to "

@@ -44,6 +44,7 @@ def _get_snippet(snippet, file_path):
     else:
         snippet = conf.TEST_SNIPPET
         logging.info("Using default snippet because no snippet provided")
+    snippet = snippet.strip('\n')
     return snippet
 
 def _get_displayer_module(displayer):

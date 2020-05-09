@@ -115,35 +115,36 @@ def assigned_str_overview(block_dets, *, repeat=False):
         longer_demo = layout(f"""\
             Examples:
 
-            {name2use}.upper() returns {val2use.upper()}.
+            `{name2use}.upper()` returns {val2use.upper()}.
 
-            {name2use}.center(70, '=') returns {val2use.center(70, '=')}
+            `{name2use}.center(70, '=')` returns {val2use.center(70, '=')}
 
-            {name2use}.endswith('chicken') returns {val2use.endswith('chicken')}
+            `{name2use}.endswith('chicken')` returns
+            {val2use.endswith('chicken')}
 
-            {name2use} + ' is a string' returns {val2use + ' is a string'}
+            `{name2use}` + ' is a string' returns {val2use + ' is a string'}
 
-            {name2use} + ' ' + '{{\\NBLACK HEART}}' + ' Python' returns
+            `{name2use}` + ' ' + '{{\\NBLACK HEART}}' + ' Python' returns
             {val2use + ' ' + black_heart + ' Python'}
 
-            len({name2use}) returns {len(val2use)} because that is how many
-            characters are in the {name2use} string (remember to count spaces -
-            they are characters too)
+            `len({name2use})` returns {len(val2use)} because that is how many
+            characters are in the `{name2use}` string (remember to count spaces
+            - they are characters too)
 
-            sorted({name2use}) returns {sorted(val2use)}
+            `sorted({name2use})` returns {sorted(val2use)}
             """)
         more = layout("""\
-            .upper(), .center() etc are abilities available with all Python
+            `.upper()`, `.center()` etc are abilities available with all Python
             strings. Technically they are methods of string objects. They start
             with a dot and are on the end of the object.
 
-            To see the full list of string methods enter dir(str) into a Python
-            command line.
+            To see the full list of string methods enter `dir(str)` into a
+            Python command line.
 
-            len() is a function which can be used on lots of things - not just
+            `len()` is a function which can be used on lots of things - not just
             string objects. It is not a method of the string object. Other
             functions that are not string-specific but are commonly used with
-            strings include sorted() and print().
+            strings include `sorted()` and `print()`.
             """)
     else:
         cool = ''
@@ -170,6 +171,7 @@ def str_combination(combination_type, str_els, *, repeat=False):
     title = layout("""\
 
         ### Strings created by combining or interpolating strings
+
         """)
     how_combined_bits = []
     for str_el in str_els:
@@ -183,7 +185,7 @@ def str_combination(combination_type, str_els, *, repeat=False):
         combination_comment = combination_type2comment[combination_type]
         how_combined_bits.append(layout(f"""\
 
-            {name} is created using {combination_comment}.
+            `{name}` is created using {combination_comment}.
             """))
     how_combined = ''.join(how_combined_bits)
     if not repeat:
@@ -205,7 +207,7 @@ def str_combination(combination_type, str_els, *, repeat=False):
 
                     f-strings let you reference variables from earlier in your
                     code and allow very readable string construction. All the
-                    usual tricks of the .format() approach also work. For
+                    usual tricks of the `.format()` approach also work. For
                     example, comma separating thousands in numbers:
 
                     """)

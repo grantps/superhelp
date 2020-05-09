@@ -363,14 +363,13 @@ def one_method_classes(block_dets, *, repeat=False):
             structure can make it easier to test intermediate state rather than
             just function outputs. So, as with most things, it depends.
             """)
-        function_demo = (
-            layout(f"""\
+        function_option = layout(f"""\
 
-                It may be simpler to replace the class{class_plural} with simple
-                functions e.g. we could replace:
+            It may be simpler to replace the class{class_plural} with simple
+            functions.
 
             """)
-            +
+        function_demo = (
             layout('''\
                 class GetSquare:
 
@@ -407,10 +406,12 @@ def one_method_classes(block_dets, *, repeat=False):
         )
     else:
         not_just_oo = ''
+        function_option = ''
         function_demo = ''
 
     message = {
-        conf.BRIEF: summary + n_methods_msg + function_demo,
+        conf.BRIEF: summary + n_methods_msg + function_option,
+        conf.MAIN: summary + n_methods_msg + function_option + function_demo,
         conf.EXTRA: not_just_oo,
     }
     return message

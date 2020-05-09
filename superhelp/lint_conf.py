@@ -26,233 +26,268 @@ def title2msg_type(title):
 ## Ensure brief AND main are the same so titles don't shift when
 ## changing message level
 line_indentation_title = "Line indentation issues"
-line_length_title = "Excessive line length"
-unused_imports_title = "Unused imports"
 whitespace_title = "White space issues"
 blank_line_title = "Blank line issues"
+line_length_title = "Excessive line length"
+unused_imports_title = "Unused imports"
+undefined_names_title = "Undefined names"
 ## nice to keep placeholder names etc aligned with actual titles but nothing breaks if we don't
 LINE_INDENTATION_MSG_TYPE = title2msg_type(line_indentation_title)
-LINE_LENGTH_MSG_TYPE = title2msg_type(line_length_title)
-UNUSED_IMPORT_MSG_TYPE = title2msg_type(unused_imports_title)
 WHITESPACE_MSG_TYPE = title2msg_type(whitespace_title)
 BLANK_LINES_MSG_TYPE = title2msg_type(blank_line_title)
+LINE_LENGTH_MSG_TYPE = title2msg_type(line_length_title)
+UNUSED_IMPORTS_MSG_TYPE = title2msg_type(unused_imports_title)
+UNDEFINED_NAMES_MSG_TYPE = title2msg_type(undefined_names_title)
 
 def consolidated_msg_type(msg_type):
-    if msg_type == 'E501':
-        msg_type = LINE_LENGTH_MSG_TYPE
-    elif msg_type == 'F401':
-        msg_type = UNUSED_IMPORT_MSG_TYPE
-    elif msg_type.startswith('E1'):
+    if msg_type.startswith('E1'):
         msg_type = LINE_INDENTATION_MSG_TYPE
     elif msg_type.startswith('E2'):
         msg_type = WHITESPACE_MSG_TYPE
     elif msg_type.startswith('E3'):
         msg_type = BLANK_LINES_MSG_TYPE
+    elif msg_type == 'E501':
+        msg_type = LINE_LENGTH_MSG_TYPE
+    elif msg_type == 'F401':
+        msg_type = UNUSED_IMPORTS_MSG_TYPE
+    elif msg_type == 'F821':
+        msg_type = UNDEFINED_NAMES_MSG_TYPE
     return msg_type
 
 LevelMsgs = namedtuple('LintMsgsByLevel', 'brief, main, extra')
-CUSTOM_LINT_MSGS = {
-    BLANK_LINES_MSG_TYPE: LevelMsgs(
-        layout(f"""
 
-            #### {blank_line_title}
+undefined_names_level_msgs = LevelMsgs(
+    layout(f"""
 
-            The linter has raised questions about blank lines.
+        #### {undefined_names_title}
 
-            """),
-        layout(f"""
+        The linter has raised questions about undefined names.
 
-            #### {blank_line_title}
+        """),
+    layout(f"""\
 
-            The linter has raised questions about blank lines. Class definitions
-            should have two blank lines before. On function definitions there is
-            more flexibility. It should either be one or two.
+        #### {undefined_names_title}
 
-            """),
-        '',
-        ),
-    WHITESPACE_MSG_TYPE: LevelMsgs(
-        layout(f"""
+        The linter has raised questions about undefined names. That isn't a
+        problem if the snippet was extracted from a larger piece of code and the
+        names were defined before the snippet.
 
-            #### {whitespace_title}
+        """),
+    ''
+)
 
-            The linter has raised questions about "whitespace" (tabs, spaces).
+unused_imports_level_msgs = LevelMsgs(
+    layout(f"""\
 
-            """),
-        layout(f"""
+        #### {unused_imports_title}
 
-            #### {whitespace_title}
+        One or more imports have not been used in the snippet.
 
-            The linter has raised questions about "whitespace" (tabs, spaces).
-            Even when whitespace doesn't seem to matter it is best to follow
-            Python whitespace conventions when writing Python. Conventions may
-            differ in other languages.
+        """),
+    layout(f"""\
 
-            """),
-        '',
-        ),
-    LINE_INDENTATION_MSG_TYPE: LevelMsgs(
-        layout(f"""
+        #### {unused_imports_title}
+
+        One or more imports have not been used in the snippet. That isn't a
+        problem if the snippet was extracted from a larger piece of code and the
+        imports are used later after the snippet.
+
+        """),
+    ''
+)
+
+line_length_level_msgs = LevelMsgs(
+    layout(f"""\
+
+        #### {line_length_title}
+
+        One or more lines are longer than the recommended 79 characters. This is
+        not necessarily a problem but long lines should be an exception to the
+        rule.
+
+        """),
+    layout(f"""\
+
+        #### {line_length_title}
+
+        One or more lines are longer than the recommended 79 characters. This is
+        not necessarily a problem given that we have wider monitors than when
+        the guidelines were formulated. But long lines should be an exception to
+        the rule. All being equal, short lines are easier to read and understand
+        than long lines. There are multiple strategies for shortening lines but
+        the overall goal has to be readability. Sometimes we have to live with
+        broken "rules". And that's official. Read PEP 8 - the official Python
+        style guide - especially the section "A Foolish Consistency is the
+        Hobgoblin of Little Minds".
+
+        """),
+    ''
+)
+
+blank_lines_level_msgs = LevelMsgs(
+    layout(f"""
+
+        #### {blank_line_title}
+
+        The linter has raised questions about blank lines.
+
+        """),
+    layout(f"""
+
+        #### {blank_line_title}
+
+        The linter has raised questions about blank lines. Class definitions
+        should have two blank lines before. On function definitions there is
+        more flexibility. It should either be one or two.
+
+        """),
+    ''
+)
+
+whitespace_level_msgs = LevelMsgs(
+    layout(f"""
+
+        #### {whitespace_title}
+
+        The linter has raised questions about "whitespace" (tabs, spaces).
+
+        """),
+    layout(f"""
+
+        #### {whitespace_title}
+
+        The linter has raised questions about "whitespace" (tabs, spaces). Even
+        when whitespace doesn't seem to matter it is best to follow Python
+        whitespace conventions when writing Python. Conventions may differ in
+        other languages.
+
+        """),
+    ''
+)
+
+line_indentations_level_msgs = LevelMsgs(
+    layout(f"""
+
+        #### {line_indentation_title}
+
+        The linter has raised questions about indentation. There are at least
+        two styles of indentation. Whichever you follow be consistent.
+    """),
+    (
+        layout(f"""\
 
             #### {line_indentation_title}
 
             The linter has raised questions about indentation. There are at
-            least two styles of indentation. Whichever you follow be consistent.
-        """),
-        (
-            layout(f"""\
+            least two styles of indentation:
 
-                #### {line_indentation_title}
+            1) Visual line continuation e.g. note how `parameter_3` lines up
+            with the opening parenthesis:
 
-                The linter has raised questions about indentation. There are at
-                least two styles of indentation:
-
-                1) Visual line continuation e.g. note how `parameter_3` lines up
-                with the opening parenthesis:
-
-                """)
-            +
-            layout("""\
-
-                def function_with_long_name(parameter_1, parameter_2,
-                                            parameter_3, parameter_4):
-                    '''
-                    Doc string for function
-                    '''
-                """, is_code=True)
-            +
-            layout("""\
-                Pros:
-
-                * a common convention
-
-                Cons:
-
-                * every time you rename a function you have to realign
-                parameters
-
-                * code will generally not align tidily with multiples of
-                standard indentation
-
-                * room for parameters squeezed
-
-                * you have to look to the right to make sense of the function
-
-                2) Leftwards alignment with multiples of standard indentation
-                e.g.
-
-                """)
-            +
-            layout("""\
-
-                def function_with_long_name(parameter_1, parameter_2,
-                        parameter_3, parameter_4):
-                    '''
-                    Doc string for function
-                    '''
-
-                """, is_code=True)
-            +
-            layout("""\
-
-                or
-
-                """)
-            +
-            layout("""\
-
-                def function_with_long_name(
-                        parameter_1, parameter_2, parameter_3, parameter_4):
-                    '''
-                    Doc string for function
-                    '''
-                """, is_code=True)
-            +
-            layout("""\
-
-                or
-
-                """)
-            +
-            layout("""\
-
-                def function_with_long_name(
-                        parameter_1,
-                        parameter_2,
-                        parameter_3,
-                        parameter_4):
-                    '''
-                    Doc string for function
-                    '''
-
-                """, is_code=True)
-            +
-            layout("""\
-
-                Pros:
-
-                * readability is enhanced because the main content of the code
-                is as leftward as possible
-
-                * beautiful alignment across entire module
-
-                Cons:
-
-                * you may need to change your IDE's default indenting behaviour
-
-                Whichever of the two style you follow, be consistent.
-                """)
-            ),
+            """)
+        +
         layout("""\
 
-            See <https://rhodesmill.org/brandon/slides/2012-11-pyconca/#id183>
-            for some thought-provoking ideas on code style and much more.
+            def function_with_long_name(parameter_1, parameter_2,
+                                        parameter_3, parameter_4):
+                '''
+                Doc string for function
+                '''
+            """, is_code=True)
+        +
+        layout("""\
+            Pros:
 
-            """),
+            * a common convention
+
+            Cons:
+
+            * every time you rename a function you have to realign parameters
+
+            * code will generally not align tidily with multiples of standard
+            indentation
+
+            * room for parameters squeezed
+
+            * you have to look to the right to make sense of the function
+
+            2) Leftwards alignment with multiples of standard indentation e.g.
+
+            """)
+        +
+        layout("""\
+
+            def function_with_long_name(parameter_1, parameter_2,
+                    parameter_3, parameter_4):
+                '''
+                Doc string for function
+                '''
+
+            """, is_code=True)
+        +
+        layout("""\
+
+            or
+
+            """)
+        +
+        layout("""\
+
+            def function_with_long_name(
+                    parameter_1, parameter_2, parameter_3, parameter_4):
+                '''
+                Doc string for function
+                '''
+            """, is_code=True)
+        +
+        layout("""\
+
+            or
+
+            """)
+        +
+        layout("""\
+
+            def function_with_long_name(
+                    parameter_1,
+                    parameter_2,
+                    parameter_3,
+                    parameter_4):
+                '''
+                Doc string for function
+                '''
+
+            """, is_code=True)
+        +
+        layout("""\
+
+            Pros:
+
+            * readability is enhanced because the main content of the code is as
+            leftward as possible
+
+            * beautiful alignment across entire module
+
+            Cons:
+
+            * you may need to change your IDE's default indenting behaviour
+
+            Whichever of the two style you follow, be consistent.
+            """)
         ),
-    LINE_LENGTH_MSG_TYPE: LevelMsgs(
-        layout(f"""\
+    layout("""\
 
-            #### {line_length_title}
+        See <https://rhodesmill.org/brandon/slides/2012-11-pyconca/#id183> for
+        some thought-provoking ideas on code style and much more.
 
-            One or more lines are longer than the recommended 79 characters.
-            This is not necessarily a problem but long lines should be an
-            exception to the rule.
+        """)
+)
 
-            """),
-        layout(f"""\
-
-            #### {line_length_title}
-
-            One or more lines are longer than the recommended 79 characters.
-            This is not necessarily a problem given that we have wider monitors
-            than when the guidelines were formulated. But long lines should be
-            an exception to the rule. All being equal, short lines are easier to
-            read and understand than long lines. There are multiple strategies
-            for shortening lines but the overall goal has to be readability.
-            Sometimes we have to live with broken "rules". And that's official.
-            Read PEP 8 - the official Python style guide - especially the
-            section "A Foolish Consistency is the Hobgoblin of Little Minds".
-
-            """),
-        '',),
-    UNUSED_IMPORT_MSG_TYPE: LevelMsgs(
-        layout(f"""\
-
-            #### {unused_imports_title}
-
-            One or more imports not used in snippet.
-
-            """),
-        layout(f"""\
-
-            #### {unused_imports_title}
-
-            One or more imports not used in snippet. If the snippet was
-            extracted from a larger piece of code and the imports are used in
-            that code then there is no problem.
-
-            """),
-        ''
-        )
+CUSTOM_LINT_MSGS = {
+    UNDEFINED_NAMES_MSG_TYPE: undefined_names_level_msgs,
+    LINE_LENGTH_MSG_TYPE: line_length_level_msgs,
+    UNUSED_IMPORTS_MSG_TYPE: unused_imports_level_msgs,
+    BLANK_LINES_MSG_TYPE: blank_lines_level_msgs,
+    WHITESPACE_MSG_TYPE: whitespace_level_msgs,
+    LINE_INDENTATION_MSG_TYPE: line_indentations_level_msgs,
 }

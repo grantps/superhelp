@@ -284,10 +284,7 @@ def lint_snippet(snippet):
         """)
     findings = layout("""\
 
-        Here is what the linter reported about your snippet. Note - if your
-        snippet is taken from a broader context the linter might be concerned
-        about names it doesn't know about, variables not used (yet) etc - i.e.
-        there may be some unavoidable false alarms.
+        Here is what the linter reported about your snippet.
 
         """)
     brief_msg, main_msg, extra_msg = get_lint_messages_by_level(
