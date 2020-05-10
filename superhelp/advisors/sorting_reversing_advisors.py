@@ -43,94 +43,90 @@ def sorting_reversing_overview(block_dets, *, repeat=False):
         return None
 
     title = layout("""\
-
-        ### Sorting / reversing
-
-        """)
+    ### Sorting / reversing
+    """)
     if not repeat:
         summary = layout(f"""\
 
-            This block of code {sorting_or_reversing_comment}.
+        This block of code {sorting_or_reversing_comment}.
+
+        Sorting and, to a lesser extent, reversing are very common needs in
+        programming. Two key points:
+
+        1) reversing is not the same as sorting with `reverse=True`
+
+        2) the list sort method e.g. my_list.`sort()` returns `None`, not the
+        sorted list
+        """)
+        details = (
+            layout(f"""\
 
             Sorting and, to a lesser extent, reversing are very common needs in
             programming. Two key points:
 
             1) reversing is not the same as sorting with `reverse=True`
 
-            2) the list sort method e.g. my_list.`sort()` returns `None`, not
-            the sorted list
+            To illustrate:
             """)
-        details = (
-            layout(f"""\
-                Sorting and, to a lesser extent, reversing are very common needs
-                in programming. Two key points:
-
-                1) reversing is not the same as sorting with `reverse=True`
-
-                To illustrate:
-
-                """)
             +
             layout("""\
-                word = 'cat'
-                word_reversed = reversed(word)
-                ## >>> word_reversed
-                ## >>> 'tac'
-                word_reverse_sorted = sorted(word, reverse=True)
-                ## >>> word_reverse_sorted
-                ## >>> 'tca'
-                ## >>> word_reversed == word_reverse_sorted
-                ## >>> False
-                """, is_code=True)
-            +
-            layout("""\
-                Using the reversed function does not apply any sorting to the
-                sequence being reversed - it merely flips the (possibly)
-                unordered sequence the other way.
-
-                2) the list sort method e.g. `my_list.sort()` returns `None`, 
-                not the sorted list
-
-                `sorted(my_list)` returns a sorted list but `my_list.sort()` is
-                an in-place process. It mutates something rather than returning
-                a separate thing.
-
-                To illustrate:
-
-                i) `sorted()` returning a result and leaving its input unchanged
-
-                """)
-            +
-            layout("""\
-                fruit = ['banana', 'apple', 'cranberry']
-                fruit_sorted = sorted(fruit)
-                ## >>> fruit_sorted
-                ## >>> ['apple', 'banana', 'cranberry']
-                ## fruit itself has not been changed
-                ## >>> fruit
-                ## >>> ['banana', 'apple', 'cranberry']
-                """, is_code=True)
+            word = 'cat'
+            word_reversed = reversed(word)
+            ## >>> word_reversed
+            ## >>> 'tac'
+            word_reverse_sorted = sorted(word, reverse=True)
+            ## >>> word_reverse_sorted
+            ## >>> 'tca'
+            ## >>> word_reversed == word_reverse_sorted
+            ## >>> False
+            """, is_code=True)
             +
             layout("""\
 
-                ii) `.sort()` returning `None` and changing its input in-place
+            Using the reversed function does not apply any sorting to the
+            sequence being reversed - it merely flips the (possibly) unordered
+            sequence the other way.
 
-                """)
+            2) the list sort method e.g. `my_list.sort()` returns `None`, not
+            the sorted list
+
+            `sorted(my_list)` returns a sorted list but `my_list.sort()` is an
+            in-place process. It mutates something rather than returning a
+            separate thing.
+
+            To illustrate:
+
+            i) `sorted()` returning a result and leaving its input unchanged
+
+            """)
             +
             layout("""\
-
-                result_of_fruit_sort = fruit.sort()
-                ## >>> result_of_fruit_sort
-                ## >>> None
-                ## fruit has been changed by the in-place sort method
-                ## >>> fruit
-                ## >>> ['apple', 'banana', 'cranberry']
-                """, is_code=True)
+            fruit = ['banana', 'apple', 'cranberry']
+            fruit_sorted = sorted(fruit)
+            ## >>> fruit_sorted
+            ## >>> ['apple', 'banana', 'cranberry']
+            ## fruit itself has not been changed
+            ## >>> fruit
+            ## >>> ['banana', 'apple', 'cranberry']
+            """, is_code=True)
+            +
+            layout("""\
+            ii) `.sort()` returning `None` and changing its input in-place
+            """)
+            +
+            layout("""\
+            result_of_fruit_sort = fruit.sort()
+            ## >>> result_of_fruit_sort
+            ## >>> None
+            ## fruit has been changed by the in-place sort method
+            ## >>> fruit
+            ## >>> ['apple', 'banana', 'cranberry']
+            """, is_code=True)
             )
     else:
         summary = layout(f"""\
-            This block of code {sorting_or_reversing_comment}.
-            """)
+        This block of code {sorting_or_reversing_comment}.
+        """)
         details = summary
 
     message = {
@@ -157,28 +153,28 @@ def list_sort_as_value(block_dets, *, repeat=False):
         return None
 
     title = layout("""\
-    
-        ### Assignment of `None` result from in-place `.sort()` on list
-
-        """)
+    ### Assignment of `None` result from in-place `.sort()` on list
+    """)
     if not repeat:
         multiple = len(names_assigned_to_sort) > 1
         if multiple:
             nice_str_list = get_nice_str_list(
                 names_assigned_to_sort, quoter='`')
             details = layout(f"""\
-                {nice_str_list} are assigned to the results of in-place sort
-                operations. This is almost certainly a mistake as the intention
-                is probably not to set them each to `None` (the return value of
-                the `.sort()` method).
-                """)
+
+            {nice_str_list} are assigned to the results of in-place sort
+            operations. This is almost certainly a mistake as the intention is
+            probably not to set them each to `None` (the return value of the
+            `.sort()` method).
+            """)
         else:
             details = layout(f"""\
-                `{name}` is assigned to the result of an in-place sort
-                operation. This is almost certainly a mistake as the intention
-                is probably not to set `{name}` to `None` (the return value of
-                the `.sort()` method).
-                """)
+
+            `{name}` is assigned to the result of an in-place sort operation.
+            This is almost certainly a mistake as the intention is probably not
+            to set `{name}` to `None` (the return value of the `.sort()`
+            method).
+            """)
     else:
         details = ''
 

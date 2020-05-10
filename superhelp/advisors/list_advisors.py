@@ -1,5 +1,4 @@
 from ..advisors import filt_block_advisor
-from ..ast_funcs import get_assign_name
 from .. import code_execution, conf, utils
 from ..utils import layout_comment as layout
 
@@ -57,95 +56,82 @@ def _get_detailed_list_comment(first_name, first_items):
     detailed_list_comment = (
         layout("""\
 
-            Lists, along with dictionaries, are the workhorses of Python data
-            structures.
+        Lists, along with dictionaries, are the workhorses of Python data
+        structures.
 
-            Lists have an order, and can contain duplicate items and items of
-            different types (usually not advisable).
+        Lists have an order, and can contain duplicate items and items of
+        different types (usually not advisable).
 
-            Extra items can be added to lists using the .append() method e.g.
-            """)
+        Extra items can be added to lists using the .append() method e.g.
+        """)
         +
         layout(f"""\
-            {first_name}.append({listable_example_item})
-            """, is_code=True)
+        {first_name}.append({listable_example_item})
+        """, is_code=True)
         +
         layout(f"""\
-
-            which results in {appended_list}
-
-            """)
+        which results in {appended_list}
+        """)
         +
         layout("""\
 
-            If you want to add multiple items at once, .extend() is useful.
+        If you want to add multiple items at once, .extend() is useful.
 
-            Note - we are extending the list which has already had an item
-            appended, not the original list.
-
-            """)
+        Note - we are extending the list which has already had an item appended,
+        not the original list.
+        """)
         +
         layout(f"""\
-            {first_name}.extend({items2extend})
-            """, is_code=True)
+        {first_name}.extend({items2extend})
+        """, is_code=True)
         +
         layout(f"""\
-
-            which results in {extended_list}
-
-            """)
+        which results in {extended_list}
+        """)
         +
         layout("""\
 
-            GOTCHA: if you are adding tuples to your list it is easy to
-            forget the nested parentheses. E.g.
-
-            """)
+        GOTCHA: if you are adding tuples to your list it is easy to forget the
+        nested parentheses. E.g.
+        """)
         +
         layout(f"""\
+        coordinates.append((x, y))  ## Correct
 
-            coordinates.append((x, y))  ## Correct
-
-            coordinates.append(x, y)  ## Oops - append only takes one item not two
-
-            """, is_code=True)
+        coordinates.append(x, y)  ## Oops - append only takes one item not two
+        """, is_code=True)
         +
         layout("""\
-
-            Lists can also be added together e.g.
-
-            """)
+        Lists can also be added together e.g.
+        """)
         +
         layout(f"""\
-            friends = {friends}
-            family = {family}
-            guests = friends + family
-
-            """, is_code=True)
+        friends = {friends}
+        family = {family}
+        guests = friends + family
+        """, is_code=True)
         +
         layout(f"""\
+        resulting in {guests}
 
-            resulting in {guests}
-
-            GOTCHA: you can't add individual items to lists unless you put
-            them in a list as well E.g.
-
-            """)
+        GOTCHA: you can't add individual items to lists unless you put them in a
+        list as well E.g.
+        """)
         +
         layout(f"""\
-            workmate = 'Carl'
-            guests = {friends} + {family} + workmate  ## Oops - can only add lists
-            guests = {friends} + {family} + [workmate]  ## That's better
-
-            """, is_code=True)
+        workmate = 'Carl'
+        guests = {friends} + {family} + workmate  ## Oops - can only add lists
+        guests = {friends} + {family} + [workmate]  ## That's better
+        """, is_code=True)
         +
         layout(f"""\
-
-            resulting in {guests + ['Carl']}
-
-            """)
+        resulting in {guests + ['Carl']}
+        """)
         )
     return detailed_list_comment
+
+def truncate_list(items):
+    return items[: conf.MAX_ITEMS_EVALUATED]
 
 ## only interested in lists when being assigned as a value
 ## (i.e. <body><Assign><value><List> so we're looking for List under value only)
@@ -157,45 +143,40 @@ def list_overview(block_dets, *, repeat=False):
     list_els = block_dets.element.xpath(ASSIGN_LIST_XPATH)
     plural = 's' if len(list_els) > 1 else ''
     title = layout(f"""\
-
-        ### List{plural} defined
-
-        """)
+    ### List{plural} defined
+    """)
     first_name = None
     first_items = None
-    for list_el in list_els:
-        name = get_assign_name(list_el)
-        try:
-            items = code_execution.get_val(
-                block_dets.pre_block_code_str, block_dets.block_code_str, name)
-        except KeyError:
+    names_items, oversized_msg = code_execution.get_collections_dets(
+        list_els, block_dets,
+        collection_plural='lists', truncated_items_func=truncate_list)
+    for name, items in names_items:
+        if items is None:
             list_desc = layout(f"""\
-
-                    `{name}` is a list.
-                    """)
+            `{name}` is a list. Unable to evaluate items.
+            """)
         else:
             if not first_name:
                 first_name = name
                 first_items = items
             if items == []:
                 list_desc = layout(f"""\
-
-                    `{name}` is an empty list.
-                    """)
+                `{name}` is an empty list.
+                """)
             else:
                 list_desc = layout(f"""\
 
-                    `{name}` is a list with {utils.int2nice(len(items))} items.
-                    """)
+                `{name}` is a list with {utils.int2nice(len(items))} items.
+                """)
     if not repeat:
         brief_overview = layout("""\
 
-            Lists, along with dictionaries, are the workhorses of Python data
-            structures.
+        Lists, along with dictionaries, are the workhorses of Python data
+        structures.
 
-            Lists have an order, and can contain duplicate items and items of
-            different types (usually not advisable).
-            """)
+        Lists have an order, and can contain duplicate items and items of
+        different types (usually not advisable).
+        """)
         detailed_list_comment = _get_detailed_list_comment(
             first_name, first_items)
     else:
@@ -203,8 +184,8 @@ def list_overview(block_dets, *, repeat=False):
         detailed_list_comment = ''
 
     message = {
-        conf.BRIEF: title + list_desc + brief_overview,
-        conf.MAIN: title + list_desc + detailed_list_comment,
+        conf.BRIEF: title + oversized_msg + list_desc + brief_overview,
+        conf.MAIN: title + oversized_msg + list_desc + detailed_list_comment,
     }
     return message
 
@@ -215,13 +196,12 @@ def mixed_list_types(block_dets, *, repeat=False):  # @UnusedVariable
     """
     list_els = block_dets.element.xpath(ASSIGN_LIST_XPATH)
     list_dets = []
+    names_items, oversized_msg = code_execution.get_collections_dets(
+        list_els, block_dets,
+        collection_plural='lists', truncated_items_func=truncate_list)
     has_mixed = False
-    for list_el in list_els:
-        name = get_assign_name(list_el)
-        try:
-            items = code_execution.get_val(
-                block_dets.pre_block_code_str, block_dets.block_code_str, name)
-        except KeyError:
+    for name, items in names_items:
+        if items is None:
             continue
         else:
             _item_type_names, item_type_nice_names = get_item_type_names(items)
@@ -234,24 +214,23 @@ def mixed_list_types(block_dets, *, repeat=False):  # @UnusedVariable
         return None
 
     title = layout("""\
-
-        ### List(s) with mix of different data types
-
-        """)
+    ### List(s) with mix of different data types
+    """)
     mixed_warning_bits = []
     for name, item_type_nice_names in list_dets:
         mixed_warning_bits.append(layout(f"""
 
-            `{name}` contains more than one data type - which is probably a bad
-            idea.
-            """))
+        `{name}` contains more than one data type - which is probably a bad
+        idea.
+        """))
     mixed_warning = ''.join(mixed_warning_bits)
     mixed_dets = layout(f"""\
-        The data types found were: {", ".join(item_type_nice_names)}.
-        """)
+
+    The data types found were: {", ".join(item_type_nice_names)}.
+    """)
 
     message = {
-        conf.BRIEF: title + mixed_warning,
-        conf.MAIN: title + mixed_warning + mixed_dets,
+        conf.BRIEF: title + oversized_msg + mixed_warning,
+        conf.MAIN: title + oversized_msg + mixed_warning + mixed_dets,
     }
     return message

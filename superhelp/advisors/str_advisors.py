@@ -65,10 +65,8 @@ def assigned_str_overview(block_dets, *, repeat=False):
         return None
 
     title = layout("""\
-
-        #### String Overview
-
-        """)
+    #### String Overview
+    """)
     names = set()
     for str_el in str_els:
         assign_el = str_el.xpath('ancestor::Assign')[0]
@@ -78,18 +76,16 @@ def assigned_str_overview(block_dets, *, repeat=False):
     if multiple:
         nice_list_str = get_nice_str_list(sorted(names), quoter='`')
         summary = layout(f"""\
-            {nice_list_str} are all strings
-            """)
+        {nice_list_str} are all strings
+        """)
     else:
         summary = layout(f"""\
-            `{name}` is a string.
-
-            """)
+        `{name}` is a string.
+        """)
     if not repeat:
         cool = layout("""\
-            Python makes it easy to do lots of cool things with strings.
-
-            """)
+        Python makes it easy to do lots of cool things with strings.
+        """)
         first_str_el = str_els[0]
         first_assign_el = first_str_el.xpath('ancestor::Assign')[0]
         first_name = first_assign_el.xpath('targets/Name')[0].get('id')
@@ -103,49 +99,49 @@ def assigned_str_overview(block_dets, *, repeat=False):
             name2use = first_name
             val2use = first_val
         short_demo = layout(f"""\
-            For illustration, imagine we have string '{val2use}' assigned to
-            `{name2use}`:
 
-            """)
+        For illustration, imagine we have string '{val2use}' assigned to
+        `{name2use}`:
+
+        """)
         upper = layout(f"""\
-            {name2use}.upper() returns {val2use.upper()}.
-
-            """)
+        `{name2use}.upper()` returns {val2use.upper()}.
+        """)
         black_heart = "\N{BLACK HEART}"
         longer_demo = layout(f"""\
-            Examples:
+        Examples:
 
-            `{name2use}.upper()` returns {val2use.upper()}.
+        `{name2use}.upper()` returns {val2use.upper()}.
 
-            `{name2use}.center(70, '=')` returns {val2use.center(70, '=')}
+        `{name2use}.center(70, '=')` returns {val2use.center(70, '=')}
 
-            `{name2use}.endswith('chicken')` returns
-            {val2use.endswith('chicken')}
+        `{name2use}.endswith('chicken')` returns {val2use.endswith('chicken')}
 
-            `{name2use}` + ' is a string' returns {val2use + ' is a string'}
+        `{name2use}` + ' is a string' returns {val2use + ' is a string'}
 
-            `{name2use}` + ' ' + '{{\\NBLACK HEART}}' + ' Python' returns
-            {val2use + ' ' + black_heart + ' Python'}
+        `{name2use}` + ' ' + '{{\\NBLACK HEART}}' + ' Python' returns
+        {val2use + ' ' + black_heart + ' Python'}
 
-            `len({name2use})` returns {len(val2use)} because that is how many
-            characters are in the `{name2use}` string (remember to count spaces
-            - they are characters too)
+        `len({name2use})` returns {len(val2use)} because that is how many
+        characters are in the `{name2use}` string (remember to count spaces -
+        they are characters too)
 
-            `sorted({name2use})` returns {sorted(val2use)}
-            """)
+        `sorted({name2use})` returns {sorted(val2use)}
+        """)
         more = layout("""\
-            `.upper()`, `.center()` etc are abilities available with all Python
-            strings. Technically they are methods of string objects. They start
-            with a dot and are on the end of the object.
 
-            To see the full list of string methods enter `dir(str)` into a
-            Python command line.
+        `.upper()`, `.center()` etc are abilities available with all Python
+        strings. Technically they are methods of string objects. They start with
+        a dot and are on the end of the object.
 
-            `len()` is a function which can be used on lots of things - not just
-            string objects. It is not a method of the string object. Other
-            functions that are not string-specific but are commonly used with
-            strings include `sorted()` and `print()`.
-            """)
+        To see the full list of string methods enter `dir(str)` into a Python
+        command line.
+
+        `len()` is a function which can be used on lots of things - not just
+        string objects. It is not a method of the string object. Other functions
+        that are not string-specific but are commonly used with strings include
+        `sorted()` and `print()`.
+        """)
     else:
         cool = ''
         short_demo = ''
@@ -169,10 +165,8 @@ def str_combination(combination_type, str_els, *, repeat=False):
         STR_ADDITION: "string addition (e.g. animal = 'jelly' + 'fish')",
     }
     title = layout("""\
-
-        ### Strings created by combining or interpolating strings
-
-        """)
+    ### Strings created by combining or interpolating strings
+    """)
     how_combined_bits = []
     for str_el in str_els:
         try:
@@ -185,62 +179,56 @@ def str_combination(combination_type, str_els, *, repeat=False):
         combination_comment = combination_type2comment[combination_type]
         how_combined_bits.append(layout(f"""\
 
-            `{name}` is created using {combination_comment}.
-            """))
+        `{name}` is created using {combination_comment}.
+        """))
     how_combined = ''.join(how_combined_bits)
     if not repeat:
         if combination_type != F_STR and not F_STR_REMINDER:
             F_STR_REMINDER = True
             brief_fstring_msg = layout("""\
 
-                Your snippet uses a non-f-string approach to constructing a
-                string.
+            Your snippet uses a non-f-string approach to constructing a string.
 
-                Have you considered using an f-string approach to constructing
-                your string?
-                """)
+            Have you considered using an f-string approach to constructing your
+            string?
+            """)
             longer_fstring_msg = (
                 layout("""\
 
-                    Have you considered using an f-string approach to
-                    constructing your string?
+                Have you considered using an f-string approach to constructing
+                your string?
 
-                    f-strings let you reference variables from earlier in your
-                    code and allow very readable string construction. All the
-                    usual tricks of the `.format()` approach also work. For
-                    example, comma separating thousands in numbers:
-
-                    """)
+                f-strings let you reference variables from earlier in your code
+                and allow very readable string construction. All the usual
+                tricks of the `.format()` approach also work. For example, comma
+                separating thousands in numbers:
+                """)
                 +
                 layout("""\
-                    cost = 10_550
-                    print(f"Cost is ${cost:,}")
-                    # >>> 'Cost is $10,550'
-                    """, is_code=True)
-                +
-                layout(f"""\
-
-                    Or making small in-line calculations:
-
-                    """)
+                cost = 10_550
+                print(f"Cost is ${cost:,}")
+                # >>> 'Cost is $10,550'
+                """, is_code=True)
                 +
                 layout("""\
-                    people = ['Bart', 'Lisa']
-                    print(f"There are {len(people)} people")
-                    # >>> 'There are 2 people'
-                    """, is_code=True)
-                +
-                layout(f"""\
-
-                    Or zero-padding numbers:
-
-                    """)
+                Or making small in-line calculations:
+                """)
                 +
                 layout("""\
-                    num = 525
-                    print(f"{num:0>4}")
-                    # >>> '0525'
-                    """, is_code=True)
+                people = ['Bart', 'Lisa']
+                print(f"There are {len(people)} people")
+                # >>> 'There are 2 people'
+                """, is_code=True)
+                +
+                layout("""\
+                Or zero-padding numbers:
+                """)
+                +
+                layout("""\
+                num = 525
+                print(f"{num:0>4}")
+                # >>> '0525'
+                """, is_code=True)
             )
         else:
             brief_fstring_msg = ''
@@ -283,8 +271,8 @@ def format_str_interpolation(block_dets, repeat=False):
 @any_block_advisor()
 def sprintf(block_dets, *, repeat=False):
     """
-    Look at use of sprintf for string interpolation e.g. greeting = "Hi %s" %
-    name
+    Look at use of sprintf for string interpolation
+    e.g. greeting = "Hi %s" % name
     """
     sprintf_els = block_dets.element.xpath(SPRINTF_XPATH)
     has_sprintf = bool(sprintf_els)
@@ -296,8 +284,8 @@ def sprintf(block_dets, *, repeat=False):
 @any_block_advisor()
 def string_addition(block_dets, *, repeat=False):
     """
-    Advise on string combination using +. Explain how f-string alternative
-    works.
+    Advise on string combination using +.
+    Explain how f-string alternative works.
     """
     str_els_being_combined = get_str_els_being_combined(block_dets.element)
     has_string_addition = False

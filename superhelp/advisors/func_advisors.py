@@ -220,20 +220,20 @@ def func_overview(block_dets, *, repeat=False):
     if not repeat:
         args_vs_params = layout(f"""\
 
-            There is often confusion about the difference between arguments and
-            parameters. {overall_func_type_lbl.title()}s define parameters but
-            receive arguments. You can think of parameters as being like car
-            parks and arguments as the cars that fill them. You supply arguments
-            to a {overall_func_type_lbl} depending on its parameters.
-            """)
+        There is often confusion about the difference between arguments and
+        parameters. {overall_func_type_lbl.title()}s define parameters but
+        receive arguments. You can think of parameters as being like car parks
+        and arguments as the cars that fill them. You supply arguments to a
+        {overall_func_type_lbl} depending on its parameters.
+        """)
         if func_type_lbl == conf.METHOD_LBL:
             methods = layout("""\
 
-                Methods are functions that sit directly inside a class
-                definition. Unless they are defined as static methods e.g. using
-                the `@staticmethod` decorator, they take the instance of the
-                class as the first parameter - almost always named `self`. But
-                they are basically functions.
+            Methods are functions that sit directly inside a class definition.
+            Unless they are defined as static methods e.g. using the
+            `@staticmethod` decorator, they take the instance of the class as
+            the first parameter - almost always named `self`. But they are
+            basically functions.
                 """)
         else:
             methods = ''
@@ -273,17 +273,15 @@ def func_len_check(block_dets, *, repeat=False):
         return None
 
     title = layout(f"""\
-
-        ### {overall_func_type_lbl.title()} possibly too long
-
-        """)
+    ### {overall_func_type_lbl.title()} possibly too long
+    """)
     summary_bits = []
     for name, func_lines_n in long_func_dets:
         summary_bits.append(layout(f"""\
 
-            `{name}` has {utils.int2nice(func_lines_n)} lines of code
-            (including comments but with empty lines ignored).
-            """))
+        `{name}` has {utils.int2nice(func_lines_n)} lines of code (including
+        comments but with empty lines ignored).
+        """))
     summary = ''.join(summary_bits)
     if not repeat:
         sometimes_ok = (
@@ -324,26 +322,24 @@ def func_excess_parameters(block_dets, *, repeat=False):
         return None
 
     title = layout(f"""\
-
-        ### Possibly too many {overall_func_type_lbl} parameters
-
-        """)
+    ### Possibly too many {overall_func_type_lbl} parameters
+    """)
     summary_bits = []
     for i, (name, n_args, func_type_lbl) in enumerate(excess_param_dets):
         first = (i == 0)
         summary_bits.append(layout(f"""\
 
-            `{name}` has {n_args:,} parameters.
-
-            """))
+        `{name}` has {n_args:,} parameters.
+        """))
         if first and not repeat:
             summary_bits.append(layout(f"""\
-                Sometimes it is OK for a {func_type_lbl} to have that many but
-                you should consider refactoring the code or collecting related
-                parameters into single parameters e.g. instead of receiving
-                image size arguments separately perhaps you could receive a
-                dictionary of image size argument details.
-                """))
+
+            Sometimes it is OK for a {func_type_lbl} to have that many but you
+            should consider refactoring the code or collecting related
+            parameters into single parameters e.g. instead of receiving image
+            size arguments separately perhaps you could receive a dictionary of
+            image size argument details.
+            """))
     summary = ''.join(summary_bits)
 
     message = {
@@ -392,55 +388,55 @@ def positional_boolean(block_dets, *, repeat=False):
         return None
 
     title = layout(f"""\
-
-        ### {overall_func_type_lbl.title()} expects risky positional arguments
-        """)
+    ### {overall_func_type_lbl.title()} expects risky positional arguments
+    """)
     summary_bits = []
     for i, (name, func_type_lbl, danger_args) in enumerate(positional_dets):
         first = (i == 0)
         summary_bits.append(layout(f"""\
-            A partial analysis of `{name}` found the following risky non-
-            keyword (positional) parameters: {danger_args}.
-            """))
+
+        A partial analysis of `{name}` found the following risky non- keyword
+        (positional) parameters: {danger_args}.
+        """))
         if first and not repeat:  ## explaining once is enough ;-)
             summary_bits.append(layout(f"""\
 
-                {func_type_lbl.title}s which expect numbers or booleans
-                (True/False) without requiring keywords are risky. They are
-                risky when if the {func_type_lbl} is changed later to have
-                different parameters. For example, greeting(formal=True) is more
-                intelligible than greeting(True). And intelligible code is safer
-                to alter / maintain over time than mysterious code.
-                """))
+            {func_type_lbl.title}s which expect numbers or booleans (True/False)
+            without requiring keywords are risky. They are risky when if the
+            {func_type_lbl} is changed later to have different parameters. For
+            example, greeting(formal=True) is more intelligible than
+            greeting(True). And intelligible code is safer to alter / maintain
+            over time than mysterious code.
+            """))
     summary = ''.join(summary_bits)
     if not repeat:
         asterisk_demo = (
             layout("""\
 
-                Using an asterisk as a pseudo-parameter forces all parameters to
-                the right to be keywords e.g.
-                """)
+            Using an asterisk as a pseudo-parameter forces all parameters to the
+            right to be keywords e.g.
+            """)
             +
-            layout(f"""\
-                def greeting(name, *, formal=False):
-                    ...
-                """, is_code=True)
+            layout("""\
+            def greeting(name, *, formal=False):
+                ...
+            """, is_code=True)
             +
-            layout(f"""\
+            layout("""\
 
-                In this example you couldn't now call the function
-                greeting('Jo', True) - it would need to be greeting('Jo',
-                formal=True)
-                """)
+            In this example you couldn't now call the function greeting('Jo',
+            True) - it would need to be greeting('Jo', formal=True)
+            """)
         )
         asterisk_explained = layout(f"""\
-            Putting an asterisk in the parameters has the effect of forcing all
-            parameters to the right to be keyword parameters because the
-            asterisk mops up any remaining positional arguments supplied (if
-            any) when the {func_type_lbl} is called. There can't be any other
-            positional arguments, because they have all been handled already, so
-            only keyword parameters are allowed thereafter.
-            """)
+
+        Putting an asterisk in the parameters has the effect of forcing all
+        parameters to the right to be keyword parameters because the asterisk
+        mops up any remaining positional arguments supplied (if any) when the
+        {func_type_lbl} is called. There can't be any other positional
+        arguments, because they have all been handled already, so only keyword
+        parameters are allowed thereafter.
+        """)
     else:
         asterisk_demo = ''
         asterisk_explained = ''
@@ -516,23 +512,21 @@ def docstring_issues(block_dets, *, repeat=False):
         return None
 
     title = layout("""\
-
-        ### Function / Method missing doc string
-
-        """)
+    ### Function / Method missing doc string
+    """)
     example_docstring = layout(f'''\
-        def greet(name, greet_word='Hi'):
-            """
-            Get a greeting for the supplied person.
+    def greet(name, greet_word='Hi'):
+        """
+        Get a greeting for the supplied person.
 
-            :param str name: person being greeted
-            :param str greet_word: the word to start the greeting
-            :return: a greeting message to the person
-            :rtype: str
-            """
-            greeting = f"{{greet_word}} {{name}} - how are you?"
-            return greeting
-        ''', is_code=True)
+        :param str name: person being greeted
+        :param str greet_word: the word to start the greeting
+        :return: a greeting message to the person
+        :rtype: str
+        """
+        greeting = f"{{greet_word}} {{name}} - how are you?"
+        return greeting
+    ''', is_code=True)
     summary_bits = []
     for i, (func_name, func_type_lbl, problem) in enumerate(docstring_issues):
         first = (i == 0)
@@ -541,53 +535,49 @@ def docstring_issues(block_dets, *, repeat=False):
                 summary_bits.append((
                     layout(f"""\
 
-                        #### {func_type_lbl.title()} missing doc string
+                    #### {func_type_lbl.title()} missing doc string
 
-                        `{func_name}` lacks a doc string - you should probably add one.
+                    `{func_name}` lacks a doc string - you should probably add
+                    one.
 
-                        Note - # comments at the top of the {func_type_lbl} do
-                        not work as doc strings. Python completely ignores them.
-                        If you add a proper doc string, however, it can be
-                        accessed by running `help({func_name})` or
-                        `{func_name}.`\_\_doc\_\_. Which is useful when using
-                        this {func_type_lbl} in bigger projects e.g. in an IDE
-                        (Integrated Development Environment).
+                    Note - # comments at the top of the {func_type_lbl} do not
+                    work as doc strings. Python completely ignores them. If you
+                    add a proper doc string, however, it can be accessed by
+                    running `help({func_name})` or `{func_name}.`\_\_doc\_\_.
+                    Which is useful when using this {func_type_lbl} in bigger
+                    projects e.g. in an IDE (Integrated Development
+                    Environment).
 
-                        Here is an example doc string for a simple function
-                        using one of several valid formats:
-
-                        """)
+                    Here is an example doc string for a simple function using
+                    one of several valid formats:
+                    """)
                     +
                     example_docstring
                 ))
             else:
                 summary_bits.append(layout(f"""\
+                #### `{func_name}` lacks a doc string
 
-                    #### `{func_name}` lacks a doc string
-
-                    You should probably add a doc string to `{func_name}`
-                    """))
+                You should probably add a doc string to `{func_name}`
+                """))
         elif problem == DOCSTRING_TOO_SHORT:
             if first and not repeat:
                 summary_bits.append((layout(f"""\
+                #### Function doc string too brief?
 
-                    #### Function doc string too brief?
-
-                    The doc string for `{func_name}` seems a little
-                    short{param_str}. You might want to rework it. Here is an
-                    example using one of several valid formats:
-
-                    """)
+                The doc string for `{func_name}` seems a little
+                short{param_str}. You might want to rework it. Here is an
+                example using one of several valid formats:
+                """)
                 +
                 example_docstring
                 ))
             else:
                 summary_bits.append(layout(f"""\
+                #### Function doc string too brief?
 
-                    #### Function doc string too brief?
-
-                    The doc string for `{func_name}` seems a little short.
-                    """))
+                The doc string for `{func_name}` seems a little short.
+                """))
     summary = ''.join(summary_bits)
 
     message = {

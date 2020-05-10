@@ -153,53 +153,50 @@ def unpythonic_name_check(block_dets, *, repeat=False):
     shamed_names_title = _get_shamed_names_title(
         reserved_names, bad_names, dubious_names)
     title = layout(f"""\
-
-        ### {shamed_names_title}
-
-        """)
+    ### {shamed_names_title}
+    """)
     if reserved_names:
         reserved_names_listed = utils.get_nice_str_list(
             reserved_names, quoter='`')
         reserved_comment = layout(f"""\
-            Reserved name(s): {reserved_names_listed}
-            """)
+        Reserved name(s): {reserved_names_listed}
+        """)
     else:
         reserved_comment = ''
     if bad_names:
         bad_names_listed = utils.get_nice_str_list(bad_names, quoter='`')
         bad_comment = layout(f"""\
-            Un-pythonic name(s): {bad_names_listed}
-            """)
+        Un-pythonic name(s): {bad_names_listed}
+        """)
     else:
         bad_comment = ''
     if dubious_names:
         dubious_names_listed = utils.get_nice_str_list(
             dubious_names, quoter='`')
         dubious_comment = layout(f"""\
-            Possibly un-pythonic name(s): {dubious_names_listed}
-            """)
+        Possibly un-pythonic name(s): {dubious_names_listed}
+        """)
     else:
         dubious_comment = ''
     if not repeat:
         snake_case = layout("""\
 
-            Python variables should not named using reserved words e.g.
-            `collections` or `sorted`.
+        Python variables should not named using reserved words e.g.
+        `collections` or `sorted`.
 
-            Generally speaking Python variables should be snake case - that is
-            lower case, with multiple words joined by underscores e.g.
-            `high_scores` (not `highScores` or `HighScores`)
-            """)
+        Generally speaking Python variables should be snake case - that is lower
+        case, with multiple words joined by underscores e.g. `high_scores` (not
+        `highScores` or `HighScores`)
+        """)
         pascal = layout("""\
+        In Python class names and named tuples are expected to be in Pascal Case
+        (also known as upper camel case) rather than the usual snake case. E.g.
+        `collections.ChainMap`
 
-            In Python class names and named tuples are expected to be in Pascal
-            Case (also known as upper camel case) rather than the usual snake
-            case. E.g. `collections.ChainMap`
-
-            Exceptions can also be made when a higher priority is consistency
-            with other code e.g. a library the Python is ported from, or the
-            non-Python code that Python is wrapping.
-            """)
+        Exceptions can also be made when a higher priority is consistency with
+        other code e.g. a library the Python is ported from, or the non-Python
+        code that Python is wrapping.
+        """)
     else:
         snake_case = ''
         pascal = ''
@@ -226,10 +223,8 @@ def short_name_check(block_dets, *, repeat=False):
         return None
 
     title = layout("""
-
-        ### Short variable name
-
-        """)
+    ### Short variable name
+    """)
     short_comment_bits = []
     for length, names in sorted(short_names.items()):
         freq = len(names)
@@ -247,51 +242,49 @@ def short_name_check(block_dets, *, repeat=False):
     short_comment = '; '.join(short_comment_bits)
     sometimes_ok = layout(f"""\
 
-        Sometimes, short variable names are appropriate - even conventional -
-        but they should be avoided outside of a few special cases. In your code:
+    Sometimes, short variable names are appropriate - even conventional - but
+    they should be avoided outside of a few special cases. In your code:
 
-        {short_comment}
-        """)
+    {short_comment}
+    """)
     if not repeat:
         idiomatic = (
             layout("""\
 
-                In many programming languages it is idiomatic to use `i`, `j`,
-                and even `k` as increment counters. It is best to reserve `i`
-                for incrementing starting at 0 and prefer `n` when starting at
-                1. But longer names should be used when they aid readability
-                (i.e. usually ;-)).
+            In many programming languages it is idiomatic to use `i`, `j`, and
+            even `k` as increment counters. It is best to reserve `i` for
+            incrementing starting at 0 and prefer `n` when starting at 1. But
+            longer names should be used when they aid readability (i.e. usually
+            ;-)).
 
-               `k` and `v` are idiomatic in Python when iterating through
-               dictionary items e.g.
-
+           `k` and `v` are idiomatic in Python when iterating through dictionary
+           items e.g.
             """)
             +
             layout("""\
-
                 for k, v in my_dict.items():
                     ...
-
             """, is_code=True)
             +
             layout("""\
-                But even they should probably be replaced with something more
-                descriptive.
 
-                The main goal is readability, readability, readability. That is
-                what should drive variable naming above all else. Only a modest
-                weight should be given to speed of typing in any code that is
-                going to be used or worked on in the future as opposed to quick
-                exploratory code in a terminal / notebook etc.
+            But even they should probably be replaced with something more
+            descriptive.
 
-                In the words of the legendary Donald Knuth:
+            The main goal is readability, readability, readability. That is what
+            should drive variable naming above all else. Only a modest weight
+            should be given to speed of typing in any code that is going to be
+            used or worked on in the future as opposed to quick exploratory code
+            in a terminal / notebook etc.
 
-                > "Programs are meant to be read by humans and only incidentally
-                for computers to execute."
+            In the words of the legendary Donald Knuth:
 
-                Note - excessively long variable names can be unreadable as
-                well. They may also indicate the code needs to be reworked.
-                """)
+            > "Programs are meant to be read by humans and only incidentally for
+            computers to execute."
+
+            Note - excessively long variable names can be unreadable as well.
+            They may also indicate the code needs to be reworked.
+            """)
         )
     else:
         idiomatic = ''

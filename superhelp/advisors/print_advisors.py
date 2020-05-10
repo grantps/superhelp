@@ -35,44 +35,36 @@ def print_overview(blocks_dets, *, repeat=False):
         return None
 
     title = layout("""\
-
-        ### `print` function used
-
-        """)
+    ### `print` function used
+    """)
     if not repeat:
         brief_details = layout("""\
-
-            `print` may seem like a very basic function but it has some extra
-            parameters providing extra functionality. More information can be
-            found in the official on-line documentation for `print`.
-
-            """)
+        `print` may seem like a very basic function but it has some extra
+        parameters providing extra functionality. More information can be found
+        in the official on-line documentation for `print`.
+        """)
         main_details = (
             layout("""\
 
-                `print` may seem like a very basic function but it has some
-                extra features worth knowing about. Here is an example using the
-                `end` and `flush` parameters. Dots should appear one by one in
-                the same line. If `flush` were `False` then they would only
-                appear at the end all at once. If `end` were the default new
-                line character '\\n' they would have appeared on separate lines.
-
-                """)
+            `print` may seem like a very basic function but it has some extra
+            features worth knowing about. Here is an example using the `end` and
+            `flush` parameters. Dots should appear one by one in the same line.
+            If `flush` were `False` then they would only appear at the end all
+            at once. If `end` were the default new line character '\\n' they
+            would have appeared on separate lines.
+            """)
+            +
+            layout("""\
+            from time import sleep
+            print('.', end='', flush=True)
+            sleep(0.25)
+            """, is_code=True)
             +
             layout("""\
 
-                from time import sleep
-                print('.', end='', flush=True)
-                sleep(0.25)
-
-                """, is_code=True)
-            +
-            layout("""\
-
-                More information can be found in `print`'s official on-line
-                documentation.
-
-                """)
+            More information can be found in `print`'s official on-line
+            documentation.
+            """)
         )
     else:
         brief_details = ''

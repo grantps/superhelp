@@ -33,68 +33,63 @@ def decorator_overview(block_dets, *, repeat=False):
     dec_name_list = get_nice_str_list(decorator_names, quoter='`')
     plural = 's' if len(decorator_names) > 1 else ''
     summary = layout(f"""\
-            ### Decorator{plural} used
+    ### Decorator{plural} used
 
-            The code uses the decorator{plural}: {dec_name_list}.
-            """)
+    The code uses the decorator{plural}: {dec_name_list}.
+    """)
     if not repeat:
         dec_dets = (
             layout("""\
 
-                Decorators are a common and handy feature of Python. Using them
-                is beginner-level Python and making them is intermediate-level
-                Python. One tip - use functools.wraps to make the decorated
-                function look like the original function e.g. have the same doc
-                string.
+            Decorators are a common and handy feature of Python. Using them is
+            beginner-level Python and making them is intermediate-level Python.
+            One tip - use functools.wraps to make the decorated function look
+            like the original function e.g. have the same doc string.
 
-                Decorators are well-documented elsewhere so there is no real
-                advice to give here apart from recommending their use when
-                appropriate.
+            Decorators are well-documented elsewhere so there is no real advice
+            to give here apart from recommending their use when appropriate.
 
-                Here's an example of a simple decorator (`route`) making it easy
-                to set up a web end point:
+            Here's an example of a simple decorator (`route`) making it easy to
+            set up a web end point:
+            """)
+            +
+            layout("""\
+            from bottle import route
 
-                """)
+            @route('/hello')
+            def hello():
+                return "Hello World!"
+            """, is_code=True)
             +
             layout("""\
 
-                from bottle import route
-
-                @route('/hello')
-                def hello():
-                    return "Hello World!"
-                """, is_code=True)
-            +
-            layout("""\
-
-                and here is an example of a simple, no argument decorator being
-                created with `functool.wraps` applied:
-
-                """)
+            and here is an example of a simple, no argument decorator being
+            created with `functool.wraps` applied:
+            """)
             +
             layout('''\
-                from functools import wraps
+            from functools import wraps
 
-                def tweet(func):
-                    """
-                    Fake tweet original message after saying the message as
-                    before
-                    """
-                    @wraps(func)
-                    def wrapper(message):
-                        func(message)
-                        print(f"I'm tweeting the message {message}")
-                    return wrapper
+            def tweet(func):
+                """
+                Fake tweet original message after saying the message as
+                before
+                """
+                @wraps(func)
+                def wrapper(message):
+                    func(message)
+                    print(f"I'm tweeting the message {message}")
+                return wrapper
 
-                @tweet
-                def say(message):
-                    """
-                    Print supplied message
-                    """
-                    print(message)
+            @tweet
+            def say(message):
+                """
+                Print supplied message
+                """
+                print(message)
 
-                say("sausage!")
-                ''', is_code=True)
+            say("sausage!")
+            ''', is_code=True)
         )
         aop = get_aop_msg()
     else:

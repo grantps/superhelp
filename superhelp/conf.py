@@ -8,9 +8,13 @@ f = False
 
 ## Release settings in (). Enforced by Makefile using good old sed :-)
 
+c = 'cli'
+h = 'html'
+m = 'md'
+
 RECORD_AST = f  ## (f)
 DEV_MODE = f  ## (f)
-DO_HTML = t  ## set html displayer as default (t)
+DISPLAYER = h  ## set html displayer as default (h)
 DO_DISPLAYER = t  ## f is only ever used when testing pre-display (t)
 INCLUDE_LINTING = t  ## f when running unit tests to massively speed them up (otherwise every snippet in tests is linted each time) (t)
 
@@ -94,6 +98,7 @@ MIN_BRIEF_DOCSTRING = 3
 MIN_BRIEF_NAME = 3
 MAX_BRIEF_NESTED_BLOCK = 20
 MIN4ANY_OR_ALL = 3
+MAX_ITEMS_EVALUATED = 25
 
 FUNCTION_LBL = 'function'
 METHOD_LBL = 'method'

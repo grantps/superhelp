@@ -1,9 +1,11 @@
 from ..advisors import  get_dict_comprehension_msg, \
     get_general_comprehension_msg, get_set_comprehension_msg, \
     filt_block_advisor
-from ..ast_funcs import get_assign_name
 from .. import code_execution, conf, utils
 from ..utils import layout_comment as layout
+
+def truncate_list(items):
+    return items[: conf.MAX_ITEMS_EVALUATED]
 
 ASSIGN_LISTCOMP_XPATH = 'descendant-or-self::Assign/value/ListComp'
 
@@ -14,68 +16,56 @@ def listcomp_overview(block_dets, *, repeat=False):
     comprehension available in Python.
     """
     listcomp_els = block_dets.element.xpath(ASSIGN_LISTCOMP_XPATH)
-    listcomp_dets = []
-    for listcomp_el in listcomp_els:
-        name = get_assign_name(listcomp_el)
-        try:
-            items = code_execution.get_val(
-                block_dets.pre_block_code_str, block_dets.block_code_str, name)
-        except KeyError:
-            items = None
-        listcomp_dets.append((name, items))
-    if not listcomp_dets:
+    names_items, oversized_msg = code_execution.get_collections_dets(
+        listcomp_els, block_dets,
+        collection_plural='lists', truncated_items_func=truncate_list)
+    names_items_found = [name for name, items in names_items if items]
+    if not names_items_found:
         return None
 
-    plural = 's' if len(listcomp_dets) > 1 else ''
+    plural = 's' if len(names_items) > 1 else ''
     title = layout(f"""\
-
-        ### List comprehension{plural} used
-
-        """)
+    ### List comprehension{plural} used
+    """)
     summary_bits = []
-    for name, items in listcomp_dets:
+    for name, items in names_items:
         if items is None:
             summary_bits.append(layout(f"""
-
-            `{name}` is a list comprehension. Unable to get items.
+            `{name}` is a list comprehension. Unable to evaluate items.
             """))
         else:
             summary_bits.append(layout(f"""
 
-            `{name}` is a list comprehension returning a list
-            with {utils.int2nice(len(items))} items: {items}
+            `{name}` is a list comprehension returning a list with
+            {utils.int2nice(len(items))} items: {items}
             """))
     summary = ''.join(summary_bits)
     if not repeat:
         other_comprehensions = (
-            layout(f"""\
-
-                ### Other "comprehensions"
-
-                """)
+            layout("""\
+            ### Other "comprehensions"
+            """)
             + get_general_comprehension_msg()
             + layout("""\
 
-                List comprehensions aren't the only type of comprehension you
-                can make. Python also lets you write Dictionary and Set
-                Comprehensions:
-
-                """)
+            List comprehensions aren't the only type of comprehension you can
+            make. Python also lets you write Dictionary and Set Comprehensions:
+            """)
             + get_dict_comprehension_msg()
             + '\n\n'
             + get_set_comprehension_msg()
             + '\n\n'
             + layout("""\
-                Pro tip: don't make comprehension *in*comprehensions ;-). If it
-                is hard to read it is probably better written as a looping
-                structure.
-                """)
+
+            Pro tip: don't make comprehension *in*comprehensions ;-). If it is
+            hard to read it is probably better written as a looping structure.
+            """)
         )
     else:
         other_comprehensions = ''
 
     message = {
-        conf.BRIEF: title + summary,
+        conf.BRIEF: title + oversized_msg + summary,
         conf.EXTRA: other_comprehensions,
     }
     return message

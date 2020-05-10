@@ -47,106 +47,95 @@ def bloated_nested_block(block_dets, *, repeat=False):
         return None
 
     title = layout("""\
-
-        ### Possibility of avoiding excessively long nested blocks
-
-        """)
+    ### Possibility of avoiding excessively long nested blocks
+    """)
     summary_bits = []
     for bloated_outer_type in bloated_outer_types:
         summary_bits.append(layout(f"""\
-            The code has at least one long nested block under
-            `{bloated_outer_type}:`
-            """))
+
+        The code has at least one long nested block under
+        `{bloated_outer_type}:`
+        """))
     summary = ''.join(summary_bits)
     short_circuit_msg = layout("""\
+    #### Short-circuit and exit early
 
-        #### Short-circuit and exit early
-
-        It may be possible to unnest the indented code block by exiting early if
-        the condition in the `if` expression is not met.
-        """)
+    It may be possible to unnest the indented code block by exiting early if the
+    condition in the `if` expression is not met.
+    """)
     short_circuit_demo_msg = (
         layout("""
-
-            For example, instead of:
-
-            """)
+        For example, instead of:
+        """)
         +
         layout("""\
-            if tall_enough:
-                ## add to basketball team
-                line 1
-                line 2
-                line 3
-                ...
-                line 30
-            logging.info("Finished!")
-            """, is_code=True)
-        +
-        layout("""\
-
-            we could possibly write:
-
-            """)
-        +
-        layout('''\
-            if not tall_enough:
-                return
+        if tall_enough:
             ## add to basketball team
             line 1
             line 2
             line 3
             ...
             line 30
-            logging.info("Finished!")
-            ''', is_code=True)
-    )
-    move_to_func_msg = layout("""\
-
-        #### Shift to function
-
-        It may be possible to pull most of the nested code block into a function
-        which can be called instead.
+        logging.info("Finished!")
+        """, is_code=True)
+        +
+        layout("""\
+        we could possibly write:
         """)
-    move_to_func_demo_msg = (
-        layout("""
-
-            For example, instead of:
-
-            """)
-        +
-        layout("""\
-            for name in names:
-                ## contact name
-                line 1
-                line 2
-                line 3
-                ...
-                line 30
-            logging.info("Finished!")
-            """, is_code=True)
-        +
-        layout("""\
-
-            we could possibly write:
-
-            """)
         +
         layout('''\
-            def contact(name):
-                """
-                Contact person ...
-                """
-                line 1
-                line 2
-                line 3
-                ...
-                line 30
+        if not tall_enough:
+            return
+        ## add to basketball team
+        line 1
+        line 2
+        line 3
+        ...
+        line 30
+        logging.info("Finished!")
+        ''', is_code=True)
+    )
+    move_to_func_msg = layout("""\
+    #### Shift to function
 
-            for name in names:
-                contact(name)
-            logging.info("Finished!")
-            ''', is_code=True)
+    It may be possible to pull most of the nested code block into a function
+    which can be called instead.
+    """)
+    move_to_func_demo_msg = (
+        layout("""
+        For example, instead of:
+        """)
+        +
+        layout("""\
+        for name in names:
+            ## contact name
+            line 1
+            line 2
+            line 3
+            ...
+            line 30
+        logging.info("Finished!")
+        """, is_code=True)
+        +
+        layout("""\
+        we could possibly write:
+        """)
+        +
+        layout('''\
+        def contact(name):
+            """
+            Contact person ...
+            """
+            line 1
+            line 2
+            line 3
+            ...
+            line 30
+
+        for name in names:
+            contact(name)
+        logging.info("Finished!")
+        ''', is_code=True)
     )
     if not repeat:
         brief_strategy = layout("""\
@@ -162,11 +151,12 @@ def bloated_nested_block(block_dets, *, repeat=False):
         move_to_func = move_to_func_msg
         move_to_func_demo = move_to_func_demo_msg
         human = layout("""\
-            Computers can handle lots of nesting without malfunctioning. Human
-            brains are not so fortunate. As it says in The Zen of Python:
 
-            > "Flat is better than nested."
-            """)
+        Computers can handle lots of nesting without malfunctioning. Human
+        brains are not so fortunate. As it says in The Zen of Python:
+
+        > "Flat is better than nested."
+        """)
     else:
         brief_strategy = ''
         short_circuit = ''

@@ -64,42 +64,38 @@ def named_tuple_overview(blocks_dets):
     first_field = example_dets.fields_list[0]
     enhancement = (
             layout("""\
+            ### Named Tuple Enhancements
 
-                ### Named Tuple Enhancements
+            Named tuples can be enhanced to make them even more useful -
+            especially when debugging. The label can be expanded beyond the
+            variable name; and the entire named tuple or individual fields can
+            be given their own doc strings.
 
-                Named tuples can be enhanced to make them even more useful -
-                especially when debugging. The label can be expanded beyond the
-                variable name; and the entire named tuple or individual fields
-                can be given their own doc strings.
-
-                For example:
-
-                """)
+            For example:
+            """)
             +
             layout(f"""\
-                {example_dets.name} = namedtuple("{example_dets.label}",
-                    "{example_dets.fields_str}")
-                {example_dets.name}.__doc__ += "\\n\\nExtra comments"
-                {example_dets.name}.{first_field}.__doc__ = "Specific comment for {first_field}"
-                ## etc
-                """, is_code=True)
+            {example_dets.name} = namedtuple("{example_dets.label}",
+                "{example_dets.fields_str}")
+            {example_dets.name}.__doc__ += "\\n\\nExtra comments"
+            {example_dets.name}.{first_field}.__doc__ = "Specific comment for {first_field}"
+            ## etc
+            """, is_code=True)
         )
     defaults = (
         layout("""\
 
-            Default arguments are another nice option (added in Python 3.7). For
-            example the following named tuple has a default IQ of 100:
-            """)
+        Default arguments are another nice option (added in Python 3.7). For
+        example the following named tuple has a default IQ of 100:
+        """)
         +
         layout("""\
-
-            People = namedtuple('PeopleDets', 'name, IQ', defaults=(100, ))
-            """, is_code=True)
+        People = namedtuple('PeopleDets', 'name, IQ', defaults=(100, ))
+        """, is_code=True)
         +
         layout("""\
-
-            The official documentation has more details.
-            """)
+        The official documentation has more details.
+        """)
     )
 
     message = {

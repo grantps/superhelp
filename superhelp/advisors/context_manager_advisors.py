@@ -6,88 +6,83 @@ from ..utils import layout_comment as layout
 def get_open_cm_msg():
     return (
         layout("""\
-            For example, every time we open a file we need to make sure it is
-            closed when we are finished. It is not that hard to handle that
-            yourself in simple cases but can become much harder - perhaps the
-            code exits in multiple places (perhaps as a result of an
-            `exception`). You have to remember to handle the tidy-up in every
-            place an exit might occur. Either you will forget one of them or
-            you'll be repeating code all over the place violating the DRY
-            principle - namely:
 
-            > "Don't Repeat Yourself" (The Pragmatic Programmer)
+        For example, every time we open a file we need to make sure it is closed
+        when we are finished. It is not that hard to handle that yourself in
+        simple cases but can become much harder - perhaps the code exits in
+        multiple places (perhaps as a result of an `exception`). You have to
+        remember to handle the tidy-up in every place an exit might occur.
+        Either you will forget one of them or you'll be repeating code all over
+        the place violating the DRY principle - namely:
 
-            WET presumably stands for "Write Every Time", "Write Everything
-            Twice", "We Enjoy Typing" or "Waste Everyone's Time" ;-)
+        > "Don't Repeat Yourself" (The Pragmatic Programmer)
 
-            If you don't use a context manager, problems can emerge as a snippet
-            gradually evolves. And it usually all starts so innocently :-).
-            Here's one example of the problem unfolding:
+        WET presumably stands for "Write Every Time", "Write Everything Twice",
+        "We Enjoy Typing" or "Waste Everyone's Time" ;-)
 
-            """)
-        +
-        layout("""\
-
-            ## 1) Not using context manager (with) not really a problem
-            f = open(fname)
-            text = f.read()
-            f.close()  # <------------------ First one (I hope this is the only one)
-
-            ## 2) Maybe we need to handle empty files
-            f = open(fname)
-            text = f.read()
-            if not text:
-                raise Exception(f"{fname} is empty")  # <------ errr ... is the file
-            f.close()                                 # handle going to get closed?
-
-            ## 3) We remember to close the file handle if an exception
-            f = open(fname)
-            text = f.read()
-            if not text:
-                f.close()  # <---------------------------- Rats! I need a second one
-                raise Exception(f"{fname} is empty")
-            f.close()
-
-            ## 4) We want the index of TAG for some reason
-            f = open(fname)
-            text = f.read()
-            if not text:
-                f.close()
-                raise Exception(f"{fname} is empty")
-            idx = text.index(TAG) # <--------------- Hmmm - will raise ValueError if
-            f.close()             #                 TAG not in text? File left open?
-
-            ## 5) We remember to handle the exception
-            f = open(fname)
-            text = f.read()
-            if not text:
-                f.close()
-                raise Exception(f"{fname} is empty")
-            try:
-                idx = text.index(TAG)
-            except ValueError:
-                f.close()  # <----------------- Three already! I'm lucky it's only a
-                raise      #                    one-liner each time.
-            f.close()
-            """, is_code=True)
-        +
-        layout("""\
-
-            The code is much cleaner and robust using a simple context manager
-            :-)
-
+        If you don't use a context manager, problems can emerge as a snippet
+        gradually evolves. And it usually all starts so innocently :-). Here's
+        one example of the problem unfolding:
         """)
         +
         layout("""\
+        ## 1) Not using context manager (with) not really a problem
+        f = open(fname)
+        text = f.read()
+        f.close()  # <------------------ First one (I hope this is the only one)
 
-            with open(fname) as f:
-                text = f.read()
-                if not text:
-                    raise Exception(f"{fname} is empty")
-                idx = text.index(TAG)
-            ## If my code gets here, i.e. past the indented block inside the context
-            ## manager,  we are guaranteed to have freed up the file - nice!
-            """, is_code=True)
+        ## 2) Maybe we need to handle empty files
+        f = open(fname)
+        text = f.read()
+        if not text:
+            raise Exception(f"{fname} is empty")  # <------ errr ... is the file
+        f.close()                                 # handle going to get closed?
+
+        ## 3) We remember to close the file handle if an exception
+        f = open(fname)
+        text = f.read()
+        if not text:
+            f.close()  # <---------------------------- Rats! I need a second one
+            raise Exception(f"{fname} is empty")
+        f.close()
+
+        ## 4) We want the index of TAG for some reason
+        f = open(fname)
+        text = f.read()
+        if not text:
+            f.close()
+            raise Exception(f"{fname} is empty")
+        idx = text.index(TAG) # <--------------- Hmmm - will raise ValueError if
+        f.close()             #                 TAG not in text? File left open?
+
+        ## 5) We remember to handle the exception
+        f = open(fname)
+        text = f.read()
+        if not text:
+            f.close()
+            raise Exception(f"{fname} is empty")
+        try:
+            idx = text.index(TAG)
+        except ValueError:
+            f.close()  # <----------------- Three already! I'm lucky it's only a
+            raise      #                    one-liner each time.
+        f.close()
+        """, is_code=True)
+        +
+        layout("""\
+
+        The code is much cleaner and robust using a simple context manager :-)
+        """)
+        +
+        layout("""\
+        with open(fname) as f:
+            text = f.read()
+            if not text:
+                raise Exception(f"{fname} is empty")
+            idx = text.index(TAG)
+        ## If my code gets here, i.e. past the indented block inside the context
+        ## manager,  we are guaranteed to have freed up the file - nice!
+        """, is_code=True)
     )
 
 WITH_XPATH = 'descendant-or-self::With'
@@ -112,36 +107,31 @@ def content_manager_overview(block_dets, *, repeat=False):
         return None
 
     title = layout("""\
-
-        ### Context manager(s) used
-
-        """)
+    ### Context manager(s) used
+    """)
     if using_open_cm:
         summary = layout("""\
 
-            Your code includes the commonly used file opening context manager.
-
-            """)
+        Your code includes the commonly used file opening context manager.
+        """)
     else:
         summary = layout("""\
 
-            Your code uses a context manager.
-
-            """)
+        Your code uses a context manager.
+        """)
     brief_usage = layout("""\
 
-            Context managers take care of anything required when we enter a
-            block of code or exit it.
-
-            """)
+        Context managers take care of anything required when we enter a block of
+        code or exit it.
+        """)
     if not repeat:
         brief_example = layout("""\
 
-            For example, every time we open a file we need to make sure it is
-            closed when we are finished. Or when we finish with database
-            connections and cursors we need to clean up after ourselves. There
-            may be some things we need to do when we start a code block as well.
-            """)
+        For example, every time we open a file we need to make sure it is closed
+        when we are finished. Or when we finish with database connections and
+        cursors we need to clean up after ourselves. There may be some things we
+        need to do when we start a code block as well.
+        """)
         long_example = get_open_cm_msg()
         aop = get_aop_msg()
     else:
@@ -190,22 +180,17 @@ def file_cm_needed(block_dets, *, repeat=False):
         return None
 
     title = layout("""\
-
-        ### File opened without context manager
-
-        """)
+    ### File opened without context manager
+    """)
     summary = layout("""
-
-        Your code opens a file without using a context manager.
-
-        """)
+    Your code opens a file without using a context manager.
+    """)
     if not repeat:
         reasons = layout("""\
 
-            Using a context manager is easy (actually, writing them isn't even
-            that hard) but using the standard ones has big advantages.
-
-            """)
+        Using a context manager is easy (actually, writing them isn't even that
+        hard) but using the standard ones has big advantages.
+        """)
         long_example = get_open_cm_msg()
         aop = get_aop_msg()
     else:

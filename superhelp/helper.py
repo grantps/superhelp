@@ -6,14 +6,14 @@ try:
     ## importing from superhelp only works properly after I've installed superhelp as a pip package (albeit as a link to this code using python3 -m pip install --user -e <path_to_proj_folder>)
     ## Using this as a library etc works with . instead of superhelp but I want to be be able to run the helper module from within my IDE
     from . import advisors, messages  # @UnusedImport
-    from .displayers import cli_displayer, html_displayer  # @UnusedImport
+    from .displayers import cli_displayer, html_displayer, md_displayer  # @UnusedImport
 except (ImportError, ValueError):
     from pathlib import Path
     import sys
     parent = str(Path.cwd().parent)
     sys.path.insert(0, parent)
     from superhelp import conf, advisors, messages  # @Reimport
-    from superhelp.displayers import cli_displayer, html_displayer  # @Reimport
+    from superhelp.displayers import cli_displayer, html_displayer, md_displayer  # @Reimport
 
 logging.basicConfig(
     level=conf.LOG_LEVEL,
@@ -21,9 +21,6 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S')
 
 advisors.load_advisors()
-
-do_html = conf.DO_HTML  ## use html displayer vs cli displayer
-do_displayer = conf.DO_DISPLAYER  ## for dev testing only
 
 def display_messages(displayer, snippet, messages_dets, *,
         message_level=conf.BRIEF, in_notebook=False, multi_block=False):
@@ -45,12 +42,20 @@ def _get_snippet(snippet, file_path):
         snippet = conf.TEST_SNIPPET
         logging.info("Using default snippet because no snippet provided")
     snippet = snippet.strip('\n')
+    ## prevent infinite recursion where superhelp executes script calling superhelp which in turn would etc etc
+    snippet = (snippet  ## only fixing simple cases - if people try harder they _will_ be able to break everything ;-)
+        .replace('import superhelp', '# import superhelp')
+        .replace('\nsuperhelp.this(', '\n# superhelp.this(')
+        .replace('from superhelp import this', '# from superhelp import this')
+        .replace('\nthis(', '\n# this(')
+    )
     return snippet
 
 def _get_displayer_module(displayer):
     ARG2DISPLAYER = {
         'html': html_displayer,
         'cli': cli_displayer,
+        'md': md_displayer,
     }
     displayer_module = ARG2DISPLAYER.get(displayer)
     if displayer_module is None:
@@ -94,13 +99,21 @@ def get_advice(snippet=None, *, file_path=None, displayer='html',
         if in_notebook:
             return res
 
+def this(file_path, *, displayer='html', message_level=conf.EXTRA):
+    """
+    Yes - if you import this later I've wrecked it but it is more important to
+    allow superhelp.this() :-).
+    """
+    get_advice(snippet=None, file_path=file_path, displayer=displayer,
+        message_level=message_level, in_notebook=False)
+
 def shelp():
     """
     To get help
 
     $ shelp -h
     """
-    default_displayer = 'html' if do_html else 'cli'
+    default_displayer = conf.DISPLAYER
     ## don't use type=list ever https://stackoverflow.com/questions/15753701/argparse-option-for-passing-a-list-as-option
     parser = argparse.ArgumentParser(
         description='Superhelp - Help for Humans!')
@@ -127,7 +140,7 @@ def shelp():
                 advisor_comments, 1):
             print(f"{n:>{num_width}}) {comment} ({source})")
         return
-    displayer = args.displayer if do_displayer else None
+    displayer = args.displayer if conf.DO_DISPLAYER else None
     get_advice(args.snippet,
         file_path=args.file_path, displayer=displayer, message_level=args.level)
 

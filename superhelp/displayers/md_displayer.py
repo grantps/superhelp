@@ -1,22 +1,18 @@
 import logging
 from textwrap import dedent
 
-from .cli_extras import md2cli
 from ..utils import get_line_numbered_snippet, layout_comment as layout
 
 """
-Note - displays properly in the terminal but not necessarily in other output
-e.g. Eclipse console.
+Note - plain MDV - works in some consoles where terminal output fails.
 
-Lots in common with md displayer but risks of DRYing probably outweigh benefits
+Lots in common with cli displayer but risks of DRYing probably outweigh benefits
 at this stage.
 """
 
 from .. import conf
 
-TERMINAL_WIDTH = 80
-
-MDV_CODE_BOUNDARY = "```"
+MDV_CODE_START = MDV_CODE_END = "```"
 
 def get_message(message_dets, message_level):
     message = dedent(message_dets.message[message_level])
@@ -24,10 +20,9 @@ def get_message(message_dets, message_level):
         message = dedent(message_dets.message[conf.MAIN]) + message
     message = dedent(message)
     message = (message
-        .replace(f"    {conf.PYTHON_CODE_START}", MDV_CODE_BOUNDARY)
-        .replace(f"\n    {conf.PYTHON_CODE_END}", MDV_CODE_BOUNDARY)
+        .replace(conf.PYTHON_CODE_START, '\n' + MDV_CODE_START)
+        .replace('\n    ' + conf.PYTHON_CODE_END, MDV_CODE_END + '\n')
     )
-    message = md2cli.main(md=message.replace('`', ''))  ## They create problems in formatting
     return message
 
 def _need_snippet_displayed(overall_messages_dets, block_messages_dets, *,
@@ -50,9 +45,8 @@ def display(snippet, messages_dets, *,
     Show by code blocks.
     """
     logging.debug(f"{__name__} doesn't use in_notebook setting {in_notebook}")
-    md2cli.term_columns = TERMINAL_WIDTH
     text = [
-        md2cli.main(layout(f"""\
+        layout(f"""\
             # SuperHELP - Help for Humans!
 
             {conf.INTRO}
@@ -61,18 +55,18 @@ def display(snippet, messages_dets, *,
 
             {conf.MISSING_ADVICE_MESSAGE}
             """
-        )),
+        ),
     ]
     overall_messages_dets, block_messages_dets = messages_dets
     display_snippet = _need_snippet_displayed(
         overall_messages_dets, block_messages_dets, multi_block=multi_block)
     if display_snippet:
         line_numbered_snippet = get_line_numbered_snippet(snippet)
-        text.append(md2cli.main(dedent(
+        text.append(dedent(
             "## Overall Snippet"
-            f"\n{MDV_CODE_BOUNDARY}\n"
+            f"\n{MDV_CODE_START}\n"
             + line_numbered_snippet
-            + f"\n{MDV_CODE_BOUNDARY}")))
+            + f"\n{MDV_CODE_END}"))
     for message_dets in overall_messages_dets:
         message = get_message(message_dets, message_level)
         text.append(message)
@@ -84,19 +78,19 @@ def display(snippet, messages_dets, *,
         new_block = (line_no != prev_line_no)
         if new_block:
             block_has_warning_header = False
-            text.append(md2cli.main(dedent(
+            text.append(dedent(
                 f'## Code block starting line {line_no:,}'
-                f"\n{MDV_CODE_BOUNDARY}\n"
+                f"\n{MDV_CODE_START}\n"
                 + message_dets.code_str
-                + f"\n{MDV_CODE_BOUNDARY}")))
+                + f"\n{MDV_CODE_END}"))
             prev_line_no = line_no
         if message_dets.warning and not block_has_warning_header:
-            text.append(md2cli.main(layout("""\
+            text.append(layout("""\
                 ### Questions / Warnings
 
                 There may be some issues with this code block you want to
                 address.
-                """)))
+                """))
             block_has_warning_header = True
         ## process message
         message = get_message(message_dets, message_level)

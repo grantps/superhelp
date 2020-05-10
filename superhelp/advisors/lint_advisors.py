@@ -14,9 +14,7 @@ prog = re.compile(lint_conf.LINT_PATTERN, flags=re.VERBOSE)  # @UndefinedVariabl
 MsgDets = namedtuple('MsgDets', 'msg, line_no')
 
 MISC_ISSUES_TITLE = layout("""\
-
     #### Misc lint issues
-
     """)
 
 def _store_snippet(snippet):
@@ -262,51 +260,44 @@ def lint_snippet(snippet):
         return None
 
     title = layout("""\
-
-        ### Python code issues (found by flake8 linter)
-
-        """)
+    ### Python code issues (found by flake8 linter)
+    """)
     linting = layout("""\
 
-        "Linters" are software tools. They detect everything from trivial style
-        mistakes of no consequence to program behaviour through to show-stopper
-        syntax errors.
+    "Linters" are software tools. They detect everything from trivial style
+    mistakes of no consequence to program behaviour through to show-stopper
+    syntax errors.
 
-        Software developers can be notoriously fussy about the smallest details
-        of code styling and a linter can not only detect actual errors in code
-        it can also prevent developers becoming completely distracted by trivial
-        irritants. Distracted developers miss real issues with programs so it
-        can be of practical importance to pick up the "small stuff". Plus it
-        enables teams of programmers to work on the same code base without
-        spending all their time restyling each other's code and arguing about
-        "standards".
-
-        """)
+    Software developers can be notoriously fussy about the smallest details of
+    code styling and a linter can not only detect actual errors in code it can
+    also prevent developers becoming completely distracted by trivial irritants.
+    Distracted developers miss real issues with programs so it can be of
+    practical importance to pick up the "small stuff". Plus it enables teams of
+    programmers to work on the same code base without spending all their time
+    restyling each other's code and arguing about
+    "standards".
+    """)
     findings = layout("""\
-
-        Here is what the linter reported about your snippet.
-
-        """)
+    Here is what the linter reported about your snippet.
+    """)
     brief_msg, main_msg, extra_msg = get_lint_messages_by_level(
         raw_lint_feedback_str=res.stdout)
     obviousness = layout("""\
+    #### Good code is simple enough to reason about
 
-        #### Good code is simple enough to reason about
+    Linting is especially useful for an interpreted language like Python because
+    there is no compiler to pick up "lint" errors. Linting is no substitute for
+    unit testing though. And neither are a substitute for writing readable code
+    that can be reasoned about with confidence - the single best protection
+    against code not doing what it is meant to do. The goal should be code where
+    there is obviously nothing wrong rather than code where there nothing
+    obviously wrong.
 
-        Linting is especially useful for an interpreted language like Python
-        because there is no compiler to pick up "lint" errors. Linting is no
-        substitute for unit testing though. And neither are a substitute for
-        writing readable code that can be reasoned about with confidence - the
-        single best protection against code not doing what it is meant to do.
-        The goal should be code where there is obviously nothing wrong rather
-        than code where there nothing obviously wrong.
-
-        > "There are two ways of constructing a software design. One way is to
-        make it so simple that there are obviously no deficiencies. And the
-        other way is to make it so complicated that there are no obvious
-        deficiencies." C.A.R. Hoare
-
-        """)
+    > "There are two ways of constructing a software design. One way is to make
+    it so simple that there are obviously no deficiencies. And the other way is
+    to make it so complicated that there are no obvious deficiencies." C.A.R.
+    Hoare
+    """)
 
     message = {
         conf.BRIEF: title + findings + brief_msg,

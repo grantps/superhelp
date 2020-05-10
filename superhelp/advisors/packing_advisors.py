@@ -38,10 +38,8 @@ def unpacking(block_dets, *, repeat=False):
     unpacked_els = block_dets.element.xpath(ASSIGN_UNPACKING_XPATH)
 
     title = layout("""\
-
-        ### Name uppacking
-
-        """)
+    ### Name uppacking
+    """)
     summary_bits = []
     for unpacked_el in unpacked_els:
         unpacked_names = [
@@ -51,8 +49,8 @@ def unpacking(block_dets, *, repeat=False):
         nice_str_list = utils.get_nice_str_list(unpacked_names, quoter='`')
         summary_bits.append(layout(f"""\
 
-            Your code uses unpacking to assign names {nice_str_list}
-            """))
+        Your code uses unpacking to assign names {nice_str_list}
+        """))
     summary = ''.join(summary_bits)
     if not repeat:
         unpacking_msg = get_unpacking_msg()
@@ -98,22 +96,22 @@ def unpacking_opportunity(blocks_dets):
         return None
 
     title = layout("""\
-
-        ### Unpacking opportunity
-
-        """)
+    ### Unpacking opportunity
+    """)
     multiple_items = len(sources2unpack) > 1
     if multiple_items:
         nice_sources_list = utils.get_nice_str_list(sources2unpack, quoter='`')
         unpackable = layout(f"""\
-            {nice_sources_list} have multiple items extracted by
-            indexing so might be suitable candidates for unpacking.
-            """)
+
+        {nice_sources_list} have multiple items extracted by indexing so might
+        be suitable candidates for unpacking.
+        """)
     else:
         unpackable = layout(f"""\
-            Name (variable) `{sources2unpack[0]}` has multiple items extracted
-            by indexing so might be a suitable candidate for unpacking.
-            """)
+
+        Name (variable) `{sources2unpack[0]}` has multiple items extracted by
+        indexing so might be a suitable candidate for unpacking.
+        """)
 
     message = {
         conf.BRIEF: title + unpackable,

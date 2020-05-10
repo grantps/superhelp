@@ -90,9 +90,18 @@ def int2nice(num):
 
 def layout_comment(raw_comment, *, is_code=False):
     """
-    Don't break up long lines which are titles otherwise the subsequent parts
+    Layout comment ready for MD. Handles dedenting and code.
+
+    Doesn't break up long lines which are titles otherwise the subsequent parts
     won't carry appropriate heading-level formatting.
 
+    :param str raw_comment: Comment ready to be dedented, consolidated, split
+     etc. Usually will have new line characters at start and end to ensure MD
+     doesn't lump paragraphs together. Extra new lines have no effect in the
+     output but might be useful in the source e.g. to allow automatic line
+     breaking after editing content.
+    :param bool is_code: if True then special code markers are inserted. These
+     are replaced by the appropriate code markers in the displayer.
     :rtype: str
     """
     if '`' in raw_comment and is_code:
@@ -123,7 +132,7 @@ def layout_comment(raw_comment, *, is_code=False):
             if one_line_paragraph.startswith((
                     '#',  ## could be one hash or multiple depending on heading level
                     '* '  ## trying to detect bulleted (unordered) lists
-                    )):
+                )):
                 special_line = True
             if special_line:
                 wrapped_paragraph_lines = [one_line_paragraph, ]

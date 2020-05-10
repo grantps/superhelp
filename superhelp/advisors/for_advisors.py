@@ -43,17 +43,16 @@ def comprehension_option(block_dets, *, repeat=False):
         return None
 
     title = layout(f"""\
-
-        ### Possible option of using a {comp_type}
-
-        """)
+    ### Possible option of using a {comp_type}
+    """)
     if not repeat:
         option = layout(f"""\
-            Simple for loops can sometimes be replaced with comprehensions. In
-            this case a simple reading of the code suggests a {comp_type} might
-            be possible. Of course, only use a comprehension if it makes your
-            code easier to understand.
-            """)
+
+        Simple for loops can sometimes be replaced with comprehensions. In this
+        case a simple reading of the code suggests a {comp_type} might be
+        possible. Of course, only use a comprehension if it makes your code
+        easier to understand.
+        """)
     else:
         option = ''
 
@@ -145,45 +144,35 @@ def for_index_iteration(block_dets, *, repeat=False):
         return None
 
     summary = layout(f"""\
+    ### Possible option of using direct iteration
 
-        ### Possible option of using direct iteration
-
-        It looks like your snippet iterates through `{iterable_name}` using
-        indexes. In Python you can iterate directly which is much easier.
-        """)
+    It looks like your snippet iterates through `{iterable_name}` using indexes.
+    In Python you can iterate directly which is much easier.
+    """)
     if not repeat:
         examples = (
-            layout(f"""\
-
-                For example, instead of:
-
-                """)
+            layout("""\
+            For example, instead of:
+            """)
             +
             layout(f"""\
-
-                for {index_name} in range(len({iterable_name})):
-                    print({iterable_name}[{index_name}])
-
-                """, is_code=True)
+            for {index_name} in range(len({iterable_name})):
+                print({iterable_name}[{index_name}])
+            """, is_code=True)
+            +
+            layout("""\
+            you can directly iterate as follows:
+            """)
             +
             layout(f"""\
+            for item in {iterable_name}:  ## item should be replaced with a more useful name
+                print(item)
 
-                you can directly iterate as follows:
-
-                """)
+            """, is_code=True)
             +
-            layout(f"""\
-
-                for item in {iterable_name}:  ## item should be replaced with a more useful name
-                    print(item)
-
-                """, is_code=True)
-            +
-            layout(f"""\
-
-                which is considered more pythonic i.e. good.
-
-                """)
+            layout("""\
+            which is considered more pythonic i.e. good.
+            """)
         )
     else:
         examples = ''
@@ -210,46 +199,41 @@ def nested_fors(block_dets, *, repeat=False):
         return None
 
     summary = layout("""\
+    ### Possible option of simplifying nested iteration
 
-        ### Possible option of simplifying nested iteration
-
-        Consider replacing nested iteration with `itertools.product`.
-
-        """)
+    Consider replacing nested iteration with `itertools.product`.
+    """)
     if not repeat:
         demo = (
             layout("""\
-                For example, you could replace:
-
-                """)
+            For example, you could replace:
+            """)
             +
             layout("""\
-                for person in persons:
-                    for pet in pets:
-                        for year in years:
-                            print(f"{person} might like a {pet} in {year}")
-                """, is_code=True)
+            for person in persons:
+                for pet in pets:
+                    for year in years:
+                        print(f"{person} might like a {pet} in {year}")
+            """, is_code=True)
             +
             layout("""\
-
-                with a version using `itertools.product`:
-
-                """)
+            with a version using `itertools.product`:
+            """)
             +
             layout("""\
-                from itertools import product
-                for person, pet, year in product(persons, pets, years):
-                    print(f"{person} might like a {pet} in {year}")
-                """, is_code=True)
+            from itertools import product
+            for person, pet, year in product(persons, pets, years):
+                print(f"{person} might like a {pet} in {year}")
+            """, is_code=True)
         )
         pros = layout("""\
 
-            Whether this is a good idea or not depends on your specific code but
-            using `product` has the advantage of reducing indentation. It also
-            semantically expresses the intention of the code - namely to look at
-            every option in the cartesian product of the different collections
-            of items.
-            """)
+        Whether this is a good idea or not depends on your specific code but
+        using `product` has the advantage of reducing indentation. It also
+        semantically expresses the intention of the code - namely to look at
+        every option in the cartesian product of the different collections of
+        items.
+        """)
     else:
         demo = ''
         pros = ''

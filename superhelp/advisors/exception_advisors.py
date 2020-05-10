@@ -35,20 +35,17 @@ def exception_overview(blocks_dets):
         return None
 
     title = layout("""\
-
-        ### Exception handling
-
-        """)
+    ### Exception handling
+    """)
     block_comment_bits = []
     for n, exception_block in enumerate(exception_blocks, 1):
         counter = '' if len(exception_blocks) == 1 else f" {int2nice(n)}"
         handlers = get_nice_str_list(exception_block, quoter='`')
         block_comment_bits.append(layout(f"""\
+        #### `try`-`except` block{counter}
 
-            #### `try`-`except` block{counter}
-
-            The following exception handlers were detected: {handlers}
-            """))
+        The following exception handlers were detected: {handlers}
+        """))
     block_comments = ''.join(block_comment_bits)
 
     message = {
@@ -75,10 +72,8 @@ def unspecific_exception(blocks_dets):
         return None
 
     title = layout("""\
-
-        #### Un-specific `Exception` only in `try`-`except` block(s)
-
-        """)
+    #### Un-specific `Exception` only in `try`-`except` block(s)
+    """)
 
     n_unspecific = len(unspecific_block_ns)
     if n_unspecific == 1:
@@ -91,31 +86,29 @@ def unspecific_exception(blocks_dets):
         block_n_specific_text = f"s {blocks_ns} have"
     unspecific_warning = layout(f"""\
 
-        `try`-`except` block{block_n_specific_text} an un-specific Exception
-        only.
+    `try`-`except` block{block_n_specific_text} an un-specific Exception only.
 
-        Using the un-specific exception type `Exception` is often completely
-        appropriate. But if you are looking for specific exceptions you
-        should handle those separately.
-        """)
+    Using the un-specific exception type `Exception` is often completely
+    appropriate. But if you are looking for specific exceptions you should
+    handle those separately.
+    """)
     unspecific_demo = (
-        layout(f"""\
-
-            For example:
-            """)
+        layout("""\
+        For example:
+        """)
         +
         layout("""\
 
-                try:
-                    spec_dicts[idx][spec_type]
-                except IndexError:
-                    print(f"Unable to access requested spec_dict (idx {idx})")
-                except KeyError:
-                    print(f"Unable to access '{spec_type}' for "
-                        f"requested spec_dict (idx {idx})")
-                except Exception as e:
-                    print(f"Unexpected exception - details: {e}")
-                """, is_code=True)
+        try:
+            spec_dicts[idx][spec_type]
+        except IndexError:
+            print(f"Unable to access requested spec_dict (idx {idx})")
+        except KeyError:
+            print(f"Unable to access '{spec_type}' for "
+                f"requested spec_dict (idx {idx})")
+        except Exception as e:
+            print(f"Unexpected exception - details: {e}")
+        """, is_code=True)
         )
 
     message = {

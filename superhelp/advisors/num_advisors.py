@@ -58,23 +58,21 @@ def num_overview(block_dets, *, repeat=False):
         return None
 
     title = layout("""\
-
-        ### Number details
-
-        """)
+    ### Number details
+    """)
     names_msg_bits = []
     for val_type, names in val_types.items():
         names_text = get_nice_str_list(names, quoter='`')
         if len(names) == 1:
             names_msg_bits.append(layout(f"""\
 
-                {names_text} is a number - specific type `{val_type}`.
-                """))
+            {names_text} is a number - specific type `{val_type}`.
+            """))
         else:
             names_msg_bits.append(layout(f"""\
 
-                {names_text} are numbers - specific type `{val_type}`.
-                """))
+            {names_text} are numbers - specific type `{val_type}`.
+            """))
     names_msg = ''.join(names_msg_bits)
     if not repeat:
         specifics_bits = []
@@ -85,38 +83,38 @@ def num_overview(block_dets, *, repeat=False):
             if val_type == conf.INT_TYPE:
                 specific_comment = layout(f"""\
 
-                    Integers are counting numbers and include 0 and negative
-                    numbers e.g. -2
+                Integers are counting numbers and include 0 and negative numbers
+                e.g. -2
 
-                    If you need a float instead of an integer use the float
-                    function.
+                If you need a float instead of an integer use the float
+                function.
 
-                    e.g. float({first_name}) which returns {float(val)}
-                    """)
+                e.g. float({first_name}) which returns {float(val)}
+                """)
             elif val_type == conf.FLOAT_TYPE:
                 specific_comment = layout(f"""\
 
-                    Floats are used when decimal places are required.
+                Floats are used when decimal places are required.
 
-                    If you need an integer instead of a float use the int
-                    function.
+                If you need an integer instead of a float use the int function.
 
-                    e.g. int({name}) which returns {int(val)}
-                    """)
+                e.g. int({name}) which returns {int(val)}
+                """)
             if specific_comment:
                 specifics_bits.append(specific_comment)
         specifics = ''.join(specifics_bits)
         if conf.FLOAT_TYPE in val_types:
             floats = layout(f"""\
-                Floats, or floating point numbers, are stored in computers as
-                binary fractions. "Unfortunately, most decimal fractions cannot
-                be represented exactly as binary fractions. A consequence is
-                that, in general, the decimal floating-point numbers you enter
-                are only approximated by the binary floating-point numbers
-                actually stored in the machine." For more information, read the
-                rest of <https://docs.python.org/3/tutorial/floatingpoint.html>.
-                It is really interesting - honest!
-                """)
+
+            Floats, or floating point numbers, are stored in computers as binary
+            fractions. "Unfortunately, most decimal fractions cannot be
+            represented exactly as binary fractions. A consequence is that, in
+            general, the decimal floating-point numbers you enter are only
+            approximated by the binary floating-point numbers actually stored in
+            the machine." For more information, read the rest of
+            <https://docs.python.org/3/tutorial/floatingpoint.html>. It is
+            really interesting - honest!
+            """)
         else:
             floats = ''
     else:

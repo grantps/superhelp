@@ -1,13 +1,13 @@
 # https://git.nzoss.org.nz/pyGrant/superhelp
 
-version number: 0.9.15
+version number: 0.9.16
 author: Grant Paton-Simpson
 
 ## Overview
 
-Superhelp is Help for Humans! The goal is to provide customised help for
-simple code snippets. Superhelp is not intended to replace the built-in Python
-help but to supplement it for basic Python code structures. Superhelp will
+SuperHELP is Help for Humans! The goal is to provide customised help for
+simple code snippets. SuperHELP is not intended to replace the built-in Python
+help but to supplement it for basic Python code structures. SuperHELP will
 also be opinionated. Help can be provided in a variety of contexts including
 the terminal and web browsers (perhaps as part of on-line tutorials).
 
@@ -60,6 +60,8 @@ example provided.
 strings in his functions. He learns a standard approach and starts using it
 more often.
 
+* Moana wants to check the quality of some code before including it in her project. She learns about some issues and makes improvements before integratin it.
+
 # Example Usage
 
 ## Screenshot from HTML
@@ -70,7 +72,7 @@ more often.
 
 ![Example Terminal output](https://git.nzoss.org.nz/pyGrant/superhelp/-/raw/master/example_terminal_output_1.png)
 
-## Notebook
+## Using SuperHELP on the Notebook
 
 Add new cell at end with content like:
 
@@ -84,7 +86,16 @@ and run it to get advice.
 
 The notebook has more detailed instructions at the top.
 
-## Local Installation
+## Using SuperHELP on a Local Installation
+
+### Inside your script
+
+Put the following at the top of your script and then run the script (note - there are two underscores on either side of file):
+
+    import superhelp
+    superhelp.this(__file__)
+
+### From the command line (terminal / console)
 
     $ shelp -h  ## get help on usage
 
