@@ -30,7 +30,6 @@ def dict_overview(block_dets, *, repeat=False):
     for name, items in names_items:
         if items is None:
             brief_desc_bits.append(layout(f"""\
-
             `{name}` is a dictionary. Unable to evaluate items.
             """))
         else:
@@ -42,7 +41,6 @@ def dict_overview(block_dets, *, repeat=False):
     brief_desc = ''.join(brief_desc_bits)
     if not repeat:
         dict_def = layout("""\
-
         Dictionaries map keys to values.
         """)
         workhorses = layout("""\
@@ -51,25 +49,22 @@ def dict_overview(block_dets, *, repeat=False):
         structures.
         """)
         keys_and_vals = layout("""\
-
         Keys are unique but values can be repeated.
         """)
         dict_desc_bits = []
-        for i, (name, items) in enumerate(names_items, 0):
-            if i == 0:
-                first_name = name
+        first_name = None
+        for name, items in names_items:
             if not items:
                 dict_desc_bits.append(layout(f"""\
-
                 `{name}` is a dictionary. Unable to evaluate items.
                 """))
             else:
+                if not first_name:
+                    first_name = name
                 empty_dict = (len(items) == 0)
                 if empty_dict:
                     dict_desc_bits.append(layout(f"""\
-
                     `{name}` is an empty dictionary.
-
                     """))
                 else:
                     plural = '' if len(items) == 1 else 's'
@@ -83,6 +78,8 @@ def dict_overview(block_dets, *, repeat=False):
                     {list(items.values())}. We can get the values using the
                     `.values()` method e.g. `{name}`.`values()`.
                     """))
+        if first_name is None:
+            first_name = 'demo_dict'
         main_dict_desc = ''.join(dict_desc_bits)
         general = (
             layout(f"""
@@ -99,8 +96,7 @@ def dict_overview(block_dets, *, repeat=False):
                 print(f"key {{k}} maps to value {{v}}")
             """, is_code=True)
             +
-            layout(f"""
-
+            layout("""
             Keys are unique but values can be repeated. For example:
             """)
             +

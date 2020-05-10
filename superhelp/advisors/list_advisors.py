@@ -30,10 +30,6 @@ def get_type_for_example(list_items):
     return type4example
 
 def _get_detailed_list_comment(first_name, first_items):
-    """
-    :param list first_items: note - may be None if a list is defined in a
-     function
-    """
     type4example = get_type_for_example(first_items)
     try:
         example_items = conf.EXAMPLES_OF_TYPES[type4example]
@@ -168,6 +164,9 @@ def list_overview(block_dets, *, repeat=False):
 
                 `{name}` is a list with {utils.int2nice(len(items))} items.
                 """)
+    if not first_name:
+        first_name = 'demo_list'
+        first_items = ['apple', 'banana', 'cherry', ]
     if not repeat:
         brief_overview = layout("""\
 

@@ -1,13 +1,16 @@
 import logging
 from textwrap import dedent
 
-from ..utils import get_line_numbered_snippet, layout_comment as layout
+from ..utils import get_line_numbered_snippet, layout_comment as layout, \
+    make_open_tmp_file
 
 """
 Note - plain MDV - works in some consoles where terminal output fails.
 
 Lots in common with cli displayer but risks of DRYing probably outweigh benefits
 at this stage.
+
+Makes temp MD file and displays its content.
 """
 
 from .. import conf
@@ -96,4 +99,11 @@ def display(snippet, messages_dets, *,
         message = get_message(message_dets, message_level)
         text.append(message)
     content = '\n'.join(text)
+    tmp_fh, fpath = make_open_tmp_file('superhelp_output.md', mode='w')
+    tmp_fh.write(content)
+    tmp_fh.close()
     print(content)
+    print(f"""\
+    {'-' * 10} Content above this line saved as temp file {'-' * 10}
+    Temp file: {fpath}
+    """)

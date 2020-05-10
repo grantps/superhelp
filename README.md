@@ -1,6 +1,6 @@
 # https://git.nzoss.org.nz/pyGrant/superhelp
 
-version number: 0.9.16
+version number: 0.9.17
 author: Grant Paton-Simpson
 
 ## Overview
@@ -14,9 +14,14 @@ the terminal and web browsers (perhaps as part of on-line tutorials).
 ## Quick Start
 
 Click the button below to open a Binder Jupyter Notebook you can play around
-in e.g. get advice on a line or snippet of Python
+in e.g. get advice on a snippet or line of Python
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/git/https%3A%2F%2Fgit.nzoss.org.nz%2FpyGrant%2Fsuperhelp.git/master?filepath=notebooks%2FSuperhelpDemo.ipynb)
+
+or put the following at the top of your Python script and run the script:
+
+    import superhelp
+    superhelp.this(__file__)
 
 ## Installation
 
@@ -64,13 +69,17 @@ more often.
 
 # Example Usage
 
-## Screenshot from HTML
+## Screenshot from HTML output
 
 ![Example HTML output](https://git.nzoss.org.nz/pyGrant/superhelp/-/raw/master/example_html_output_1.png)
 
-## Screenshot from Terminal
+## Screenshot from Terminal output
 
 ![Example Terminal output](https://git.nzoss.org.nz/pyGrant/superhelp/-/raw/master/example_terminal_output_1.png)
+
+## Screenshot from Markdown output
+
+![Example Markdown output](https://git.nzoss.org.nz/pyGrant/superhelp/-/raw/master/example_markdown_output_1.png)
 
 ## Using SuperHELP on the Notebook
 
@@ -94,6 +103,21 @@ Put the following at the top of your script and then run the script (note - ther
 
     import superhelp
     superhelp.this(__file__)
+
+If you don't want the default web output you can specify another displayer such as 'cli' (command line interface) or 'md' (markdown):
+
+    import superhelp
+    superhelp.this(__file__, displayer='md')
+
+If you don't want the default 'Extra' level of messages you can specify a different message_level ('Brief' or 'Main') e.g.
+
+    import superhelp
+    superhelp.this(__file__, displayer='md', message_level='Brief')
+
+or:
+
+    import superhelp
+    superhelp.this(__file__, message_level='Main')
 
 ### From the command line (terminal / console)
 
