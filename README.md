@@ -1,6 +1,6 @@
 # https://git.nzoss.org.nz/pyGrant/superhelp
 
-version number: 0.9.18
+version number: 0.9.19
 author: Grant Paton-Simpson
 
 ## Overview
@@ -21,7 +21,7 @@ in e.g. get advice on a snippet or line of Python
 or put the following at the top of your Python script and run the script:
 
     import superhelp
-    superhelp.this(__file__)
+    superhelp.this()
 
 ## Installation
 
@@ -102,22 +102,22 @@ The notebook has more detailed instructions at the top.
 Put the following at the top of your script and then run the script (note - there are two underscores on either side of file):
 
     import superhelp
-    superhelp.this(__file__)
+    superhelp.this()
 
 If you don't want the default web output you can specify another displayer such as 'cli' (command line interface) or 'md' (markdown):
 
     import superhelp
-    superhelp.this(__file__, displayer='md')
+    superhelp.this(displayer='md')
 
 If you don't want the default 'Extra' level of messages you can specify a different message_level ('Brief' or 'Main') e.g.
 
     import superhelp
-    superhelp.this(__file__, displayer='md', message_level='Brief')
+    superhelp.this(displayer='md', message_level='Brief')
 
 or:
 
     import superhelp
-    superhelp.this(__file__, message_level='Main')
+    superhelp.this(message_level='Main')
 
 ### From the command line (terminal / console)
 

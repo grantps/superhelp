@@ -257,8 +257,8 @@ def short_name_check(block_dets, *, repeat=False):
             longer names should be used when they aid readability (i.e. usually
             ;-)).
 
-           `k` and `v` are idiomatic in Python when iterating through dictionary
-           items e.g.
+            `k` and `v` are idiomatic in Python when iterating through
+            dictionary items e.g.
             """)
             +
             layout("""\
@@ -270,6 +270,16 @@ def short_name_check(block_dets, *, repeat=False):
 
             But even they should probably be replaced with something more
             descriptive.
+
+            And there are other cases specific to certain contexts e.g. using r
+            for the result of a request e.g.
+            """)
+            +
+            layout("""\
+            r = requests.get('https://pypi.org/project/superhelp/')
+            """, is_code=True)
+            +
+            layout("""\
 
             The main goal is readability, readability, readability. That is what
             should drive variable naming above all else. Only a modest weight

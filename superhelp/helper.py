@@ -1,4 +1,5 @@
 import argparse
+import inspect
 import logging
 
 try:
@@ -99,11 +100,39 @@ def get_advice(snippet=None, *, file_path=None, displayer='html',
         if in_notebook:
             return res
 
-def this(file_path, *, displayer='html', message_level=conf.EXTRA):
+def _get_introspected_file_path():
     """
-    Yes - if you import this later I've wrecked it but it is more important to
-    allow superhelp.this() :-).
+    The actual call we are interested in isn't necessarily the second one (e.g.
+    console first then actual script) so we have to explicitly filter for it. In
+    pydev, for example, it was the third item.
+
+    https://stackoverflow.com/questions/13699283/how-to-get-the-callers-filename-method-name-in-python
+    wasn't correct but gave some hints that I could build upon
     """
+    for item in inspect.stack():
+        has_superhelp_this = (
+            item.code_context is not None
+            and 'superhelp.this' in ''.join(item.code_context))  ## seems to be a list of one item in each case
+        if has_superhelp_this:
+            calling_item = item
+            break
+    else:  ## didn't break for-loop
+        raise Exception('Unable to identify calling script through '
+            'introspection so file_path=__file__ will need to be explicitly '
+            'supplied e.g. superhelp.this(file_path=__file__)')
+    file_path = calling_item.filename
+    return file_path
+
+def this(*, displayer='html', message_level=conf.EXTRA, file_path=None):
+    """
+    Get SuperHELP output on the file_path Python script.
+
+    Yes - if you "import this" later I've shaded it in this namespace by calling
+    this function, err, this. But I thought it more important to expose the
+    simple superhelp.this() interface than namespace purity :-).
+    """
+    if not file_path:
+        file_path = _get_introspected_file_path()
     get_advice(snippet=None, file_path=file_path, displayer=displayer,
         message_level=message_level, in_notebook=False)
 
