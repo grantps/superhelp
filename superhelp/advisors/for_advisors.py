@@ -182,6 +182,84 @@ def for_index_iteration(block_dets, *, repeat=False):
     }
     return message
 
+@filt_block_advisor(xpath=FOR_XPATH, warning=True)
+def for_else(block_dets, *, repeat=False):
+    """
+    Look for the for-else construct and warn about its safe usage.
+    """
+    for_els = block_dets.element.xpath(FOR_XPATH)
+    has_for_else = False
+    for for_el in for_els:
+        for_else_els = for_el.xpath('orelse')
+        non_empty_for_else_els = [el for el in for_else_els if el.getchildren()]
+        if non_empty_for_else_els:
+            has_for_else = True
+            break
+    if not has_for_else:
+        return None
+
+    title = layout("""\
+    ### Ambiguous `for-else` language feature used
+    """)
+    if not repeat:
+        problem = (
+            layout("""\
+
+            `for`-`else` is a useful language feature but it is so widely
+            misunderstood it is dangerous to use without special comment. For
+            example, in the snippet below do we pass through `else` because we
+            finished the looping or because we didn't?
+            """)
+            +
+            layout("""\
+            for i in range(size):
+                if i > 100:
+                    break
+            else:
+                pass
+            """, is_code=True)
+        )
+        solution = (
+            layout("""\
+
+            The correct answer, which as many as a third of people will guess
+            correctly ;-), is that we only follow the `else` path if we finished
+            the for-looping without breaking. The thinking is that we loop
+            through something to find something and exit the loop. `else`
+            applies when that search fails. But it is very easy to get the logic
+            confused. And given that programs are made to be read by humans we
+            obviously need to do something. We can either avoid the feature
+            altogether or we can add a brief comment each time (my preference).
+            For example:
+            """)
+            +
+            layout("""\
+            for i in range(size):
+                if i > 100:
+                    break
+            else:  # didn't break for-loop
+                pass
+            """, is_code=True)
+        )
+        extra_msg = layout("""\
+        #### Interesting discussion on `for`-`else`
+
+        <https://nedbatchelder.com/blog/201110/forelse.html>
+        One comment noted that the construct violates the principle of Least
+        Astonishment.
+        """)
+    else:
+        problem = ''
+        solution = ''
+        extra_msg = ''
+
+    message = {
+        conf.BRIEF: title + problem,
+        conf.MAIN: title + problem + solution,
+        conf.EXTRA: extra_msg,
+    }
+    return message
+
 @filt_block_advisor(xpath=FOR_XPATH)
 def nested_fors(block_dets, *, repeat=False):
     """

@@ -30,31 +30,13 @@ else:
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 ## All snippets here should be raw strings (see https://stackoverflow.com/questions/53636723/python-parsing-code-with-new-line-character-in-them-using-ast)
 TEST_SNIPPET = r"""
-from random import choice
-
-import asyncio
-
-async def run_job(num):
-    await asyncio.sleep(choice([0.1, 3, 1, 10, 0.5]))
-    return f"I slept for {num:,} seconds!"
-
-async def run_jobs():
-    jobs = []
-    for num in range(1, 11):
-        job = run_job(num)  ## not await because we don't want the result but the future itself ready to be submitted
-        jobs.append(job)
-    done_jobs, _pending = await asyncio.wait(jobs,
-        return_when=asyncio.FIRST_COMPLETED)
-    results = [done_job.result() for done_job in done_jobs]
-    return results    
-
-loop = asyncio.get_event_loop()
-try:
-    results = loop.run_until_complete(run_jobs())
-    for result in results:
-        print(result)
-finally:
-    loop.close()
+## https://www.mnn.com/earth-matters/animals/stories/21-animals-with-completely-ridiculous-names
+words = ['Spiny lumpsucker', 'Wunderpus photogenicus', 'Pleasing fungus beetle']
+for word in words:
+    if len(word) > 16:
+        break
+else:
+    print("Never found any long words")
 """
 
 PY3_6 = '3.6'

@@ -1,6 +1,6 @@
 # https://git.nzoss.org.nz/pyGrant/superhelp
 
-version number: 0.9.17
+version number: 0.9.18
 author: Grant Paton-Simpson
 
 ## Overview
@@ -65,7 +65,7 @@ example provided.
 strings in his functions. He learns a standard approach and starts using it
 more often.
 
-* Moana wants to check the quality of some code before including it in her project. She learns about some issues and makes improvements before integratin it.
+* Moana wants to check the quality of some code before including it in her project. She learns about some issues and makes improvements before integrating it.
 
 # Example Usage
 
