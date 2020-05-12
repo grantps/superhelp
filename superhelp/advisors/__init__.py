@@ -6,6 +6,17 @@ modules with the @..._advisor decorators :-). Make sure the first paragraph of
 the docstring is a good, user-facing description of its purpose so it can be
 automatically processed into lists of available advice in SuperHELP.
 
+So which advisor decorator to use?
+
+Is the advice for the snippet as a whole? If so, are you processing the raw
+snippet string or the XML code block elements? If processing the snippet string
+e.g. passing into flake8 linter use snippet_str_advisor; if processing XML use
+all_blocks_advisor.
+
+If looking at individual code blocks, are you prefiltering or looking at every
+sort? If prefiltering use filt_block_advisor; if not use any_block_advisor.
+Simple really :-)
+
 The basic pattern within an advisor function is:
 
 * Get the correct elements and see if the target pattern is found e.g. a value
@@ -124,6 +135,9 @@ def any_block_advisor(*, warning=False):
 
 def all_blocks_advisor(*, warning=False):
     """
+    Use when processing XML for all blocks at once. Probably looking for first
+    instance of something rather than processing code block by code block.
+
     Simple decorator that registers an unchanged advisor function in the list of
     ALL_BLOCKS_ADVISORS.
 
@@ -142,6 +156,8 @@ def all_blocks_advisor(*, warning=False):
 
 def snippet_str_advisor(*, warning=False):
     """
+    Use when processing the snippet string e.g. passing into flake8 linter.
+
     Simple decorator that registers an unchanged advisor function in the list of
     SNIPPET_STR_ADVISORS.
 

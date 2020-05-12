@@ -18,6 +18,7 @@ def test_misc():
                 ROOT + 'func_excess_parameters': 0,
                 ROOT + 'positional_boolean': 0,
                 ROOT + 'docstring_issues': 0,
+                ROOT + 'mutable_default': 0,
             }
         ),
         (
@@ -31,6 +32,7 @@ def test_misc():
                 ROOT + 'func_excess_parameters': 0,
                 ROOT + 'positional_boolean': 0,
                 ROOT + 'docstring_issues': 1,
+                ROOT + 'mutable_default': 0,
             }
         ),
         (
@@ -45,6 +47,7 @@ def test_misc():
                 ROOT + 'func_excess_parameters': 0,
                 ROOT + 'positional_boolean': 0,
                 ROOT + 'docstring_issues': 1,
+                ROOT + 'mutable_default': 0,
             }
         ),
         (
@@ -59,6 +62,7 @@ def test_misc():
                 ROOT + 'func_excess_parameters': 0,
                 ROOT + 'positional_boolean': 0,
                 ROOT + 'docstring_issues': 1,
+                ROOT + 'mutable_default': 0,
             }
         ),
         (
@@ -72,6 +76,7 @@ def test_misc():
                 ROOT + 'func_excess_parameters': 1,
                 ROOT + 'positional_boolean': 0,
                 ROOT + 'docstring_issues': 1,
+                ROOT + 'mutable_default': 0,
             }
         ),
         (
@@ -85,6 +90,7 @@ def test_misc():
                 ROOT + 'func_excess_parameters': 1,
                 ROOT + 'positional_boolean': 1,
                 ROOT + 'docstring_issues': 1,
+                ROOT + 'mutable_default': 0,
             }
         ),
         (
@@ -98,6 +104,7 @@ def test_misc():
                 ROOT + 'func_excess_parameters': 0,
                 ROOT + 'positional_boolean': 1,
                 ROOT + 'docstring_issues': 1,
+                ROOT + 'mutable_default': 0,
             }
         ),
         (
@@ -114,6 +121,7 @@ def test_misc():
                 ROOT + 'func_excess_parameters': 0,
                 ROOT + 'positional_boolean': 0,
                 ROOT + 'docstring_issues': 1,
+                ROOT + 'mutable_default': 0,
             }
         ),
         (
@@ -132,6 +140,7 @@ def test_misc():
                 ROOT + 'func_excess_parameters': 0,
                 ROOT + 'positional_boolean': 0,
                 ROOT + 'docstring_issues': 0,  ## Just squeaks through
+                ROOT + 'mutable_default': 0,
             }
         ),
         (
@@ -147,6 +156,7 @@ def test_misc():
                 ROOT + 'func_excess_parameters': 0,
                 ROOT + 'positional_boolean': 0,
                 ROOT + 'docstring_issues': 1,
+                ROOT + 'mutable_default': 0,
             }
         ),
         (
@@ -164,6 +174,7 @@ def test_misc():
                 ROOT + 'func_excess_parameters': 0,
                 ROOT + 'positional_boolean': 0,
                 ROOT + 'docstring_issues': 1,
+                ROOT + 'mutable_default': 0,
             }
         ),
         (
@@ -183,6 +194,36 @@ def test_misc():
                 ROOT + 'func_excess_parameters': 0,
                 ROOT + 'positional_boolean': 0,
                 ROOT + 'docstring_issues': 1,
+                ROOT + 'mutable_default': 0,
+            }
+        ),
+        (
+            dedent(f"""\
+            def demo(items=[]):
+                pass
+            """),
+            {
+                ROOT + 'func_overview': 1,
+                ROOT + 'func_len_check': 0,
+                ROOT + 'func_excess_parameters': 0,
+                ROOT + 'positional_boolean': 0,
+                ROOT + 'docstring_issues': 1,
+                ROOT + 'mutable_default': 1,
+            }
+        ),
+        (
+            dedent(f"""\
+            class Demo:
+                def demo(self, items=[]):
+                    pass
+            """),
+            {
+                ROOT + 'func_overview': 1,
+                ROOT + 'func_len_check': 0,
+                ROOT + 'func_excess_parameters': 0,
+                ROOT + 'positional_boolean': 0,
+                ROOT + 'docstring_issues': 1,
+                ROOT + 'mutable_default': 1,
             }
         ),
     ]

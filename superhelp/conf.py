@@ -30,13 +30,9 @@ else:
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 ## All snippets here should be raw strings (see https://stackoverflow.com/questions/53636723/python-parsing-code-with-new-line-character-in-them-using-ast)
 TEST_SNIPPET = r"""
-## https://www.mnn.com/earth-matters/animals/stories/21-animals-with-completely-ridiculous-names
-words = ['Spiny lumpsucker', 'Wunderpus photogenicus', 'Pleasing fungus beetle']
-for word in words:
-    if len(word) > 16:
-        break
-else:
-    print("Never found any long words")
+def multifunc(posonly_arg1=1, posonly_arg2=[], /,
+        arg1=2, arg2=3, arg3=[], *, kwonly_arg1={}):
+    pass
 """
 
 PY3_6 = '3.6'

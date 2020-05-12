@@ -4,7 +4,7 @@ Covers functions and methods.
 from ..advisors import filt_block_advisor
 from ..ast_funcs import get_el_lines_dets
 from .. import conf, utils
-from ..utils import get_python_version, layout_comment as layout
+from ..utils import get_nice_pairs, get_python_version, layout_comment as layout
 
 def get_danger_status_3_7(child_el):
     if (child_el.tag == 'NameConstant'
@@ -59,6 +59,17 @@ else:
     raise Exception(f"Unexpected Python version {python_version}")
 
 FUNC_DEFN_XPATH = 'descendant-or-self::FunctionDef'
+
+def get_mutable_status(default_el):
+    """
+    KISS - Only look for List, Dict, and Set. Python 3.6 as well as 3.8
+    compatible.
+    """
+    if default_el.tag in ['List', 'Dict', 'Set']:
+        mutable_status = default_el.tag
+    else:
+        mutable_status = None
+    return mutable_status
 
 def get_is_method(func_el):
     class_els = func_el.xpath('ancestor::ClassDef')
@@ -347,24 +358,156 @@ def func_excess_parameters(block_dets, *, repeat=False):
     }
     return message
 
-def get_danger_args(func_el):
-    arg_els = func_el.xpath('args/arguments/args/arg')  ## not kwonlyargs so potentially supplied positionally only
-    arg_names = [arg_el.get('arg') for arg_el in arg_els]
+def get_arg_default_issues(func_el, *, get_issue_status_func, include_kw=True):
+    """
+    Look at this function's arguments. Any issues?
+    """
+    posonly_arg_els = func_el.xpath('args/arguments/posonlyargs/arg')
+    arg_els = func_el.xpath('args/arguments/args/arg')
+    all_arg_els = posonly_arg_els + arg_els  ## order matters
+    if include_kw:
+        kwonly_arg_els = func_el.xpath('args/arguments/kwonlyargs/arg')
+        all_arg_els +=  kwonly_arg_els
+    arg_names = [arg_el.get('arg') for arg_el in all_arg_els]
     arg_default_els = func_el.xpath('args/arguments/defaults')
-    danger_statuses = []
-    for arg_default_el in arg_default_els:
-        for child_el in arg_default_el.getchildren():
-            danger_status = get_danger_status(child_el)
-            danger_statuses.append(danger_status)
+    default_els = arg_default_els  ## order matters
+    if include_kw:
+        kw_default_els = func_el.xpath('args/arguments/kw_defaults')
+        default_els += kw_default_els
+    issue_statuses = []
+    for default_el in default_els:
+        for child_el in default_el.getchildren():
+            issue_status = get_issue_status_func(child_el)
+            issue_statuses.append(issue_status)
     ## reversed because defaults are filled in rightwards e.g. a, b=1, c=2
     ## args = a,b,c and defaults=1,2 -> reversed c,b,a and 2,1 -> c: 2, b: 1
     arg_names_reversed = reversed(arg_names)
-    danger_statuses_reversed = reversed(danger_statuses)
-    args_and_danger_statuses = zip(arg_names_reversed, danger_statuses_reversed)
-    danger_args = [(arg, danger_status)
-        for arg, danger_status in args_and_danger_statuses
-        if danger_status is not None]
-    return danger_args
+    issue_statuses_reversed = reversed(issue_statuses)
+    args_and_issue_statuses = reversed(list(
+        zip(arg_names_reversed, issue_statuses_reversed)))  ## back to left-to-right order
+    args_with_issues = [(arg, issue_status)
+        for arg, issue_status in args_and_issue_statuses
+        if issue_status]
+    return args_with_issues
+
+def _get_mutable_default_args(func_el):
+    """
+    Interested in all args, not just non-keyword ones as when looking for danger
+    arguments. We are also interested in all defaults as well.
+    """
+    return get_arg_default_issues(
+        func_el, get_issue_status_func=get_mutable_status, include_kw=True)
+
+@filt_block_advisor(xpath=FUNC_DEFN_XPATH, warning=True)
+def mutable_default(block_dets, *, repeat=False):
+    """
+    Look for use of mutable defaults and warn against use except in rare cases.
+    """
+    func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
+    overall_func_type_lbl = get_overall_func_type_lbl(func_els)
+    mutable_defaults_dets = []
+    for func_el in func_els:
+        func_type_lbl = get_func_type_lbl(func_el)
+        name = func_el.get('name')
+        mutable_default_args = _get_mutable_default_args(func_el)
+        if mutable_default_args:
+            mutable_defaults_dets.append(
+                (name, func_type_lbl, mutable_default_args))
+    if not mutable_defaults_dets:
+        return None
+
+    title = layout(f"""\
+    ### {overall_func_type_lbl.title()} has mutable default arguments
+    """)
+    brief_summary_bits = []
+    main_summary_bits = []
+    for i, mutable_default_dets in enumerate(mutable_defaults_dets):
+        name, func_type_lbl, mutable_default_args = mutable_default_dets
+        first = (i == 0)
+        issue = layout(f"""\
+
+        `{name}` has the following parameters with mutable defaults:
+        {get_nice_pairs(mutable_default_args, left_quoter='')}.
+        """)
+        brief_summary_bits.append(issue)
+        main_summary_bits.append(issue)
+        if first and not repeat:  ## explaining once is enough ;-)
+            main_summary_bits.append(layout(f"""\
+
+            Mutable default arguments are a well-known "gotcha" in Python. They
+            do not behave as most people would expect them to. It is better to
+            have `None` as the default, and inside the function set the name to
+            the desired mutable if it is `None`.
+            """)
+            +
+            layout("""\
+            ## BAD (mutable default)
+            def communicate(person, msg, people=[]):
+                people.append(person)
+                for person in people:
+                    print(f"Emailed {person} with message: '{msg}'")
+
+            ## GOOD (no mutable defaults)
+            def communicate(person, msg, people=None):
+                if people is None:
+                    people = []
+                people.append(person)
+                for person in people:
+                    print(f"Emailed {person} with message: '{msg}'")
+            """, is_code=True)
+            )
+    brief_summary = ''.join(brief_summary_bits)
+    main_summary = ''.join(main_summary_bits)
+    if not repeat:
+        defaults_explained = (
+            layout(f"""\
+
+            {overall_func_type_lbl.title()}s are stored in memory when they are
+            defined, and that includes any default arguments that belong to
+            them. So every time the {overall_func_type_lbl} is called it is from
+            the same piece of memory and the default argument is the same.
+            Calling a {overall_func_type_lbl} multiple times will mean starting
+            from the mutable default as it was left by the previous call - which
+            makes sense because it is one and the same thing.
+
+            Let's use our BAD version of the `communicate` function to see what
+            happens:
+            """)
+            +
+            layout("""\
+            ## BAD (people list will persist across multiple calls)
+            def communicate(person, msg, people=[]):
+                people.append(person)
+                for person in people:
+                    print(f"Emailed {person} with message: '{msg}'")
+
+            communicate('Jack', 'Apples are on special')
+            ## people is empty, so only Jack is emailed
+            # >>> Emailed Jack with message: 'Apples are on special'
+
+            communicate('Jill', 'Tennis this Saturday')
+            ## people started with Jack in it so both Jack AND Jill get emailed!
+            # >>> Emailed Jack with message: 'Tennis this Saturday'  # <---oops!
+            # >>> Emailed Jill with message: 'Tennis this Saturday'
+            """, is_code=True)
+        )
+    else:
+        defaults_explained = ''
+
+    message = {
+        conf.BRIEF: title + brief_summary,
+        conf.MAIN: title + main_summary + defaults_explained,
+    }
+    return message
+
+def _get_positional_danger_args(func_el):
+    """
+    Interested in non-keyword args only. So posonly_args and args respectively.
+    As for defaults, defaults only (ignoring kw_defaults - the only other option
+    - there is no separate posonly_defaults)
+    """
+    return get_arg_default_issues(
+        func_el, get_issue_status_func=get_danger_status, include_kw=False)
 
 @filt_block_advisor(xpath=FUNC_DEFN_XPATH, warning=True)
 def positional_boolean(block_dets, *, repeat=False):
@@ -381,7 +524,7 @@ def positional_boolean(block_dets, *, repeat=False):
     for func_el in func_els:
         func_type_lbl = get_func_type_lbl(func_el)
         name = func_el.get('name')
-        danger_args = get_danger_args(func_el)
+        danger_args = _get_positional_danger_args(func_el)
         if danger_args:
             positional_dets.append((name, func_type_lbl, danger_args))
     if not positional_dets:
@@ -395,18 +538,18 @@ def positional_boolean(block_dets, *, repeat=False):
         first = (i == 0)
         summary_bits.append(layout(f"""\
 
-        A partial analysis of `{name}` found the following risky non- keyword
-        (positional) parameters: {danger_args}.
+        A partial analysis of `{name}` found the following risky non-keyword
+        (positional) parameters: {get_nice_pairs(danger_args, left_quoter='')}.
         """))
         if first and not repeat:  ## explaining once is enough ;-)
             summary_bits.append(layout(f"""\
 
-            {func_type_lbl.title}s which expect numbers or booleans (True/False)
-            without requiring keywords are risky. They are risky when if the
-            {func_type_lbl} is changed later to have different parameters. For
-            example, greeting(formal=True) is more intelligible than
-            greeting(True). And intelligible code is safer to alter / maintain
-            over time than mysterious code.
+            {func_type_lbl.title}s which expect numbers or booleans
+            (`True`/`False`) without requiring keywords are risky. They are
+            risky when if the {func_type_lbl} is changed later to have different
+            parameters. For example, `greeting(formal=True)` is more
+            intelligible than `greeting(True)`. And intelligible code is safer
+            to alter / maintain over time than mysterious code.
             """))
     summary = ''.join(summary_bits)
     if not repeat:
@@ -424,8 +567,8 @@ def positional_boolean(block_dets, *, repeat=False):
             +
             layout("""\
 
-            In this example you couldn't now call the function greeting('Jo',
-            True) - it would need to be greeting('Jo', formal=True)
+            In this example you couldn't now call the function `greeting('Jo',
+            True)` - it would need to be `greeting('Jo', formal=True)`
             """)
         )
         asterisk_explained = layout(f"""\

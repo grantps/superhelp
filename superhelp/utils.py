@@ -66,6 +66,11 @@ def get_nice_str_list(items, *, quoter='`'):
     nice_str_list += f"{quoter}{items[-1]}{quoter}"
     return nice_str_list
 
+def get_nice_pairs(pairs, *, left_quoter='`', right_quoter='`'):
+    return '; '.join(
+        f"{left_quoter}{left}{left_quoter}: {right_quoter}{right}{right_quoter}"
+        for left, right in pairs)
+
 def int2nice(num):
     """
     :return: nicer version of number ready for use in sentences

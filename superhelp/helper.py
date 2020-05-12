@@ -118,8 +118,9 @@ def _get_introspected_file_path():
             break
     else:  ## didn't break for-loop
         raise Exception('Unable to identify calling script through '
-            'introspection so file_path=__file__ will need to be explicitly '
-            'supplied e.g. superhelp.this(file_path=__file__)')
+            "introspection. Did you rename 'superhelp' or 'this'? "
+            "If that isn't the problem try explicitly supplying "
+            "file_path e.g. superhelp.this(file_path=__file__)'")
     file_path = calling_item.filename
     return file_path
 
