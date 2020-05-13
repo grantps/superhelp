@@ -10,6 +10,7 @@ from astpath.asts import _set_encoded_literal, _strip_docstring
 
 ## Monkey-patch as at astpath Python 3.8 as at 2020-04-26
 ## Need to be able to tell val = 1 from val = '1' (that little detail ;-))
+## Pull request fixing this was accepted and merged May 2020
 def convert_to_xml(node, omit_docstrings=False, node_mappings=None):
     """Convert supplied AST node to XML."""
     possible_docstring = isinstance(node, (ast.FunctionDef, ast.ClassDef, ast.Module))
@@ -239,7 +240,7 @@ def _get_filtered_blocks_dets(advisor_dets, xml, blocks_dets):
         logging.debug(f"{advisor_dets.advisor_name} had no blocks")
     return filtered_blocks_dets
 
-def get_block_level_messages_dets(blocks_dets, xml):
+def get_block_level_messages_dets(blocks_dets, xml, *, warnings_only=False):
     """
     For each advisor, get advice on every relevant block. Element type specific
     advisors process filtered blocks_dets; all block advisors process all blocks
@@ -253,6 +254,8 @@ def get_block_level_messages_dets(blocks_dets, xml):
         advisors.FILT_BLOCK_ADVISORS + advisors.ANY_BLOCK_ADVISORS)
     for advisor_dets in all_advisors_dets:
         logging.debug(f"About to process '{advisor_dets.advisor_name}'")
+        if warnings_only and not advisor_dets.warning:
+            continue
         element_filtering = hasattr(advisor_dets, 'xpath')
         if element_filtering:
             filtered_blocks_dets = _get_filtered_blocks_dets(
@@ -274,7 +277,8 @@ def get_block_level_messages_dets(blocks_dets, xml):
                 repeat = True
     return messages_dets
 
-def get_overall_snippet_messages_dets(snippet, blocks_dets):
+def get_overall_snippet_messages_dets(snippet, blocks_dets, *,
+        warnings_only=False):
     """
     Returns messages which apply to snippet as a whole, not just specific
     blocks. E.g. looking at every block to look for opportunities to unpack. Or
@@ -284,6 +288,9 @@ def get_overall_snippet_messages_dets(snippet, blocks_dets):
     all_advisors_dets = (
         advisors.ALL_BLOCKS_ADVISORS + advisors.SNIPPET_STR_ADVISORS)
     for advisor_dets in all_advisors_dets:
+        logging.debug(f"About to process '{advisor_dets.advisor_name}'")
+        if warnings_only and not advisor_dets.warning:
+            continue
         if advisor_dets.input_type == conf.BLOCKS_DETS:
             advisor_input = blocks_dets
         elif advisor_dets.input_type == conf.SNIPPET_STR:
@@ -298,7 +305,8 @@ def get_overall_snippet_messages_dets(snippet, blocks_dets):
             messages_dets.append(message_dets)
     return messages_dets
 
-def get_separated_messages_dets(snippet, snippet_block_els, xml):
+def get_separated_messages_dets(snippet, snippet_block_els, xml, *,
+        warnings_only=False):
     """
     Break snippet up into syntactical parts and blocks of code. Apply advisor
     functions and get message details. Split into overall messages and block-
@@ -307,6 +315,7 @@ def get_separated_messages_dets(snippet, snippet_block_els, xml):
     :param str snippet: code snippet
     :param list snippet_block_els: list of block elements for snippet
     :param xml xml: snippet code as xml object
+    :param bool warnings_only: if True, warnings only
     :return: a tuple of two MessageDets lists
      (overall_snippet_messages_dets, block_level_messages_dets)
      or None if no messages
@@ -314,8 +323,9 @@ def get_separated_messages_dets(snippet, snippet_block_els, xml):
     """
     blocks_dets = get_blocks_dets(snippet, snippet_block_els)
     overall_snippet_messages_dets = get_overall_snippet_messages_dets(
-        snippet, blocks_dets)
-    block_level_messages_dets = get_block_level_messages_dets(blocks_dets, xml)
+        snippet, blocks_dets, warnings_only=warnings_only)
+    block_level_messages_dets = get_block_level_messages_dets(
+        blocks_dets, xml, warnings_only=warnings_only)
     for messages_dets in [
             overall_snippet_messages_dets, block_level_messages_dets]:
         if None in messages_dets:
@@ -337,7 +347,15 @@ def store_ast_output(xml):
     xml.getroottree().write(str(tmp_ast_output_xml_fpath), pretty_print=True)
     logging.info("\n\n\n\n\nUpdating AST\n\n\n\n\n")
 
-def get_snippet_dets(snippet):
+def get_snippet_dets(snippet, warnings_only=False):
+    """
+    Get details for snippet of code.
+
+    :return: snippet_messages_dets
+     (overall_snippet_messages_dets, block_level_messages_dets),
+     multi_block_snippet (bool)
+    :rtype: tuple
+    """
     tree = _get_tree(snippet)
     xml = astpath.asts.convert_to_xml(tree)
     if conf.RECORD_AST:
@@ -345,7 +363,7 @@ def get_snippet_dets(snippet):
     snippet_block_els = xml.xpath('body')[0].getchildren()  ## [0] because there is only one body under root
     multi_block_snippet = len(snippet_block_els) > 1
     snippet_messages_dets = get_separated_messages_dets(
-        snippet, snippet_block_els, xml)
+        snippet, snippet_block_els, xml, warnings_only=warnings_only)
     return snippet_messages_dets, multi_block_snippet
 
 def get_system_messages_dets(snippet, brief_message, *, warning=True):

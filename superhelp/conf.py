@@ -14,8 +14,8 @@ m = 'md'
 
 RECORD_AST = f  ## (f)
 DEV_MODE = f  ## (f)
-DISPLAYER = h  ## set html displayer as default (h)
-DO_DISPLAYER = t  ## f is only ever used when testing pre-display (t)
+OUTPUT = h  ## set html as default output (h)
+SHOW_OUTPUT = t  ## f is only ever used when testing pre-display (t)
 INCLUDE_LINTING = t  ## f when running unit tests to massively speed them up (otherwise every snippet in tests is linted each time) (t)
 
 ## =============================================================================
@@ -54,7 +54,7 @@ MD_PYTHON_CODE_START = '::python'
 BRIEF = 'Brief'  ## no spaces; used as labels and as parts of class names in CSS
 MAIN = 'Main'
 EXTRA = 'Extra'
-MESSAGE_LEVELS = [BRIEF, MAIN, EXTRA]
+DETAIL_LEVELS = [BRIEF, MAIN, EXTRA]
 
 ANON_NAME = 'Anonymous'
 
@@ -108,6 +108,11 @@ FUNCTION_LBL = 'function'
 METHOD_LBL = 'method'
 
 EMAIL2USE = 'superhelp@p-s.co.nz'
+
+WARNINGS_ONLY_MSG = ("Only displaying warnings. "
+    "To see all help, set warnings only option to False")
+ALL_HELP_SHOWING_MSG = ("Displaying all help. "
+    "To only see warnings, set warnings only option to True")
 
 INTRO = ("Help is provided for your overall snippet and for each block of code "
     "as appropriate. If there is nothing to say about a block it is skipped.")

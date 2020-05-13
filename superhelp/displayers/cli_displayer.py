@@ -18,9 +18,9 @@ TERMINAL_WIDTH = 80
 
 MDV_CODE_BOUNDARY = "```"
 
-def get_message(message_dets, message_level):
-    message = dedent(message_dets.message[message_level])
-    if message_level == conf.EXTRA:
+def get_message(message_dets, detail_level):
+    message = dedent(message_dets.message[detail_level])
+    if detail_level == conf.EXTRA:
         message = dedent(message_dets.message[conf.MAIN]) + message
     message = dedent(message)
     message = (message
@@ -45,19 +45,25 @@ def _need_snippet_displayed(overall_messages_dets, block_messages_dets, *,
     return True
 
 def display(snippet, messages_dets, *,
-        message_level=conf.BRIEF, in_notebook=False, multi_block=False):
+        detail_level=conf.BRIEF,
+        warnings_only=False, in_notebook=False, multi_block=False):
     """
     Show by code blocks.
     """
     logging.debug(f"{__name__} doesn't use in_notebook setting {in_notebook}")
     md2cli.term_columns = TERMINAL_WIDTH
+    if warnings_only:
+        options_msg = conf.WARNINGS_ONLY_MSG
+    else:
+        options_msg = conf.ALL_HELP_SHOWING_MSG
     text = [
         md2cli.main(layout(f"""\
             # SuperHELP - Help for Humans!
 
             {conf.INTRO}
 
-            Currently showing {message_level} content as requested.
+            Currently showing {detail_level} content as requested.
+            {options_msg}.
 
             {conf.MISSING_ADVICE_MESSAGE}
             """
@@ -74,7 +80,7 @@ def display(snippet, messages_dets, *,
             + line_numbered_snippet
             + f"\n{MDV_CODE_BOUNDARY}")))
     for message_dets in overall_messages_dets:
-        message = get_message(message_dets, message_level)
+        message = get_message(message_dets, detail_level)
         text.append(message)
     block_messages_dets.sort(key=lambda nt: (nt.first_line_no, nt.warning))
     prev_line_no = None
@@ -99,7 +105,7 @@ def display(snippet, messages_dets, *,
                 """)))
             block_has_warning_header = True
         ## process message
-        message = get_message(message_dets, message_level)
+        message = get_message(message_dets, detail_level)
         text.append(message)
     content = '\n'.join(text)
     print(content)

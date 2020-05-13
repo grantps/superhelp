@@ -45,27 +45,37 @@ or similar
 
 ## Example Use Cases
 
-* Charlotte is a Python beginner and wants to get advice on a five-line
-function she wrote to display greetings to a list of people. She learns about
+* Charlotte likes to check her code before others see it so includes
+
+        import superhelp
+        superhelp.this(warnings_only=True)
+
+    at the top of each script. When she is happy with the code she comments
+    those two lines out.
+
+* Avi is a Python beginner and wants to get advice on a five-line
+function he wrote to display greetings to a list of people. He learns about
 Python conventions for variable naming and better ways of combining strings.
 
-* Avi wants to get advice on a named tuple. He learns how to add doc strings
+* Zach wants to get advice on a named tuple. He learns how to add doc strings
 to individual fields.
 
-* Zach is considering submitting some code to Stack Overflow but wants to
-improve it first (or possibly get ideas for a solution directly). He discovers
-that a list comprehension might work. He also becomes aware of dictionary
+* Noor is considering submitting some code to Stack Overflow but wants to
+improve it first (or possibly get ideas for a solution directly). She discovers
+that a list comprehension might work. She also becomes aware of dictionary
 comprehensions for the first time.
 
-* Noor has written a simple Python decorator but is wanting to see if there is
-anything which can be improved. She learns how to use functool.wrap from an
+* Al has written a simple Python decorator but is wanting to see if there is
+anything which can be improved. He learns how to use functool.wrap from an
 example provided.
 
-* Al is an experienced Python developer but tends to forget things like doc
-strings in his functions. He learns a standard approach and starts using it
-more often.
+* Moana is an experienced Python developer but tends to forget things like doc
+strings in her functions. She learns a standard approach and starts using it
+more often. Moana also finds the summarised linting useful.
 
-* Moana wants to check the quality of some code before including it in her project. She learns about some issues and makes improvements before integrating it.
+* Paul wants to check the quality of some code before including it in his
+project. He learns about some issues and makes improvements before integrating
+it.
 
 # Example Usage
 
@@ -104,32 +114,62 @@ Put the following at the top of your script and then run the script (note - ther
     import superhelp
     superhelp.this()
 
-If you don't want the default web output you can specify another displayer such as 'cli' (command line interface) or 'md' (markdown):
+If you don't want the default web output you can specify another output such as 'cli' (command line interface) or 'md' (markdown):
 
     import superhelp
-    superhelp.this(displayer='md')
+    superhelp.this(output='md')
 
-If you don't want the default 'Extra' level of messages you can specify a different message_level ('Brief' or 'Main') e.g.
+If you don't want the default 'Extra' level of messages you can specify a different detail level ('Brief' or 'Main') e.g.
 
     import superhelp
-    superhelp.this(displayer='md', message_level='Brief')
+    superhelp.this(output='md', detail_level='Brief')
 
 or:
 
     import superhelp
-    superhelp.this(message_level='Main')
+    superhelp.this(detail_level='Main')
+
+If you only want to see warnings you can specify warnings only e.g.
+
+    import superhelp
+    superhelp.this(warnings_only=True)
+
+**Changes since 0.9.21**:
+
+Changed:
+
+    output (replaces displayer)
+    detail_level (replaces level)
+
+Added:
+
+    warnings_only
 
 ### From the command line (terminal / console)
 
     $ shelp -h  ## get help on usage
 
-    $ shelp --snippet "people = ['Tomas', 'Sal', 'Raj']" --displayer html --level Main
-    $ shelp -s "people = ['Tomas', 'Sal', 'Raj']" -d html -l Main
+    $ shelp --code "people = ['Tomas', 'Sal', 'Raj']" --output html --detail-level Main
+    $ shelp -c "people = ['Tomas', 'Sal', 'Raj']" -o html -d Main
 
-    $ shelp --file-path my_snippet.py --displayer cli  --level Extra
-    $ shelp -f snippet1.txt -d cli -l Brief
+    $ shelp --file-path my_script.py --output cli  --detail-level Extra
+    $ shelp -f my_snippet.py -o cli -d Brief
 
-    $ shelp  ## to see advice on an example snippet displayed (level Extra)
+    $ shelp -w --code "people = ['Tomas', 'Sal', 'Raj']"
+    $ shelp --warnings-only --code "people = ['Tomas', 'Sal', 'Raj']"
+
+    $ shelp  ## to see advice on an example snippet displayed (detail level 'Extra')
+
+**Changes since 0.9.21**:
+
+Changed:
+
+    --output and -o (replaces --displayer and -d)
+    --detail-level and -d (replaces --level and -l)
+
+Added:
+
+    --warnings-only and -w
 
     
 ## Stretch Ideas

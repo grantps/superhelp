@@ -6,9 +6,9 @@ from ..utils import get_line_numbered_snippet, make_open_tmp_file
 
 from markdown import markdown  ## https://coderbook.com/@marcus/how-to-render-markdown-syntax-as-html-using-python/ @UnresolvedImport
 
-MESSAGE_LEVEL2CLASS = {
-    message_level: f"help help-{message_level}"
-    for message_level in conf.MESSAGE_LEVELS}
+DETAIL_LEVEL2CLASS = {
+    detail_level: f"help help-{detail_level}"
+    for detail_level in conf.DETAIL_LEVELS}
 
 LOGO_SVG = """\
 <svg
@@ -464,10 +464,10 @@ VISIBILITY_SCRIPT = """\
 PART = 'part'
 IS_CODE = 'is_code'
 
-def _get_radio_buttons(*, message_level=conf.BRIEF):
+def _get_radio_buttons(*, detail_level=conf.BRIEF):
     radio_buttons_dets = []
-    for message_type in conf.MESSAGE_LEVELS:
-        checked = ' checked' if message_type == message_level else ''
+    for message_type in conf.DETAIL_LEVELS:
+        checked = ' checked' if message_type == detail_level else ''
         radio_button_dets = f"""\
             <input type="radio"
              id="radio-verbosity-{message_type}"
@@ -512,7 +512,7 @@ def get_separate_code_message_parts(message):
 def get_html_strs(message, message_type, *, warning=False):  # @UnusedVariable
     if not message:
         return []
-    message_type_class = MESSAGE_LEVEL2CLASS[message_type]
+    message_type_class = DETAIL_LEVEL2CLASS[message_type]
     str_html_list = [f"<div class='{message_type_class}'>", ]
     message_parts = get_separate_code_message_parts(message)
     for message_part in message_parts:
@@ -533,13 +533,13 @@ def get_message_html_strs(message_dets):
     message_html_strs = []
     if message_dets.warning:
         message_html_strs.append("<div class='warning'>")
-    for message_level in conf.MESSAGE_LEVELS:
+    for detail_level in conf.DETAIL_LEVELS:
         try:
-            message = message_dets.message[message_level]
+            message = message_dets.message[detail_level]
         except KeyError:
-            if message_level != conf.EXTRA:
+            if detail_level != conf.EXTRA:
                 raise Exception(
-                    f"Missing required message level {message_level}")
+                    f"Missing required message level {detail_level}")
         except TypeError:
             raise TypeError(
                 f"Missing message in message_dets {message_dets}")
@@ -552,9 +552,9 @@ def get_message_html_strs(message_dets):
                 )
             except Exception:
                 pass
-            message_level_html_strs = get_html_strs(
-                message, message_level, warning=message_dets.warning)
-            message_html_strs.extend(message_level_html_strs)
+            detail_level_html_strs = get_html_strs(
+                message, detail_level, warning=message_dets.warning)
+            message_html_strs.extend(detail_level_html_strs)
     if message_dets.warning:
         message_html_strs.append("</div>")
     return message_html_strs
@@ -590,7 +590,7 @@ def _need_snippet_displayed(overall_messages_dets, block_messages_dets, *,
     return True
 
 def _get_all_html_strs(snippet, overall_messages_dets, block_messages_dets, *,
-        in_notebook=False, multi_block=False):
+        warnings_only=False, in_notebook=False, multi_block=False):
     """
     Display all message types - eventually will show brief and, if the user
     clicks to expand, main instead with the option of expanding to show Extra.
@@ -600,6 +600,13 @@ def _get_all_html_strs(snippet, overall_messages_dets, block_messages_dets, *,
     """
     all_html_strs = []
 
+    ## any feedback on user options chosen
+    if not in_notebook:
+        if warnings_only:
+            options_msg = f"<p>{conf.WARNINGS_ONLY_MSG}.</p>"
+        else:
+            options_msg = f"<p>{conf.ALL_HELP_SHOWING_MSG}.</p>"
+        all_html_strs.append(options_msg)
     ## overall snippet display
     display_snippet = _need_snippet_displayed(
         overall_messages_dets, block_messages_dets,
@@ -652,7 +659,8 @@ def _get_head(*, in_notebook=False):
     return head
 
 def display(snippet, messages_dets, *,
-        message_level=conf.BRIEF, in_notebook=False, multi_block=False):
+        detail_level=conf.BRIEF,
+        in_notebook=False, warnings_only=False, multi_block=False):
     """
     Show for overall snippet and then by code blocks as appropriate.
 
@@ -660,10 +668,10 @@ def display(snippet, messages_dets, *,
      and display
     """
     intro = f"<p>{conf.INTRO}</p>"
-    radio_buttons = _get_radio_buttons(message_level=message_level)
+    radio_buttons = _get_radio_buttons(detail_level=detail_level)
     overall_messages_dets, block_messages_dets = messages_dets
     all_html_strs = _get_all_html_strs(snippet,
-        overall_messages_dets, block_messages_dets,
+        overall_messages_dets, block_messages_dets, warnings_only=warnings_only,
         in_notebook=in_notebook, multi_block=multi_block)
     body_inner = '\n'.join(all_html_strs)
     head = _get_head(in_notebook=in_notebook)
