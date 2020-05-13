@@ -234,6 +234,20 @@ def test_misc():
                 ROOT + 'string_addition': 0,  ## not interested in pushing people towards f-strings in such cases
             }
         ),
+        (
+            dedent("""\
+            class Family:
+                pass
+            Family.pet = 'cat'
+            """),
+            {
+                ROOT + 'assigned_str_overview': 1,  ## no overview because not an assigned string
+                ROOT + 'f_str_interpolation': 0,
+                ROOT + 'format_str_interpolation': 0,
+                ROOT + 'sprintf': 0,
+                ROOT + 'string_addition': 0,  ## not interested in pushing people towards f-strings in such cases
+            }
+        ),
     ]
     check_as_expected(test_conf)
 

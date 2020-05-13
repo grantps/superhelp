@@ -68,6 +68,43 @@ def test_misc():
                 ROOT + 'num_overview': 1,
             }
         ),
+        (
+            dedent("""\
+            class Demo:
+                pass
+            Demo.num = 5
+            """),
+            {
+                ROOT + 'num_overview': 1,
+            }
+        ),
+        (
+            dedent("""\
+            mydict = {}
+            mydict[1] = 5
+            """),
+            {
+                ROOT + 'num_overview': 1,
+            }
+        ),
+        (
+            dedent("""\
+            mydict = {}
+            mydict['val'] = 5
+            """),
+            {
+                ROOT + 'num_overview': 1,
+            }
+        ),
+        (
+            dedent("""\
+            mydict = {}
+            mydict['val'] = '5'
+            """),
+            {
+                ROOT + 'num_overview': 0,
+            }
+        ),
     ]
     check_as_expected(test_conf)
 

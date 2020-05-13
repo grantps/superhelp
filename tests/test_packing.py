@@ -80,6 +80,16 @@ def test_misc():
                 ROOT + 'unpacking_opportunity': 1,  ## snippet-level message so only the one
             }
         ),
+        (
+            dedent("""\
+            nz_capital = capitals['NZ']
+            aus_capital = capitals['Australia']
+            """),
+            {
+                ROOT + 'unpacking': 0,
+                ROOT + 'unpacking_opportunity': 0,  ## snippet-level message so only the one
+            }
+        ),
     ]
     check_as_expected(test_conf)
 

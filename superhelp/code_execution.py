@@ -3,8 +3,8 @@ import logging
 from . import ast_funcs, conf
 from .utils import get_nice_str_list, layout_comment as layout
 
-
-def get_val(pre_block_code_str, block_code_str, name):
+def get_val(pre_block_code_str, block_code_str,
+        name_type, name_details, name_str):
     """
     Executing supplied code from end users - nope - nothing to see here from a
     security point of view ;-) Needs addressing if this code is ever used as a
@@ -13,7 +13,11 @@ def get_val(pre_block_code_str, block_code_str, name):
     Note - can be the source of mysterious output in stdout (e.g. exec a print
     function).
 
-    Raises KeyError if unable to get value.
+    :param str name_type: e.g. conf.STD_NAME. Lets us know how to handle the
+     parts of the name e.g. dict name and key name.
+    :param list name_details: e.g. name; dict and key; obj and attr
+    :param str name_str: name as string e.h. Family.pet or capitals['NZ']
+    :return: value if possible. Raises KeyError if unable to get value.
     """
     exp_dets = {}
     try:
@@ -24,11 +28,24 @@ def get_val(pre_block_code_str, block_code_str, name):
         raise ImportError("SuperHELP only has modules from the Python standard "
             "library installed - it looks like your snippet relies on a module "
             "from outside the standard library.")
-    try:
-        val = exp_dets[name]
-    except KeyError:
-        raise KeyError(
-            f"Unable to find name '{name}' in code_str\n{block_code_str}")
+    if name_type == conf.STD_NAME:
+        val = exp_dets[name_details[0]]
+    elif name_type == conf.OBJ_ATTR_NAME:
+        obj_name, attr_name = name_details
+        try:
+            val = getattr(exp_dets[obj_name], attr_name)
+        except AttributeError:
+            raise KeyError(f"Unable to find name '{name_str}' "
+                f"in code_str\n{block_code_str}")
+    elif name_type == conf.DICT_KEY_NAME:
+        dict_name, key_name = name_details
+        try:
+            val = exp_dets[dict_name][key_name]
+        except NameError:
+            raise KeyError(f"Unable to find name '{name_str}' "
+                f"in code_str\n{block_code_str}")
+    else:
+        raise Exception(f"Unexpected name_type: '{name_type}'")
     return val
 
 def get_collections_dets(named_els, block_dets, *,
@@ -44,17 +61,19 @@ def get_collections_dets(named_els, block_dets, *,
     names_items = []
     oversized_names = []
     for named_el in named_els:
-        name = ast_funcs.get_assign_name(named_el)
+        name_type, name_details, name_str = ast_funcs.get_assigned_name(
+            named_el)
         try:
             items = get_val(
-                block_dets.pre_block_code_str, block_dets.block_code_str, name)
+                block_dets.pre_block_code_str, block_dets.block_code_str,
+                name_type, name_details, name_str)
         except KeyError:
             items = None
         else:
             if len(items) > conf.MAX_ITEMS_EVALUATED:
                 items = truncated_items_func(items)
-                oversized_names.append(name)
-        names_items.append((name, items))
+                oversized_names.append(name_str)
+        names_items.append((name_str, items))
     if oversized_names:
         multi_oversized = len(oversized_names) > 1
         if multi_oversized:
@@ -68,7 +87,7 @@ def get_collections_dets(named_els, block_dets, *,
         else:
             oversized_msg = layout(f"""\
 
-            Because `{name}` is large SuperHELP has only examined the first
+            Because `{name_str}` is large SuperHELP has only examined the first
             {conf.MAX_ITEMS_EVALUATED} items.
             """)
     else:

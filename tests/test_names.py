@@ -13,6 +13,7 @@ def test_misc():
             {
                 ROOT + 'unpythonic_name_check': 0,
                 ROOT + 'short_name_check': 0,
+                ROOT + 'names_and_values': 0,
             }
         ),
         (
@@ -23,6 +24,7 @@ def test_misc():
             {
                 ROOT + 'unpythonic_name_check': 0,
                 ROOT + 'short_name_check': 1,
+                ROOT + 'names_and_values': 0,
             }
         ),
         (
@@ -32,6 +34,7 @@ def test_misc():
             {
                 ROOT + 'unpythonic_name_check': 1,
                 ROOT + 'short_name_check': 0,
+                ROOT + 'names_and_values': 0,
             }
         ),
         (
@@ -42,6 +45,7 @@ def test_misc():
             {
                 ROOT + 'unpythonic_name_check': 1,
                 ROOT + 'short_name_check': 1,
+                ROOT + 'names_and_values': 0,
             }
         ),
         (
@@ -52,6 +56,7 @@ def test_misc():
             {
                 ROOT + 'unpythonic_name_check': 1,
                 ROOT + 'short_name_check': 0,
+                ROOT + 'names_and_values': 0,
             }
         ),
         (
@@ -63,6 +68,7 @@ def test_misc():
             {
                 ROOT + 'unpythonic_name_check': 1,
                 ROOT + 'short_name_check': 1,
+                ROOT + 'names_and_values': 0,
             }
         ),
         (
@@ -77,6 +83,7 @@ def test_misc():
             {
                 ROOT + 'unpythonic_name_check': 2,
                 ROOT + 'short_name_check': 2,
+                ROOT + 'names_and_values': 0,
             }
         ),
         (
@@ -91,6 +98,7 @@ def test_misc():
             {
                 ROOT + 'unpythonic_name_check': 1,
                 ROOT + 'short_name_check': 2,
+                ROOT + 'names_and_values': 0,
             }
         ),
         (
@@ -101,6 +109,77 @@ def test_misc():
             {
                 ROOT + 'unpythonic_name_check': 0,
                 ROOT + 'short_name_check': 1,  ## Looks at both together
+                ROOT + 'names_and_values': 0,
+            }
+        ),
+        (
+            dedent("""\
+            people = ['Bob', 'Anj', 'Erin']
+            person = people[2]
+            """),
+            {
+                ROOT + 'unpythonic_name_check': 0,
+                ROOT + 'short_name_check': 0,
+                ROOT + 'names_and_values': 1,
+            }
+        ),
+        (
+            dedent("""\
+            capitals = {'NZ': 'Wellington', 'Australia': 'Canberra'}
+            nz_capital = capitals['NZ']
+            """),
+            {
+                ROOT + 'unpythonic_name_check': 0,
+                ROOT + 'short_name_check': 0,
+                ROOT + 'names_and_values': 1,
+            }
+        ),
+        (
+            dedent("""\
+            animal = 'cat'
+            pet = animal
+            """),
+            {
+                ROOT + 'unpythonic_name_check': 0,
+                ROOT + 'short_name_check': 0,
+                ROOT + 'names_and_values': 1,
+            }
+        ),
+        (
+            dedent("""\
+            for item in range(2):
+                animal = 'cat'
+                pet = animal
+            """),
+            {
+                ROOT + 'unpythonic_name_check': 0,
+                ROOT + 'short_name_check': 0,
+                ROOT + 'names_and_values': 1,
+            }
+        ),
+        (
+            dedent("""\
+            class Family:
+                pass
+            Family.pet = 'cat'
+            """),
+            {
+                ROOT + 'unpythonic_name_check': 0,
+                ROOT + 'short_name_check': 0,
+                ROOT + 'names_and_values': 0,
+            }
+        ),
+        (
+            dedent("""\
+            pet = 'cat'
+            class Family:
+                pass
+            Family.pet = pet
+            """),
+            {
+                ROOT + 'unpythonic_name_check': 0,
+                ROOT + 'short_name_check': 0,
+                ROOT + 'names_and_values': 1,
             }
         ),
     ]

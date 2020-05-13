@@ -62,14 +62,39 @@ def get_nice_str_list(items, *, quoter='`'):
     nice_str_list = ', '.join(
         [f"{quoter}{item}{quoter}" for item in items[:-1]])
     if nice_str_list:
-        nice_str_list += " and "
+        nice_str_list += ', and '
     nice_str_list += f"{quoter}{items[-1]}{quoter}"
     return nice_str_list
 
-def get_nice_pairs(pairs, *, left_quoter='`', right_quoter='`'):
-    return '; '.join(
-        f"{left_quoter}{left}{left_quoter}: {right_quoter}{right}{right_quoter}"
-        for left, right in pairs)
+def _get_quoted_pair(left, right, pair_glue, left_quoter, right_quoter):
+    return (
+        f"{left_quoter}{left}{left_quoter}"
+        f"{pair_glue}"
+        f"{right_quoter}{right}{right_quoter}"
+    )
+
+def get_nice_pairs(pairs, *, pair_glue=': ', left_quoter='`', right_quoter='`'):
+    """
+    Get a nice English phrase listing paired items.
+
+    :param sequence pairs: a sequence of two-tuples
+    :param str pair_glue: how to join items in pair
+     e.g. ': ' --> a: b
+     e.g. ' is assigned to ' --> a is assigned to b
+    :param str quoter: default is backtick because it is expected that the most
+     common items will be names (variables).
+    :return: nice phrase
+    :rtype: str
+    """
+    nice_pairs_list = ', '.join(
+        _get_quoted_pair(left, right, pair_glue, left_quoter, right_quoter)
+        for left, right in pairs[:-1])
+    if nice_pairs_list:
+        nice_pairs_list += ', and '
+    final_left, final_right = pairs[-1]
+    nice_pairs_list += _get_quoted_pair(
+        final_left, final_right, pair_glue, left_quoter, right_quoter)
+    return nice_pairs_list
 
 def int2nice(num):
     """

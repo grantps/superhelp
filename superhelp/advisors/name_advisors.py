@@ -1,8 +1,214 @@
 from collections import defaultdict
 
-from ..advisors import any_block_advisor, is_reserved_name
-from .. import conf, utils
-from ..utils import get_nice_str_list, int2nice, layout_comment as layout
+from ..advisors import all_blocks_advisor, any_block_advisor, is_reserved_name
+from .. import ast_funcs, conf, utils
+from ..utils import get_nice_pairs, get_nice_str_list, \
+    int2nice, layout_comment as layout
+
+ASSIGN_SUBSCRIPT_XPATH = 'descendant-or-self::Assign/value/Subscript'
+ASSIGN_NAME_XPATH = 'descendant-or-self::Assign/value/Name'
+
+def get_subscript_name_value(assign_subscript_el):
+    """
+    Looking for:
+    people[0] (list)
+    capitals['NZ'] (dict)
+    """
+    name_value_el = assign_subscript_el.xpath('value/Name')[0]
+    name_value_name = name_value_el.get('id')
+    slice_dets = ast_funcs.get_slice_dets(assign_subscript_el)
+    name_value = f"{name_value_name}{slice_dets}"
+    return name_value
+
+def get_name2name_pair(name2name_el):
+    """
+    Get details of a name to name assignment.
+
+    :return: tuple of name, name_value. name_value might be a standard Python
+     name e.g. person, or a subscript of some sort e.g. people[0] or
+     capitals['NZ']
+    """
+    ancestor_assign_els = name2name_el.xpath('ancestor::Assign')
+    try:
+        ancestor_assign_el = ancestor_assign_els[-1]
+    except IndexError:
+        raise IndexError(  ## in theory, guaranteed to be one given how we got the name2name_els
+            "Unable to identify ancestor Assign for name-to-name assignment")
+    try:
+        _name_type, _name_details, name_str = ast_funcs.get_assigned_name(
+            name2name_el)
+    except Exception as e:
+        raise Exception("Unable to identify name for name-value assignment. "
+            f"Orig error: {e}")
+
+    assign_subscript_els = ancestor_assign_el.xpath(ASSIGN_SUBSCRIPT_XPATH)
+    if assign_subscript_els:
+        assign_subscript_el = assign_subscript_els[0]
+        name_value = get_subscript_name_value(assign_subscript_el)
+    else:
+        assign_name_els = ancestor_assign_el.xpath(ASSIGN_NAME_XPATH)
+        direct_assign_el = assign_name_els[0]
+        name_value = direct_assign_el.get('id')
+    if not name_value:
+        raise Exception(
+            "Unable to identify name_value even though there should be one")
+    return name_str, name_value
+
+def get_name2name_pairs(block_el):
+    """
+    Get details of name-to-name assignments.
+
+    Examples of name to name assignment:
+
+    animal = pet
+    first_person = people[0]
+    capital_nz = capitals['NZ']
+
+    Obviously, being Python, the assignment is to the value under the name but
+    it is a name nonetheless.
+    """
+    name2name_els = block_el.xpath(
+        f"{ASSIGN_SUBSCRIPT_XPATH}|{ASSIGN_NAME_XPATH}")
+    if not name2name_els:
+        return None
+    name2name_pairs = [get_name2name_pair(el) for el in name2name_els]
+    return name2name_pairs
+
+@all_blocks_advisor()
+def names_and_values(blocks_dets):
+    """
+    Look for names assigned to other names and explain names and values in
+    Python.
+    """
+    name2name_pairs = []
+    for block_dets in blocks_dets:
+        block_el = block_dets.element
+        block_name2name_pairs = get_name2name_pairs(block_el)
+        if block_name2name_pairs:
+            name2name_pairs.extend(block_name2name_pairs)
+
+    if not name2name_pairs:
+        return None
+
+    nice_name2name_pairs = get_nice_pairs(name2name_pairs,
+        pair_glue=' is assigned to ', left_quoter='`', right_quoter='`')
+    first_name, first_name_value = name2name_pairs[0]
+    title = layout("""
+    ### Names assigned to names
+    """)
+    assignments = layout(f"""\
+
+    Your code assigned names to other names as values: {nice_name2name_pairs}.
+    """)
+    brief_summary = layout("""\
+
+    To get a better understanding of what that means in Python see / read
+    <https://nedbatchelder.com/text/names1.html>. Or look at this advice at a
+    higher level of detail e.g. 'Main'.
+    """)
+    main_summary = (
+        layout(f"""\
+
+        So what does that mean in Python? Having a firm grasp of how names and
+        values work in Python means you can confidently reason about your code
+        and pre-emptively avoid numerous bugs.
+
+        #### How variables work in Python - names and values
+
+        Assignment is linking names and values e.g. `fname = "Maggie"`
+
+        Another way of expressing the same idea:
+
+        > "Assignment: make this name refer to that value" Ned Batchelder
+
+        Names are something you can assign to a value.
+
+        Multiple names can refer to the same value. No name is the "real" name
+        in Python - they are all just labels to a value.
+
+        Names can take a variety of forms. For example:
+        """)
+        +
+        layout("""\
+        fname = value
+        mydict['fruit'] = value
+        family.pet = value
+        """, is_code=True)
+        +
+        layout("""
+        are all names.
+
+        A wide variety of data structures can be values to which names are
+        assigned. For example:
+        """)
+        +
+        layout("""\
+        name = 1066
+        name = 'cheerful'
+        name = [1, 2, 3, 4]
+        name = {'width': 12.5, 'height': 23.75}
+
+        etc
+        """, is_code=True)
+        +
+        layout(f"""
+
+        The key idea is that we are always linking names to values - NEVER names
+        to other names. Python has references (names pointing to objects) but
+        not pointers (names pointing to other names). When we assign one name to
+        another we are actually linking to the underlying value of the second
+        name.
+
+        And be very clear - assignment never **copies** data. It just links
+        names to values. There are no exceptions to this rule.
+
+        So if `a = 'cat'` and `b = a` then both `a` and `b` are labels assigned
+        to the string 'cat'. If we change what label `a` is attached to we don't
+        affect `b`. It remains linked to 'cat'.
+
+        So when your code assigned name `{first_name}` to another name
+        `{first_name_value}`, for example, it was actually linking
+        `{first_name}` to the **value** `{first_name_value}` was linked to. If
+        you reassigned `{first_name_value}` to something else it would not
+        affect `{first_name}`.
+
+        The names aren't necessarily independent though. If a mutable object
+        like a list has multiple labels then any changes to the value, i.e. the
+        list, are shared by all labels because they are all linked to the same
+        value.
+
+        For example:
+        """)
+        +
+        layout("""\
+        fruit = ['apple', 'banana']
+        ingredients = fruit
+        fruit.append('cherry')
+        ## What is ingredients now? Try this code and find out. If you
+        ## understand the ideas above you should be able to reason it out with
+        ## confidence.
+        """, is_code=True)
+    )
+    ned_talk = layout("""\
+    The talk to watch / read on the topic is:
+    <https://nedbatchelder.com/text/names1.html>
+
+    <https://lerner.co.il/2019/06/18/understanding-python-assignment/> is also
+    helpful.
+
+    A note about using the verb 'assign'? I recommend saying that we assign
+    names to values rather than the other way around because it better fits how
+    Python actually works. The central reality in Python is the value not the
+    name. The name is nothing substantial - it's not a container for a value
+    or anything like that - it is merely a label.
+    """)
+
+    message = {
+        conf.BRIEF: title + assignments + brief_summary,
+        conf.MAIN: title + assignments + main_summary,
+        conf.EXTRA: ned_talk,
+    }
+    return message
 
 def _get_shamed_names_title(reserved_names, bad_names, dubious_names):
     if not (reserved_names or bad_names or dubious_names):

@@ -2,61 +2,10 @@
 Covers functions and methods.
 """
 from ..advisors import filt_block_advisor
-from ..ast_funcs import get_el_lines_dets
+from ..ast_funcs import get_danger_status, get_docstring_from_value, \
+    get_el_lines_dets
 from .. import conf, utils
-from ..utils import get_nice_pairs, get_python_version, layout_comment as layout
-
-def get_danger_status_3_7(child_el):
-    if (child_el.tag == 'NameConstant'
-            and child_el.get('value') in ['True', 'False']):
-        danger_status = 'Boolean'
-    elif child_el.tag == 'Num' and child_el.get('n'):
-        danger_status = 'Number'
-    else:
-        danger_status = None
-    return danger_status
-
-def get_danger_status_3_8(child_el):
-    if child_el.tag == 'Constant':
-        val = child_el.get('value')
-        if val in ['True', 'False']:
-            danger_status = 'Boolean'
-        else:
-            try:
-                float(val)
-            except TypeError:
-                danger_status = None
-            else:
-                danger_status = 'Number'
-    else:
-        danger_status = None
-    return danger_status
-
-def get_docstring_from_value_3_7(first_value_el):
-    if first_value_el.tag != 'Str':
-        docstring = None
-    else:
-        docstring = first_value_el.get('s')
-    return docstring
-
-def get_docstring_from_value_3_8(first_value_el):
-    if first_value_el.tag != 'Constant':
-        docstring = None
-    elif first_value_el.get('type') != 'str':
-        docstring = None
-    else:
-        docstring = first_value_el.get('value')
-    return docstring
-
-python_version = get_python_version()
-if python_version in (conf.PY3_6, conf.PY3_7):
-    get_danger_status = get_danger_status_3_7
-    get_docstring_from_value = get_docstring_from_value_3_7
-elif python_version == conf.PY3_8:
-    get_danger_status = get_danger_status_3_8
-    get_docstring_from_value = get_docstring_from_value_3_8
-else:
-    raise Exception(f"Unexpected Python version {python_version}")
+from ..utils import get_nice_pairs, layout_comment as layout
 
 FUNC_DEFN_XPATH = 'descendant-or-self::FunctionDef'
 
@@ -424,10 +373,12 @@ def mutable_default(block_dets, *, repeat=False):
     for i, mutable_default_dets in enumerate(mutable_defaults_dets):
         name, func_type_lbl, mutable_default_args = mutable_default_dets
         first = (i == 0)
+        nice_pairs = get_nice_pairs(
+            mutable_default_args, pair_glue=' defaults to a ')
         issue = layout(f"""\
 
         `{name}` has the following parameters with mutable defaults:
-        {get_nice_pairs(mutable_default_args, left_quoter='')}.
+        {nice_pairs}.
         """)
         brief_summary_bits.append(issue)
         main_summary_bits.append(issue)

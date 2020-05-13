@@ -314,18 +314,18 @@ def one_method_classes(block_dets, *, repeat=False):
     func_plural = 's' if multi_sole else ''
     summary = layout(f"""\
 
-    ### Possible option of converting class{class_plural} to single function{func_plural}
+    ### Possible option of converting class{class_plural} to single
+    function{func_plural}
 
-    The following class{class_plural} only {class_have_has} one main function at
+    The following class{class_plural} only {class_have_has} one main method at
     most (excluding `__init__`):
-
     """)
     n_methods_msg_bits = []
     for class_name, method_name in classes_sole_methods:
-        method2use = (
-            f"`{method_name}`" if method_name else 'nothing but `__init__`')
+        method2use = (f"`{method_name}`" if method_name
+            else 'nothing but `__init__` (if even that)')
         n_methods_msg_bits.append(layout(f"""\
-        - {class_name}: {method2use}
+        - `{class_name}`: {method2use}
         """))
     n_methods_msg = ''.join(n_methods_msg_bits)
     if not repeat:

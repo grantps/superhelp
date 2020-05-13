@@ -1,30 +1,10 @@
 from collections import namedtuple
 
 from ..advisors import all_blocks_advisor
-from .. import conf
-from ..utils import get_python_version, layout_comment as layout
+from .. import ast_funcs, conf
+from ..utils import layout_comment as layout
 
 NTDets = namedtuple('NamedTupleDetails', 'name, label, fields_str, fields_list')
-
-def get_lbl_flds_3_7(assign_block_el):
-    label_el, fields_el = assign_block_el.xpath('value/Call/args/Str')
-    label = label_el.get('s')
-    fields_str = fields_el.get('s')
-    return label, fields_str
-
-def get_lbl_flds_3_8(assign_block_el):
-    label_el, fields_el = assign_block_el.xpath('value/Call/args/Constant')
-    label = label_el.get('value')
-    fields_str = fields_el.get('value')
-    return label, fields_str
-
-python_version = get_python_version()
-if python_version in (conf.PY3_6, conf.PY3_7):
-    get_lbl_flds = get_lbl_flds_3_7
-elif python_version == conf.PY3_8:
-    get_lbl_flds = get_lbl_flds_3_8
-else:
-    raise Exception(f"Unexpected Python version {python_version}")
 
 def get_named_tuple_dets(named_tuple_el):
     """
@@ -33,7 +13,7 @@ def get_named_tuple_dets(named_tuple_el):
     ancestor_elements = named_tuple_el.xpath('ancestor-or-self::*')
     assign_block_el = ancestor_elements[-5]  ##  Assign value Call func Name
     name = assign_block_el.xpath('targets/Name')[0].get('id')
-    label, fields_str = get_lbl_flds(assign_block_el)
+    label, fields_str = ast_funcs.get_lbl_flds(assign_block_el)
     fields_list = [field.strip() for field in fields_str.split(',')]
     named_tuple_dets = NTDets(name, label, fields_str, fields_list)
     return named_tuple_dets

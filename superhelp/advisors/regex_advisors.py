@@ -1,34 +1,6 @@
 from ..advisors import all_blocks_advisor
-from .. import conf
-from ..utils import get_python_version, layout_comment as layout
-
-def get_str_els_3_7(block_el):
-    str_els = block_el.xpath('descendant-or-self::Str')
-    return str_els
-
-def get_str_val_3_7(val_el):
-    str_val = val_el.get('s')
-    return str_val
-
-def get_str_els_3_8(block_el):
-    constant_els = block_el.xpath('descendant-or-self::Constant')
-    str_els = [constant_el for constant_el in constant_els
-        if constant_el.get('type') == 'str']
-    return str_els
-
-def get_str_val_3_8(val_el):
-    str_val = val_el.get('value')
-    return str_val
-
-python_version = get_python_version()
-if python_version in (conf.PY3_6, conf.PY3_7):
-    get_str_els = get_str_els_3_7
-    get_str_val = get_str_val_3_7
-elif python_version == conf.PY3_8:
-    get_str_els = get_str_els_3_8
-    get_str_val = get_str_val_3_8
-else:
-    raise Exception(f"Unexpected Python version {python_version}")
+from .. import ast_funcs, conf
+from ..utils import layout_comment as layout
 
 def imported_re(block_el):
     ## straight import
@@ -74,9 +46,9 @@ def used_inline_verbose(block_el):
     ## Treating presence of '(?x)' as sign of in-line verbose mode indicator.
     ## To be honest, if it actually is there for another reason the worst that
     ## happens is we don't let them know about verbose option when we could have
-    str_els = get_str_els(block_el)
+    str_els = ast_funcs.str_els_from_block(block_el)
     for str_el in str_els:
-        str_val = get_str_val(str_el)
+        str_val = ast_funcs.str_from_el(str_el)
         if str_val and str_val.startswith(conf.INLINE_RE_VERBOSE_FLAG):
             used_inline_verbose = True
             break

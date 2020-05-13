@@ -1,7 +1,8 @@
 from ..advisors import any_block_advisor, filt_block_advisor
+from ..ast_funcs import get_assigned_name, assigned_str_els_from_block, \
+    get_str_els_being_combined
 from .. import code_execution, conf
-from ..utils import get_nice_str_list, get_python_version, \
-    layout_comment as layout
+from ..utils import get_nice_str_list, layout_comment as layout
 
 F_STR = 'f-string'
 STR_FORMAT_FUNC = 'str_format'
@@ -16,82 +17,44 @@ STR_ADDITION_XPATH = 'descendant-or-self::BinOp/left/Str'  ## each left has a ri
 
 F_STR_REMINDER = False
 
-def get_str_els_3_7(block_el):
-    str_els = block_el.xpath('descendant-or-self::Assign/value/Str')
-    return str_els
-
-def get_str_els_3_8(block_el):
-    assign_val_els = block_el.xpath(ASSIGN_VALUE_XPATH)
-    str_els = []
-    for assign_val_el in assign_val_els:
-        assign_str_els = assign_val_el.xpath('Constant')
-        if len(assign_str_els) != 1:
-            continue
-        assign_str_el = assign_str_els[0]
-        if assign_str_el.get('type') == 'str':
-            str_els.append(assign_str_el)
-    return str_els
-
-def get_str_els_being_combined_3_7(block_el):
-    str_els_being_combined = block_el.xpath(
-        'descendant-or-self::BinOp/left/Str')
-    return str_els_being_combined
-
-def get_str_els_being_combined_3_8(block_el):
-    left_str_els = block_el.xpath('descendant-or-self::BinOp/left/Constant')
-    str_els_being_combined = []
-    for left_str_el in left_str_els:
-        if left_str_el.get('type') == 'str':
-            str_els_being_combined.append(left_str_el)
-    return str_els_being_combined
-
-python_version = get_python_version()
-if python_version in (conf.PY3_6, conf.PY3_7):
-    get_str_els = get_str_els_3_7
-    get_str_els_being_combined = get_str_els_being_combined_3_7
-elif python_version == conf.PY3_8:
-    get_str_els = get_str_els_3_8
-    get_str_els_being_combined = get_str_els_being_combined_3_8
-else:
-    raise Exception(f"Unexpected Python version {python_version}")
-
 @filt_block_advisor(xpath=ASSIGN_VALUE_XPATH)
 def assigned_str_overview(block_dets, *, repeat=False):
     """
     Provide overview of assigned strings e.g. name = 'Hamish'.
     """
-    str_els = get_str_els(block_dets.element)
+    str_els = assigned_str_els_from_block(block_dets.element)
     if not str_els:
         return None
+    names = []
+    for str_el in str_els:
+        name_type, name_details, name_str = get_assigned_name(str_el)
+        names.append((name_type, name_details, name_str))
+    name_strs = [name_str for _name_type, _name_details, name_str in names]
+    multiple = (len(set(name_strs)) > 1)
 
     title = layout("""\
     #### String Overview
     """)
-    names = set()
-    for str_el in str_els:
-        assign_el = str_el.xpath('ancestor::Assign')[0]
-        name = assign_el.xpath('targets/Name')[0].get('id')
-        names.add(name)
-    multiple = (len(names) > 1)
     if multiple:
-        nice_list_str = get_nice_str_list(sorted(names), quoter='`')
+        name_strs = [name_str for _name_type, _name_details, name_str in names]
+        nice_list_str = get_nice_str_list(sorted(name_strs), quoter='`')
         summary = layout(f"""\
         {nice_list_str} are all strings
         """)
     else:
+        _name_type, _name_details, name_str = names[0]
         summary = layout(f"""\
-        `{name}` is a string.
+        `{name_str}` is a string.
         """)
     if not repeat:
         cool = layout("""\
         Python makes it easy to do lots of cool things with strings.
         """)
-        first_str_el = str_els[0]
-        first_assign_el = first_str_el.xpath('ancestor::Assign')[0]
-        first_name = first_assign_el.xpath('targets/Name')[0].get('id')
+        first_name_type, first_name_details, first_name = names[0]
         try:
-            first_val = code_execution.get_val(block_dets.pre_block_code_str,
-                block_dets.block_code_str, first_name)
+            first_val = code_execution.get_val(
+                block_dets.pre_block_code_str, block_dets.block_code_str,
+                first_name_type, first_name_details, first_name)
         except KeyError:
             name2use = 'address'
             val2use = 'Waiuku, New Zealand'

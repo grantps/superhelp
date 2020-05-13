@@ -2,31 +2,8 @@ from collections import defaultdict
 
 from ..advisors import get_unpacking_msg, all_blocks_advisor, \
     filt_block_advisor
-from .. import conf, utils
-from ..utils import get_python_version, layout_comment as layout
-
-def get_slice_n_3_7(assign_el):
-    slice_n = assign_el.xpath(
-        'value/Subscript/slice/Index/value/Num')[0].get('n')
-    return slice_n
-
-def get_slice_n_3_8(assign_el):
-    val_els = assign_el.xpath('value/Subscript/slice/Index/value/Constant')
-    val_el = val_els[0]
-    if val_el.get('type') in ('int', 'float'):
-        slice_n = val_el.get('value')
-    else:
-        raise TypeError("slice index value not an int or a float - actual type "
-            f"'{val_el.get('type')}'")
-    return slice_n
-
-python_version = get_python_version()
-if python_version in (conf.PY3_6, conf.PY3_7):
-    get_slice_n = get_slice_n_3_7
-elif python_version == conf.PY3_8:
-    get_slice_n = get_slice_n_3_8
-else:
-    raise Exception(f"Unexpected Python version {python_version}")
+from .. import ast_funcs, conf, utils
+from ..utils import layout_comment as layout
 
 ASSIGN_UNPACKING_XPATH = 'descendant-or-self::Assign/targets/Tuple'
 
@@ -84,8 +61,8 @@ def unpacking_opportunity(blocks_dets):
             try:
                 slice_source = assign_el.xpath(
                     'value/Subscript/value/Name')[0].get('id')
-                slice_n = get_slice_n(assign_el)
-            except IndexError:
+                slice_n = ast_funcs.get_slice_n(assign_el)
+            except (IndexError, TypeError):
                 continue
             else:
                 source_slices[slice_source].add(slice_n)

@@ -30,9 +30,10 @@ else:
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 ## All snippets here should be raw strings (see https://stackoverflow.com/questions/53636723/python-parsing-code-with-new-line-character-in-them-using-ast)
 TEST_SNIPPET = r"""
-def multifunc(posonly_arg1=1, posonly_arg2=[], /,
-        arg1=2, arg2=3, arg3=[], *, kwonly_arg1={}):
+pet = 'cat'
+class Family:
     pass
+Family.pet = pet
 """
 
 PY3_6 = '3.6'
@@ -90,6 +91,10 @@ EXAMPLES_OF_TYPES = {  ## best to include at least three so we have enough to ap
     DICT_TYPE: [{'x': 10, 'y': 2}, {'x': -3, 'y': 20}, {'x': 44, 'y': -180}],
     TUPLE_TYPE: [(10, 2), (-3, 20), (44, -180)],
 }
+
+STD_NAME = 'std_name'
+DICT_KEY_NAME = 'dict_key_name'
+OBJ_ATTR_NAME = 'obj_attr_name'
 
 MAX_BRIEF_FUNC_LOC = 35
 MAX_BRIEF_FUNC_ARGS = 6
