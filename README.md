@@ -1,6 +1,8 @@
-0# https://git.nzoss.org.nz/pyGrant/superhelp
+## https://github.com/grantps/superhelp
 
-version number: 0.9.23
+![Example HTML output](https://github.com/grantps/superhelp/raw/master/superhelp_logo_padded_small.png)
+
+version number: 0.9.24
 author: Grant Paton-Simpson
 
 ## Overview
@@ -16,7 +18,7 @@ the terminal and web browsers (perhaps as part of on-line tutorials).
 Click the button below to open a Binder Jupyter Notebook you can play around
 in e.g. get advice on a snippet or line of Python
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/git/https%3A%2F%2Fgit.nzoss.org.nz%2FpyGrant%2Fsuperhelp.git/master?filepath=notebooks%2FSuperhelpDemo.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/git/https%3A%2F%2Fgithub.com%2Fgrantps%2Fsuperhelp.git/master?filepath=notebooks%2FSuperhelpDemo.ipynb)
 
 or put the following at the top of your Python script and run the script:
 
@@ -81,15 +83,15 @@ it.
 
 ## Screenshot from HTML output
 
-![Example HTML output](https://git.nzoss.org.nz/pyGrant/superhelp/-/raw/master/example_html_output_1.png)
+![Example HTML output](https://github.com/grantps/superhelp/raw/master/example_html_output_1.png)
 
 ## Screenshot from Terminal output
 
-![Example Terminal output](https://git.nzoss.org.nz/pyGrant/superhelp/-/raw/master/example_terminal_output_1.png)
+![Example Terminal output](https://github.com/grantps/superhelp/raw/master/example_terminal_output_1.png)
 
 ## Screenshot from Markdown output
 
-![Example Markdown output](https://git.nzoss.org.nz/pyGrant/superhelp/-/raw/master/example_markdown_output_1.png)
+![Example Markdown output](https://github.com/grantps/superhelp/raw/master/example_markdown_output_1.png)
 
 ## Using SuperHELP on the Notebook
 
