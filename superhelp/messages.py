@@ -254,12 +254,6 @@ def get_separated_messages_dets(snippet, snippet_block_els, xml, *,
                 first_line_no=None, warning=False, source=conf.SYSTEM_MESSAGE)]
     return overall_snippet_messages_dets, block_level_messages_dets
 
-def store_ast_output(xml):
-    _tmp_ast_fh, tmp_ast_output_xml_fpath = make_open_tmp_file(
-        conf.AST_OUTPUT_XML_FNAME, mode='w')
-    xml.getroottree().write(str(tmp_ast_output_xml_fpath), pretty_print=True)
-    logging.info("\n\n\n\n\nUpdating AST\n\n\n\n\n")
-
 def get_snippet_dets(snippet, warnings_only=False):
     """
     Get details for snippet of code.
@@ -272,7 +266,7 @@ def get_snippet_dets(snippet, warnings_only=False):
     tree = get_tree(snippet)
     xml = xml_from_tree(tree)
     if conf.RECORD_AST:
-        store_ast_output(xml)
+        ast_funcs.store_ast_output(xml)
     snippet_block_els = xml.xpath('body')[0].getchildren()  ## [0] because there is only one body under root
     multi_block_snippet = len(snippet_block_els) > 1
     snippet_messages_dets = get_separated_messages_dets(

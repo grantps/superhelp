@@ -1,7 +1,8 @@
 from collections import namedtuple
+import logging
 
 from . import conf
-from .utils import get_python_version
+from .utils import get_python_version, make_open_tmp_file
 
 AssignedNameDets = namedtuple('AssignedNameDets',
     'name_type, name_details, name_str, unpacking_idx')
@@ -24,47 +25,39 @@ def assigned_num_els_from_block_3_8(block_el):
             num_els.append(constant_el)
     return num_els
 
-def num_str_from_val_3_7(value_el):
-    positive_num_els = value_el.xpath('Num')
+def num_str_from_val_3_7(val_el):
+    positive_num_els = val_el.xpath('Num')
     if len(positive_num_els) == 1:
         num = positive_num_els[0].get('n')
-        if num not in ['0', '1']:
-            return None
     else:
-        sub_els = value_el.xpath('UnaryOp/op/USub')
+        sub_els = val_el.xpath('UnaryOp/op/USub')
         if not sub_els:
             return None
-        negative_num_els = value_el.xpath('UnaryOp/operand/Num')
+        negative_num_els = val_el.xpath('UnaryOp/operand/Num')
         if len(negative_num_els) != 1:
             return None
         pos_num = negative_num_els[0].get('n')
-        if pos_num != '1':
-            return None
         num = f'-{pos_num}'
     return num
 
-def num_str_from_val_3_8(value_el):
-    positive_num_els = value_el.xpath('Constant')
+def num_str_from_val_3_8(val_el):
+    positive_num_els = val_el.xpath('Constant')
     if len(positive_num_els) == 1:
         positive_num_el = positive_num_els[0]
         val = positive_num_el.get('value')
         if positive_num_el.get('type') not in ('int', 'float'):
             return None
-        if val not in ['0', '1']:
-            return None
         num = val
     else:
-        sub_els = value_el.xpath('UnaryOp/op/USub')
+        sub_els = val_el.xpath('UnaryOp/op/USub')
         if not sub_els:
             return None
-        negative_num_els = value_el.xpath('UnaryOp/operand/Constant')
+        negative_num_els = val_el.xpath('UnaryOp/operand/Constant')
         if len(negative_num_els) != 1:
             return None
         negative_num_el = negative_num_els[0]
         val = negative_num_el.get('value')
         if negative_num_el.get('type') not in ('int', 'float'):
-            return None
-        if val != '1':
             return None
         num = f'-{val}'
     return num
@@ -316,14 +309,17 @@ def get_docstring_from_value_3_8(first_value_el):
 
 def get_slice_dets_3_7(assign_subscript_el):
     """
-    Get slice dets e.g. '[2]' or '["NZ"]'. Only interested in numbers or
+    Get slice dets e.g. '[2]', '[-1]' or '["NZ"]'. Only interested in numbers or
     strings. If the person is doing something funky they'll miss out on learning
     about names and values.
     """
-    slice_n_els = assign_subscript_el.xpath('slice/Index/value/Num')
-    if slice_n_els:
-        slice_n = slice_n_els[0].get('n')
-        slice_dets = f'[{slice_n}]'
+    val_els = assign_subscript_el.xpath('slice/Index/value')
+    if len(val_els) != 1:
+        return None
+    val_el = val_els[0]
+    num_str = num_str_from_val_3_7(val_el)
+    if num_str:
+        slice_dets = slice_dets = f'[{num_str}]'
     else:
         slice_str_els = assign_subscript_el.xpath('slice/Index/value/Str')
         if slice_str_els:
@@ -337,15 +333,24 @@ def get_slice_dets_3_8(assign_subscript_el):
     """
     As for get_slice_dets_3_7.
     """
-    val_els = assign_subscript_el.xpath('slice/Index/value/Constant')
+    val_els = assign_subscript_el.xpath('slice/Index/value')
+    if len(val_els) != 1:
+        return None
     val_el = val_els[0]
-    val_type = val_el.get('type')
-    if val_type in ('int', 'float'):
-        slice_n = val_el.get('value')
-        slice_dets = f'[{slice_n}]'
-    elif val_type == 'str':
-        slice_str = val_el.get('value')
-        slice_dets = f'["{slice_str}"]'
+    num_str = num_str_from_val_3_8(val_el)
+    if num_str:
+        slice_dets = slice_dets = f'[{num_str}]'
+    else:
+        val_constant_els = val_el.xpath('Constant')
+        if len(val_constant_els) != 1:
+            raise Exception("Unable to get slice_dets")
+        val_constant_el = val_constant_els[0]
+        val_type = val_constant_el.get('type')
+        if val_type == 'str':
+            slice_str = val_constant_el.get('value')
+            slice_dets = f'["{slice_str}"]'
+        else:
+            raise Exception("Unable to get slice_dets")
     return slice_dets
 
 def get_lbl_flds_3_7(assign_block_el):
@@ -656,3 +661,9 @@ def get_el_lines_dets(el, *, ignore_trailing_lines=False):
                 last_line_no = min(subsequent_line_nos) - 1
         el_lines_n = last_line_no - first_line_no + 1
     return first_line_no, last_line_no, el_lines_n
+
+def store_ast_output(xml):
+    _tmp_ast_fh, tmp_ast_output_xml_fpath = make_open_tmp_file(
+        conf.AST_OUTPUT_XML_FNAME, mode='w')
+    xml.getroottree().write(str(tmp_ast_output_xml_fpath), pretty_print=True)
+    logging.info("\n\n\n\n\nUpdating AST\n\n\n\n\n")

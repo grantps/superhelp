@@ -207,4 +207,5 @@ def shelp():
         warnings_only=args.warnings_only, in_notebook=False)
 
 if __name__ == '__main__':
-    shelp()
+    get_help(file_path='store/get_verse.py')
+#     shelp()

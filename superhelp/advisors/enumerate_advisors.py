@@ -59,7 +59,7 @@ def get_var_initialised(el):
         if len(value_els) != 1:
             continue
         num = get_num(value_els[0])
-        if num is None:
+        if num not in ['0', '-1', '1']:
             continue
         name_els = assign_el.xpath('targets/Name')
         if not name_els:
