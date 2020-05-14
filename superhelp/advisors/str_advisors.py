@@ -36,7 +36,6 @@ def assigned_str_overview(block_dets, *, repeat=False):
     #### String Overview
     """)
     if multiple:
-        name_strs = [name_str for _name_type, _name_details, name_str in names]
         nice_list_str = get_nice_str_list(sorted(name_strs), quoter='`')
         summary = layout(f"""\
         {nice_list_str} are all strings
@@ -49,16 +48,17 @@ def assigned_str_overview(block_dets, *, repeat=False):
         cool = layout("""\
         Python makes it easy to do lots of cool things with strings.
         """)
-        first_name_type, first_name_details, first_name = names[0]
+        first_name_dets = names[0]
         try:
             first_val = code_execution.get_val(
                 block_dets.pre_block_code_str, block_dets.block_code_str,
-                first_name_type, first_name_details, first_name)
+                first_name_dets.name_type,
+                first_name_dets.name_details, first_name_dets.name_str)
         except KeyError:
             name2use = 'address'
             val2use = 'Waiuku, New Zealand'
         else:
-            name2use = first_name
+            name2use = first_name_dets.name_str
             val2use = first_val
         short_demo = layout(f"""\
 

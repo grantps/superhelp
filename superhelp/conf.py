@@ -22,13 +22,8 @@ LOG_LEVEL = logging.INFO  ## (logging.INFO)
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 ## All snippets here should be raw strings (see https://stackoverflow.com/questions/53636723/python-parsing-code-with-new-line-character-in-them-using-ast)
 TEST_SNIPPET = r"""
-pet = 'cat'
-car = 'Porsche'
-vehicles = {}
-class Family:
-    pass
-pet_car = (pet, car)
-Family.pet, vehicles['car'] = pet_car
+details = [(1, 2), ]
+a, b = details[0]
 """
 
 PY3_6 = '3.6'

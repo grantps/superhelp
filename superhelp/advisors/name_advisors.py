@@ -1,9 +1,17 @@
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 
 from ..advisors import all_blocks_advisor, any_block_advisor, is_reserved_name
 from .. import ast_funcs, conf, utils
-from ..utils import get_nice_pairs, get_nice_str_list, \
-    int2nice, layout_comment as layout
+from ..utils import (get_nice_str_list, int2first_etc, int2nice,
+    layout_comment as layout)
+
+PairDets = namedtuple('PairDets', 'name, name_value, unpacking_idx')
+PairDets.name.__doc__ = (
+    "Name assigned to the other name e.g. pet when pet = cat")
+PairDets.name_value.__doc__ = ("Name acting as the value having the other name "
+    "assigned to it e.g. cat when pet = cat")
+PairDets.unpacking_idx.__doc__ = ("The unpacking index if applicable "
+    "e.g if a, b = c and name is a then unpacking_idx is 0; for b it is 1")
 
 ASSIGN_SUBSCRIPT_XPATH = 'descendant-or-self::Assign/value/Subscript'
 ASSIGN_NAME_XPATH = 'descendant-or-self::Assign/value/Name'
@@ -20,7 +28,7 @@ def get_subscript_name_value(assign_subscript_el):
     name_value = f"{name_value_name}{slice_dets}"
     return name_value
 
-def pairs_from_el(name2name_el):
+def pairs_dets_from_el(name2name_el):
     """
     Get details of a name to name assignment. Note - might be multiple names
     assigned to the name_value e.g. a, b = var
@@ -52,10 +60,12 @@ def pairs_from_el(name2name_el):
     if not name_value:
         raise Exception(
             "Unable to identify name_value even though there should be one")
-    pairs = [(name_dets.name_str, name_value) for name_dets in names_dets]
-    return pairs
+    pairs_dets = [
+        PairDets(name_dets.name_str, name_value, name_dets.unpacking_idx)
+            for name_dets in names_dets]
+    return pairs_dets
 
-def get_name2name_pairs(block_el):
+def pairs_dets_from_block(block_el):
     """
     Get details of name-to-name assignments.
 
@@ -72,11 +82,11 @@ def get_name2name_pairs(block_el):
         f"{ASSIGN_SUBSCRIPT_XPATH}|{ASSIGN_NAME_XPATH}")
     if not name2name_els:
         return None
-    name2name_pairs = []
+    pairs_dets = []
     for el in name2name_els:
-        pairs = pairs_from_el(el)
-        name2name_pairs.extend(pairs)
-    return name2name_pairs
+        el_pairs_dets = pairs_dets_from_el(el)
+        pairs_dets.extend(el_pairs_dets)
+    return pairs_dets
 
 @all_blocks_advisor()
 def names_and_values(blocks_dets):
@@ -84,18 +94,49 @@ def names_and_values(blocks_dets):
     Look for names assigned to other names and explain names and values in
     Python.
     """
-    name2name_pairs = []
+    name2name_pairs_dets = []
     for block_dets in blocks_dets:
         block_el = block_dets.element
-        block_name2name_pairs = get_name2name_pairs(block_el)
-        if block_name2name_pairs:
-            name2name_pairs.extend(block_name2name_pairs)
-    if not name2name_pairs:
+        block_name2name_pairs_dets = pairs_dets_from_block(block_el)
+        if block_name2name_pairs_dets:
+            name2name_pairs_dets.extend(block_name2name_pairs_dets)
+    if not name2name_pairs_dets:
         return None
 
-    nice_name2name_pairs = get_nice_pairs(name2name_pairs,
-        pair_glue=' is assigned to ', left_quoter='`', right_quoter='`')
-    first_name, first_name_value = name2name_pairs[0]
+    name2name_pair_strs = []
+    for pair_dets in name2name_pairs_dets:
+        if pair_dets.unpacking_idx is not None:
+            first_etc_str = int2first_etc(pair_dets.unpacking_idx + 1)
+            name2name_pair_str = (
+                f"`{pair_dets.name}` is assigned to the {first_etc_str} item of"
+                f" `{pair_dets.name_value}` through value unpacking")
+        else:
+            name2name_pair_str = (
+                f"`{pair_dets.name}` is assigned to `{pair_dets.name_value}`")
+        name2name_pair_strs.append(name2name_pair_str)
+    first_pair_dets = name2name_pairs_dets[0]
+    if first_pair_dets.unpacking_idx is None:
+        example = layout(f"""\
+
+        So when your code assigned name `{first_pair_dets.name}` to another name
+        `{first_pair_dets.name_value}`, for example, it was actually linking
+        `{first_pair_dets.name}` to the **value** `{first_pair_dets.name_value}`
+        was linked to. If you reassigned `{first_pair_dets.name_value}` to
+        something else it would not affect `{first_pair_dets.name}`.
+        """)
+    else:
+        first_etc_str = int2first_etc(first_pair_dets.unpacking_idx + 1)
+        example = layout(f"""\
+
+        So when your code assigned name `{first_pair_dets.name}` to the
+        {first_etc_str} item in another name `{first_pair_dets.name_value}`, for
+        example, it was actually linking `{first_pair_dets.name}` to the
+        **value** of that item. If you replaced that item with something else it
+        would not affect `{first_pair_dets.name}`.
+        """)
+    nice_name2name_pairs = get_nice_str_list(
+        name2name_pair_strs, item_glue='; ', quoter='')
+
     title = layout("""
     ### Names assigned to names
     """)
@@ -169,11 +210,7 @@ def names_and_values(blocks_dets):
         to the string 'cat'. If we change what label `a` is attached to we don't
         affect `b`. It remains linked to 'cat'.
 
-        So when your code assigned name `{first_name}` to another name
-        `{first_name_value}`, for example, it was actually linking
-        `{first_name}` to the **value** `{first_name_value}` was linked to. If
-        you reassigned `{first_name_value}` to something else it would not
-        affect `{first_name}`.
+        {example}
 
         The names aren't necessarily independent though. If a mutable object
         like a list has multiple labels then any changes to the value, i.e. the

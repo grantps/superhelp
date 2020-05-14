@@ -198,6 +198,17 @@ def test_misc():
                 ROOT + 'names_and_values': 1,
             }
         ),
+        (
+            dedent("""\
+            details = [(1, 2), ]
+            a, b = details[0]
+            """),
+            {
+                ROOT + 'unpythonic_name_check': 0,
+                ROOT + 'short_name_check': 1,
+                ROOT + 'names_and_values': 1,
+            }
+        ),
     ]
     check_as_expected(test_conf)
 

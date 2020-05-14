@@ -143,7 +143,7 @@ def get_python_version():
     major, minor = sys.version_info[:2]
     return f"{major}.{minor}"
 
-def get_nice_str_list(items, *, quoter='`'):
+def get_nice_str_list(items, *, item_glue=', ', quoter='`'):
     """
     Get a nice English phrase listing the items.
 
@@ -153,10 +153,10 @@ def get_nice_str_list(items, *, quoter='`'):
     :return: nice phrase
     :rtype: str
     """
-    nice_str_list = ', '.join(
+    nice_str_list = item_glue.join(
         [f"{quoter}{item}{quoter}" for item in items[:-1]])
     if nice_str_list:
-        nice_str_list += ', and '
+        nice_str_list += f"{item_glue}and "
     nice_str_list += f"{quoter}{items[-1]}{quoter}"
     return nice_str_list
 
@@ -207,8 +207,29 @@ def int2nice(num):
         8: 'eight',
         9: 'nine',
         10: 'ten',
-        11: 'twelve',
+        11: 'eleven',
         12: 'twelve',
+    }
+    return nice.get(num, num)
+
+def int2first_etc(num):
+    """
+    :return: first for 1, second for 2 etc
+    :rtype: str
+    """
+    nice = {
+        1: 'first',
+        2: 'second',
+        3: 'third',
+        4: 'fourth',
+        5: 'fifth',
+        6: 'sixth',
+        7: 'seventh',
+        8: 'eighth',
+        9: 'nineth',
+        10: 'tenth',
+        11: 'eleventh',
+        12: 'twelfth',
     }
     return nice.get(num, num)
 

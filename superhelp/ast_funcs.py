@@ -4,7 +4,7 @@ from . import conf
 from .utils import get_python_version
 
 AssignedNameDets = namedtuple('AssignedNameDets',
-    'name_type, name_details, name_str')
+    'name_type, name_details, name_str, unpacking_idx')
 
 ## nums ******************************
 
@@ -436,11 +436,11 @@ else:
 
 ## =============================================================================
 
-def _std_name_dets_from_std_name_el(std_name_el):
+def _std_name_dets_from_std_name_el(std_name_el, unpacking_idx=None):
     name_str = std_name_el.get('id')
     name_details = [name_str, ]
     name_type = conf.STD_NAME
-    return AssignedNameDets(name_type, name_details, name_str)
+    return AssignedNameDets(name_type, name_details, name_str, unpacking_idx)
 
 def _std_name_dets_from_assign_el(assign_el):
     std_name_els = assign_el.xpath('targets/Name')
@@ -450,7 +450,7 @@ def _std_name_dets_from_assign_el(assign_el):
     std_name_dets = _std_name_dets_from_std_name_el(std_name_el)
     return std_name_dets
 
-def _obj_attr_name_dets_from_attribute_el(attribute_el):
+def _obj_attr_name_dets_from_attribute_el(attribute_el, unpacking_idx=None):
     attribute_name = attribute_el.get('attr')
     obj_name_els = attribute_el.xpath('value/Name')
     if len(obj_name_els) != 1:
@@ -460,7 +460,7 @@ def _obj_attr_name_dets_from_attribute_el(attribute_el):
     name_str = f"{obj_only_name}.{attribute_name}"
     name_details = [obj_only_name, attribute_name]
     name_type = conf.OBJ_ATTR_NAME
-    return AssignedNameDets(name_type, name_details, name_str)
+    return AssignedNameDets(name_type, name_details, name_str, unpacking_idx)
 
 def _obj_attr_name_dets_from_assign_el(assign_el):
     """
@@ -472,7 +472,7 @@ def _obj_attr_name_dets_from_assign_el(assign_el):
     attribute_el = attribute_els[0]
     return _obj_attr_name_dets_from_attribute_el(attribute_el)
 
-def _dict_key_name_dets_from_subscript_el(subscript_el):
+def _dict_key_name_dets_from_subscript_el(subscript_el, unpacking_idx=None):
     dict_name_els = subscript_el.xpath('value/Name')
     if len(dict_name_els) != 1:
         return None
@@ -483,7 +483,7 @@ def _dict_key_name_dets_from_subscript_el(subscript_el):
     name_str = f"{dict_name}[{quoter}{dict_key}{quoter}]"
     name_details = [dict_name, dict_key]
     name_type = conf.DICT_KEY_NAME
-    return AssignedNameDets(name_type, name_details, name_str)
+    return AssignedNameDets(name_type, name_details, name_str, unpacking_idx)
 
 def _dict_key_name_dets_from_assign_el(assign_el):
     """
@@ -506,18 +506,18 @@ def _tuple_names_dets_from_assign_el(assign_el):
     tuple_elts = tuple_el.getchildren()[0]
     tuple_item_els = tuple_elts.getchildren()
     tuple_names_dets = []
-    for tuple_item_el in tuple_item_els:
+    for unpacking_idx, tuple_item_el in enumerate(tuple_item_els):
         if tuple_item_el.tag == 'Name':
             std_name_dets = _std_name_dets_from_std_name_el(
-                std_name_el=tuple_item_el)
+                std_name_el=tuple_item_el, unpacking_idx=unpacking_idx)
             tuple_names_dets.append(std_name_dets)
         elif tuple_item_el.tag == 'Attribute':
             obj_attr_name_dets = _obj_attr_name_dets_from_attribute_el(
-                attribute_el=tuple_item_el)
+                attribute_el=tuple_item_el, unpacking_idx=unpacking_idx)
             tuple_names_dets.append(obj_attr_name_dets)
         elif tuple_item_el.tag == 'Subscript':
             dict_key_name_dets = _dict_key_name_dets_from_subscript_el(
-                subscript_el=tuple_item_el)
+                subscript_el=tuple_item_el, unpacking_idx=unpacking_idx)
             tuple_names_dets.append(dict_key_name_dets)
     return tuple_names_dets
 
