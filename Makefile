@@ -1,7 +1,7 @@
 
 git:
 	/home/g/projects/superhelp/superhelp/env/bin/nosetests
-	sed -i 's/^test_misc()/# test_misc()/' /home/g/projects/superhelp/tests/*.py
+	sed -i 's/^test_/# test_/' /home/g/projects/superhelp/tests/*.py
 	sed -i 's/RECORD_AST = t/RECORD_AST = f/' /home/g/projects/superhelp/superhelp/conf.py
 	sed -i 's/DEV_MODE = t/DEV_MODE = f/' /home/g/projects/superhelp/superhelp/conf.py
 	sed -i 's/DO_HTML = f/DO_HTML = t/' /home/g/projects/superhelp/superhelp/conf.py

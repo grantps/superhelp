@@ -46,19 +46,28 @@ def get_overall_func_type_lbl(func_els):
         conf.FUNCTION_LBL if includes_plain_function else conf.METHOD_LBL)
     return overall_func_type_lbl
 
+def count_args(func_el):
+    """
+    Have to handle positional-only, keyword-only, and standard arguments. Not
+    counting any unpacked args (vararg and kwarg).
+    """
+    posonlyargs = func_el.xpath('args/arguments/posonlyargs/arg')  ## python 3.8+
+    args = func_el.xpath('args/arguments/args/arg')
+    kwonlyargs = func_el.xpath('args/arguments/kwonlyargs/arg')
+    all_args_n = len(posonlyargs + args + kwonlyargs)
+    return all_args_n
+
 def _get_arg_comment(func_el, *, repeat=False):
     """
-    Must cope with positional arguments, keyword arguments, keyword-only
-    arguments, packed positional arguments, and packed keyword arguments.
-    Trivial really ;-).
+    Must cope with positional-only arguments, positional arguments, keyword
+    arguments, keyword-only arguments, packed positional arguments, and packed
+    keyword arguments. Trivial really ;-).
 
     Comment should end without a full stop because calling code adds that to
     make the sentence structure more explicit.
     """
-    args = func_el.xpath('args/arguments/args/arg')
     vararg = func_el.xpath('args/arguments/vararg/arg')
     kwarg = func_el.xpath('args/arguments/kwarg/arg')
-    kwonlyargs = func_el.xpath('args/arguments/kwonlyargs/arg')
     has_packing = (vararg or kwarg)
     if has_packing:
         arg_comment = 'receives a variable number of arguments'
@@ -80,7 +89,7 @@ def _get_arg_comment(func_el, *, repeat=False):
                     "better name in a particular case the Python convention is "
                     "to call that dictionary 'kwargs'")
     else:
-        all_args_n = len(args + kwonlyargs)
+        all_args_n = count_args(func_el)
         if all_args_n:
             nice_n_args = utils.int2nice(all_args_n)
             arg_comment = (f"receives {nice_n_args} argument")
@@ -125,13 +134,13 @@ def _get_return_comment(func_type_lbl, return_elements, *,
         if not repeat:
             if keyword_returns_n > 1:
                 returns_comment += (
-                    f"s. Some people prefer {func_type_lbl}s to have one, and "
-                    "only one exit point for clarity. Others disagree e.g. "
-                    f"using early returns to short-circuit {func_type_lbl}s if "
-                    "initial validation of some sort makes it possible to avoid"
-                    f" the bulk of the {func_type_lbl}. Whatever approach you "
-                    f"take make sure your {func_type_lbl} is easy to reason "
-                    "about in terms of what it returns and where it exits")
+                f"s. Some people prefer {func_type_lbl}s to have one, and only "
+                "one exit point for clarity. Others disagree e.g. using early "
+                f"returns to short-circuit {func_type_lbl}s if initial "
+                "validation of some sort makes it possible to avoid the bulk of"
+                f" the {func_type_lbl}. Whatever approach you take make sure "
+                f"your {func_type_lbl} is easy to reason about in terms of what"
+                " it returns and where it exits")
     return returns_comment
 
 def _get_exit_comment(func_el, func_type_lbl, *, repeat=False):

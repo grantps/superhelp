@@ -1,6 +1,17 @@
 from textwrap import dedent
 
-from tests import check_as_expected, get_repeated_lines
+from nose.tools import assert_equal
+
+from tests import check_as_expected, get_repeated_lines, get_actual_result
+
+try:
+    from ..superhelp.advisors.func_advisors import count_args  # @UnresolvedImport @UnusedImport
+except (ImportError, ValueError):
+    from pathlib import Path
+    import sys
+    parent = str(Path.cwd().parent)
+    sys.path.insert(0, parent)
+    from superhelp.advisors.func_advisors import count_args  # @Reimport
 
 excess_args = ', '.join(['arg' + str(i) for i in range(100)])
 
@@ -229,4 +240,33 @@ def test_misc():
     ]
     check_as_expected(test_conf)
 
+def test_arg_count():
+    """
+    Testing positional-only arguments so Python 3.8+ only
+    """
+    xpath = 'descendant-or-self::FunctionDef'
+
+    inc_posonly_func_snippet = dedent("""\
+    def multifunc(posonly_arg1=1, posonly_arg2=[], /,
+            arg1=2, arg2=3, arg3=[], *, kwonly_arg1={}):
+        pass
+    """)
+    func_snippet1 = dedent("""\
+    def multifunc(arg1=2, arg2=3, arg3=[], *, kwonly_arg1={}):
+        pass
+    """)
+    func_snippet2 = dedent("""\
+    def multifunc(arg1, arg2, arg3, arg4, arg5, arg6, arg7):
+        pass
+    """)
+    tests = [
+        (inc_posonly_func_snippet, count_args, 6),
+        (func_snippet1, count_args, 4),
+        (func_snippet2, count_args, 7),
+    ]
+    for snippet, test_func, expected_result in tests:
+        actual_result = get_actual_result(snippet, xpath, test_func)
+        assert_equal(expected_result, actual_result)
+
 # test_misc()
+# test_arg_count()

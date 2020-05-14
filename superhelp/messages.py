@@ -1,100 +1,21 @@
-import ast
 from collections import namedtuple
-from functools import partial
 import logging
-
-from lxml import etree
-import astpath  # @UnresolvedImport
-
-from astpath.asts import _set_encoded_literal, _strip_docstring
-
-## Monkey-patch as at astpath Python 3.8 as at 2020-04-26
-## Need to be able to tell val = 1 from val = '1' (that little detail ;-))
-## Pull request fixing this was accepted and merged May 2020
-def convert_to_xml(node, omit_docstrings=False, node_mappings=None):
-    """Convert supplied AST node to XML."""
-    possible_docstring = isinstance(node, (ast.FunctionDef, ast.ClassDef, ast.Module))
-
-    xml_node = etree.Element(node.__class__.__name__)
-    for attr in ('lineno', 'col_offset'):
-        value = getattr(node, attr, None)
-        if value is not None:
-            _set_encoded_literal(
-                partial(xml_node.set, attr),
-                value
-            )
-    if node_mappings is not None:
-        node_mappings[xml_node] = node
-
-    node_fields = zip(
-        node._fields,
-        (getattr(node, attr) for attr in node._fields)
-    )
-
-    for field_name, field_value in node_fields:
-        if isinstance(field_value, ast.AST):
-            field = etree.SubElement(xml_node, field_name)
-            field.append(
-                convert_to_xml(
-                    field_value,
-                    omit_docstrings,
-                    node_mappings,
-                )
-            )
-
-        elif isinstance(field_value, list):
-            field = etree.SubElement(xml_node, field_name)
-            if possible_docstring and omit_docstrings and field_name == 'body':
-                field_value = _strip_docstring(field_value)
-
-            for item in field_value:
-                if isinstance(item, ast.AST):
-                    field.append(
-                        convert_to_xml(
-                            item,
-                            omit_docstrings,
-                            node_mappings,
-                        )
-                    )
-                else:
-                    subfield = etree.SubElement(field, 'item')
-                    _set_encoded_literal(
-                        partial(setattr, subfield, 'text'),
-                        item
-                    )
-
-        elif field_value is not None:
-
-            ## The only change is this immediate function call below
-            ## add type attribute e.g. so we can distinguish strings from numbers etc
-            ## <Constant lineno="1" col_offset="6" type="int" value="1"/>
-            _set_encoded_literal(
-                partial(xml_node.set, 'type'),
-                type(field_value).__name__
-            )
-
-            _set_encoded_literal(
-                partial(xml_node.set, field_name),
-                field_value
-            )
-
-    return xml_node
-
-astpath.asts.convert_to_xml = convert_to_xml
 
 ## importing from superhelp only works properly after I've installed superhelp as a pip package (albeit as a link to this code using python3 -m pip install --user -e <path_to_proj_folder>)
 ## Using this as a library etc works with . instead of superhelp but I want to be be able to run the helper module from within my IDE
 
 try:
     from . import advisors, ast_funcs, conf  # @UnresolvedImport @UnusedImport
-    from ..utils import get_docstring_start, layout_comment as layout, make_open_tmp_file  # @UnresolvedImport @UnusedImport
+    from ..utils import (get_docstring_start, get_tree,  # @UnresolvedImport @UnusedImport
+        layout_comment as layout, make_open_tmp_file, xml_from_tree)  # @UnresolvedImport @UnusedImport
 except (ImportError, ValueError):
     from pathlib import Path
     import sys
     parent = str(Path.cwd().parent)
     sys.path.insert(0, parent)
     from superhelp import advisors, ast_funcs, conf  # @Reimport
-    from superhelp.utils import get_docstring_start, layout_comment as layout, make_open_tmp_file  # @Reimport
+    from superhelp.utils import (get_docstring_start, get_tree,  # @Reimport
+        layout_comment as layout, make_open_tmp_file, xml_from_tree)  # @Reimport
 
 BlockDets = namedtuple(
     'BlockDets', 'element, pre_block_code_str, block_code_str, first_line_no')
@@ -108,14 +29,6 @@ MessageDets.__doc__ += (
 MessageDets.code_str.__doc__ = ("The block of code the message relates to")
 MessageDets.source.__doc__ = ("A unique identifier of the source of message "
     "- useful for auditing / testing")
-
-def _get_tree(snippet):
-    try:
-        tree = ast.parse(snippet)
-    except SyntaxError as e:
-        raise SyntaxError(
-            f"Oops - something seems broken in the snippet - details: {e}")
-    return tree
 
 def get_blocks_dets(snippet, snippet_block_els):
     """
@@ -356,8 +269,8 @@ def get_snippet_dets(snippet, warnings_only=False):
      multi_block_snippet (bool)
     :rtype: tuple
     """
-    tree = _get_tree(snippet)
-    xml = astpath.asts.convert_to_xml(tree)
+    tree = get_tree(snippet)
+    xml = xml_from_tree(tree)
     if conf.RECORD_AST:
         store_ast_output(xml)
     snippet_block_els = xml.xpath('body')[0].getchildren()  ## [0] because there is only one body under root

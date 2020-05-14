@@ -3,14 +3,16 @@ import astpath
 from nose.tools import assert_equal, assert_not_equal, assert_true, assert_false  # @UnusedImport @UnresolvedImport
 try:
     from ..superhelp import conf  # @UnresolvedImport
-    from ..superhelp.messages import _get_tree, get_separated_messages_dets, store_ast_output  # @UnresolvedImport
+    from ..superhelp.messages import get_separated_messages_dets, store_ast_output  # @UnresolvedImport
+    from ..superhelp.utils import get_tree, xml_from_tree  # @UnresolvedImport
 except (ImportError, ValueError):
     from pathlib import Path
     import sys
     parent = str(Path.cwd().parent)
     sys.path.insert(0, parent)
     from superhelp import conf  # @Reimport
-    from superhelp.messages import _get_tree, get_separated_messages_dets, store_ast_output  # @Reimport
+    from superhelp.messages import get_separated_messages_dets, store_ast_output  # @Reimport
+    from superhelp.utils import get_tree, xml_from_tree  # @Reimport
 
 conf.INCLUDE_LINTING = False
 
@@ -49,7 +51,7 @@ def check_as_expected(test_conf):
      sources and their expected frequencies
     """
     for snippet, expected_source_freqs in test_conf:
-        tree = _get_tree(snippet)
+        tree = get_tree(snippet)
         xml = astpath.asts.convert_to_xml(tree)
         store_ast_output(xml)
         snippet_block_els = xml.xpath('body')[0].getchildren()  ## [0] because there is only one body under root
@@ -64,6 +66,21 @@ def check_as_expected(test_conf):
              f"\n\nActual:\n{actual_source_freqs}"
             )
         )
+
+def get_actual_result(snippet, xpath, func):
+    """
+    Return actual result from running supplied function on first element
+    matching xpath criteria.
+
+    :param str snippet: valid snippet of Python code
+    :param str xpath: valid xpath
+    :param function func: function expecting first matching element as input
+    """
+    tree = get_tree(snippet)
+    xml = xml_from_tree(tree)
+    el = xml.xpath(xpath)[0]
+    actual_result = func(el)
+    return actual_result
 
 def get_repeated_lines(*, item='pass', lpad=16, n_lines=100):
     """

@@ -30,10 +30,9 @@ else:
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 ## All snippets here should be raw strings (see https://stackoverflow.com/questions/53636723/python-parsing-code-with-new-line-character-in-them-using-ast)
 TEST_SNIPPET = r"""
-pet = 'cat'
-class Family:
+def multifunc(posonly_arg1=1, posonly_arg2=[], /,
+        arg1=2, arg2=3, arg3=[], *, kwonly_arg1={}):
     pass
-Family.pet = pet
 """
 
 PY3_6 = '3.6'
