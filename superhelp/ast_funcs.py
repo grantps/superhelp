@@ -1,5 +1,10 @@
+from collections import namedtuple
+
 from . import conf
 from .utils import get_python_version
+
+AssignedNameDets = namedtuple('AssignedNameDets',
+    'name_type, name_details, name_str')
 
 ## nums ******************************
 
@@ -429,33 +434,94 @@ elif python_version == conf.PY3_8:
 else:
     raise Exception(f"Unexpected Python version {python_version}")
 
-def _get_obj_attr_name(assign_el):
-    attribute_els = assign_el.xpath('targets/Attribute')
-    if len(attribute_els) != 1:
+## =============================================================================
+
+def _std_name_dets_from_std_name_el(std_name_el):
+    name_str = std_name_el.get('id')
+    name_details = [name_str, ]
+    name_type = conf.STD_NAME
+    return AssignedNameDets(name_type, name_details, name_str)
+
+def _std_name_dets_from_assign_el(assign_el):
+    std_name_els = assign_el.xpath('targets/Name')
+    if len(std_name_els) != 1:
         return None
-    attribute_el = attribute_els[0]
+    std_name_el = std_name_els[0]
+    std_name_dets = _std_name_dets_from_std_name_el(std_name_el)
+    return std_name_dets
+
+def _obj_attr_name_dets_from_attribute_el(attribute_el):
     attribute_name = attribute_el.get('attr')
     obj_name_els = attribute_el.xpath('value/Name')
     if len(obj_name_els) != 1:
         return None
     obj_name_el = obj_name_els[0]
     obj_only_name = obj_name_el.get('id')
-    return obj_only_name, attribute_name
+    name_str = f"{obj_only_name}.{attribute_name}"
+    name_details = [obj_only_name, attribute_name]
+    name_type = conf.OBJ_ATTR_NAME
+    return AssignedNameDets(name_type, name_details, name_str)
 
-def _get_dict_key_name(assign_el):
-    subscript_els = assign_el.xpath('targets/Subscript')
-    if len(subscript_els) != 1:
+def _obj_attr_name_dets_from_assign_el(assign_el):
+    """
+    The target name is the attribute of an object.
+    """
+    attribute_els = assign_el.xpath('targets/Attribute')
+    if len(attribute_els) != 1:
         return None
-    subscript_el = subscript_els[0]
+    attribute_el = attribute_els[0]
+    return _obj_attr_name_dets_from_attribute_el(attribute_el)
+
+def _dict_key_name_dets_from_subscript_el(subscript_el):
     dict_name_els = subscript_el.xpath('value/Name')
     if len(dict_name_els) != 1:
         return None
     dict_name_el = dict_name_els[0]
     dict_name = dict_name_el.get('id')
     dict_key, needs_quoting = dict_key_from_subscript(subscript_el)
-    return dict_name, dict_key, needs_quoting
+    quoter = '"' if needs_quoting else ''
+    name_str = f"{dict_name}[{quoter}{dict_key}{quoter}]"
+    name_details = [dict_name, dict_key]
+    name_type = conf.DICT_KEY_NAME
+    return AssignedNameDets(name_type, name_details, name_str)
 
-def get_assigned_name(element):
+def _dict_key_name_dets_from_assign_el(assign_el):
+    """
+    The target name is the key of a dictionary.
+    """
+    subscript_els = assign_el.xpath('targets/Subscript')
+    if len(subscript_els) != 1:
+        return None
+    subscript_el = subscript_els[0]
+    return _dict_key_name_dets_from_subscript_el(subscript_el)
+
+def _tuple_names_dets_from_assign_el(assign_el):
+    """
+    The target names are in a tuple.
+    """
+    tuple_els = assign_el.xpath('targets/Tuple')
+    if len(tuple_els) != 1:
+        return None
+    tuple_el = tuple_els[0]
+    tuple_elts = tuple_el.getchildren()[0]
+    tuple_item_els = tuple_elts.getchildren()
+    tuple_names_dets = []
+    for tuple_item_el in tuple_item_els:
+        if tuple_item_el.tag == 'Name':
+            std_name_dets = _std_name_dets_from_std_name_el(
+                std_name_el=tuple_item_el)
+            tuple_names_dets.append(std_name_dets)
+        elif tuple_item_el.tag == 'Attribute':
+            obj_attr_name_dets = _obj_attr_name_dets_from_attribute_el(
+                attribute_el=tuple_item_el)
+            tuple_names_dets.append(obj_attr_name_dets)
+        elif tuple_item_el.tag == 'Subscript':
+            dict_key_name_dets = _dict_key_name_dets_from_subscript_el(
+                subscript_el=tuple_item_el)
+            tuple_names_dets.append(dict_key_name_dets)
+    return tuple_names_dets
+
+def get_assigned_names(element):
     """
     Get name assignment associated with the element. The element might be the
     value or the target or something but we just want to identify the closest
@@ -482,29 +548,39 @@ def get_assigned_name(element):
     except IndexError:
         raise IndexError(  ## in theory, guaranteed to be one given how we got the name2name_els
             f"Unable to identify ancestor Assign for element: {element}")
-    typical_name_els = assign_el.xpath('targets/Name')
-    if typical_name_els:
-        name_str = typical_name_els[0].get('id')
-        name_details = [name_str]
-        name_type = conf.STD_NAME
+
+    std_name_dets = _std_name_dets_from_assign_el(assign_el)
+    if std_name_dets:
+        names_dets = [std_name_dets, ]
+        return names_dets
+
+    obj_attr_name_dets = _obj_attr_name_dets_from_assign_el(assign_el)
+    if obj_attr_name_dets:
+        names_dets = [obj_attr_name_dets, ]
+        return names_dets
+
+    dict_key_name_dets = _dict_key_name_dets_from_assign_el(assign_el)
+    if dict_key_name_dets:
+        names_dets = [dict_key_name_dets, ]
+        return names_dets
+
+    tuple_names_dets = _tuple_names_dets_from_assign_el(assign_el)
+    if tuple_names_dets:
+        names_dets = tuple_names_dets
+        return names_dets
+
+    return [None, ]
+
+def get_assigned_name(element):
+    names_dets = get_assigned_names(element)
+    n_names = len(names_dets)
+    if n_names == 0:
+        raise Exception("Tried to get name but got nothing")
+    elif n_names > 1:
+        raise Exception(f"Tried to get name but got multiple names ({n_names})")
     else:
-        obj_attr_name = _get_obj_attr_name(assign_el)
-        if obj_attr_name:
-            obj_only_name, attribute_name = obj_attr_name
-            name_str = f"{obj_only_name}.{attribute_name}"
-            name_details = [obj_only_name, attribute_name]
-            name_type = conf.OBJ_ATTR_NAME
-        else:
-            dict_key_name = _get_dict_key_name(assign_el)
-            if dict_key_name:
-                dict_name, key_name, needs_quoting = dict_key_name
-                quoter = '"' if needs_quoting else ''
-                name_str = f"{dict_name}[{quoter}{key_name}{quoter}]"
-                name_details = [dict_name, key_name]
-                name_type = conf.DICT_KEY_NAME
-            else:
-                return None
-    return name_type, name_details, name_str
+        name_dets = names_dets[0]
+        return name_dets
 
 def get_el_lines_dets(el, *, ignore_trailing_lines=False):
     """

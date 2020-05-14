@@ -13,26 +13,22 @@ h = 'html'
 m = 'md'
 
 RECORD_AST = f  ## (f)
-DEV_MODE = f  ## (f)
 OUTPUT = h  ## set html as default output (h)
 SHOW_OUTPUT = t  ## f is only ever used when testing pre-display (t)
 INCLUDE_LINTING = t  ## f when running unit tests to massively speed them up (otherwise every snippet in tests is linted each time) (t)
-
+LOG_LEVEL = logging.INFO  ## (logging.INFO)
 ## =============================================================================
-
-if not DEV_MODE:
-    LOG_LEVEL = logging.INFO
-else:
-    print("\n" * 3 + "In DEV_MODE" + "\n" * 3)
-    LOG_LEVEL = logging.DEBUG
-    RECORD_AST = True
 
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 ## All snippets here should be raw strings (see https://stackoverflow.com/questions/53636723/python-parsing-code-with-new-line-character-in-them-using-ast)
 TEST_SNIPPET = r"""
-def multifunc(posonly_arg1=1, posonly_arg2=[], /,
-        arg1=2, arg2=3, arg3=[], *, kwonly_arg1={}):
+pet = 'cat'
+car = 'Porsche'
+vehicles = {}
+class Family:
     pass
+pet_car = (pet, car)
+Family.pet, vehicles['car'] = pet_car
 """
 
 PY3_6 = '3.6'

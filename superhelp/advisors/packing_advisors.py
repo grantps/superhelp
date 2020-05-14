@@ -15,7 +15,7 @@ def unpacking(block_dets, *, repeat=False):
     unpacked_els = block_dets.element.xpath(ASSIGN_UNPACKING_XPATH)
 
     title = layout("""\
-    ### Name uppacking
+    ### Name unpacking
     """)
     summary_bits = []
     for unpacked_el in unpacked_els:

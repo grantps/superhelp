@@ -182,6 +182,22 @@ def test_misc():
                 ROOT + 'names_and_values': 1,
             }
         ),
+        (
+            dedent("""\
+            pet = 'cat'
+            car = 'Porsche'
+            vehicles = {}
+            class Family:
+                pass
+            pet_car = (pet, car)
+            Family.pet, vehicles['car'] = pet_car
+            """),
+            {
+                ROOT + 'unpythonic_name_check': 0,
+                ROOT + 'short_name_check': 0,
+                ROOT + 'names_and_values': 1,
+            }
+        ),
     ]
     check_as_expected(test_conf)
 

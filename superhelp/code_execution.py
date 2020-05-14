@@ -61,19 +61,20 @@ def get_collections_dets(named_els, block_dets, *,
     names_items = []
     oversized_names = []
     for named_el in named_els:
-        name_type, name_details, name_str = ast_funcs.get_assigned_name(
-            named_el)
-        try:
-            items = get_val(
-                block_dets.pre_block_code_str, block_dets.block_code_str,
-                name_type, name_details, name_str)
-        except KeyError:
-            items = None
-        else:
-            if len(items) > conf.MAX_ITEMS_EVALUATED:
-                items = truncated_items_func(items)
-                oversized_names.append(name_str)
-        names_items.append((name_str, items))
+        names_dets = ast_funcs.get_assigned_names(named_el)
+        for name_dets in names_dets:
+            try:
+                items = get_val(
+                    block_dets.pre_block_code_str, block_dets.block_code_str,
+                    name_dets.name_type, name_dets.name_details,
+                    name_dets.name_str)
+            except KeyError:
+                items = None
+            else:
+                if len(items) > conf.MAX_ITEMS_EVALUATED:
+                    items = truncated_items_func(items)
+                    oversized_names.append(name_dets.name_str)
+            names_items.append((name_dets.name_str, items))
     if oversized_names:
         multi_oversized = len(oversized_names) > 1
         if multi_oversized:
@@ -87,8 +88,8 @@ def get_collections_dets(named_els, block_dets, *,
         else:
             oversized_msg = layout(f"""\
 
-            Because `{name_str}` is large SuperHELP has only examined the first
-            {conf.MAX_ITEMS_EVALUATED} items.
+            Because `{name_dets.name_str}` is large SuperHELP has only examined
+            the first {conf.MAX_ITEMS_EVALUATED} items.
             """)
     else:
         oversized_msg = ''

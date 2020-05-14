@@ -27,9 +27,9 @@ def assigned_str_overview(block_dets, *, repeat=False):
         return None
     names = []
     for str_el in str_els:
-        name_type, name_details, name_str = get_assigned_name(str_el)
-        names.append((name_type, name_details, name_str))
-    name_strs = [name_str for _name_type, _name_details, name_str in names]
+        name_dets = get_assigned_name(str_el)
+        names.append(name_dets)
+    name_strs = [name_dets.name_str for name_dets in names]
     multiple = (len(set(name_strs)) > 1)
 
     title = layout("""\
@@ -42,9 +42,8 @@ def assigned_str_overview(block_dets, *, repeat=False):
         {nice_list_str} are all strings
         """)
     else:
-        _name_type, _name_details, name_str = names[0]
         summary = layout(f"""\
-        `{name_str}` is a string.
+        `{names[0].name_str}` is a string.
         """)
     if not repeat:
         cool = layout("""\

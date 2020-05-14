@@ -17,16 +17,16 @@ def num_overview(block_dets, *, repeat=False):
     has_num = False
     type_firsts = {}
     for num_el in num_els:
-        name_type, name_details, name_str = get_assigned_name(num_el)
+        name_dets = get_assigned_name(num_el)
         try:
             val = code_execution.get_val(
                 block_dets.pre_block_code_str, block_dets.block_code_str,
-                name_type, name_details, name_str)
+                name_dets.name_type, name_dets.name_details, name_dets.name_str)
         except KeyError:
             continue
         else:
             val_type = type(val).__name__
-            val_types[val_type].append(name_str)
+            val_types[val_type].append(name_dets.name_str)
             if not type_firsts.get(val_type):
                 type_firsts[val_type] = val
             has_num = True
@@ -74,7 +74,7 @@ def num_overview(block_dets, *, repeat=False):
 
                 If you need an integer instead of a float use the int function.
 
-                e.g. int({name_str}) which returns {int(val)}
+                e.g. int({first_name}) which returns {int(val)}
                 """)
             if specific_comment:
                 specifics_bits.append(specific_comment)

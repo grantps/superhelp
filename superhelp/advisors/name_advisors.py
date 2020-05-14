@@ -20,12 +20,13 @@ def get_subscript_name_value(assign_subscript_el):
     name_value = f"{name_value_name}{slice_dets}"
     return name_value
 
-def get_name2name_pair(name2name_el):
+def pairs_from_el(name2name_el):
     """
-    Get details of a name to name assignment.
+    Get details of a name to name assignment. Note - might be multiple names
+    assigned to the name_value e.g. a, b = var
 
-    :return: tuple of name, name_value. name_value might be a standard Python
-     name e.g. person, or a subscript of some sort e.g. people[0] or
+    :return: list of tuples of name, name_value. name_value might be a standard
+     Python name e.g. person, or a subscript of some sort e.g. people[0] or
      capitals['NZ']
     """
     ancestor_assign_els = name2name_el.xpath('ancestor::Assign')
@@ -35,8 +36,7 @@ def get_name2name_pair(name2name_el):
         raise IndexError(  ## in theory, guaranteed to be one given how we got the name2name_els
             "Unable to identify ancestor Assign for name-to-name assignment")
     try:
-        _name_type, _name_details, name_str = ast_funcs.get_assigned_name(
-            name2name_el)
+        names_dets = ast_funcs.get_assigned_names(name2name_el)
     except Exception as e:
         raise Exception("Unable to identify name for name-value assignment. "
             f"Orig error: {e}")
@@ -52,7 +52,8 @@ def get_name2name_pair(name2name_el):
     if not name_value:
         raise Exception(
             "Unable to identify name_value even though there should be one")
-    return name_str, name_value
+    pairs = [(name_dets.name_str, name_value) for name_dets in names_dets]
+    return pairs
 
 def get_name2name_pairs(block_el):
     """
@@ -71,7 +72,10 @@ def get_name2name_pairs(block_el):
         f"{ASSIGN_SUBSCRIPT_XPATH}|{ASSIGN_NAME_XPATH}")
     if not name2name_els:
         return None
-    name2name_pairs = [get_name2name_pair(el) for el in name2name_els]
+    name2name_pairs = []
+    for el in name2name_els:
+        pairs = pairs_from_el(el)
+        name2name_pairs.extend(pairs)
     return name2name_pairs
 
 @all_blocks_advisor()
@@ -86,7 +90,6 @@ def names_and_values(blocks_dets):
         block_name2name_pairs = get_name2name_pairs(block_el)
         if block_name2name_pairs:
             name2name_pairs.extend(block_name2name_pairs)
-
     if not name2name_pairs:
         return None
 
