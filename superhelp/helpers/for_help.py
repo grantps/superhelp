@@ -1,12 +1,12 @@
 from superhelp.helpers import get_dict_comprehension_msg, \
-    get_general_comprehension_msg, get_set_comprehension_msg, filt_block_advisor
+    get_general_comprehension_msg, get_set_comprehension_msg, filt_block_help
 from ..ast_funcs import get_el_lines_dets
 from .. import conf
 from superhelp.gen_utils import layout_comment as layout
 
 FOR_XPATH = 'descendant-or-self::For'
 
-@filt_block_advisor(xpath=FOR_XPATH)
+@filt_block_help(xpath=FOR_XPATH)
 def comprehension_option(block_dets, *, repeat=False):
     """
     Provide overview of for loop to see if simple enough to be a possible
@@ -119,7 +119,7 @@ def get_incremental_iteration_dets(for_el):
         return None
     return index_name, iterable_name
 
-@filt_block_advisor(xpath=FOR_XPATH)
+@filt_block_help(xpath=FOR_XPATH)
 def for_index_iteration(block_dets, *, repeat=False):
     """
     Look to see if an opportunity for simple iteration available as more
@@ -182,7 +182,7 @@ def for_index_iteration(block_dets, *, repeat=False):
     }
     return message
 
-@filt_block_advisor(xpath=FOR_XPATH, warning=True)
+@filt_block_help(xpath=FOR_XPATH, warning=True)
 def for_else(block_dets, *, repeat=False):
     """
     Look for the for-else construct and warn about its safe usage.
@@ -260,7 +260,7 @@ def for_else(block_dets, *, repeat=False):
     }
     return message
 
-@filt_block_advisor(xpath=FOR_XPATH)
+@filt_block_help(xpath=FOR_XPATH)
 def nested_fors(block_dets, *, repeat=False):
     """
     Look to see if an opportunity for using itertools.product instead of nested

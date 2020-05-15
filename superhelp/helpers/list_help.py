@@ -1,4 +1,4 @@
-from superhelp.helpers import filt_block_advisor
+from superhelp.helpers import filt_block_help
 from .. import code_execution, conf
 from superhelp import gen_utils
 from superhelp.gen_utils import layout_comment as layout
@@ -132,7 +132,7 @@ def truncate_list(items):
 
 ## only interested in lists when being assigned as a value
 ## (i.e. <body><Assign><value><List> so we're looking for List under value only)
-@filt_block_advisor(xpath=ASSIGN_LIST_XPATH)
+@filt_block_help(xpath=ASSIGN_LIST_XPATH)
 def list_overview(block_dets, *, repeat=False):
     """
     General overview of list taking content details into account.
@@ -189,7 +189,7 @@ def list_overview(block_dets, *, repeat=False):
     }
     return message
 
-@filt_block_advisor(xpath=ASSIGN_LIST_XPATH, warning=True)
+@filt_block_help(xpath=ASSIGN_LIST_XPATH, warning=True)
 def mixed_list_types(block_dets, *, repeat=False):  # @UnusedVariable
     """
     Warns about lists containing a mix of data types.

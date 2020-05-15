@@ -1,4 +1,4 @@
-from superhelp.helpers import filt_block_advisor
+from superhelp.helpers import filt_block_help
 from .. import code_execution, conf
 from superhelp import gen_utils
 from superhelp.gen_utils import layout_comment as layout
@@ -8,7 +8,7 @@ def truncate_tuple(items):
 
 ASSIGN_TUPLE_XPATH = 'descendant-or-self::Assign/value/Tuple'
 
-@filt_block_advisor(xpath=ASSIGN_TUPLE_XPATH)
+@filt_block_help(xpath=ASSIGN_TUPLE_XPATH)
 def tuple_overview(block_dets, *, repeat=False):
     """
     Explain usage of tuples.

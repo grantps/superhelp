@@ -1,6 +1,6 @@
 from collections import defaultdict, namedtuple
 
-from superhelp.helpers import all_blocks_advisor, any_block_advisor, is_reserved_name
+from superhelp.helpers import all_blocks_help, any_block_help, is_reserved_name
 from .. import ast_funcs, conf, name_utils
 from superhelp import gen_utils
 from superhelp.gen_utils import (get_nice_str_list, int2first_etc, int2nice,
@@ -89,7 +89,7 @@ def pairs_dets_from_block(block_el):
         pairs_dets.extend(el_pairs_dets)
     return pairs_dets
 
-@all_blocks_advisor()
+@all_blocks_help()
 def names_and_values(blocks_dets):
     """
     Look for names assigned to other names and explain names and values in
@@ -375,7 +375,7 @@ def get_all_names(block_dets, *, include_non_standard=False):
         all_names = all_names + class_names + named_tuple_names
     return all_names
 
-@any_block_advisor(warning=True)
+@any_block_help(warning=True)
 def unpythonic_name_check(block_dets, *, repeat=False):
     """
     Check names used for use of reserved words and camel case.
@@ -456,7 +456,7 @@ def unpythonic_name_check(block_dets, *, repeat=False):
     }
     return message
 
-@any_block_advisor(warning=True)
+@any_block_help(warning=True)
 def short_name_check(block_dets, *, repeat=False):
     """
     Check for short variable names.

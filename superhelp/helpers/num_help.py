@@ -1,13 +1,13 @@
 from collections import defaultdict
 
-from superhelp.helpers import filt_block_advisor
+from superhelp.helpers import filt_block_help
 from ..ast_funcs import assigned_num_els_from_block
 from .. import code_execution, conf, name_utils
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
 
 ASSIGN_VAL_XPATH = 'descendant-or-self::Assign/value'
 
-@filt_block_advisor(xpath=ASSIGN_VAL_XPATH)
+@filt_block_help(xpath=ASSIGN_VAL_XPATH)
 def num_overview(block_dets, *, repeat=False):
     """
     Get general advice about assigned numbers e.g. var = 123

@@ -20,7 +20,7 @@ logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S')
 
-helpers.load_advisors()
+helpers.load_helpers()
 
 def display_messages(displayer, snippet, messages_dets, *,
         detail_level=conf.BRIEF,
@@ -188,10 +188,9 @@ def shelp():
         print("\n======================================")
         print("Specific help available from SuperHELP")
         print("======================================\n")
-        advisor_comments = helpers.get_advisor_comments()
-        num_width = len(str(len(advisor_comments)))
-        for n, (comment, source, warning) in enumerate(
-                advisor_comments, 1):
+        helper_comments = helpers.get_helper_comments()
+        num_width = len(str(len(helper_comments)))
+        for n, (comment, source, warning) in enumerate(helper_comments, 1):
             print(f"{n:>{num_width}}) {warning}{comment} ({source})")
         return
     if args.output and args.file_path:

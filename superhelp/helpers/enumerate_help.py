@@ -1,6 +1,6 @@
 import logging
 
-from superhelp.helpers import all_blocks_advisor
+from superhelp.helpers import all_blocks_help
 from ..ast_funcs import num_str_from_val, _get_var_equal_plussed, _get_var_plus_equalled
 from .. import conf
 from superhelp.gen_utils import layout_comment as layout
@@ -168,7 +168,7 @@ def get_incrementing_var(block_dets, vars_initialised, vars_incremented):
         incrementing_var = vars_incremented.pop()
     return incrementing_var
 
-@all_blocks_advisor()
+@all_blocks_help()
 def manual_incrementing(blocks_dets):
     """
     Look for manual handling of incrementing inside loops.

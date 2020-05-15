@@ -1,23 +1,23 @@
 """
-Add advisors modules inside this folder.
+Add help modules inside this folder.
 
-To add more advice, just declare more advisor functions inside the advisors
-modules with the @..._advisor decorators :-). Make sure the first paragraph of
-the docstring is a good, user-facing description of its purpose so it can be
-automatically processed into lists of available advice in SuperHELP.
+To add more helpers, just declare more helper functions inside the helpers
+modules with the @..._help decorators :-). Make sure the first paragraph of the
+docstring is a good, user-facing description of its purpose so it can be
+automatically processed into lists of available help in SuperHELP.
 
-So which advisor decorator to use?
+So which help decorator to use?
 
 Is the advice for the snippet as a whole? If so, are you processing the raw
 snippet string or the XML code block elements? If processing the snippet string
-e.g. passing into flake8 linter use snippet_str_advisor; if processing XML use
-all_blocks_advisor.
+e.g. passing into flake8 linter use snippet_str_help; if processing XML use
+all_blocks_help.
 
 If looking at individual code blocks, are you prefiltering or looking at every
-sort? If prefiltering use filt_block_advisor; if not use any_block_advisor.
+sort? If prefiltering use filt_block_help; if not use any_block_help.
 Simple really :-)
 
-The basic pattern within an advisor function is:
+The basic pattern within an help function is:
 
 * Get the correct elements and see if the target pattern is found e.g. a value
   being assigned to a name
@@ -33,14 +33,14 @@ The basic pattern within an advisor function is:
   much shorter versions.
 
   Don't manually try to dedent etc the message parts - use the layout_comment
-  function and follow the example of other advisor modules. It is very easy to
+  function and follow the example of other helper modules. It is very easy to
   break markdown in ways which mess up the terminal output.
 
 * Assemble the message. There can be up to three parts: brief, main, and extra.
   Only the brief component is mandatory. If not supplied, the main component is
   just a repeat of the brief component.
 
-* Add to the appropriate test module. Only test advisors within the module.
+* Add to the appropriate test module. Only test helpers within the module.
 """
 import builtins
 from collections import namedtuple
@@ -54,51 +54,51 @@ from .. import conf
 from superhelp.gen_utils import get_docstring_start, layout_comment as layout
 
 
-FILT_BLOCK_ADVISORS = []  ## block-based advisors which only apply to blocks filtered to contain specified element types
+FILT_BLOCK_HELPERS = []  ## block-based helpers which only apply to blocks filtered to contain specified element types
 
-FiltAdvisorDets = namedtuple('FilteredAdvisorDets',
-    'advisor_name, advisor, xpath, warning')
-FiltAdvisorDets.__doc__ += ('\n\nDetails for block-based advisors that only '
+FiltHelperDets = namedtuple('FilteredHelperDets',
+    'helper_name, helper, xpath, warning')
+FiltHelperDets.__doc__ += ('\n\nDetails for block-based helpers that only '
     'apply to blocks filtered to contain specified elements')
-FiltAdvisorDets.advisor.__doc__ = ('Functions which takes prefiltered '
+FiltHelperDets.helper.__doc__ = ('Functions which takes prefiltered '
     'block dets containing the required elements and return message')
-FiltAdvisorDets.xpath.__doc__ = ('xpath filtering to get specified elements '
+FiltHelperDets.xpath.__doc__ = ('xpath filtering to get specified elements '
     'e.g. body/Assign/value/Str')
 
-ANY_BLOCK_ADVISORS = []  ## block-based advisors which apply to all blocks
+ANY_BLOCK_HELPERS = []  ## block-based helpers which apply to all blocks
 
-AnyBlockAdvisorDets = namedtuple('AnyBlockAdvisorDets',
-    'advisor_name, advisor, warning')
-AnyBlockAdvisorDets.__doc__ += (
-    '\n\nDetails for block-based advisors that work on each block')
-AnyBlockAdvisorDets.advisor.__doc__ = ('Functions which take block dets '
+AnyBlockHelperDets = namedtuple('AnyBlockHelperDets',
+    'helper_name, helper, warning')
+AnyBlockHelperDets.__doc__ += (
+    '\n\nDetails for block-based helpers that work on each block')
+AnyBlockHelperDets.helper.__doc__ = ('Functions which take block dets '
     '(including element and block code string) and return message')
 
-ALL_BLOCKS_ADVISORS = []  ## all-blocks-based advisors (have to look at multiple blocks together at once)
-AllBlocksAdvisorDets = namedtuple('AllBlocksAdvisorDets',
-    'advisor_name, advisor, warning, input_type')
-AllBlocksAdvisorDets.__doc__ += (
-    '\n\nDetails for advisors that work on all blocks together')
-AllBlocksAdvisorDets.advisor.__doc__ = ('Functions which take blocks dets '
+ALL_BLOCKS_HELPERS = []  ## all-blocks-based helpers (have to look at multiple blocks together at once)
+AllBlocksHelperDets = namedtuple('AllBlocksHelperDets',
+    'helper_name, helper, warning, input_type')
+AllBlocksHelperDets.__doc__ += (
+    '\n\nDetails for helpers that work on all blocks together')
+AllBlocksHelperDets.helper.__doc__ = ('Functions which take blocks dets '
     '(multiple) and return message')
-AllBlocksAdvisorDets.input_type.__doc__ = (
-    'Input type for all blocks advisor functions')
+AllBlocksHelperDets.input_type.__doc__ = (
+    'Input type for all blocks helper functions')
 
-SNIPPET_STR_ADVISORS = []  ## works on entire code snippet as a single string
+SNIPPET_STR_HELPERS = []  ## works on entire code snippet as a single string
 
-SnippetStrAdvisorDets = namedtuple('SnippetStrAdvisorDets',
-    'advisor_name, advisor, warning, input_type')
-SnippetStrAdvisorDets.__doc__ += (
-    '\n\nDetails for advisors that work on code snippet as a single string')
-SnippetStrAdvisorDets.advisor.__doc__ = ('Functions which take the snippet as a'
+SnippetStrHelperDets = namedtuple('SnippetStrHelperDets',
+    'helper_name, helper, warning, input_type')
+SnippetStrHelperDets.__doc__ += (
+    '\n\nDetails for helpers that work on code snippet as a single string')
+SnippetStrHelperDets.helper.__doc__ = ('Functions which take the snippet as a'
     ' single code str and return message')
-SnippetStrAdvisorDets.input_type.__doc__ = (
-    'Input type for all blocks advisor functions')
+SnippetStrHelperDets.input_type.__doc__ = (
+    'Input type for all blocks helper functions')
 
-def filt_block_advisor(*, xpath, warning=False):
+def filt_block_help(*, xpath, warning=False):
     """
-    Simple decorator that registers an unchanged advisor function in the list of
-    FILT_BLOCK_ADVISORS.
+    Simple decorator that registers an unchanged helper function in the list of
+    FILT_BLOCK_HELPERS.
 
     :param str xpath: Used by xpath on the block element being examined. Can
      only use XPath 1.0 syntax.
@@ -109,16 +109,16 @@ def filt_block_advisor(*, xpath, warning=False):
         """
         :param func func: func expecting block_dets
         """
-        FILT_BLOCK_ADVISORS.append(
-            FiltAdvisorDets(
+        FILT_BLOCK_HELPERS.append(
+            FiltHelperDets(
                 f"{func.__module__}.{func.__name__}", func, xpath, warning))
         return func
     return decorator
 
-def any_block_advisor(*, warning=False):
+def any_block_help(*, warning=False):
     """
-    Simple decorator that registers an unchanged advisor function in the list of
-    ANY_BLOCK_ADVISORS.
+    Simple decorator that registers an unchanged helper function in the list of
+    ANY_BLOCK_HELPERS.
 
     :param bool warning: tags messages as warning or not - up to displayer
      e.g. HTML to decide what to do with that information, if anything.
@@ -127,19 +127,19 @@ def any_block_advisor(*, warning=False):
         """
         :param func func: func expecting block_dets
         """
-        ANY_BLOCK_ADVISORS.append(
-            AnyBlockAdvisorDets(
+        ANY_BLOCK_HELPERS.append(
+            AnyBlockHelperDets(
                 f"{func.__module__}.{func.__name__}", func, warning))
         return func
     return decorator
 
-def all_blocks_advisor(*, warning=False):
+def all_blocks_help(*, warning=False):
     """
     Use when processing XML for all blocks at once. Probably looking for first
     instance of something rather than processing code block by code block.
 
-    Simple decorator that registers an unchanged advisor function in the list of
-    ALL_BLOCKS_ADVISORS.
+    Simple decorator that registers an unchanged helper function in the list of
+    ALL_BLOCKS_HELPERS.
 
     :param bool warning: tags messages as warning or not - up to displayer
      e.g. HTML to decide what to do with that information, if anything.
@@ -148,18 +148,18 @@ def all_blocks_advisor(*, warning=False):
         """
         :param func func: func expecting blocks_dets (note plural)
         """
-        ALL_BLOCKS_ADVISORS.append(
-            AllBlocksAdvisorDets(f"{func.__module__}.{func.__name__}", func,
+        ALL_BLOCKS_HELPERS.append(
+            AllBlocksHelperDets(f"{func.__module__}.{func.__name__}", func,
                 warning, conf.BLOCKS_DETS))
         return func
     return decorator
 
-def snippet_str_advisor(*, warning=False):
+def snippet_str_help(*, warning=False):
     """
     Use when processing the snippet string e.g. passing into flake8 linter.
 
-    Simple decorator that registers an unchanged advisor function in the list of
-    SNIPPET_STR_ADVISORS.
+    Simple decorator that registers an unchanged helper function in the list of
+    SNIPPET_STR_HELPERS.
 
     :param bool warning: tags messages as warning or not - up to displayer
      e.g. HTML to decide what to do with that information, if anything.
@@ -169,13 +169,13 @@ def snippet_str_advisor(*, warning=False):
         :param func func: func expecting a single code string for the entire
          snippet as input
         """
-        SNIPPET_STR_ADVISORS.append(
-            SnippetStrAdvisorDets(f"{func.__module__}.{func.__name__}", func,\
+        SNIPPET_STR_HELPERS.append(
+            SnippetStrHelperDets(f"{func.__module__}.{func.__name__}", func,\
                 warning, conf.SNIPPET_STR))
         return func
     return decorator
 
-def load_advisors():
+def load_helpers():
     this_module = sys.modules[__name__]
     submodules = iter_modules(
         this_module.__path__,
@@ -183,17 +183,17 @@ def load_advisors():
     for submodule in submodules:
         import_module(submodule.name)
 
-def get_advisor_comments():
-    advisor_comments = []
-    all_advisors_dets = (
-        FILT_BLOCK_ADVISORS + ANY_BLOCK_ADVISORS + ALL_BLOCKS_ADVISORS)
-    for advisor_dets in all_advisors_dets:
-        docstring = advisor_dets.advisor.__doc__
-        advisor_comment = get_docstring_start(docstring)
-        source = advisor_dets.advisor.__module__.split('.')[-1]
-        warning = 'Warning: ' if advisor_dets.warning else ''
-        advisor_comments.append((advisor_comment, source, warning))
-    return advisor_comments
+def get_helper_comments():
+    helper_comments = []
+    all_helpers_dets = (
+        FILT_BLOCK_HELPERS + ANY_BLOCK_HELPERS + ALL_BLOCKS_HELPERS)
+    for helper_dets in all_helpers_dets:
+        docstring = helper_dets.helper.__doc__
+        helper_comment = get_docstring_start(docstring)
+        source = helper_dets.helper.__module__.split('.')[-1]
+        warning = 'Warning: ' if helper_dets.warning else ''
+        helper_comments.append((helper_comment, source, warning))
+    return helper_comments
 
 ## =============================================================================
 

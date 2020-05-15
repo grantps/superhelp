@@ -1,7 +1,7 @@
 """
 Covers functions and methods.
 """
-from superhelp.helpers import filt_block_advisor
+from superhelp.helpers import filt_block_help
 from ..ast_funcs import get_danger_status, get_docstring_from_value, \
     get_el_lines_dets
 from .. import conf
@@ -161,7 +161,7 @@ def _get_exit_comment(func_el, func_type_lbl, *, repeat=False):
             return_elements, repeat=repeat)
     return exit_comment
 
-@filt_block_advisor(xpath=FUNC_DEFN_XPATH)
+@filt_block_help(xpath=FUNC_DEFN_XPATH)
 def func_overview(block_dets, *, repeat=False):
     """
     Advise on function (or method) definition statements.
@@ -218,7 +218,7 @@ def func_overview(block_dets, *, repeat=False):
     }
     return message
 
-@filt_block_advisor(xpath=FUNC_DEFN_XPATH, warning=True)
+@filt_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
 def func_len_check(block_dets, *, repeat=False):
     """
     Warn about functions that might be too long.
@@ -273,7 +273,7 @@ def get_n_args(func_el):
     n_args = len(arg_els + posonlyarg_els + kwonlyarg_els)
     return n_args
 
-@filt_block_advisor(xpath=FUNC_DEFN_XPATH, warning=True)
+@filt_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
 def func_excess_parameters(block_dets, *, repeat=False):
     """
     Warn about functions that might have too many parameters.
@@ -357,7 +357,7 @@ def _get_mutable_default_args(func_el):
     return get_arg_default_issues(
         func_el, get_issue_status_func=get_mutable_status, include_kw=True)
 
-@filt_block_advisor(xpath=FUNC_DEFN_XPATH, warning=True)
+@filt_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
 def mutable_default(block_dets, *, repeat=False):
     """
     Look for use of mutable defaults and warn against use except in rare cases.
@@ -470,7 +470,7 @@ def _get_positional_danger_args(func_el):
     return get_arg_default_issues(
         func_el, get_issue_status_func=get_danger_status, include_kw=False)
 
-@filt_block_advisor(xpath=FUNC_DEFN_XPATH, warning=True)
+@filt_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
 def positional_boolean(block_dets, *, repeat=False):
     """
     Look for any obvious candidates for forced keyword use e.g. where a
@@ -587,7 +587,7 @@ def get_funcs_dets_and_docstring(func_els):
         funcs_dets_and_docstring.append(func_dets_and_docstring)
     return funcs_dets_and_docstring
 
-@filt_block_advisor(xpath=FUNC_DEFN_XPATH, warning=True)
+@filt_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
 def docstring_issues(block_dets, *, repeat=False):
     """
     Check over function doc strings. Missing doc string, not enough lines to

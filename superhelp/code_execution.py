@@ -53,7 +53,7 @@ def get_collections_dets(named_els, block_dets, *,
     """
     Get information on collections - names with associated items, plus a string
     message (empty str if no oversized items) which can be assembled as part of
-    a full advisor message. If an item cannot be evaluated, it is set to None.
+    a full helper message. If an item cannot be evaluated, it is set to None.
 
     :return: names_items: list of (name, items) tuples, and oversized_msg (str)
     :rtype: tuple

@@ -1,14 +1,14 @@
 from collections import defaultdict
 
-from superhelp.helpers import get_unpacking_msg, all_blocks_advisor, \
-    filt_block_advisor
+from superhelp.helpers import get_unpacking_msg, all_blocks_help, \
+    filt_block_help
 from .. import ast_funcs, conf
 from superhelp import gen_utils
 from superhelp.gen_utils import layout_comment as layout
 
 ASSIGN_UNPACKING_XPATH = 'descendant-or-self::Assign/targets/Tuple'
 
-@filt_block_advisor(xpath=ASSIGN_UNPACKING_XPATH)
+@filt_block_help(xpath=ASSIGN_UNPACKING_XPATH)
 def unpacking(block_dets, *, repeat=False):
     """
     Identify name unpacking e.g. x, y = coord
@@ -41,7 +41,7 @@ def unpacking(block_dets, *, repeat=False):
     }
     return message
 
-@all_blocks_advisor()
+@all_blocks_help()
 def unpacking_opportunity(blocks_dets):
     """
     Look for opportunities to unpack values into multiple names instead of

@@ -1,4 +1,4 @@
-from superhelp.helpers import filt_block_advisor
+from superhelp.helpers import filt_block_help
 from .. import conf
 from superhelp.helpers import get_aop_msg
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
@@ -11,7 +11,7 @@ DECORATOR_XPATH = (
     'descendant-or-self::decorator_list/Call/func/Attribute/value/Name'
 )
 
-@filt_block_advisor(xpath=DECORATOR_XPATH)
+@filt_block_help(xpath=DECORATOR_XPATH)
 def decorator_overview(block_dets, *, repeat=False):
     """
     Look for decorators and explain some options for improving them.

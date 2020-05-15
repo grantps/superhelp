@@ -1,4 +1,4 @@
-from superhelp.helpers import all_blocks_advisor
+from superhelp.helpers import all_blocks_help
 from .. import conf
 from superhelp.gen_utils import get_nice_str_list, int2nice, layout_comment as layout
 
@@ -25,7 +25,7 @@ def get_exception_blocks(blocks_dets):
             exception_blocks.append(block_exception_types)
     return exception_blocks
 
-@all_blocks_advisor()
+@all_blocks_help()
 def exception_overview(blocks_dets):
     """
     Provide overview of exception handling.
@@ -53,7 +53,7 @@ def exception_overview(blocks_dets):
     }
     return message
 
-@all_blocks_advisor(warning=True)
+@all_blocks_help(warning=True)
 def unspecific_exception(blocks_dets):
     """
     Look for unspecific exceptions.

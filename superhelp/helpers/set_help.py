@@ -1,4 +1,4 @@
-from superhelp.helpers import filt_block_advisor
+from superhelp.helpers import filt_block_help
 from .. import code_execution, conf
 from superhelp import gen_utils
 from superhelp.gen_utils import layout_comment as layout
@@ -8,7 +8,7 @@ def truncate_set(items):
 
 ASSIGN_FUNC_NAME_XPATH = 'descendant-or-self::Assign/value/Call/func/Name'
 
-@filt_block_advisor(xpath=ASSIGN_FUNC_NAME_XPATH)
+@filt_block_help(xpath=ASSIGN_FUNC_NAME_XPATH)
 def set_overview(block_dets, *, repeat=False):
     """
     Look for sets and provide general advice on using them and finding out more.

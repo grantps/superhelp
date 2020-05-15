@@ -22,7 +22,7 @@ conf.RECORD_AST = True
 def get_actual_source_freqs(messages_dets, expected_source_freqs):
     """
     Check the message sources are as expected. Note - we don't have to know what
-    messages generated from advisors in other modules will do - just what we
+    messages generated from helpers in other modules will do - just what we
     expect from this module. So we don't specify what sources we expect - just
     those that we require (and how often) and those we ban (we expect those 0
     times).

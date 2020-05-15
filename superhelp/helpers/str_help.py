@@ -1,4 +1,4 @@
-from superhelp.helpers import any_block_advisor, filt_block_advisor
+from superhelp.helpers import any_block_help, filt_block_help
 from ..ast_funcs import assigned_str_els_from_block, get_str_els_being_combined
 from .. import code_execution, conf, name_utils
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
@@ -16,7 +16,7 @@ STR_ADDITION_XPATH = 'descendant-or-self::BinOp/left/Str'  ## each left has a ri
 
 F_STR_REMINDER = False
 
-@filt_block_advisor(xpath=ASSIGN_VALUE_XPATH)
+@filt_block_help(xpath=ASSIGN_VALUE_XPATH)
 def assigned_str_overview(block_dets, *, repeat=False):
     """
     Provide overview of assigned strings e.g. name = 'Hamish'.
@@ -204,7 +204,7 @@ def str_combination(combination_type, str_els, *, repeat=False):
     }
     return message
 
-@filt_block_advisor(xpath=JOINED_STR_XPATH)
+@filt_block_help(xpath=JOINED_STR_XPATH)
 def f_str_interpolation(block_dets, *, repeat=False):
     """
     Examine f-string interpolation.
@@ -213,7 +213,7 @@ def f_str_interpolation(block_dets, *, repeat=False):
     return str_combination(F_STR,
         joined_els, repeat=repeat)
 
-@filt_block_advisor(xpath=FUNC_ATTR_XPATH)
+@filt_block_help(xpath=FUNC_ATTR_XPATH)
 def format_str_interpolation(block_dets, repeat=False):
     """
     Look at use of .format() to interpolate into strings.
@@ -229,7 +229,7 @@ def format_str_interpolation(block_dets, repeat=False):
     return str_combination(STR_FORMAT_FUNC,
         format_funcs, repeat=repeat)
 
-@any_block_advisor()
+@any_block_help()
 def sprintf(block_dets, *, repeat=False):
     """
     Look at use of sprintf for string interpolation
@@ -242,7 +242,7 @@ def sprintf(block_dets, *, repeat=False):
     return str_combination(SPRINTF,
         sprintf_els, repeat=repeat)
 
-@any_block_advisor()
+@any_block_help()
 def string_addition(block_dets, *, repeat=False):
     """
     Advise on string combination using +.

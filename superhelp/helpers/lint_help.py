@@ -4,7 +4,7 @@ import re
 from subprocess import run, PIPE
 import sys
 
-from superhelp.helpers import snippet_str_advisor
+from superhelp.helpers import snippet_str_help
 from .. import conf, lint_conf
 from superhelp.gen_utils import get_nice_str_list, get_os_platform, \
     layout_comment as layout, make_open_tmp_file
@@ -247,7 +247,7 @@ def get_lint_messages_by_level(raw_lint_feedback_str):
     lint_msgs.append(extra_msg)
     return lint_msgs
 
-@snippet_str_advisor(warning=True)
+@snippet_str_help(warning=True)
 def lint_snippet(snippet):
     """
     Look for "lint" as defined by flake8 linter and share the results.

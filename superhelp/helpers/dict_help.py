@@ -1,4 +1,4 @@
-from superhelp.helpers import filt_block_advisor
+from superhelp.helpers import filt_block_help
 from .. import code_execution, conf
 from superhelp import gen_utils
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
@@ -13,7 +13,7 @@ def truncate_dict(input_dict):
 
 ASSIGN_DICT_XPATH = 'descendant-or-self::Assign/value/Dict'
 
-@filt_block_advisor(xpath=ASSIGN_DICT_XPATH)
+@filt_block_help(xpath=ASSIGN_DICT_XPATH)
 def dict_overview(block_dets, *, repeat=False):
     """
     Look at assigned dictionaries e.g. location = {'country' 'New Zealand',
@@ -153,7 +153,7 @@ def get_key_type_names(items):
         for key_type in key_type_names]
     return key_type_names, key_type_nice_names
 
-@filt_block_advisor(xpath=ASSIGN_DICT_XPATH, warning=True)
+@filt_block_help(xpath=ASSIGN_DICT_XPATH, warning=True)
 def mixed_key_types(block_dets, *, repeat=False):
     """
     Warns about dictionaries with mix of string and integer keys.

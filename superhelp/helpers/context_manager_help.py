@@ -1,4 +1,4 @@
-from superhelp.helpers import filt_block_advisor
+from superhelp.helpers import filt_block_help
 from .. import conf
 from superhelp.helpers import get_aop_msg
 from superhelp.gen_utils import layout_comment as layout
@@ -96,7 +96,7 @@ def with_is_using_open(with_el):
     func_name = func_name_el.get('id')
     return func_name == 'open'
 
-@filt_block_advisor(xpath=WITH_XPATH)
+@filt_block_help(xpath=WITH_XPATH)
 def content_manager_overview(block_dets, *, repeat=False):
     """
     Explain context managers.
@@ -159,7 +159,7 @@ def has_with_ancestor(open_el):
 
 FUNC_NAME_XPATH = 'descendant-or-self::Call/func/Name'
 
-@filt_block_advisor(xpath=FUNC_NAME_XPATH, warning=True)
+@filt_block_help(xpath=FUNC_NAME_XPATH, warning=True)
 def file_cm_needed(block_dets, *, repeat=False):
     """
     Look for opening of file without a context managers - recommend use of the

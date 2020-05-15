@@ -1,4 +1,4 @@
-from superhelp.helpers import filt_block_advisor
+from superhelp.helpers import filt_block_help
 from .. import ast_funcs, conf
 from superhelp.gen_utils import layout_comment as layout
 
@@ -29,7 +29,7 @@ def has_long_block(block_el, xpath):
             break
     return long_block
 
-@filt_block_advisor(xpath=NESTING_XPATH, warning=True)
+@filt_block_help(xpath=NESTING_XPATH, warning=True)
 def bloated_nested_block(block_dets, *, repeat=False):
     """
     Look for long indented blocks under conditionals, inside loops etc that are

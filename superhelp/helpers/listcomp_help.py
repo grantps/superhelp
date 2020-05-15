@@ -1,6 +1,6 @@
 from superhelp.helpers import  get_dict_comprehension_msg, \
     get_general_comprehension_msg, get_set_comprehension_msg, \
-    filt_block_advisor
+    filt_block_help
 from .. import code_execution, conf
 from superhelp import gen_utils
 from superhelp.gen_utils import layout_comment as layout
@@ -10,7 +10,7 @@ def truncate_list(items):
 
 ASSIGN_LISTCOMP_XPATH = 'descendant-or-self::Assign/value/ListComp'
 
-@filt_block_advisor(xpath=ASSIGN_LISTCOMP_XPATH)
+@filt_block_help(xpath=ASSIGN_LISTCOMP_XPATH)
 def listcomp_overview(block_dets, *, repeat=False):
     """
     Provide advice on list comprehensions and explain other types of

@@ -1,6 +1,6 @@
 from collections import defaultdict, namedtuple, Counter
 
-from superhelp.helpers import filt_block_advisor
+from superhelp.helpers import filt_block_help
 from .. import ast_funcs, conf
 from superhelp.gen_utils import int2nice, layout_comment as layout
 
@@ -125,7 +125,7 @@ def _get_if_comment(block_dets):
             """)
     return if_comment
 
-@filt_block_advisor(xpath=IF_XPATH)
+@filt_block_help(xpath=IF_XPATH)
 def if_else_overview(block_dets, *, repeat=False):
     """
     Look at conditional statements using if (apart from if __name__ ==
@@ -172,7 +172,7 @@ def if_else_overview(block_dets, *, repeat=False):
     }
     return message
 
-@filt_block_advisor(xpath=IF_XPATH, warning=True)
+@filt_block_help(xpath=IF_XPATH, warning=True)
 def missing_else(block_dets, *, repeat=False):
     """
     Warn about benefits in many cases of adding else clause if missing.
@@ -323,7 +323,7 @@ def get_split_membership_dets(if_el):
     comp_vals_gp_str = '[' + ', '.join(comp_val_strs) + ']'
     return comp_var, comp_vals_gp_str
 
-@filt_block_advisor(xpath=IF_XPATH)
+@filt_block_help(xpath=IF_XPATH)
 def split_group_membership(block_dets, *, repeat=False):
     """
     Explain how to use in group and not in group rather than multiple
@@ -425,7 +425,7 @@ def get_has_explicit_count(if_el):
     has_explicit_boolean = ((operator_type, n) in explicit_booleans)
     return has_explicit_boolean
 
-@filt_block_advisor(xpath=IF_XPATH)
+@filt_block_help(xpath=IF_XPATH)
 def implicit_boolean_enough(block_dets, *, repeat=False):
     """
     Look for cases where an implicit boolean comparison is enough.
@@ -519,7 +519,7 @@ def could_short_circuit(if_el):
     ## we have an IF with one child which is an IF and the nested IF's ORELSE has no children
     return True
 
-@filt_block_advisor(xpath=IF_XPATH)
+@filt_block_help(xpath=IF_XPATH)
 def short_circuit(block_dets, *, repeat=False):
     """
     Look for cases where short-circuiting is possible.
@@ -604,7 +604,7 @@ def could_any_or_all(if_el):
             break
     return could_any, could_all
 
-@filt_block_advisor(xpath=IF_XPATH)
+@filt_block_help(xpath=IF_XPATH)
 def any_all(block_dets, *, repeat=False):
     """
     Look for cases where using built-in any or all functions makes sense.

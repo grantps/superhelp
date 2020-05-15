@@ -1,5 +1,5 @@
 
-from superhelp.helpers import all_blocks_advisor
+from superhelp.helpers import all_blocks_help
 from .. import conf
 from superhelp.gen_utils import layout_comment as layout
 
@@ -21,7 +21,7 @@ def _includes_print(block_el):
         return True
     return False
 
-@all_blocks_advisor()
+@all_blocks_help()
 def print_overview(blocks_dets, *, repeat=False):
     """
     Show some of the surprise features of the humble print function.

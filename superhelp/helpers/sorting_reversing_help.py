@@ -1,4 +1,4 @@
-from superhelp.helpers import any_block_advisor, filt_block_advisor
+from superhelp.helpers import any_block_help, filt_block_help
 from .. import conf, name_utils
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
 
@@ -31,7 +31,7 @@ def _get_sorting_or_reversing_comment(block_dets):
         comment = "uses the `reversed` function"
     return comment
 
-@any_block_advisor()
+@any_block_help()
 def sorting_reversing_overview(block_dets, *, repeat=False):
     """
     Provide an overview of sorting and/or reversing. Advise on common
@@ -136,7 +136,7 @@ def sorting_reversing_overview(block_dets, *, repeat=False):
 
 ASSIGN_FUNC_ATTRIBUTE_XPATH = 'descendant-or-self::Assign/value/Call/func/Attribute'
 
-@filt_block_advisor(xpath=ASSIGN_FUNC_ATTRIBUTE_XPATH, warning=True)
+@filt_block_help(xpath=ASSIGN_FUNC_ATTRIBUTE_XPATH, warning=True)
 def list_sort_as_value(block_dets, *, repeat=False):
     """
     Warn about assigning a name to the result using .sort() on a list.
