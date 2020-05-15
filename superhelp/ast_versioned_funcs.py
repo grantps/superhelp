@@ -1,3 +1,40 @@
+
+def val_dets_3_7(val_el):
+    """
+    val_el is the element under value e.g. Constant (3.8+) or Str, Num (<3.8)
+    """
+    raw_val = val_el.get('s')
+    if raw_val:
+        val = raw_val
+        needs_quoting = True
+    else:
+        raw_val = val_el.get('n')
+        if raw_val:
+            val = float(raw_val)  ## 1 and 1.0 are the same val when a key in a dict
+            needs_quoting = False
+        else:
+            return None
+    return val, needs_quoting
+
+def val_dets_3_8(val_el):
+    """
+    As per 3_7 version
+    """
+    const_type = val_el.get('type')
+    raw_val = val_el.get('value')
+    if const_type == 'int':
+        val = int(raw_val)
+        needs_quoting = False
+    elif const_type == 'float':
+        val = float(raw_val)
+        needs_quoting = False
+    elif const_type == 'str':
+        val = raw_val
+        needs_quoting = True
+    else:
+        return None
+    return val, needs_quoting
+
 ## nums ******************************
 
 def assigned_num_els_from_block_3_7(block_el):
@@ -117,38 +154,14 @@ def dict_key_from_subscript_3_7(subscript_el):
     if len(key_els) != 1:
         return None
     key_el = key_els[0]
-    raw_val_els = key_el.get('s')
-    if len(raw_val_els) == 1:
-        key = raw_val_els[0]
-        needs_quoting = True
-    else:
-        raw_val_els = key_el.get('n')
-        if len(raw_val_els) == 1:
-            key = float(raw_val_els[0])  ## 1 and 1.0 are the same key
-            needs_quoting = False
-        else:
-            return None
-    return key, needs_quoting
+    return val_dets_3_7(val_el=key_el)
 
 def dict_key_from_subscript_3_8(subscript_el):
     key_els = subscript_el.xpath('slice/Index/value/Constant')
     if len(key_els) != 1:
         return None
     key_el = key_els[0]
-    const_type = key_el.get('type')
-    raw_val = key_el.get('value')
-    if const_type == 'int':
-        key = int(raw_val)
-        needs_quoting = False
-    elif const_type == 'float':
-        key = float(raw_val)
-        needs_quoting = False
-    elif const_type == 'str':
-        key = raw_val
-        needs_quoting = True
-    else:
-        return None
-    return key, needs_quoting
+    return val_dets_3_8(val_el=key_el)
 
 ## other ******************************
 

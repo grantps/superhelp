@@ -88,7 +88,10 @@ def store_ast_output(xml):
 ## when backward compatibility with 3.6 can be dropped use def __getattr__(name):
 ## https://stackoverflow.com/questions/2447353/getattr-on-a-module
 python_version = get_python_version()
+
 if python_version in (conf.PY3_6, conf.PY3_7):
+
+    val_dets = avf.val_dets_3_7
 
     assigned_num_els_from_block = avf.assigned_num_els_from_block_3_7
     num_str_from_val = avf.num_str_from_val_3_7
@@ -109,7 +112,11 @@ if python_version in (conf.PY3_6, conf.PY3_7):
     get_lbl_flds = avf.get_lbl_flds_3_7
     get_slice_n = avf.get_slice_n_3_7
     get_str_els_being_combined = avf.get_str_els_being_combined_3_7
+
 elif python_version == conf.PY3_8:
+
+    val_dets = avf.val_dets_3_8
+
     assigned_num_els_from_block = avf.assigned_num_els_from_block_3_8
     num_str_from_val = avf.num_str_from_val_3_8
     num_str_from_el = avf.num_str_from_el_3_8
@@ -128,5 +135,6 @@ elif python_version == conf.PY3_8:
     get_lbl_flds = avf.get_lbl_flds_3_8
     get_slice_n = avf.get_slice_n_3_8
     get_str_els_being_combined = avf.get_str_els_being_combined_3_8
+
 else:
     raise Exception(f"Unexpected Python version {python_version}")
