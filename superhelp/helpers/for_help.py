@@ -1,4 +1,4 @@
-from ..advisors import get_dict_comprehension_msg, \
+from superhelp.helpers import get_dict_comprehension_msg, \
     get_general_comprehension_msg, get_set_comprehension_msg, filt_block_advisor
 from ..ast_funcs import get_el_lines_dets
 from .. import conf

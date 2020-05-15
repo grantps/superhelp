@@ -2,7 +2,7 @@ from textwrap import dedent
 
 from tests import check_as_expected
 
-ROOT = 'superhelp.advisors.named_tuple_advisors.'
+ROOT = 'superhelp.helpers.named_tuple_help.'
 
 def test_misc():
     test_conf = [

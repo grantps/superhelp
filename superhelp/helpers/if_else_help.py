@@ -1,6 +1,6 @@
 from collections import defaultdict, namedtuple, Counter
 
-from ..advisors import filt_block_advisor
+from superhelp.helpers import filt_block_advisor
 from .. import ast_funcs, conf
 from superhelp.gen_utils import int2nice, layout_comment as layout
 

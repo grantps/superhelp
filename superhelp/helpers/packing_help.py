@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from ..advisors import get_unpacking_msg, all_blocks_advisor, \
+from superhelp.helpers import get_unpacking_msg, all_blocks_advisor, \
     filt_block_advisor
 from .. import ast_funcs, conf
 from superhelp import gen_utils

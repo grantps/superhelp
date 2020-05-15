@@ -30,7 +30,7 @@ def test_linter_regex():
             lint_conf.LINT_PATTERN, lint_str, flags=re.VERBOSE).groupdict()  # @UndefinedVariable
         assert_equal(actual_dict, expected_dict)
 
-ROOT = 'superhelp.advisors.lint_advisors.'
+ROOT = 'superhelp.helpers.lint_help.'
 
 def test_misc():
     test_conf = [

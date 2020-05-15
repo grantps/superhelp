@@ -2,7 +2,7 @@ from textwrap import dedent
 
 from tests import check_as_expected
 
-ROOT = 'superhelp.advisors.sorting_reversing_advisors.'
+ROOT = 'superhelp.helpers.sorting_reversing_help.'
 
 def test_misc():
     test_conf = [

@@ -1,6 +1,6 @@
-from ..advisors import filt_block_advisor
+from superhelp.helpers import filt_block_advisor
 from .. import conf
-from ..advisors import get_aop_msg
+from superhelp.helpers import get_aop_msg
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
 
 DECORATOR_XPATH = (

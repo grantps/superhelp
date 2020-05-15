@@ -1,7 +1,7 @@
 """
 Covers functions and methods.
 """
-from ..advisors import filt_block_advisor
+from superhelp.helpers import filt_block_advisor
 from ..ast_funcs import get_danger_status, get_docstring_from_value, \
     get_el_lines_dets
 from .. import conf

@@ -5,7 +5,7 @@ import logging
 ## Using this as a library etc works with . instead of superhelp but I want to be be able to run the helper module from within my IDE
 
 try:
-    from . import advisors, ast_funcs, conf  # @UnresolvedImport @UnusedImport
+    from . import ast_funcs, conf, helpers  # @UnusedImport
     from ..gen_utils import (get_docstring_start, get_tree,  # @UnresolvedImport @UnusedImport
         layout_comment as layout, xml_from_tree)  # @UnresolvedImport @UnusedImport
 except (ImportError, ValueError):
@@ -13,7 +13,7 @@ except (ImportError, ValueError):
     import sys
     parent = str(Path.cwd().parent)
     sys.path.insert(0, parent)
-    from superhelp import advisors, ast_funcs, conf  # @Reimport
+    from superhelp import ast_funcs, conf, helpers  # @Reimport
     from superhelp.gen_utils import (get_docstring_start, get_tree,  # @Reimport
         layout_comment as layout, xml_from_tree)  # @Reimport
 
@@ -156,7 +156,7 @@ def _get_filtered_blocks_dets(advisor_dets, xml, blocks_dets):
 def get_block_level_messages_dets(blocks_dets, xml, *, warnings_only=False):
     """
     For each advisor, get advice on every relevant block. Element type specific
-    advisors process filtered blocks_dets; all block advisors process all blocks
+    helpers process filtered blocks_dets; all block helpers process all blocks
     (as you'd expect ;-)).
 
     As we iterate through the blocks, only the first block under an advisor
@@ -164,7 +164,7 @@ def get_block_level_messages_dets(blocks_dets, xml, *, warnings_only=False):
     """
     messages_dets = []
     all_advisors_dets = (
-        advisors.FILT_BLOCK_ADVISORS + advisors.ANY_BLOCK_ADVISORS)
+        helpers.FILT_BLOCK_ADVISORS + helpers.ANY_BLOCK_ADVISORS)
     for advisor_dets in all_advisors_dets:
         logging.debug(f"About to process '{advisor_dets.advisor_name}'")
         if warnings_only and not advisor_dets.warning:
@@ -199,7 +199,7 @@ def get_overall_snippet_messages_dets(snippet, blocks_dets, *,
     """
     messages_dets = []
     all_advisors_dets = (
-        advisors.ALL_BLOCKS_ADVISORS + advisors.SNIPPET_STR_ADVISORS)
+        helpers.ALL_BLOCKS_ADVISORS + helpers.SNIPPET_STR_ADVISORS)
     for advisor_dets in all_advisors_dets:
         logging.debug(f"About to process '{advisor_dets.advisor_name}'")
         if warnings_only and not advisor_dets.warning:

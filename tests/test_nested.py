@@ -2,7 +2,7 @@ from textwrap import dedent
 
 from tests import check_as_expected, get_repeated_lines
 
-ROOT = 'superhelp.advisors.nested_advisors.'
+ROOT = 'superhelp.helpers.nested_help.'
 
 def test_misc():
     test_conf = [

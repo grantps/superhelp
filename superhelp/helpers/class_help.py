@@ -3,7 +3,7 @@ Method advisors are effectively function advisors and are covered there.
 """
 from collections import defaultdict
 
-from ..advisors import filt_block_advisor
+from superhelp.helpers import filt_block_advisor
 from .. import conf
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
 

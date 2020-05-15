@@ -1,4 +1,4 @@
-from ..advisors import any_block_advisor, filt_block_advisor
+from superhelp.helpers import any_block_advisor, filt_block_advisor
 from .. import conf, name_utils
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
 

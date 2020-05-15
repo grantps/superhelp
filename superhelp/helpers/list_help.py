@@ -1,4 +1,4 @@
-from ..advisors import filt_block_advisor
+from superhelp.helpers import filt_block_advisor
 from .. import code_execution, conf
 from superhelp import gen_utils
 from superhelp.gen_utils import layout_comment as layout

@@ -2,7 +2,7 @@ from textwrap import dedent
 
 from tests import check_as_expected
 
-ROOT = 'superhelp.advisors.enumerate_advisors.'
+ROOT = 'superhelp.helpers.enumerate_help.'
 
 def test_misc():
     test_conf = [

@@ -3,17 +3,16 @@ import inspect
 import logging
 
 try:
-    from .. import conf  # @UnresolvedImport @UnusedImport
     ## importing from superhelp only works properly after I've installed superhelp as a pip package (albeit as a link to this code using python3 -m pip install --user -e <path_to_proj_folder>)
     ## Using this as a library etc works with . instead of superhelp but I want to be be able to run the helper module from within my IDE
-    from . import advisors, messages  # @UnusedImport
+    from . import conf, helpers, messages  # @UnusedImport
     from .displayers import cli_displayer, html_displayer, md_displayer  # @UnusedImport
 except (ImportError, ValueError):
     from pathlib import Path
     import sys
     parent = str(Path.cwd().parent)
     sys.path.insert(0, parent)
-    from superhelp import conf, advisors, messages  # @Reimport
+    from superhelp import conf, helpers, messages  # @Reimport
     from superhelp.displayers import cli_displayer, html_displayer, md_displayer  # @Reimport
 
 logging.basicConfig(
@@ -21,7 +20,7 @@ logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S')
 
-advisors.load_advisors()
+helpers.load_advisors()
 
 def display_messages(displayer, snippet, messages_dets, *,
         detail_level=conf.BRIEF,
@@ -189,7 +188,7 @@ def shelp():
         print("\n======================================")
         print("Specific help available from SuperHELP")
         print("======================================\n")
-        advisor_comments = advisors.get_advisor_comments()
+        advisor_comments = helpers.get_advisor_comments()
         num_width = len(str(len(advisor_comments)))
         for n, (comment, source, warning) in enumerate(
                 advisor_comments, 1):

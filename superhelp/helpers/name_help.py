@@ -1,6 +1,6 @@
 from collections import defaultdict, namedtuple
 
-from ..advisors import all_blocks_advisor, any_block_advisor, is_reserved_name
+from superhelp.helpers import all_blocks_advisor, any_block_advisor, is_reserved_name
 from .. import ast_funcs, conf, name_utils
 from superhelp import gen_utils
 from superhelp.gen_utils import (get_nice_str_list, int2first_etc, int2nice,

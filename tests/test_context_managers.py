@@ -2,7 +2,7 @@ from textwrap import dedent
 
 from tests import check_as_expected
 
-ROOT = 'superhelp.advisors.context_manager_advisors.'
+ROOT = 'superhelp.helpers.context_manager_help.'
 
 def test_misc():
     test_conf = [

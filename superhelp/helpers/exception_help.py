@@ -1,4 +1,4 @@
-from ..advisors import all_blocks_advisor
+from superhelp.helpers import all_blocks_advisor
 from .. import conf
 from superhelp.gen_utils import get_nice_str_list, int2nice, layout_comment as layout
 

@@ -1,6 +1,6 @@
 import logging
 
-from ..advisors import all_blocks_advisor
+from superhelp.helpers import all_blocks_advisor
 from ..ast_funcs import num_str_from_val, _get_var_equal_plussed, _get_var_plus_equalled
 from .. import conf
 from superhelp.gen_utils import layout_comment as layout

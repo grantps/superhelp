@@ -4,7 +4,7 @@ import re
 from subprocess import run, PIPE
 import sys
 
-from ..advisors import snippet_str_advisor
+from superhelp.helpers import snippet_str_advisor
 from .. import conf, lint_conf
 from superhelp.gen_utils import get_nice_str_list, get_os_platform, \
     layout_comment as layout, make_open_tmp_file

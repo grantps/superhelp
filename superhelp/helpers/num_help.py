@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from ..advisors import filt_block_advisor
+from superhelp.helpers import filt_block_advisor
 from ..ast_funcs import assigned_num_els_from_block
 from .. import code_execution, conf, name_utils
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
