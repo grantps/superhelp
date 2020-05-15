@@ -1,6 +1,7 @@
 from ..advisors import filt_block_advisor
-from .. import code_execution, conf, utils
-from ..utils import layout_comment as layout
+from .. import code_execution, conf
+from superhelp import gen_utils
+from superhelp.gen_utils import layout_comment as layout
 
 ASSIGN_LIST_XPATH = 'descendant-or-self::Assign/value/List'
 
@@ -162,7 +163,7 @@ def list_overview(block_dets, *, repeat=False):
             else:
                 list_desc = layout(f"""\
 
-                `{name}` is a list with {utils.int2nice(len(items))} items.
+                `{name}` is a list with {gen_utils.int2nice(len(items))} items.
                 """)
     if not first_name:
         first_name = 'demo_list'

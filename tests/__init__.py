@@ -5,7 +5,7 @@ try:
     from ..superhelp import conf  # @UnresolvedImport
     from ..superhelp import ast_funcs  # @UnresolvedImport
     from ..superhelp.messages import get_separated_messages_dets  # @UnresolvedImport
-    from ..superhelp.utils import get_tree, xml_from_tree  # @UnresolvedImport
+    from superhelp.gen_utils import get_tree, xml_from_tree  # @UnresolvedImport
 except (ImportError, ValueError):
     from pathlib import Path
     import sys
@@ -14,7 +14,7 @@ except (ImportError, ValueError):
     from superhelp import conf  # @Reimport
     from superhelp import ast_funcs  # @Reimport
     from superhelp.messages import get_separated_messages_dets  # @Reimport
-    from superhelp.utils import get_tree, xml_from_tree  # @Reimport
+    from superhelp.gen_utils import get_tree, xml_from_tree  # @Reimport
 
 conf.INCLUDE_LINTING = False
 conf.RECORD_AST = True

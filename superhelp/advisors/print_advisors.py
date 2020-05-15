@@ -1,7 +1,7 @@
 
 from ..advisors import all_blocks_advisor
 from .. import conf
-from ..utils import layout_comment as layout
+from superhelp.gen_utils import layout_comment as layout
 
 def _includes_print(block_el):
     """

@@ -1,6 +1,6 @@
 from ..advisors import filt_block_advisor
 from .. import ast_funcs, conf
-from ..utils import layout_comment as layout
+from superhelp.gen_utils import layout_comment as layout
 
 FOR_XPATH = 'descendant-or-self::For'
 WHILE_XPATH = 'descendant-or-self::While'

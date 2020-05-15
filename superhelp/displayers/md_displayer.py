@@ -1,7 +1,7 @@
 import logging
 from textwrap import dedent
 
-from ..utils import get_line_numbered_snippet, layout_comment as layout, \
+from superhelp.gen_utils import get_line_numbered_snippet, layout_comment as layout, \
     make_open_tmp_file
 
 """

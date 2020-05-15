@@ -51,7 +51,7 @@ import sys
 from textwrap import dedent
 
 from .. import conf
-from ..utils import get_docstring_start, layout_comment as layout
+from superhelp.gen_utils import get_docstring_start, layout_comment as layout
 
 
 FILT_BLOCK_ADVISORS = []  ## block-based advisors which only apply to blocks filtered to contain specified element types

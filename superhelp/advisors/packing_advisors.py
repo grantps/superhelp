@@ -2,8 +2,9 @@ from collections import defaultdict
 
 from ..advisors import get_unpacking_msg, all_blocks_advisor, \
     filt_block_advisor
-from .. import ast_funcs, conf, utils
-from ..utils import layout_comment as layout
+from .. import ast_funcs, conf
+from superhelp import gen_utils
+from superhelp.gen_utils import layout_comment as layout
 
 ASSIGN_UNPACKING_XPATH = 'descendant-or-self::Assign/targets/Tuple'
 
@@ -23,7 +24,7 @@ def unpacking(block_dets, *, repeat=False):
             name_el.get('id') for name_el in unpacked_el.xpath('elts/Name')]
         if not unpacked_names:
             continue
-        nice_str_list = utils.get_nice_str_list(unpacked_names, quoter='`')
+        nice_str_list = gen_utils.get_nice_str_list(unpacked_names, quoter='`')
         summary_bits.append(layout(f"""\
 
         Your code uses unpacking to assign names {nice_str_list}
@@ -77,7 +78,7 @@ def unpacking_opportunity(blocks_dets):
     """)
     multiple_items = len(sources2unpack) > 1
     if multiple_items:
-        nice_sources_list = utils.get_nice_str_list(sources2unpack, quoter='`')
+        nice_sources_list = gen_utils.get_nice_str_list(sources2unpack, quoter='`')
         unpackable = layout(f"""\
 
         {nice_sources_list} have multiple items extracted by indexing so might

@@ -1,7 +1,7 @@
 from ..advisors import filt_block_advisor
 from .. import conf
 from ..advisors import get_aop_msg
-from ..utils import layout_comment as layout
+from superhelp.gen_utils import layout_comment as layout
 
 def get_open_cm_msg():
     return (

@@ -2,7 +2,7 @@ import logging
 from textwrap import dedent
 
 from .cli_extras import md2cli
-from ..utils import get_line_numbered_snippet, layout_comment as layout
+from superhelp.gen_utils import get_line_numbered_snippet, layout_comment as layout
 
 """
 Note - displays properly in the terminal but not necessarily in other output

@@ -1,7 +1,6 @@
 from ..advisors import any_block_advisor, filt_block_advisor
-from ..ast_funcs import get_assigned_name
-from .. import conf
-from ..utils import get_nice_str_list, layout_comment as layout
+from .. import conf, name_utils
+from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
 
 def _get_sorting_or_reversing_comment(block_dets):
     """
@@ -145,7 +144,7 @@ def list_sort_as_value(block_dets, *, repeat=False):
     func_attr_els = block_dets.element.xpath(ASSIGN_FUNC_ATTRIBUTE_XPATH)
     names_assigned_to_sort = []
     for func_attr_el in func_attr_els:
-        name_dets = get_assigned_name(func_attr_el)
+        name_dets = name_utils.get_assigned_name(func_attr_el)
         is_sort = (func_attr_el.get('attr') == 'sort')
         if is_sort:
             names_assigned_to_sort.append(name_dets.name_str)

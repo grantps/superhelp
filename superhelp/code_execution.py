@@ -1,7 +1,7 @@
 import logging
 
-from . import ast_funcs, conf
-from .utils import get_nice_str_list, layout_comment as layout
+from . import conf, name_utils
+from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
 
 def get_val(pre_block_code_str, block_code_str,
         name_type, name_details, name_str):
@@ -61,7 +61,7 @@ def get_collections_dets(named_els, block_dets, *,
     names_items = []
     oversized_names = []
     for named_el in named_els:
-        names_dets = ast_funcs.get_assigned_names(named_el)
+        names_dets = name_utils.get_assigned_names(named_el)
         for name_dets in names_dets:
             try:
                 items = get_val(

@@ -3,7 +3,7 @@ import logging
 from ..advisors import all_blocks_advisor
 from ..ast_funcs import num_str_from_val, _get_var_equal_plussed, _get_var_plus_equalled
 from .. import conf
-from ..utils import layout_comment as layout
+from superhelp.gen_utils import layout_comment as layout
 
 def get_num(value_el):
     """

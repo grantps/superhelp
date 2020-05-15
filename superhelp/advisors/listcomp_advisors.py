@@ -1,8 +1,9 @@
 from ..advisors import  get_dict_comprehension_msg, \
     get_general_comprehension_msg, get_set_comprehension_msg, \
     filt_block_advisor
-from .. import code_execution, conf, utils
-from ..utils import layout_comment as layout
+from .. import code_execution, conf
+from superhelp import gen_utils
+from superhelp.gen_utils import layout_comment as layout
 
 def truncate_list(items):
     return items[: conf.MAX_ITEMS_EVALUATED]
@@ -37,7 +38,7 @@ def listcomp_overview(block_dets, *, repeat=False):
             summary_bits.append(layout(f"""
 
             `{name}` is a list comprehension returning a list with
-            {utils.int2nice(len(items))} items: {items}
+            {gen_utils.int2nice(len(items))} items: {items}
             """))
     summary = ''.join(summary_bits)
     if not repeat:

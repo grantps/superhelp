@@ -2,7 +2,7 @@
 
 ![Example HTML output](https://github.com/grantps/superhelp/raw/master/superhelp_logo_padded_small.png)
 
-version number: 0.9.27
+version number: 0.9.28
 author: Grant Paton-Simpson
 
 ## Overview

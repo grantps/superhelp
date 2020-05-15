@@ -1,6 +1,7 @@
 from ..advisors import filt_block_advisor
-from .. import code_execution, conf, utils
-from ..utils import layout_comment as layout
+from .. import code_execution, conf
+from superhelp import gen_utils
+from superhelp.gen_utils import layout_comment as layout
 
 def truncate_tuple(items):
     return tuple(items[: conf.MAX_ITEMS_EVALUATED])
@@ -32,7 +33,7 @@ def tuple_overview(block_dets, *, repeat=False):
             """))
         else:
             summary_bits.append(layout(f"""\
-            `{name}` is a tuple with {utils.int2nice(len(tup))} items.
+            `{name}` is a tuple with {gen_utils.int2nice(len(tup))} items.
             """))
     summary = ''.join(summary_bits)
     if not repeat:

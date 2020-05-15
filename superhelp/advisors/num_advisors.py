@@ -1,9 +1,9 @@
 from collections import defaultdict
 
 from ..advisors import filt_block_advisor
-from ..ast_funcs import get_assigned_name, assigned_num_els_from_block
-from .. import code_execution, conf
-from ..utils import get_nice_str_list, layout_comment as layout
+from ..ast_funcs import assigned_num_els_from_block
+from .. import code_execution, conf, name_utils
+from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
 
 ASSIGN_VAL_XPATH = 'descendant-or-self::Assign/value'
 
@@ -17,7 +17,7 @@ def num_overview(block_dets, *, repeat=False):
     has_num = False
     type_firsts = {}
     for num_el in num_els:
-        name_dets = get_assigned_name(num_el)
+        name_dets = name_utils.get_assigned_name(num_el)
         try:
             val = code_execution.get_val(
                 block_dets.pre_block_code_str, block_dets.block_code_str,

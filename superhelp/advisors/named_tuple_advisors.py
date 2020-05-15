@@ -2,7 +2,7 @@ from collections import namedtuple
 
 from ..advisors import all_blocks_advisor
 from .. import ast_funcs, conf
-from ..utils import layout_comment as layout
+from superhelp.gen_utils import layout_comment as layout
 
 NTDets = namedtuple('NamedTupleDetails', 'name, label, fields_str, fields_list')
 

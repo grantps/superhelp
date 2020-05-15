@@ -6,16 +6,16 @@ import logging
 
 try:
     from . import advisors, ast_funcs, conf  # @UnresolvedImport @UnusedImport
-    from ..utils import (get_docstring_start, get_tree,  # @UnresolvedImport @UnusedImport
-        layout_comment as layout, make_open_tmp_file, xml_from_tree)  # @UnresolvedImport @UnusedImport
+    from ..gen_utils import (get_docstring_start, get_tree,  # @UnresolvedImport @UnusedImport
+        layout_comment as layout, xml_from_tree)  # @UnresolvedImport @UnusedImport
 except (ImportError, ValueError):
     from pathlib import Path
     import sys
     parent = str(Path.cwd().parent)
     sys.path.insert(0, parent)
     from superhelp import advisors, ast_funcs, conf  # @Reimport
-    from superhelp.utils import (get_docstring_start, get_tree,  # @Reimport
-        layout_comment as layout, make_open_tmp_file, xml_from_tree)  # @Reimport
+    from superhelp.gen_utils import (get_docstring_start, get_tree,  # @Reimport
+        layout_comment as layout, xml_from_tree)  # @Reimport
 
 BlockDets = namedtuple(
     'BlockDets', 'element, pre_block_code_str, block_code_str, first_line_no')

@@ -2,7 +2,7 @@ from collections import defaultdict, namedtuple, Counter
 
 from ..advisors import filt_block_advisor
 from .. import ast_funcs, conf
-from ..utils import int2nice, layout_comment as layout
+from superhelp.gen_utils import int2nice, layout_comment as layout
 
 IfDets = namedtuple('IfDetails',
     'multiple_conditions, missing_else, if_clauses')

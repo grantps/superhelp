@@ -2,7 +2,7 @@ from textwrap import dedent, indent
 import webbrowser
 
 from .. import conf
-from ..utils import get_line_numbered_snippet, make_open_tmp_file
+from superhelp.gen_utils import get_line_numbered_snippet, make_open_tmp_file
 
 from markdown import markdown  ## https://coderbook.com/@marcus/how-to-render-markdown-syntax-as-html-using-python/ @UnresolvedImport
 

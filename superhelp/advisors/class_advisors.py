@@ -5,7 +5,7 @@ from collections import defaultdict
 
 from ..advisors import filt_block_advisor
 from .. import conf
-from ..utils import get_nice_str_list, layout_comment as layout
+from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
 
 CLASS_XPATH = ('descendant-or-self::ClassDef')
 

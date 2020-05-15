@@ -4,8 +4,9 @@ Covers functions and methods.
 from ..advisors import filt_block_advisor
 from ..ast_funcs import get_danger_status, get_docstring_from_value, \
     get_el_lines_dets
-from .. import conf, utils
-from ..utils import get_nice_pairs, layout_comment as layout
+from .. import conf
+from superhelp import gen_utils
+from superhelp.gen_utils import get_nice_pairs, layout_comment as layout
 
 FUNC_DEFN_XPATH = 'descendant-or-self::FunctionDef'
 
@@ -91,7 +92,7 @@ def _get_arg_comment(func_el, *, repeat=False):
     else:
         all_args_n = count_args(func_el)
         if all_args_n:
-            nice_n_args = utils.int2nice(all_args_n)
+            nice_n_args = gen_utils.int2nice(all_args_n)
             arg_comment = (f"receives {nice_n_args} argument")
             if all_args_n > 1:
                 arg_comment += 's'
@@ -130,7 +131,7 @@ def _get_return_comment(func_type_lbl, return_elements, *,
     else:
         returns_comment = (
             f"The {func_type_lbl} exits via an explicit `return` statement "
-            f"{utils.int2nice(keyword_returns_n)} time")
+            f"{gen_utils.int2nice(keyword_returns_n)} time")
         if not repeat:
             if keyword_returns_n > 1:
                 returns_comment += (
@@ -248,7 +249,7 @@ def func_len_check(block_dets, *, repeat=False):
     for name, func_lines_n in long_func_dets:
         summary_bits.append(layout(f"""\
 
-        `{name}` has {utils.int2nice(func_lines_n)} lines of code (including
+        `{name}` has {gen_utils.int2nice(func_lines_n)} lines of code (including
         comments but with empty lines ignored).
         """))
     summary = ''.join(summary_bits)

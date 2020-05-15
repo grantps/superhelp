@@ -1,8 +1,9 @@
 from collections import defaultdict, namedtuple
 
 from ..advisors import all_blocks_advisor, any_block_advisor, is_reserved_name
-from .. import ast_funcs, conf, utils
-from ..utils import (get_nice_str_list, int2first_etc, int2nice,
+from .. import ast_funcs, conf, name_utils
+from superhelp import gen_utils
+from superhelp.gen_utils import (get_nice_str_list, int2first_etc, int2nice,
     layout_comment as layout)
 
 PairDets = namedtuple('PairDets', 'name, name_value, unpacking_idx')
@@ -44,7 +45,7 @@ def pairs_dets_from_el(name2name_el):
         raise IndexError(  ## in theory, guaranteed to be one given how we got the name2name_els
             "Unable to identify ancestor Assign for name-to-name assignment")
     try:
-        names_dets = ast_funcs.get_assigned_names(name2name_el)
+        names_dets = name_utils.get_assigned_names(name2name_el)
     except Exception as e:
         raise Exception("Unable to identify name for name-value assignment. "
             f"Orig error: {e}")
@@ -402,7 +403,7 @@ def unpythonic_name_check(block_dets, *, repeat=False):
     ### {shamed_names_title}
     """)
     if reserved_names:
-        reserved_names_listed = utils.get_nice_str_list(
+        reserved_names_listed = gen_utils.get_nice_str_list(
             reserved_names, quoter='`')
         reserved_comment = layout(f"""\
         Reserved name(s): {reserved_names_listed}
@@ -410,14 +411,14 @@ def unpythonic_name_check(block_dets, *, repeat=False):
     else:
         reserved_comment = ''
     if bad_names:
-        bad_names_listed = utils.get_nice_str_list(bad_names, quoter='`')
+        bad_names_listed = gen_utils.get_nice_str_list(bad_names, quoter='`')
         bad_comment = layout(f"""\
         Un-pythonic name(s): {bad_names_listed}
         """)
     else:
         bad_comment = ''
     if dubious_names:
-        dubious_names_listed = utils.get_nice_str_list(
+        dubious_names_listed = gen_utils.get_nice_str_list(
             dubious_names, quoter='`')
         dubious_comment = layout(f"""\
         Possibly un-pythonic name(s): {dubious_names_listed}

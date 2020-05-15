@@ -1,6 +1,7 @@
 from ..advisors import filt_block_advisor
-from .. import code_execution, conf, utils
-from ..utils import get_nice_str_list, layout_comment as layout
+from .. import code_execution, conf
+from superhelp import gen_utils
+from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
 
 def truncate_dict(input_dict):
     output_dict = {}
@@ -35,8 +36,8 @@ def dict_overview(block_dets, *, repeat=False):
         else:
             brief_desc_bits.append(layout(f"""\
 
-            `{name}` is a dictionary with {utils.int2nice(len(items))} items
-            (i.e. {utils.int2nice(len(items))} mappings).
+            `{name}` is a dictionary with {gen_utils.int2nice(len(items))} items
+            (i.e. {gen_utils.int2nice(len(items))} mappings).
             """))
     brief_desc = ''.join(brief_desc_bits)
     if not repeat:
@@ -70,8 +71,8 @@ def dict_overview(block_dets, *, repeat=False):
                     plural = '' if len(items) == 1 else 's'
                     dict_desc_bits.append(layout(f"""\
 
-                    `{name}` is a dictionary with {utils.int2nice(len(items))}
-                    item{plural} (i.e. {utils.int2nice(len(items))}
+                    `{name}` is a dictionary with {gen_utils.int2nice(len(items))}
+                    item{plural} (i.e. {gen_utils.int2nice(len(items))}
                     mapping{plural}). In this case, the keys are:
                     {list(items.keys())}. We can get the keys using the
                     `.keys()` method e.g. `{name}`.`keys()`. The values are

@@ -1,8 +1,7 @@
 from ..advisors import any_block_advisor, filt_block_advisor
-from ..ast_funcs import get_assigned_name, assigned_str_els_from_block, \
-    get_str_els_being_combined
-from .. import code_execution, conf
-from ..utils import get_nice_str_list, layout_comment as layout
+from ..ast_funcs import assigned_str_els_from_block, get_str_els_being_combined
+from .. import code_execution, conf, name_utils
+from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
 
 F_STR = 'f-string'
 STR_FORMAT_FUNC = 'str_format'
@@ -27,7 +26,7 @@ def assigned_str_overview(block_dets, *, repeat=False):
         return None
     names = []
     for str_el in str_els:
-        name_dets = get_assigned_name(str_el)
+        name_dets = name_utils.get_assigned_name(str_el)
         names.append(name_dets)
     name_strs = [name_dets.name_str for name_dets in names]
     multiple = (len(set(name_strs)) > 1)

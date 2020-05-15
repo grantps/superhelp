@@ -1,6 +1,7 @@
 from ..advisors import filt_block_advisor
-from .. import code_execution, conf, utils
-from ..utils import layout_comment as layout
+from .. import code_execution, conf
+from superhelp import gen_utils
+from superhelp.gen_utils import layout_comment as layout
 
 def truncate_set(items):
     return set(list(items)[: conf.MAX_ITEMS_EVALUATED])
@@ -37,7 +38,7 @@ def set_overview(block_dets, *, repeat=False):
             members = str(sorted(my_set)).strip('[').strip(']')
             summary_bits.append(layout(f"""\
 
-            `{name}` is a set with {utils.int2nice(len(my_set))} members:
+            `{name}` is a set with {gen_utils.int2nice(len(my_set))} members:
             {members}
             """))
     summary = ''.join(summary_bits)
