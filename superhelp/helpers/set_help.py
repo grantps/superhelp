@@ -1,7 +1,6 @@
-from superhelp.helpers import filt_block_help
-from .. import code_execution, conf
-from superhelp import gen_utils
-from superhelp.gen_utils import layout_comment as layout
+from ..helpers import filt_block_help
+from .. import ast_funcs, code_execution, conf
+from ..gen_utils import layout_comment as layout, get_nice_str_list, int2nice
 
 def truncate_set(items):
     return set(list(items)[: conf.MAX_ITEMS_EVALUATED])
@@ -38,8 +37,7 @@ def set_overview(block_dets, *, repeat=False):
             members = str(sorted(my_set)).strip('[').strip(']')
             summary_bits.append(layout(f"""\
 
-            `{name}` is a set with {gen_utils.int2nice(len(my_set))} members:
-            {members}
+            `{name}` is a set with {int2nice(len(my_set))} members: {members}
             """))
     summary = ''.join(summary_bits)
     if not repeat:
@@ -138,5 +136,194 @@ def set_overview(block_dets, *, repeat=False):
         conf.BRIEF: title + oversized_msg + summary + sets_rock,
         conf.MAIN: title + oversized_msg + summary + sets_rock + set_dets,
         conf.EXTRA: set_extras,
+    }
+    return message
+
+## Raise exceptions when something happens that apparently shouldn't
+
+def _checking_non_membership(compare_el):
+    """
+    See if checking membership status (specifically non-membership status).
+    """
+    ops_els = compare_el.xpath('ops')
+    if len(ops_els) != 1:
+        raise Exception("Should only be one ops item in a Compare")
+    ops_el = ops_els[0]
+    ops_type_els = ops_el.getchildren()
+    if len(ops_type_els) != 1:
+        raise Exception("Should only be one ops child")
+    ops_type = ops_type_els[0].tag
+    checking_non_membership = (ops_type == 'NotIn')
+    return checking_non_membership
+
+def _append_after_check(call_el):
+    func_attribute_els = call_el.xpath('func/Attribute')
+    if len(func_attribute_els) != 1:
+        return False
+    func_attribute_el = func_attribute_els[0]
+    if func_attribute_el.get('attr') != 'append':
+        return False
+    return True
+
+def _get_test_item_dict(compare_el):
+    left_els = compare_el.xpath('left')
+    if len(left_els) != 1:
+        raise Exception("Should only be one left item in a Compare")
+    left_el = left_els[0]
+    left_val_els = left_el.getchildren()
+    if len(left_val_els) != 1:
+        raise Exception("Should only be one value item in a Compare/left")
+    left_val_el = left_val_els[0]
+    test_item_dict = ast_funcs.get_standardised_el_dict(left_val_el)
+    return test_item_dict
+
+def _get_append_item_dict(call_el):
+    args_els = call_el.xpath('args')
+    if len(args_els) != 1:
+        return None
+    args_el = args_els[0]
+    args_children_els = args_el.getchildren()
+    if len(args_children_els) != 1:
+        return None
+    args_child_el = args_children_els[0]
+    append_item_dict = ast_funcs.get_standardised_el_dict(args_child_el)
+    return append_item_dict
+
+def _get_test_collection_dict(compare_el):
+    comparator_name_els = compare_el.xpath('comparators/Name')
+    if len(comparator_name_els) != 1:
+        return None
+    comparator_name_el = comparator_name_els[0]
+    test_collection_dict = ast_funcs.get_standardised_el_dict(
+        comparator_name_el)
+    return test_collection_dict
+
+def _get_append_collection_dict(call_el):
+    appended_name_els = call_el.xpath('func/Attribute/value/Name')
+    if len(appended_name_els) != 1:
+        return None
+    appended_name_el = appended_name_els[0]
+    append_collection_dict = ast_funcs.get_standardised_el_dict(
+        appended_name_el)
+    return append_collection_dict
+
+def _get_inappropriate_list(if_el):
+    """
+    Look for a test item being identified as not being in a collection and then
+    being appended to that collection.
+    """
+    test_el = if_el.xpath('test')[0]
+
+    compare_els = test_el.xpath('Compare')
+    if len(compare_els) != 1:
+        raise Exception("Should only be one Compare item in a test")
+    compare_el = compare_els[0]
+
+    checking_non_membership = _checking_non_membership(compare_el)
+    if not checking_non_membership:
+        return None
+
+    body_el = if_el.xpath('body')[0]
+    call_els = body_el.xpath('Expr/value/Call')
+    if len(call_els) != 1:
+        return None
+    call_el = call_els[0]
+
+    if not _append_after_check(call_el):
+        return None
+
+    test_item_dict = _get_test_item_dict(compare_el)
+    append_item_dict = _get_append_item_dict(call_el)
+    if append_item_dict is None:
+        return None
+    same_item_checked_and_appended = (test_item_dict == append_item_dict)
+    if not same_item_checked_and_appended:
+        return None
+
+    test_collection_dict = _get_test_collection_dict(compare_el)
+    if test_collection_dict is None:
+        return None
+    append_collection_dict = _get_append_collection_dict(call_el)
+    if append_collection_dict is None:
+        return None
+    same_collection_in_membership_test_and_append = (
+        test_collection_dict == append_collection_dict)
+    if not same_collection_in_membership_test_and_append:
+        return None
+
+    inappropriate_list = test_collection_dict.get('id')
+    return inappropriate_list
+
+XPATH_COMPARE = 'descendant-or-self::If/test/Compare'
+
+@filt_block_help(xpath=XPATH_COMPARE, warning=True)
+def set_better_than_list(block_dets, *, repeat=False):
+    """
+    Look for cases where the code checks list membership before adding.
+    Candidate for a set?
+    """
+    if_els = block_dets.element.xpath('descendant-or-self::If')
+    inappropriate_lists = []
+    for if_el in if_els:
+        inappropriate_list = _get_inappropriate_list(if_el)
+        if inappropriate_list is not None:
+            inappropriate_lists.append(inappropriate_list)
+    if not inappropriate_lists:
+        return None
+
+    title = layout("""\
+    ### Using a `set` with the `add` method probably a better option
+    """)
+    first_list = inappropriate_lists[0]
+    multiple = len(inappropriate_lists) > 1
+    if multiple:
+        dubious_lists_msg = get_nice_str_list(inappropriate_lists, quoter='`')
+        summary = layout(f"""\
+
+        It looks like the following collections are built by checking potential
+        new values for non-membership and appending to them if not already
+        present: {dubious_lists_msg}. Using a `set` could result in a more
+        semantic option.
+        """)
+    else:
+        summary = layout(f"""\
+
+        It looks like `{first_list}` is built by checking potential new values
+        for non-membership and appending if not already present. Using a `set`
+        could result in a more semantic option.
+        """)
+    if not repeat:
+        alternative = (layout("""\
+            For example, the following:
+            """)
+            +
+            layout(f"""\
+            {first_list} = [value, ...]
+            if value not in {first_list}:
+                {first_list}.append(value)
+            """, is_code=True)
+            +
+            layout("""\
+            could be replaced with the simpler and more semantic:
+            """)
+            +
+            layout(f"""\
+            {first_list} = {{value, ...}}
+            {first_list}.add(value)
+            """, is_code=True)
+            + layout("""\
+
+            Adding is a no-op if a value is already a member of a `set`.
+
+            The curly braces indicate a `set` if it contains individual items
+            and a `dict` if it contains key: value pairs.
+            """)
+        )
+    else:
+        alternative = ''
+
+    message = {
+        conf.BRIEF: title + summary,
+        conf.MAIN: title + summary + alternative,
     }
     return message

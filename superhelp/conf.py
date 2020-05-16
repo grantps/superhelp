@@ -22,9 +22,14 @@ LOG_LEVEL = logging.INFO  ## (logging.INFO)
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 ## All snippets here should be raw strings (see https://stackoverflow.com/questions/53636723/python-parsing-code-with-new-line-character-in-them-using-ast)
 TEST_SNIPPET = r"""
-a.sort(key=lambda x: x**2)
-normalized_colors = map(lambda s: s.casefold(), colors)
-total = reduce(lambda x, y: x + y, numbers)
+if 'chicken' in collection:
+    collection.append('chicken')
+if 'chicken' not in collection:
+    collection.append('chicken')
+if cat in collection:
+    collection.append(cat)
+if cat not in collection:
+    collection.append(cat)
 """
 
 PY3_6 = '3.6'
@@ -86,6 +91,8 @@ EXAMPLES_OF_TYPES = {  ## best to include at least three so we have enough to ap
 STD_NAME = 'std_name'
 DICT_KEY_NAME = 'dict_key_name'
 OBJ_ATTR_NAME = 'obj_attr_name'
+
+NON_STD_EL_KEYS = ('lineno', 'col_offset')
 
 MAX_BRIEF_FUNC_LOC = 35
 MAX_BRIEF_FUNC_ARGS = 6

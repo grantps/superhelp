@@ -48,13 +48,17 @@ def compound_operator_possible(block_dets, *, repeat=False):
                 op_symbol = op_name2symbol[op_name]
             except KeyError:
                 continue
-
-            const_els = assign_el.xpath('value/BinOp/right/Constant')  ## TODO: pull into ast_versioned_funcs
-            if len(const_els) != 1:
-                raise Exception("right didn't have exactly one Constant "
+            right_els = assign_el.xpath('value/BinOp/right')
+            if len(right_els) != 1:
+                raise Exception("BinOp didn't have exactly one value  "
                     "even though a BinOp")
-            const_el = const_els[0]
-            result = ast_funcs.val_dets(const_el)
+            right_el = right_els[0]
+            value_els = right_el.getchildren()  ## might be Constant
+            if len(value_els) != 1:
+                raise Exception("right didn't have exactly one value even "
+                    "though a BinOp")
+            val_el = value_els[0]
+            result = ast_funcs.val_dets(val_el)
             if result is None:
                 raise Exception("Unable to get value from right side of BinOp")
             val, needs_quoting = result

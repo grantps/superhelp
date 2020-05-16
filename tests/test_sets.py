@@ -12,6 +12,7 @@ def test_misc():
             """),
             {
                 ROOT + 'set_overview': 0,
+                ROOT + 'set_better_than_list': 0,
             }
         ),
         (
@@ -20,6 +21,7 @@ def test_misc():
             """),
             {
                 ROOT + 'set_overview': 1,
+                ROOT + 'set_better_than_list': 0,
             }
         ),
         (
@@ -29,6 +31,7 @@ def test_misc():
             """),
             {
                 ROOT + 'set_overview': 2,
+                ROOT + 'set_better_than_list': 0,
             }
         ),
         (
@@ -39,6 +42,7 @@ def test_misc():
             """),
             {
                 ROOT + 'set_overview': 1,
+                ROOT + 'set_better_than_list': 0,
             }
         ),
         (
@@ -49,6 +53,7 @@ def test_misc():
             """),
             {
                 ROOT + 'set_overview': 1,
+                ROOT + 'set_better_than_list': 0,
             }
         ),
         (
@@ -57,6 +62,47 @@ def test_misc():
             """),
             {
                 ROOT + 'set_overview': 1,
+                ROOT + 'set_better_than_list': 0,
+            }
+        ),
+        (
+            dedent("""\
+            if 'chicken' in collection:
+                collection.append('chicken')
+            """),
+            {
+                ROOT + 'set_overview': 0,
+                ROOT + 'set_better_than_list': 0,
+            }
+        ),
+        (
+            dedent("""\
+            if 'chicken' not in collection:
+                collection.append('chicken')
+            """),
+            {
+                ROOT + 'set_overview': 0,
+                ROOT + 'set_better_than_list': 1,
+            }
+        ),
+        (
+            dedent("""\
+            if chicken not in collection:
+                collection.append(chicken)
+            """),
+            {
+                ROOT + 'set_overview': 0,
+                ROOT + 'set_better_than_list': 1,
+            }
+        ),
+        (
+            dedent("""\
+            if chicken in collection:
+                collection.append(chicken)
+            """),
+            {
+                ROOT + 'set_overview': 0,
+                ROOT + 'set_better_than_list': 0,
             }
         ),
     ]

@@ -85,6 +85,19 @@ def store_ast_output(xml):
     xml.getroottree().write(str(tmp_ast_output_xml_fpath), pretty_print=True)
     logging.info("\n\n\n\n\nUpdating AST\n\n\n\n\n")
 
+def get_standardised_el_dict(el):
+    """
+    If we want to see if a value is the same we need to strip out items that
+    only vary by position within the script e.g. lineno or col_offset.
+
+    :param Element el: element we want to standardise e.g. a Constant
+    :return: standardised dictionary of element attributes
+    :rtype: dict
+    """
+    std_el_dict = {key: value for key, value in el.items()
+        if key not in conf.NON_STD_EL_KEYS}
+    return std_el_dict
+
 ## when backward compatibility with 3.6 can be dropped use def __getattr__(name):
 ## https://stackoverflow.com/questions/2447353/getattr-on-a-module
 python_version = get_python_version()
