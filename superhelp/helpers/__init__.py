@@ -187,6 +187,7 @@ def get_helper_comments():
     helper_comments = []
     all_helpers_dets = (
         FILT_BLOCK_HELPERS + ANY_BLOCK_HELPERS + ALL_BLOCKS_HELPERS)
+    all_helpers_dets.sort(key=lambda helper_dets: helper_dets.helper.__module__)
     for helper_dets in all_helpers_dets:
         docstring = helper_dets.helper.__doc__
         helper_comment = get_docstring_start(docstring)

@@ -22,18 +22,9 @@ LOG_LEVEL = logging.INFO  ## (logging.INFO)
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 ## All snippets here should be raw strings (see https://stackoverflow.com/questions/53636723/python-parsing-code-with-new-line-character-in-them-using-ast)
 TEST_SNIPPET = r"""
-cat = cat << 88
-cucumber = cucumber + 66
-sausage = sausage - 77
-cat = cat * 88
-cat = cat / 88
-cat = cat % 88
-cat = cat // 88
-cat = cat ** 88
-cat = cat & 88
-cat = cat | 88
-cat = cat ^ 88
-cat = cat >> 88
+a.sort(key=lambda x: x**2)
+normalized_colors = map(lambda s: s.casefold(), colors)
+total = reduce(lambda x, y: x + y, numbers)
 """
 
 PY3_6 = '3.6'
