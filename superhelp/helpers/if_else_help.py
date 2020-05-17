@@ -99,24 +99,22 @@ def _get_if_comment(block_dets):
     only one.
     """
     ifs_details = get_ifs_details(block_dets)
-    if_comment = layout("""
-    ### Conditional statement detected
-    """)
+    if_comment = ''
     for n, if_details in enumerate(ifs_details, 1):
         counter = '' if len(ifs_details) == 1 else f" {int2nice(n)}"
         if if_details.multiple_conditions:
             n_elifs = if_details.if_clauses.count(ELIF)
+            else_comment = (
+                " and no `else` clause." if if_details.missing_else
+                else " and an `else` clause.")
+            elif_rules_comment = (
+                " Note - `else` clauses with an `if`, and only an `if`, "
+                "underneath count as `elif` clauses not `else` clauses.")
             if_comment += layout(f"""\
 
             `if` statement{counter} has {int2nice(n_elifs)} `elif` clauses
+            {else_comment}{elif_rules_comment}
             """)
-            if if_details.missing_else:
-                if_comment += " and no `else` clause."
-            else:
-                if_comment += " and an `else` clause."
-            if_comment += (
-                " Note - `else` clauses with an `if`, and only an `if`, "
-                "underneath count as `elif` clauses not `else` clauses.")
         else:
             if_comment += layout(f"""\
 
@@ -134,6 +132,9 @@ def if_else_overview(block_dets, *, repeat=False):
     if block_dets.block_code_str.startswith("if __name__ == "):
         return None
 
+    title = layout("""
+    ### Conditional statement detected
+    """)
     if_comment = _get_if_comment(block_dets)
     if not repeat:
         demo = (
@@ -167,8 +168,8 @@ def if_else_overview(block_dets, *, repeat=False):
         demo = ''
 
     message = {
-        conf.BRIEF: if_comment,
-        conf.MAIN: if_comment + demo,
+        conf.BRIEF: title + if_comment,
+        conf.MAIN: title + if_comment + demo,
     }
     return message
 

@@ -1,21 +1,9 @@
 from collections import namedtuple
 import logging
 
-## importing from superhelp only works properly after I've installed superhelp as a pip package (albeit as a link to this code using python3 -m pip install --user -e <path_to_proj_folder>)
-## Using this as a library etc works with . instead of superhelp but I want to be be able to run the helper module from within my IDE
-
-try:
-    from . import ast_funcs, conf, helpers  # @UnusedImport
-    from ..gen_utils import (get_docstring_start, get_tree,  # @UnresolvedImport @UnusedImport
-        layout_comment as layout, xml_from_tree)  # @UnresolvedImport @UnusedImport
-except (ImportError, ValueError):
-    from pathlib import Path
-    import sys
-    parent = str(Path.cwd().parent)
-    sys.path.insert(0, parent)
-    from superhelp import ast_funcs, conf, helpers  # @Reimport
-    from superhelp.gen_utils import (get_docstring_start, get_tree,  # @Reimport
-        layout_comment as layout, xml_from_tree)  # @Reimport
+from . import ast_funcs, conf, helpers
+from .gen_utils import (get_docstring_start, get_tree,
+    layout_comment as layout, xml_from_tree)
 
 BlockDets = namedtuple(
     'BlockDets', 'element, pre_block_code_str, block_code_str, first_line_no')

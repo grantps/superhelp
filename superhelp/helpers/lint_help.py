@@ -4,10 +4,10 @@ import re
 from subprocess import run, PIPE
 import sys
 
-from superhelp.helpers import snippet_str_help
+from ..helpers import snippet_str_help
 from .. import conf, lint_conf
-from superhelp.gen_utils import get_nice_str_list, get_os_platform, \
-    layout_comment as layout, make_open_tmp_file
+from ..gen_utils import (get_nice_str_list, get_os_platform,
+    layout_comment as layout, make_open_tmp_file)
 
 prog = re.compile(lint_conf.LINT_PATTERN, flags=re.VERBOSE)  # @UndefinedVariable
 
