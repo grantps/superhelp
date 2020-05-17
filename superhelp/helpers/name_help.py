@@ -20,12 +20,15 @@ ASSIGN_NAME_XPATH = 'descendant-or-self::Assign/value/Name'
 def get_subscript_name_value(assign_subscript_el):
     """
     Looking for:
-    people[0] (list)
-    capitals['NZ'] (dict)
+    people[0] (list) as in `name = people[0]`
+    capitals['NZ'] (dict) as in `name = capitals['NZ']`
     """
     name_value_el = assign_subscript_el.xpath('value/Name')[0]
     name_value_name = name_value_el.get('id')
-    slice_dets = ast_funcs.get_slice_dets(assign_subscript_el)
+    try:
+        slice_dets = ast_funcs.get_slice_dets(assign_subscript_el)
+    except Exception:
+        return None
     name_value = f"{name_value_name}{slice_dets}"
     return name_value
 
@@ -50,6 +53,7 @@ def pairs_dets_from_el(name2name_el):
         raise Exception("Unable to identify name for name-value assignment. "
             f"Orig error: {e}")
 
+    ## If there is a subscript there might have been assignment to a dict or list
     assign_subscript_els = ancestor_assign_el.xpath(ASSIGN_SUBSCRIPT_XPATH)
     if assign_subscript_els:
         assign_subscript_el = assign_subscript_els[0]
@@ -85,8 +89,12 @@ def pairs_dets_from_block(block_el):
         return None
     pairs_dets = []
     for el in name2name_els:
-        el_pairs_dets = pairs_dets_from_el(el)
-        pairs_dets.extend(el_pairs_dets)
+        try:
+            el_pairs_dets = pairs_dets_from_el(el)
+        except Exception:
+            continue
+        else:
+            pairs_dets.extend(el_pairs_dets)
     return pairs_dets
 
 @all_blocks_help()
