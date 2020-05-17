@@ -5,14 +5,7 @@ from nose.tools import assert_equal, assert_not_equal, assert_true, assert_false
 
 from tests import check_as_expected
 
-try:
-    from ..superhelp import conf, lint_conf  # @UnresolvedImport @UnusedImport
-except (ImportError, ValueError):
-    from pathlib import Path
-    import sys
-    parent = str(Path.cwd().parent.parent)
-    sys.path.insert(0, parent)
-    from superhelp import conf, lint_conf  # @Reimport
+from superhelp import conf, lint_conf
 
 def test_linter_regex():
     tests = [

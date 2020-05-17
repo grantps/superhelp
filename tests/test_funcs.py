@@ -4,14 +4,7 @@ from nose.tools import assert_equal
 
 from tests import check_as_expected, get_repeated_lines, get_actual_result
 
-try:
-    from superhelp.helpers.func_help import count_args  # @UnresolvedImport @UnusedImport
-except (ImportError, ValueError):
-    from pathlib import Path
-    import sys
-    parent = str(Path.cwd().parent)
-    sys.path.insert(0, parent)
-    from superhelp.helpers.func_helpers import count_args  # @Reimport @UnresolvedImport
+from superhelp.helpers.func_help import count_args
 
 excess_args = ', '.join(['arg' + str(i) for i in range(100)])
 

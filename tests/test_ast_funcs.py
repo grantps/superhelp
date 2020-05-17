@@ -1,12 +1,6 @@
 from nose.tools import assert_equal, assert_not_equal, assert_true, assert_false  # @UnusedImport @UnresolvedImport
-try:
-    from ..superhelp import ast_funcs  # @UnresolvedImport @UnusedImport
-except (ImportError, ValueError):
-    from pathlib import Path
-    import sys
-    parent = str(Path.cwd().parent)
-    sys.path.insert(0, parent)
-    from superhelp import ast_funcs  # @Reimport
+
+from superhelp import ast_funcs  # @Reimport
 
 from tests import get_actual_result
 

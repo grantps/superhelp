@@ -1,20 +1,10 @@
-## cd ~/projects/superhelp && superhelp/env/bin/python3 -m nose
 import astpath
 from nose.tools import assert_equal, assert_not_equal, assert_true, assert_false  # @UnusedImport @UnresolvedImport
-try:
-    from ..superhelp import conf  # @UnresolvedImport
-    from ..superhelp import ast_funcs  # @UnresolvedImport
-    from ..superhelp.messages import get_separated_messages_dets  # @UnresolvedImport
-    from superhelp.gen_utils import get_tree, xml_from_tree  # @UnresolvedImport
-except (ImportError, ValueError):
-    from pathlib import Path
-    import sys
-    parent = str(Path.cwd().parent)
-    sys.path.insert(0, parent)
-    from superhelp import conf  # @Reimport
-    from superhelp import ast_funcs  # @Reimport
-    from superhelp.messages import get_separated_messages_dets  # @Reimport
-    from superhelp.gen_utils import get_tree, xml_from_tree  # @Reimport
+
+from superhelp import conf
+from superhelp import ast_funcs
+from superhelp.messages import get_separated_messages_dets
+from superhelp.gen_utils import get_tree, xml_from_tree
 
 conf.INCLUDE_LINTING = False
 conf.RECORD_AST = True
