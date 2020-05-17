@@ -238,7 +238,6 @@ def test_arg_count():
     Testing positional-only arguments so Python 3.8+ only
     """
     xpath = 'descendant-or-self::FunctionDef'
-
     inc_posonly_func_snippet = dedent("""\
     def multifunc(posonly_arg1=1, posonly_arg2=[], /,
             arg1=2, arg2=3, arg3=[], *, kwonly_arg1={}):
@@ -260,6 +259,8 @@ def test_arg_count():
     for snippet, test_func, expected_result in tests:
         actual_result = get_actual_result(snippet, xpath, test_func)
         assert_equal(expected_result, actual_result)
+
+test_arg_count.three_point_seven_plus_only = True
 
 # test_misc()
 # test_arg_count()
