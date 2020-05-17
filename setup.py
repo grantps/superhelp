@@ -2,7 +2,7 @@ from setuptools import setup, find_packages  # @UnresolvedImport
 from codecs import open
 from os import path
 
-__version__ = '0.9.32'
+__version__ = '0.9.33'
 
 here = path.abspath(path.dirname(__file__))
 
@@ -23,8 +23,8 @@ setup(
     description='SuperHELP - Help for Humans!',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://git.nzoss.org.nz/pyGrant/superhelp',
-    download_url=f'https://git.nzoss.org.nz/pyGrant/superhelp/dist/superhelp-{__version__}.tar.gz',
+    url='https://github.com/grantps/superhelp',
+    download_url=f'https://github.com/grantps/superhelp/dist/superhelp-{__version__}.tar.gz',
     license='MIT',
     classifiers=[
       'Development Status :: 4 - Beta',

@@ -2,7 +2,7 @@
 
 ![Example HTML output](https://github.com/grantps/superhelp/raw/master/superhelp_logo_padded_small.png)
 
-version number: 0.9.32
+version number: 0.9.33
 author: Grant Paton-Simpson
 
 ## Overview
@@ -42,7 +42,7 @@ or similar
 
 2) Or clone the repo
 
-    $ git clone https://git.nzoss.org.nz/pyGrant/superhelp.git
+    $ git clone https://github.com/grantps/superhelp.git
     $ python3 setup.py install
 
 ## Example Use Cases

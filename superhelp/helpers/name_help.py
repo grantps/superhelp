@@ -389,19 +389,19 @@ def unpythonic_name_check(block_dets, *, repeat=False):
     Check names used for use of reserved words and camel case.
     """
     names = get_all_names(block_dets, include_non_standard=False)
-    reserved_names = []
-    bad_names = []
-    dubious_names = []
+    reserved_names = set()
+    bad_names = set()
+    dubious_names = set()
     for name in names:
         if is_reserved_name(name):
-            reserved_names.append(name)
+            reserved_names.add(name)
         all_lower_case = (name.lower() == name)
         all_upper_case = (name.upper() == name)
         bad_name = not (all_lower_case or all_upper_case)
         if bad_name:
-            bad_names.append(name)
+            bad_names.add(name)
         elif all_upper_case:
-            dubious_names.append(name)
+            dubious_names.add(name)
     if not (reserved_names or bad_names or dubious_names):
         return None
 
@@ -412,14 +412,15 @@ def unpythonic_name_check(block_dets, *, repeat=False):
     """)
     if reserved_names:
         reserved_names_listed = gen_utils.get_nice_str_list(
-            reserved_names, quoter='`')
+            sorted(reserved_names), quoter='`')
         reserved_comment = layout(f"""\
         Reserved name(s): {reserved_names_listed}
         """)
     else:
         reserved_comment = ''
     if bad_names:
-        bad_names_listed = gen_utils.get_nice_str_list(bad_names, quoter='`')
+        bad_names_listed = gen_utils.get_nice_str_list(
+            sorted(bad_names), quoter='`')
         bad_comment = layout(f"""\
         Un-pythonic name(s): {bad_names_listed}
         """)
@@ -427,7 +428,7 @@ def unpythonic_name_check(block_dets, *, repeat=False):
         bad_comment = ''
     if dubious_names:
         dubious_names_listed = gen_utils.get_nice_str_list(
-            dubious_names, quoter='`')
+            sorted(dubious_names), quoter='`')
         dubious_comment = layout(f"""\
         Possibly un-pythonic name(s): {dubious_names_listed}
         """)
