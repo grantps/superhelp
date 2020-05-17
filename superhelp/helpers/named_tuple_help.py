@@ -10,11 +10,10 @@ def get_named_tuple_dets(named_tuple_el):
     """
     Get name, label, fields.
     """
-    ancestor_elements = named_tuple_el.xpath('ancestor-or-self::*')
-    assign_block_el = ancestor_elements[-5]  ##  Assign value Call func Name
+    assign_block_el = named_tuple_el.xpath('ancestor-or-self::Assign')[-1]
     name = assign_block_el.xpath('targets/Name')[0].get('id')
-    label, fields_str = ast_funcs.get_lbl_flds(assign_block_el)
-    fields_list = [field.strip() for field in fields_str.split(',')]
+    label, fields_list = ast_funcs.get_nt_lbl_flds(assign_block_el)
+    fields_str = ', '.join(fields_list)
     named_tuple_dets = NTDets(name, label, fields_str, fields_list)
     return named_tuple_dets
 
@@ -23,6 +22,8 @@ def get_named_tuples_dets(blocks_dets):
     for block_dets in blocks_dets:
         func_name_els = block_dets.element.xpath(
             'descendant-or-self::value/Call/func/Name')
+        if not func_name_els:
+            continue
         named_tuple_els = [func_name_el for func_name_el in func_name_els
             if func_name_el.get('id') == 'namedtuple']
         named_tuples_dets = [

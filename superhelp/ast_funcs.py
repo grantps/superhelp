@@ -122,7 +122,7 @@ if python_version in (conf.PY3_6, conf.PY3_7):
 
     get_docstring_from_value = avf.get_docstring_from_value_3_7
     get_slice_dets = avf.get_slice_dets_3_7
-    get_lbl_flds = avf.get_lbl_flds_3_7
+    get_nt_lbl_flds = avf.get_nt_lbl_flds_3_7
     get_slice_n = avf.get_slice_n_3_7
     get_str_els_being_combined = avf.get_str_els_being_combined_3_7
 
@@ -145,7 +145,7 @@ elif python_version == conf.PY3_8:
     get_danger_status = avf.get_danger_status_3_8
     get_docstring_from_value = avf.get_docstring_from_value_3_8
     get_slice_dets = avf.get_slice_dets_3_8
-    get_lbl_flds = avf.get_lbl_flds_3_8
+    get_nt_lbl_flds = avf.get_nt_lbl_flds_3_8
     get_slice_n = avf.get_slice_n_3_8
     get_str_els_being_combined = avf.get_str_els_being_combined_3_8
 

@@ -62,6 +62,22 @@ def test_misc():
                 ROOT + 'named_tuple_overview': 1, ## in one snippet so one message
             }
         ),
+        (
+            dedent("""\
+            FolderDets = namedtuple('FolderDets', ("folder", "exclusions_fpath"))
+            """),
+            {
+                ROOT + 'named_tuple_overview': 1, ## in one snippet so one message
+            }
+        ),
+        (
+            dedent("""\
+            FolderDets = namedtuple('FolderDets', ["folder", "exclusions_fpath"])
+            """),
+            {
+                ROOT + 'named_tuple_overview': 1, ## in one snippet so one message
+            }
+        ),
     ]
     check_as_expected(test_conf)
 

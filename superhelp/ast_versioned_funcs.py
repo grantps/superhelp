@@ -357,17 +357,36 @@ def get_slice_dets_3_8(assign_subscript_el):
             raise Exception("Unable to get slice_dets")
     return slice_dets
 
-def get_lbl_flds_3_7(assign_block_el):
-    label_el, fields_el = assign_block_el.xpath('value/Call/args/Str')
-    label = label_el.get('s')
-    fields_str = fields_el.get('s')
-    return label, fields_str
+def _get_nt_lbl_flds_any(assign_block_el, tag='Constant', id_attr='value'):
+    """
+    Either two strs
+      e.g. 'DataDets', 'a, b, c'
+    OR a Constant/Str and list of n Constant/Strs
+      e.g. 'DataDets', ['a', 'b', 'c']
+    OR a Constant/Str and a tuple of n Constants/Strs
+      e.g. 'DataDets', ('a', 'b', 'c')
+    """
+    args_els = assign_block_el.xpath('value/Call/args')
+    if len(args_els) != 1:
+        raise Exception("Expected only one args el for named tuple")
+    args_el = args_els[0]
+    label_el, fields_el = args_el.getchildren()
+    label = label_el.get(id_attr)
+    field_el_type = fields_el.tag
+    if field_el_type == tag:
+        fields_str = fields_el.get(id_attr)
+        fields_list = [field.strip() for field in fields_str.split(',')]
+    elif field_el_type in ('Tuple', 'List'):
+        field_els = fields_el.xpath(f'elts/{tag}')
+        fields_list = [el.get(id_attr) for el in field_els]
+    return label, fields_list
 
-def get_lbl_flds_3_8(assign_block_el):
-    label_el, fields_el = assign_block_el.xpath('value/Call/args/Constant')
-    label = label_el.get('value')
-    fields_str = fields_el.get('value')
-    return label, fields_str
+def get_nt_lbl_flds_3_7(assign_block_el):
+    return _get_nt_lbl_flds_any(assign_block_el, tag='Str', id_attr='s')
+
+def get_nt_lbl_flds_3_8(assign_block_el):
+    return _get_nt_lbl_flds_any(
+        assign_block_el, tag='Constant', id_attr='value')
 
 def get_slice_n_3_7(assign_el):
     slice_n = assign_el.xpath(
