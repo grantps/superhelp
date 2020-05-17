@@ -2,7 +2,7 @@ from setuptools import setup, find_packages  # @UnresolvedImport
 from codecs import open
 from os import path
 
-__version__ = '0.9.33'
+__version__ = '0.9.34'
 
 here = path.abspath(path.dirname(__file__))
 
@@ -24,7 +24,6 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/grantps/superhelp',
-    download_url=f'https://github.com/grantps/superhelp/dist/superhelp-{__version__}.tar.gz',
     license='MIT',
     classifiers=[
       'Development Status :: 4 - Beta',
