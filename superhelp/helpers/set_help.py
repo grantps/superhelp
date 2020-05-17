@@ -216,7 +216,7 @@ def _get_inappropriate_list(if_el):
 
     compare_els = test_el.xpath('Compare')
     if len(compare_els) != 1:
-        raise Exception("Should only be one Compare item in a test")
+        return None
     compare_el = compare_els[0]
 
     checking_non_membership = _checking_non_membership(compare_el)

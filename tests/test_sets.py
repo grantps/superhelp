@@ -105,7 +105,27 @@ def test_misc():
                 ROOT + 'set_better_than_list': 0,
             }
         ),
+        (
+            dedent("""\
+            if verbose:
+                flags.append('--progress')
+            """),
+            {
+                ROOT + 'set_overview': 0,
+                ROOT + 'set_better_than_list': 0,
+            }
+        ),
+        (
+            dedent("""\
+            if msg:
+                print(msg)
+            """),
+            {
+                ROOT + 'set_overview': 0,
+                ROOT + 'set_better_than_list': 0,
+            }
+        ),
     ]
     check_as_expected(test_conf)
 
-# test_misc()
+test_misc()
