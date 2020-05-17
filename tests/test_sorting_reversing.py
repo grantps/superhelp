@@ -85,6 +85,15 @@ def test_misc():
                 ROOT + 'list_sort_as_value': 1,
             }
         ),
+        (
+            dedent("""\
+            hours, mins, secs = Utils._get_time_parts_since_t1(t1)
+            """),
+            {
+                ROOT + 'sorting_reversing_overview': 0,
+                ROOT + 'list_sort_as_value': 0,
+            }
+        ),
     ]
     check_as_expected(test_conf)
 

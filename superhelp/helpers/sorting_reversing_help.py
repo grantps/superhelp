@@ -144,9 +144,12 @@ def list_sort_as_value(block_dets, *, repeat=False):
     func_attr_els = block_dets.element.xpath(ASSIGN_FUNC_ATTRIBUTE_XPATH)
     names_assigned_to_sort = []
     for func_attr_el in func_attr_els:
-        name_dets = name_utils.get_assigned_name(func_attr_el)
         is_sort = (func_attr_el.get('attr') == 'sort')
         if is_sort:
+            try:
+                name_dets = name_utils.get_assigned_name(func_attr_el)
+            except Exception:
+                continue
             names_assigned_to_sort.append(name_dets.name_str)
     if not names_assigned_to_sort:
         return None

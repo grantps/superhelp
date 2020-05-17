@@ -128,4 +128,4 @@ def test_misc():
     ]
     check_as_expected(test_conf)
 
-test_misc()
+# test_misc()
