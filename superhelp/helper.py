@@ -205,5 +205,5 @@ def shelp():
         warnings_only=args.warnings_only, in_notebook=False)
 
 if __name__ == '__main__':
-    get_help(file_path='store/laptop_backups.py')
-#     shelp()
+#     get_help(file_path='store/laptop_backups.py')
+    shelp()
