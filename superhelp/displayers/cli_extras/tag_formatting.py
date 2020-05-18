@@ -1,15 +1,70 @@
 from . import cli_colour, cli_conf, cli_utils
+from ... import conf
 
 def _get_vertical_padding_line(length):
     return length * ' '
+
+def _get_true_width(text):
+    """
+    All the characters between the start STX and end ETX transmission characters
+    count as one only per block.
+    """
+    n_chars = 0
+    collect = True
+    for char in text:
+        if char == cli_conf.STX:
+            collect = False
+            n_chars += 1  ## just counting as 1
+            continue
+        elif char == cli_conf.ETX:
+            collect = True
+            continue
+        elif collect:
+            n_chars += 1
+        elif not collect:
+            continue
+        else:
+            raise Exception("Logically should never be here")
+    true_width = n_chars
+    return true_width
+
+def _visibly_centred_text(text):
+    """
+    Centre based on characters that can be seen and that actually contribute to
+    width.
+    """
+    true_width = _get_true_width(text)
+    padding_needed = (cli_conf.TERMINAL_WIDTH - true_width)
+    if padding_needed <= 0:
+        true_centred_text = text
+    else:
+        even_padding = int(padding_needed / 2)
+        initial_tot_width = (even_padding + true_width + even_padding)
+        extra_needed = cli_conf.TERMINAL_WIDTH - initial_tot_width
+        if extra_needed == 0:
+            true_centred_text = (
+                (even_padding * ' ') + text + (even_padding * ' '))
+        elif extra_needed == 1:
+            true_centred_text = (
+                ((even_padding + 1) * ' ') + text + (even_padding * ' '))
+        else:
+            raise Exception(f"Unexpected extra_needed: {extra_needed}")
+    return true_centred_text
 
 def h(text, level):
     level_colour = cli_conf.LEVEL2COLOUR.get(level)
     bold = False
     if level <= 2:
-        text = text.center(cli_conf.TERMINAL_WIDTH)
         vertical_padding_line = _get_vertical_padding_line(
             length=cli_conf.TERMINAL_WIDTH)
+        if len(text) < cli_conf.TERMINAL_WIDTH:
+            text = text.center(cli_conf.TERMINAL_WIDTH)
+        else:
+            split_text = [subtext.replace('\n', '').strip()
+                for subtext in text.split(conf.FORCE_SPLIT)]
+            centred_subtext = [
+                _visibly_centred_text(sub_text) for sub_text in split_text]
+            text = '\n'.join(centred_subtext)
     else:
         if level == 3:
             lstar_padding = '**** '

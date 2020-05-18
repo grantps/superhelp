@@ -22,14 +22,7 @@ LOG_LEVEL = logging.INFO  ## (logging.INFO)
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 ## All snippets here should be raw strings (see https://stackoverflow.com/questions/53636723/python-parsing-code-with-new-line-character-in-them-using-ast)
 TEST_SNIPPET = r"""
-if 'chicken' in collection:
-    collection.append('chicken')
-if 'chicken' not in collection:
-    collection.append('chicken')
-if cat in collection:
-    collection.append(cat)
-if cat not in collection:
-    collection.append(cat)
+age = 21
 """
 
 PY3_6 = '3.6'
@@ -138,6 +131,8 @@ LINT_MSG = 'msg'
 LINT_LINE_NO = 'line_no'
 
 LINE_FEED = '&#10;'
+
+FORCE_SPLIT = '__force_split__'
 
 ## scraped from https://docs.python.org/3/py-modindex.html 2020-04-02
 STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',

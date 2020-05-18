@@ -45,6 +45,7 @@ env
 __pycache__
 
 superhelp/ast_output.xml
+superhelp/download_stats.py
 superhelp/explained.html
 superhelp/store/*
 

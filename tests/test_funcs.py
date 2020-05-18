@@ -260,6 +260,7 @@ def test_arg_count():
         actual_result = get_actual_result(snippet, xpath, test_func)
         assert_equal(expected_result, actual_result)
 
+## enable use of nosetests -a "!three_point_seven_plus_only" so can run on 3.6
 test_arg_count.three_point_seven_plus_only = True
 
 # test_misc()

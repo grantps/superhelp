@@ -411,6 +411,40 @@ svg {
   margin: 10px 0 0 0;
   border: 2px solid #0072aa;
 }
+
+#star {
+  padding: 9px 10px 10px 10px;
+  background-color: #0072aa;
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+  border-radius: 8px;
+  text-align: center;
+}
+#star a:link {
+  color: white;
+  border-bottom: 1px solid white;
+  text-decoration: none;
+}
+#star a:visited {
+  color: white;
+  border-bottom: 1px solid white;
+  text-decoration: none;
+}
+#star a:hover {
+  color: white;
+  border-bottom: 1px solid white;
+  text-decoration: none;
+}
+#star a:active {
+  color: white;
+  border-bottom: 1px solid white;
+  text-decoration: none;
+}
+#star #grow {
+  font-size: 20px;
+}
+
 .help {
   display: none;
 }
@@ -607,6 +641,11 @@ def _get_all_html_strs(snippet, overall_messages_dets, block_messages_dets, *,
         else:
             options_msg = f"<p>{conf.ALL_HELP_SHOWING_MSG}.</p>"
         all_html_strs.append(options_msg)
+        all_html_strs.append("<div id='star'>"
+            "Please give us a star <span id='grow'>&starf;</span> on "
+            "<a href='https://github.com/grantps/superhelp'>"
+            "SuperHELP's GitHub page</a></br>so others can learn about us. "
+            "Thanks!</div>")
     ## overall snippet display
     display_snippet = _need_snippet_displayed(
         overall_messages_dets, block_messages_dets,

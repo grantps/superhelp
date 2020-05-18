@@ -66,6 +66,10 @@ def display(snippet, messages_dets, *,
             {options_msg}.
 
             {conf.MISSING_ADVICE_MESSAGE}
+
+            ## Please give us a star &starf; on
+            https://github.com/grantps/superhelp{conf.FORCE_SPLIT}
+            so others can learn about us. Thanks!
             """
         )),
     ]

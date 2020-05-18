@@ -63,6 +63,14 @@ def display(snippet, messages_dets, *,
             {options_msg}.
 
             {conf.MISSING_ADVICE_MESSAGE}
+
+                #################################################################
+
+                # Please give us a star on https://github.com/grantps/superhelp #
+
+                #             so others can learn about us. Thanks!             #
+
+                #################################################################
             """
         ),
     ]
