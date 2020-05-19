@@ -44,7 +44,8 @@ def _need_snippet_displayed(overall_messages_dets, block_messages_dets, *,
 
 def display(snippet, messages_dets, *,
         detail_level=conf.BRIEF,
-        warnings_only=False, in_notebook=False, multi_block=False):
+        warnings_only=False, in_notebook=False,
+        multi_block=False, theme_name=None):
     """
     Show by code blocks.
     """

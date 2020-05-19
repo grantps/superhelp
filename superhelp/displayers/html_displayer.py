@@ -699,7 +699,8 @@ def _get_head(*, in_notebook=False):
 
 def display(snippet, messages_dets, *,
         detail_level=conf.BRIEF,
-        in_notebook=False, warnings_only=False, multi_block=False):
+        in_notebook=False, warnings_only=False,
+        multi_block=False, theme_name=None):
     """
     Show for overall snippet and then by code blocks as appropriate.
 
