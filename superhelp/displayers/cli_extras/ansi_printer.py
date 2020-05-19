@@ -20,12 +20,12 @@ class AnsiPrinter(Treeprocessor):
         len_admon_start = len(cli_conf.ADMON_START)
         if text.startswith(cli_conf.ADMON_START):
             ## we have to handle admon labels with spaces so check with startswith not ==
-            for admon_lbl in cli_conf.ADMONS:
+            for admon_lbl in cli_colour.ADMONS:
                 if text[len_admon_start:].startswith(admon_lbl):
                     break
             else:  ## i.e. never exited
                 admon_lbl = text[len_admon_start:].split(" ", 1)[0]
-                cli_conf.ADMONS[admon_lbl] = cli_conf.ADMONS.values()[0]
+                cli_colour.ADMONS[admon_lbl] = cli_colour.ADMONS.values()[0]
             prefix = body_prefix = '┃ '
             prefix += admon_lbl.capitalize()
             admon_lbl_used = admon_lbl
@@ -38,7 +38,7 @@ class AnsiPrinter(Treeprocessor):
             iout = []
             AnsiPrinter.formatter(el1, iout, nesting_level + 2, parent=el)
             pr = cli_colour.colourise(
-                cli_conf.BQUOTE_PREFIX, cli_conf.H1_COLOUR)
+                cli_conf.BQUOTE_PREFIX, cli_colour.H1_COLOUR)
             sp = ' ' * (nesting_level + 2)
             for l in iout:
                 for l1 in l.splitlines():
@@ -213,13 +213,13 @@ class AnsiPrinter(Treeprocessor):
             # indent. can color the prefixes now, no more len checks:
             if admon_lbl_used:
                 out.append("\n")
-                colour = globals()[cli_conf.ADMONS[admon_lbl_used]]
+                colour = globals()[cli_colour.ADMONS[admon_lbl_used]]
                 prefix = cli_colour.colourise(prefix, colour)
                 body_prefix = cli_colour.colourise(body_prefix, colour)
 
             if prefix:
                 h_level = ((nesting_level - 2) % 5) + 1
-                colour = getattr(cli_conf, f"H{h_level}_COLOUR")
+                colour = getattr(cli_colour, f"H{h_level}_COLOUR")
                 if (prefix == cli_conf.LIST_PREFIX
                         or prefix.split('.', 1)[0].isdigit()):
                     prefix = cli_colour.colourise(prefix, colour)

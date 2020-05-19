@@ -2,6 +2,7 @@ import logging
 from textwrap import dedent
 
 from .cli_extras import md2cli
+from .cli_extras.cli_colour import set_global_colours
 from superhelp.gen_utils import get_line_numbered_snippet, layout_comment as layout
 
 """
@@ -46,10 +47,12 @@ def _need_snippet_displayed(overall_messages_dets, block_messages_dets, *,
 
 def display(snippet, messages_dets, *,
         detail_level=conf.BRIEF,
-        warnings_only=False, in_notebook=False, multi_block=False):
+        warnings_only=False, in_notebook=False,
+        multi_block=False, theme_name=None):
     """
     Show by code blocks.
     """
+    set_global_colours(theme_name)
     logging.debug(f"{__name__} doesn't use in_notebook setting {in_notebook}")
     md2cli.term_columns = TERMINAL_WIDTH
     if warnings_only:

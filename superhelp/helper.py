@@ -46,11 +46,12 @@ helpers.load_helpers()
 
 def display_messages(displayer, snippet, messages_dets, *,
         detail_level=conf.BRIEF,
-        warnings_only=False, in_notebook=False, multi_block=False):
+        warnings_only=False, in_notebook=False,
+        multi_block=False, theme_name=None):
     res = displayer.display(snippet, messages_dets,
         detail_level=detail_level,
         warnings_only=warnings_only, in_notebook=in_notebook,
-        multi_block=multi_block)
+        multi_block=multi_block, theme_name=theme_name)
     if in_notebook:
         return res
 
@@ -89,7 +90,7 @@ def _get_displayer_module(output):
 
 def get_help(snippet=None, *, file_path=None,
         output='html', detail_level=conf.EXTRA,
-        warnings_only=False, in_notebook=False):
+        warnings_only=False, in_notebook=False, theme_name=None):
     """
     Provide advice about the snippet of Python code supplied
 
@@ -103,6 +104,8 @@ def get_help(snippet=None, *, file_path=None,
     :param bool warnings_only: if True only displays warnings
     :param bool in_notebook: if True might change way display happens e.g. HTML
      not sent to browser but returned for display by notebook itself
+    :param str theme_name: currently only needed by the CLIC displayer (to
+     handle dark and light terminal themes)
     """
     snippet = _get_snippet(snippet, file_path)
     if snippet.strip() == 'import community':
@@ -123,7 +126,8 @@ def get_help(snippet=None, *, file_path=None,
         res = display_messages(displayer_module, snippet,
             messages_dets, detail_level=detail_level,
             warnings_only=warnings_only, in_notebook=in_notebook,
-            multi_block=multi_block)
+            multi_block=multi_block, theme_name=theme_name
+        )
         if in_notebook:
             return res
 
@@ -152,7 +156,7 @@ def _get_introspected_file_path():
     return file_path
 
 def this(*, output='html', detail_level=conf.EXTRA,
-        warnings_only=False, file_path=None):
+        warnings_only=False, file_path=None, theme_name='dark'):
     """
     Get SuperHELP output on the file_path Python script.
 
@@ -168,12 +172,14 @@ def this(*, output='html', detail_level=conf.EXTRA,
     :param str / Path file_path: full path to script location. Only needed if
      SuperHELP is unable to locate the script by itself. Usually should be
      __file__ (note the double underscores on either side of file).
+    :param str theme_name: currently only needed by the CLIC displayer (to
+     handle dark and light terminal themes)
     """
     if not file_path:
         file_path = _get_introspected_file_path()
     get_help(snippet=None, file_path=file_path,
-        output=output, detail_level=detail_level,
-        warnings_only=warnings_only, in_notebook=False)
+        output=output, detail_level=detail_level, warnings_only=warnings_only,
+        in_notebook=False, theme_name=theme_name)
 
 def shelp():
     """
@@ -202,6 +208,10 @@ def shelp():
     parser.add_argument('-w', '--warnings-only', action='store_true',
         default=False,
         help="Show warnings only")
+    parser.add_argument('-t', '--theme', type=str,
+        required=False, default='dark',
+        help=("Select an output theme - currently only affects cli output "
+            "option. 'dark' or 'light'"))
     parser.add_argument('-a', '--advice-list', action='store_true',
         default=False,
         help="List available advice")
@@ -215,16 +225,18 @@ def shelp():
         for n, (comment, source, warning) in enumerate(helper_comments, 1):
             print(f"{n:>{num_width}}) {warning}{comment} ({source})")
         return
-    if args.output and args.file_path:
+    if args.code and args.file_path:
         print(
             "Either supply code using -c / --code "
             "(usually for smaller snippets of Python) "
             "OR refer to a file of Python code using -f / --file-path")
         return
     output = args.output if conf.SHOW_OUTPUT else None
+    theme_name = args.theme
     get_help(args.code, file_path=args.file_path,
         output=output, detail_level=args.detail_level,
-        warnings_only=args.warnings_only, in_notebook=False)
+        warnings_only=args.warnings_only, in_notebook=False,
+        theme_name=theme_name)
 
 if __name__ == '__main__':
 #     get_help(file_path='store/edator_for_testing.py')

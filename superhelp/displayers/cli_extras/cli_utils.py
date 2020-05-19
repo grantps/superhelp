@@ -125,7 +125,7 @@ ansi_escape = re.compile(r"\x1b[^m]*m")
 def get_code_hl_tokens():
     code_hl_tokens = {}
     # replace code strs with tokens:
-    for token_name, colour in cli_conf.TOKEN_NAME_TO_HL_COLOUR.items():
+    for token_name, colour in cli_colour.TOKEN_NAME_TO_HL_COLOUR.items():
         if '.' not in token_name:  ## cope with Operator.Word as token_name
             code_hl_tokens[getattr(token, token_name)] = colour
         else:
@@ -147,7 +147,7 @@ def style_ansi(raw_code):
     for my_token, text in tokens:
         if not text:
             continue
-        colour = code_hl_tokens.get(my_token, cli_conf.CODE_COLOUR)
+        colour = code_hl_tokens.get(my_token, cli_colour.CODE_COLOUR)
         code_lines.append(cli_colour.colourise(text, colour))
         logging.debug(my_token, colour)
     styled_ansi_code = ''.join(code_lines)
@@ -186,7 +186,7 @@ def split_blocks(text_block, width, n_cols, part_formatter=None):
                 (' '
                 +
                 cli_colour.colourise(
-                    cli_conf.TEXT_BLOCK_CUT, cli_conf.LOW_VIS_COLOUR,
+                    cli_conf.TEXT_BLOCK_CUT, cli_colour.LOW_VIS_COLOUR,
                     no_reset=True)
                 + line[i : i + scols]
                 )
@@ -201,7 +201,7 @@ def split_blocks(text_block, width, n_cols, part_formatter=None):
             tpart.append(lines_block[block_part_nr])
         if part_formatter:
             part_formatter(tpart)
-        tpart[1] = cli_colour.colourise(tpart[1], cli_conf.H3_COLOUR)
+        tpart[1] = cli_colour.colourise(tpart[1], cli_colour.H3_COLOUR)
         blocks.append("\n".join(tpart))
     text = 'n' + '\n'.join(blocks) + '\n'
     return text
