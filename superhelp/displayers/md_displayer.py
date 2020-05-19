@@ -1,8 +1,8 @@
 import logging
 from textwrap import dedent
 
-from superhelp.gen_utils import (get_intro, get_line_numbered_snippet,
-    layout_comment as layout, make_open_tmp_file)
+from superhelp.gen_utils import (get_code_desc, get_intro,
+    get_line_numbered_snippet, layout_comment as layout, make_open_tmp_file)
 
 """
 Note - plain MDV - works in some consoles where terminal output fails.
@@ -81,8 +81,9 @@ def display(snippet, file_name, messages_dets, *,
         overall_messages_dets, block_messages_dets, multi_block=multi_block)
     if display_snippet:
         line_numbered_snippet = get_line_numbered_snippet(snippet)
+        code_desc = get_code_desc(file_name)
         text.append(dedent(
-            "## Overall Snippet"
+            f"## {code_desc}"
             f"\n{MDV_CODE_START}\n"
             + line_numbered_snippet
             + f"\n{MDV_CODE_END}"))

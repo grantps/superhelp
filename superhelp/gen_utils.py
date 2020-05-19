@@ -126,6 +126,13 @@ def get_intro(file_name, *, multi_block=False):
             "block it is skipped.")
     return intro
 
+def get_code_desc(file_name):
+    if file_name:
+        code_desc = file_name
+    else:
+        code_desc = 'Overall Snippet'
+    return code_desc
+
 def get_line_numbered_snippet(snippet):
     snippet_lines = snippet.split('\n')
     n_lines = len(snippet_lines)

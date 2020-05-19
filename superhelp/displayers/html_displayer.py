@@ -2,8 +2,8 @@ from textwrap import dedent, indent
 import webbrowser
 
 from .. import conf
-from superhelp.gen_utils import (get_intro, get_line_numbered_snippet,
-    make_open_tmp_file)
+from superhelp.gen_utils import (get_code_desc, get_intro,
+    get_line_numbered_snippet, make_open_tmp_file)
 
 from markdown import markdown  ## https://coderbook.com/@marcus/how-to-render-markdown-syntax-as-html-using-python/ @UnresolvedImport
 
@@ -594,9 +594,10 @@ def get_message_html_strs(message_dets):
         message_html_strs.append("</div>")
     return message_html_strs
 
-def repeat_overall_snippet(snippet):
+def repeat_overall_snippet(snippet, file_name):
     html_strs = []
-    html_strs.append("<h2>Overall Snippet</h2>")
+    code_desc = get_code_desc(file_name)
+    html_strs.append(f"<h2>{code_desc}</h2>")
     line_numbered_snippet = get_line_numbered_snippet(snippet)
     overall_code_str = indent(
         f"{conf.MD_PYTHON_CODE_START}\n{line_numbered_snippet}",
@@ -624,7 +625,8 @@ def _need_snippet_displayed(overall_messages_dets, block_messages_dets, *,
         return False
     return True
 
-def _get_all_html_strs(snippet, overall_messages_dets, block_messages_dets, *,
+def _get_all_html_strs(snippet, file_name,
+        overall_messages_dets, block_messages_dets, *,
         warnings_only=False, in_notebook=False, multi_block=False):
     """
     Display all message types - eventually will show brief and, if the user
@@ -652,7 +654,7 @@ def _get_all_html_strs(snippet, overall_messages_dets, block_messages_dets, *,
         overall_messages_dets, block_messages_dets,
         in_notebook=in_notebook, multi_block=multi_block)
     if display_snippet:
-        overall_snippet_html_strs = repeat_overall_snippet(snippet)
+        overall_snippet_html_strs = repeat_overall_snippet(snippet, file_name)
         all_html_strs.extend(overall_snippet_html_strs)
 
     ## overall messages
@@ -712,7 +714,7 @@ def display(snippet, file_name, messages_dets, *,
     intro = f"<p>{raw_intro}</p>" if raw_intro else ''
     radio_buttons = _get_radio_buttons(detail_level=detail_level)
     overall_messages_dets, block_messages_dets = messages_dets
-    all_html_strs = _get_all_html_strs(snippet,
+    all_html_strs = _get_all_html_strs(snippet, file_name,
         overall_messages_dets, block_messages_dets, warnings_only=warnings_only,
         in_notebook=in_notebook, multi_block=multi_block)
     body_inner = '\n'.join(all_html_strs)

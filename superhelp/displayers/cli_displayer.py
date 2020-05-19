@@ -3,8 +3,8 @@ from textwrap import dedent
 
 from .cli_extras import md2cli
 from .cli_extras.cli_colour import set_global_colours
-from superhelp.gen_utils import (get_intro, get_line_numbered_snippet,
-    layout_comment as layout)
+from superhelp.gen_utils import (get_code_desc, get_intro,
+    get_line_numbered_snippet, layout_comment as layout)
 
 """
 Note - displays properly in the terminal but not necessarily in other output
@@ -83,8 +83,9 @@ def display(snippet, file_name, messages_dets, *,
         overall_messages_dets, block_messages_dets, multi_block=multi_block)
     if display_snippet:
         line_numbered_snippet = get_line_numbered_snippet(snippet)
+        code_desc = get_code_desc(file_name)
         text.append(md2cli.main(dedent(
-            "## Overall Snippet"
+            f"## {code_desc}"
             f"\n{MDV_CODE_BOUNDARY}\n"
             + line_numbered_snippet
             + f"\n{MDV_CODE_BOUNDARY}")))
