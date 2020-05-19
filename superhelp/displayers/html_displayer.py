@@ -2,7 +2,8 @@ from textwrap import dedent, indent
 import webbrowser
 
 from .. import conf
-from superhelp.gen_utils import get_line_numbered_snippet, make_open_tmp_file
+from superhelp.gen_utils import (get_intro, get_line_numbered_snippet,
+    make_open_tmp_file)
 
 from markdown import markdown  ## https://coderbook.com/@marcus/how-to-render-markdown-syntax-as-html-using-python/ @UnresolvedImport
 
@@ -697,17 +698,18 @@ def _get_head(*, in_notebook=False):
         'internal_css': internal_css}
     return head
 
-def display(snippet, messages_dets, *,
+def display(snippet, file_name, messages_dets, *,
         detail_level=conf.BRIEF,
         in_notebook=False, warnings_only=False,
-        multi_block=False, theme_name=None):
+        multi_block=False, theme_name=None):  # @UnusedVariable
     """
     Show for overall snippet and then by code blocks as appropriate.
 
     :param bool in_notebook: if True, return HTML as string; else open browser
      and display
     """
-    intro = f"<p>{conf.INTRO}</p>"
+    raw_intro = get_intro(file_name, multi_block=multi_block)
+    intro = f"<p>{raw_intro}</p>" if raw_intro else ''
     radio_buttons = _get_radio_buttons(detail_level=detail_level)
     overall_messages_dets, block_messages_dets = messages_dets
     all_html_strs = _get_all_html_strs(snippet,

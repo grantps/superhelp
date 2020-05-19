@@ -3,7 +3,8 @@ from textwrap import dedent
 
 from .cli_extras import md2cli
 from .cli_extras.cli_colour import set_global_colours
-from superhelp.gen_utils import get_line_numbered_snippet, layout_comment as layout
+from superhelp.gen_utils import (get_intro, get_line_numbered_snippet,
+    layout_comment as layout)
 
 """
 Note - displays properly in the terminal but not necessarily in other output
@@ -45,7 +46,7 @@ def _need_snippet_displayed(overall_messages_dets, block_messages_dets, *,
         return False
     return True
 
-def display(snippet, messages_dets, *,
+def display(snippet, file_name, messages_dets, *,
         detail_level=conf.BRIEF,
         warnings_only=False, in_notebook=False,
         multi_block=False, theme_name=None):
@@ -59,11 +60,12 @@ def display(snippet, messages_dets, *,
         options_msg = conf.WARNINGS_ONLY_MSG
     else:
         options_msg = conf.ALL_HELP_SHOWING_MSG
+    intro = get_intro(file_name, multi_block=multi_block)
     text = [
         md2cli.main(layout(f"""\
             # SuperHELP - Help for Humans!
 
-            {conf.INTRO}
+            {intro}
 
             Currently showing {detail_level} content as requested.
             {options_msg}.

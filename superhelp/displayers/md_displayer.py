@@ -1,8 +1,8 @@
 import logging
 from textwrap import dedent
 
-from superhelp.gen_utils import get_line_numbered_snippet, layout_comment as layout, \
-    make_open_tmp_file
+from superhelp.gen_utils import (get_intro, get_line_numbered_snippet,
+    layout_comment as layout, make_open_tmp_file)
 
 """
 Note - plain MDV - works in some consoles where terminal output fails.
@@ -42,10 +42,10 @@ def _need_snippet_displayed(overall_messages_dets, block_messages_dets, *,
         return False
     return True
 
-def display(snippet, messages_dets, *,
+def display(snippet, file_name, messages_dets, *,
         detail_level=conf.BRIEF,
         warnings_only=False, in_notebook=False,
-        multi_block=False, theme_name=None):
+        multi_block=False, theme_name=None):  # @UnusedVariable
     """
     Show by code blocks.
     """
@@ -54,11 +54,12 @@ def display(snippet, messages_dets, *,
         options_msg = conf.WARNINGS_ONLY_MSG
     else:
         options_msg = conf.ALL_HELP_SHOWING_MSG
+    intro = get_intro(file_name, multi_block=multi_block)
     text = [
         layout(f"""\
             # SuperHELP - Help for Humans!
 
-            {conf.INTRO}
+            {intro}
 
             Currently showing {detail_level} content as requested.
             {options_msg}.

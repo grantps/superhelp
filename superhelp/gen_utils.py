@@ -1,4 +1,5 @@
 from functools import partial
+import inspect
 import logging
 from os import rename
 from pathlib import Path
@@ -111,6 +112,20 @@ def xml_from_tree(tree):
     xml = astpath.asts.convert_to_xml(tree)
     return xml
 
+def get_intro(file_name, *, multi_block=False):
+    if not file_name:
+        if multi_block:
+            intro = (f"Help is provided for the supplied code as a whole and "
+                "for each block of code as appropriate. If there is nothing to "
+                "say about a block it is skipped.")
+        else:
+            intro = ''
+    else:
+        intro = (f"Help is provided for '{file_name}' as a whole and for each "
+            "block of code as appropriate. If there is nothing to say about a "
+            "block it is skipped.")
+    return intro
+
 def get_line_numbered_snippet(snippet):
     snippet_lines = snippet.split('\n')
     n_lines = len(snippet_lines)
@@ -120,6 +135,30 @@ def get_line_numbered_snippet(snippet):
         new_snippet_lines.append(f"{n:>{width}}   {line}".rstrip())
     lined_snippet = '\n'.join(new_snippet_lines)
     return lined_snippet
+
+def get_introspected_file_path():
+    """
+    The actual call we are interested in isn't necessarily the second one (e.g.
+    console first then actual script) so we have to explicitly filter for it. In
+    pydev, for example, it was the third item.
+
+    https://stackoverflow.com/questions/13699283/how-to-get-the-callers-filename-method-name-in-python
+    wasn't correct but gave some hints that I could build upon
+    """
+    for item in inspect.stack():
+        has_superhelp_this = (
+            item.code_context is not None
+            and 'superhelp.this' in ''.join(item.code_context))  ## seems to be a list of one item in each case
+        if has_superhelp_this:
+            calling_item = item
+            break
+    else:  ## didn't break for-loop
+        raise Exception('Unable to identify calling script through '
+            "introspection. Did you rename 'superhelp' or 'this'? "
+            "If that isn't the problem try explicitly supplying "
+            "file_path e.g. superhelp.this(file_path=__file__)'")
+    file_path = calling_item.filename
+    return file_path
 
 def get_os_platform():
     platforms = {

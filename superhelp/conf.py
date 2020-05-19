@@ -108,8 +108,6 @@ WARNINGS_ONLY_MSG = ("Only displaying warnings. "
 ALL_HELP_SHOWING_MSG = ("Displaying all help. "
     "To only see warnings, set warnings only option to True")
 
-INTRO = ("Help is provided for your overall snippet and for each block of code "
-    "as appropriate. If there is nothing to say about a block it is skipped.")
 NO_ADVICE_MESSAGE = ("No advice to give - looks fine :-). But if you think "
     f"there should have been some advice given, contact {EMAIL2USE} "
     "with the subject line 'Advice' and explain. Please include a snippet to "

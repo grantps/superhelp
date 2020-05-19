@@ -1,6 +1,6 @@
 import argparse
-import inspect
 import logging
+from pathlib import Path
 
 """
 Do not use relative imports (dot notation) in this module. Relative importing
@@ -34,7 +34,7 @@ function) and we then continue through the rest of the module.
 In tests we should import superhelp as a library, i.e. no relative importing, so
 tests can be run from anywhere.
 """
-from superhelp import conf, helpers, messages
+from superhelp import conf, gen_utils, helpers, messages
 from superhelp.displayers import cli_displayer, html_displayer, md_displayer
 
 logging.basicConfig(
@@ -43,17 +43,6 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S')
 
 helpers.load_helpers()
-
-def display_messages(displayer, snippet, messages_dets, *,
-        detail_level=conf.BRIEF,
-        warnings_only=False, in_notebook=False,
-        multi_block=False, theme_name=None):
-    res = displayer.display(snippet, messages_dets,
-        detail_level=detail_level,
-        warnings_only=warnings_only, in_notebook=in_notebook,
-        multi_block=multi_block, theme_name=theme_name)
-    if in_notebook:
-        return res
 
 def _get_snippet(snippet, file_path):
     if snippet and file_path:
@@ -123,37 +112,13 @@ def get_help(snippet=None, *, file_path=None,
             multi_block = False
     displayer_module = _get_displayer_module(output)
     if displayer_module:
-        res = display_messages(displayer_module, snippet,
+        file_name = Path(file_path).name if file_path else None
+        res = displayer_module.display(snippet, file_name,
             messages_dets, detail_level=detail_level,
             warnings_only=warnings_only, in_notebook=in_notebook,
-            multi_block=multi_block, theme_name=theme_name
-        )
+            multi_block=multi_block, theme_name=theme_name)
         if in_notebook:
             return res
-
-def _get_introspected_file_path():
-    """
-    The actual call we are interested in isn't necessarily the second one (e.g.
-    console first then actual script) so we have to explicitly filter for it. In
-    pydev, for example, it was the third item.
-
-    https://stackoverflow.com/questions/13699283/how-to-get-the-callers-filename-method-name-in-python
-    wasn't correct but gave some hints that I could build upon
-    """
-    for item in inspect.stack():
-        has_superhelp_this = (
-            item.code_context is not None
-            and 'superhelp.this' in ''.join(item.code_context))  ## seems to be a list of one item in each case
-        if has_superhelp_this:
-            calling_item = item
-            break
-    else:  ## didn't break for-loop
-        raise Exception('Unable to identify calling script through '
-            "introspection. Did you rename 'superhelp' or 'this'? "
-            "If that isn't the problem try explicitly supplying "
-            "file_path e.g. superhelp.this(file_path=__file__)'")
-    file_path = calling_item.filename
-    return file_path
 
 def this(*, output='html', detail_level=conf.EXTRA,
         warnings_only=False, file_path=None, theme_name='dark'):
@@ -176,7 +141,7 @@ def this(*, output='html', detail_level=conf.EXTRA,
      handle dark and light terminal themes)
     """
     if not file_path:
-        file_path = _get_introspected_file_path()
+        file_path = gen_utils.get_introspected_file_path()
     get_help(snippet=None, file_path=file_path,
         output=output, detail_level=detail_level, warnings_only=warnings_only,
         in_notebook=False, theme_name=theme_name)
