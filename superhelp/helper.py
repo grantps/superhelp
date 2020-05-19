@@ -204,5 +204,5 @@ def shelp():
         theme_name=theme_name)
 
 if __name__ == '__main__':
-#     get_help(file_path='store/edator_for_testing.py')
-    shelp()
+    get_help(file_path='/home/g/projects/superhelp/setup.py') #, output=None)
+#     shelp()

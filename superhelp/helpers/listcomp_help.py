@@ -17,12 +17,13 @@ def listcomp_overview(block_dets, *, repeat=False):
     comprehension available in Python.
     """
     listcomp_els = block_dets.element.xpath(ASSIGN_LISTCOMP_XPATH)
-    names_items, oversized_msg = code_execution.get_collections_dets(
-        listcomp_els, block_dets,
-        collection_plural='lists', truncated_items_func=truncate_list)
-    names_items_found = [name for name, items in names_items if items]
-    if not names_items_found:
-        return None
+    try:
+        names_items, oversized_msg = code_execution.get_collections_dets(
+            listcomp_els, block_dets,
+            collection_plural='lists', truncated_items_func=truncate_list)
+    except Exception:
+        names_items = []
+        oversized_msg = ''
 
     plural = 's' if len(names_items) > 1 else ''
     title = layout(f"""\
@@ -41,6 +42,24 @@ def listcomp_overview(block_dets, *, repeat=False):
             {gen_utils.int2nice(len(items))} items: {items}
             """))
     summary = ''.join(summary_bits)
+    brief_summary = summary
+    main_summary = summary
+    if not brief_summary:
+        brief_summary = layout("""\
+        List comprehension detected but unable to evaluate individual list
+        comprehensions in your code.
+        """)
+    if not main_summary:
+        if not repeat:
+            main_summary = layout("""\
+            Unable to evaluate individual list comprehensions in your code but
+            still able to make some general comments.
+            """)
+        else:
+            main_summary = layout("""\
+            List comprehension detected but unable to evaluate individual list
+            comprehensions in your code.
+        """)
     if not repeat:
         other_comprehensions = (
             layout("""\
@@ -66,7 +85,8 @@ def listcomp_overview(block_dets, *, repeat=False):
         other_comprehensions = ''
 
     message = {
-        conf.BRIEF: title + oversized_msg + summary,
+        conf.BRIEF: title + oversized_msg + brief_summary,
+        conf.MAIN: title + oversized_msg + main_summary,
         conf.EXTRA: other_comprehensions,
     }
     return message
