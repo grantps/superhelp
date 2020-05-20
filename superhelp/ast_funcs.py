@@ -80,9 +80,10 @@ def get_el_lines_dets(el, *, ignore_trailing_lines=False):
     return first_line_no, last_line_no, el_lines_n
 
 def store_ast_output(xml):
-    _tmp_ast_fh, tmp_ast_output_xml_fpath = make_open_tmp_file(
-        conf.AST_OUTPUT_XML_FNAME, mode='w')
-    xml.getroottree().write(str(tmp_ast_output_xml_fpath), pretty_print=True)
+    with make_open_tmp_file(conf.AST_OUTPUT_XML_FNAME, mode='w') as tmp_dets:
+        _superhelp_tmpdir, _tmp_ast_fh, tmp_ast_output_xml_fpath = tmp_dets
+        xml.getroottree().write(
+            str(tmp_ast_output_xml_fpath), pretty_print=True)
     logging.info("\n\n\n\n\nUpdating AST\n\n\n\n\n")
 
 def get_standardised_el_dict(el):

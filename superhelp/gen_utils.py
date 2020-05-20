@@ -1,13 +1,15 @@
+from contextlib import contextmanager
 from functools import partial
 import inspect
 import logging
-from os import rename
+import os
 from pathlib import Path
 import platform
 import re
 import sys
 import tempfile
 from textwrap import dedent, wrap
+import webbrowser
 
 import ast
 
@@ -100,6 +102,78 @@ starting_num_space_pattern = r"""(?x)
     """
 starting_num_space_prog = re.compile(starting_num_space_pattern)
 
+def open_output_folder():
+    """
+    On Linux, webbrowser delegates to xdg-open which checks mime type to decide
+    what gets to open something. Directories get delegated by xdg-open to
+    nautilus, for example, and html to the webbrowser usually.
+
+    So even though web browsers display the contents of folders very easily we
+    can't get xdg-open to delegate a directory to a browser. So I'm cheating - I
+    make a wrapper page which has a link to the desired folder uri. Where
+    there's a will there's a way.
+    """
+    project_output_tmpdir = get_superhelp_tmpdir(
+        folder=conf.SUPERHELP_PROJECT_OUTPUT)
+    project_output_url = project_output_tmpdir.as_uri()
+    gen_tmpdir = get_superhelp_tmpdir(folder='superhelp')
+    with make_open_tmp_file('project_help.html',
+            superhelp_tmpdir=gen_tmpdir, mode='w') as tmp_dets:
+        _superhelp_tmpdir, tmp_fh, fpath = tmp_dets
+        internal_css = dedent("""\
+        body {
+          background-color: white;
+          margin: 40px 70px 20px 70px;
+          max-width: 700px;
+        }
+        h1, h2 {
+          font-weight: bold;
+        }
+        h1 {
+          color: #0072aa;
+          font-size: 24px;
+        }
+        h2 {
+          color: black;
+          font-size: 18px;
+          margin-top: 24px;
+        }
+        p {
+          color: black;
+          font-size: 14px;
+        }
+        svg {
+          height: 100px;
+          width: 100px;
+        }
+        a:link, a:visited, a:hover, a:active {
+          color: #0072aa;
+          border-bottom: 1px solid #0072aa;
+          text-decoration: none;
+        }
+        """)
+        head = conf.HTML_HEAD % {'internal_css': internal_css}
+        body_inner = f"""\
+        <a href='{project_output_url}'>Individual help files for your
+        project</a>
+        """
+        html = f"""\
+        <!DOCTYPE html>
+        <html lang="en">
+        {head}
+        <body>
+        {conf.LOGO_SVG}
+        <h1>SuperHELP for your project</h1>
+        <h2>Warning</h2>
+        <p>The output for this project is stored in a temporary folder - if you
+        want to keep the results you will need to shift
+        '{project_output_tmpdir}' somewhere else</p>
+        {body_inner}
+        </body>
+        </html>"""
+        tmp_fh.write(html)
+    webbrowser.open(fpath.as_uri())
+
 def get_tree(snippet):
     try:
         tree = ast.parse(snippet)
@@ -112,8 +186,8 @@ def xml_from_tree(tree):
     xml = astpath.asts.convert_to_xml(tree)
     return xml
 
-def get_intro(file_name, *, multi_block=False):
-    if not file_name:
+def get_intro(file_path, *, multi_block=False):
+    if not file_path:
         if multi_block:
             intro = (f"Help is provided for the supplied code as a whole and "
                 "for each block of code as appropriate. If there is nothing to "
@@ -121,14 +195,14 @@ def get_intro(file_name, *, multi_block=False):
         else:
             intro = ''
     else:
-        intro = (f"Help is provided for '{file_name}' as a whole and for each "
+        intro = (f"Help is provided for '{file_path}' as a whole and for each "
             "block of code as appropriate. If there is nothing to say about a "
             "block it is skipped.")
     return intro
 
-def get_code_desc(file_name):
-    if file_name:
-        code_desc = file_name
+def get_code_desc(file_path):
+    if file_path:
+        code_desc = file_path
     else:
         code_desc = 'Overall Snippet'
     return code_desc
@@ -173,17 +247,40 @@ def get_os_platform():
     os_platform = platforms.get(platform.system())
     return os_platform
 
-def make_open_tmp_file(fname, mode='w'):
+def clean_path_name(raw_path):
+    """
+    Get a path we can use in a url or file path.
+    """
+    clean_path = (raw_path
+        .replace('...', '_')
+        .replace('/', '_')
+        .replace('\\', '_'))
+    return clean_path
+
+def get_superhelp_tmpdir(folder='superhelp'):
+    tmpdir = tempfile.gettempdir()
+    superhelp_tmpdir = os.path.join(tmpdir, folder)
+    return Path(superhelp_tmpdir)
+
+@contextmanager
+def make_open_tmp_file(fname, *, superhelp_tmpdir=None, mode='w'):
     """
     Note - file needs to be closed for changes to be saved to the file -
     otherwise it will be 0 bytes. Up to client code to ensure it is closed and
     properly available for subsequent steps.
     """
-    tmp_fh = tempfile.NamedTemporaryFile(mode=mode, delete=False)
-    randomly_named_fpath = Path(tmp_fh.name)
-    fpath = Path(randomly_named_fpath.parent) / fname
-    rename(randomly_named_fpath, fpath)
-    return tmp_fh, fpath
+    try:
+        if not superhelp_tmpdir:
+            superhelp_tmpdir = get_superhelp_tmpdir()
+        superhelp_tmpdir.mkdir(exist_ok=True)
+        tmp_fh = tempfile.NamedTemporaryFile(
+            mode=mode, delete=False, dir=superhelp_tmpdir)
+        randomly_named_fpath = Path(tmp_fh.name)
+        fpath = Path(randomly_named_fpath.parent) / fname
+        os.rename(randomly_named_fpath, fpath)
+        yield superhelp_tmpdir, tmp_fh, fpath
+    finally:
+        tmp_fh.close()
 
 def get_python_version():
     major, minor = sys.version_info[:2]

@@ -1,8 +1,8 @@
 import logging
 from textwrap import dedent
 
-from superhelp.gen_utils import (get_code_desc, get_intro,
-    get_line_numbered_snippet, layout_comment as layout, make_open_tmp_file)
+from .. import gen_utils
+from ..gen_utils import layout_comment as layout
 
 """
 Note - plain MDV - works in some consoles where terminal output fails.
@@ -42,19 +42,17 @@ def _need_snippet_displayed(overall_messages_dets, block_messages_dets, *,
         return False
     return True
 
-def display(snippet, file_name, messages_dets, *,
+def display(snippet, file_path, messages_dets, *,
         detail_level=conf.BRIEF,
-        warnings_only=False, in_notebook=False,
-        multi_block=False, theme_name=None):  # @UnusedVariable
+        warnings_only=False, multi_block=False, multi_script=False):
     """
     Show by code blocks.
     """
-    logging.debug(f"{__name__} doesn't use in_notebook setting {in_notebook}")
     if warnings_only:
         options_msg = conf.WARNINGS_ONLY_MSG
     else:
         options_msg = conf.ALL_HELP_SHOWING_MSG
-    intro = get_intro(file_name, multi_block=multi_block)
+    intro = gen_utils.get_intro(file_path, multi_block=multi_block)
     text = [
         layout(f"""\
             # SuperHELP - Help for Humans!
@@ -80,8 +78,8 @@ def display(snippet, file_name, messages_dets, *,
     display_snippet = _need_snippet_displayed(
         overall_messages_dets, block_messages_dets, multi_block=multi_block)
     if display_snippet:
-        line_numbered_snippet = get_line_numbered_snippet(snippet)
-        code_desc = get_code_desc(file_name)
+        line_numbered_snippet = gen_utils.get_line_numbered_snippet(snippet)
+        code_desc = gen_utils.get_code_desc(file_path)
         text.append(dedent(
             f"## {code_desc}"
             f"\n{MDV_CODE_START}\n"
@@ -116,11 +114,18 @@ def display(snippet, file_name, messages_dets, *,
         message = get_message(message_dets, detail_level)
         text.append(message)
     content = '\n'.join(text)
-    tmp_fh, fpath = make_open_tmp_file('superhelp_output.md', mode='w')
-    tmp_fh.write(content)
-    tmp_fh.close()
+    if file_path:
+        raw_file_name = gen_utils.clean_path_name(file_path)
+        file_name = f'{raw_file_name}.md'
+    else:
+        file_name = 'superhelp.md'
+    with gen_utils.make_open_tmp_file(file_name, mode='w') as tmp_dets:
+        _superhelp_tmpdir, tmp_fh, fpath = tmp_dets
+        tmp_fh.write(content)
     print(content)
     print(f"""\
     {'-' * 10} Content above this line saved as temp file {'-' * 10}
     Temp file: {fpath}
     """)
+    if multi_script:
+        input("Press any key to continue ...")

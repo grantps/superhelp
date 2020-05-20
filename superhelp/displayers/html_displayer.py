@@ -1,256 +1,13 @@
 from textwrap import dedent, indent
 import webbrowser
 
-from .. import conf
-from superhelp.gen_utils import (get_code_desc, get_intro,
-    get_line_numbered_snippet, make_open_tmp_file)
+from .. import conf, gen_utils
 
 from markdown import markdown  ## https://coderbook.com/@marcus/how-to-render-markdown-syntax-as-html-using-python/ @UnresolvedImport
 
 DETAIL_LEVEL2CLASS = {
     detail_level: f"help help-{detail_level}"
     for detail_level in conf.DETAIL_LEVELS}
-
-LOGO_SVG = """\
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="100.11089mm"
-   height="79.607109mm"
-   viewBox="0 0 100.11089 79.607109"
-   version="1.1"
-   id="svg8"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="superhelp_logo.svg"
-   inkscape:export-filename="/home/g/projects/superhelp/superhelp/store/superhelp_logo.png"
-   inkscape:export-xdpi="96"
-   inkscape:export-ydpi="96">
-  <defs
-     id="defs2">
-    <inkscape:path-effect
-       effect="skeletal"
-       id="path-effect4972"
-       is_visible="true"
-       pattern="m 60.80692,207.585 -0.62276,-0.0405 -0.15389,-0.6048 0.527651,-0.33326 0.479996,0.39885 z"
-       copytype="repeated"
-       prop_scale="1"
-       scale_y_rel="false"
-       spacing="0"
-       normal_offset="0"
-       tang_offset="0"
-       prop_units="false"
-       vertical_pattern="false"
-       fuse_tolerance="0" />
-    <inkscape:path-effect
-       effect="skeletal"
-       id="path-effect4944"
-       is_visible="true"
-       pattern="m 58.866112,205.1261 h 0.701582 v 0.66817 h -0.701582 z"
-       copytype="single_stretched"
-       prop_scale="1"
-       scale_y_rel="false"
-       spacing="0"
-       normal_offset="0"
-       tang_offset="0"
-       prop_units="false"
-       vertical_pattern="false"
-       fuse_tolerance="0" />
-    <inkscape:path-effect
-       effect="skeletal"
-       id="path-effect4907"
-       is_visible="true"
-       pattern="m 61.427734,769.66211 v 9.31641 h 7.748047 v -9.31641 z m 8.271485,0.0156 v 9.31446 h 7.748047 v -9.31446 z"
-       copytype="repeated"
-       prop_scale="1"
-       scale_y_rel="false"
-       spacing="0"
-       normal_offset="0"
-       tang_offset="0"
-       prop_units="false"
-       vertical_pattern="false"
-       fuse_tolerance="0" />
-    <inkscape:path-effect
-       effect="skeletal"
-       id="path-effect4889"
-       is_visible="true"
-       pattern="m 61.427734,769.66211 v 9.31641 h 7.748047 v -9.31641 z m 8.271485,0.0156 v 9.31446 h 7.748047 v -9.31446 z"
-       copytype="repeated_stretched"
-       prop_scale="1"
-       scale_y_rel="false"
-       spacing="0"
-       normal_offset="0"
-       tang_offset="0"
-       prop_units="false"
-       vertical_pattern="false"
-       fuse_tolerance="0" />
-    <inkscape:path-effect
-       effect="skeletal"
-       id="path-effect4861"
-       is_visible="true"
-       pattern="M 0,0 H 1"
-       copytype="single_stretched"
-       prop_scale="1"
-       scale_y_rel="false"
-       spacing="0"
-       normal_offset="0"
-       tang_offset="0"
-       prop_units="false"
-       vertical_pattern="false"
-       fuse_tolerance="0" />
-    <inkscape:path-effect
-       effect="skeletal"
-       id="path-effect4820"
-       is_visible="true"
-       pattern="m 61.427734,769.66211 v 9.31641 h 7.748047 v -9.31641 z m 8.271485,0.0156 v 9.31446 h 7.748047 v -9.31446 z"
-       copytype="repeated_stretched"
-       prop_scale="1"
-       scale_y_rel="false"
-       spacing="0"
-       normal_offset="0"
-       tang_offset="0"
-       prop_units="false"
-       vertical_pattern="false"
-       fuse_tolerance="0" />
-    <inkscape:path-effect
-       effect="skeletal"
-       id="path-effect4721"
-       is_visible="true"
-       pattern="m 61.427734,769.66211 v 9.31641 h 7.748047 v -9.31641 z m 8.271485,0.0156 v 9.31446 h 7.748047 v -9.31446 z"
-       copytype="repeated"
-       prop_scale="1"
-       scale_y_rel="false"
-       spacing="0.1"
-       normal_offset="0"
-       tang_offset="0"
-       prop_units="false"
-       vertical_pattern="false"
-       fuse_tolerance="0" />
-    <inkscape:path-effect
-       effect="skeletal"
-       id="path-effect4694"
-       is_visible="true"
-       pattern="M 0,0 H 1"
-       copytype="single_stretched"
-       prop_scale="1"
-       scale_y_rel="false"
-       spacing="0"
-       normal_offset="0"
-       tang_offset="0"
-       prop_units="false"
-       vertical_pattern="false"
-       fuse_tolerance="0" />
-    <inkscape:path-effect
-       effect="skeletal"
-       id="path-effect935"
-       is_visible="true"
-       pattern="M 0,0 H 1"
-       copytype="single_stretched"
-       prop_scale="1"
-       scale_y_rel="false"
-       spacing="0"
-       normal_offset="0"
-       tang_offset="0"
-       prop_units="false"
-       vertical_pattern="false"
-       fuse_tolerance="0" />
-  </defs>
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="1"
-     inkscape:pageshadow="2"
-     inkscape:zoom="1.979899"
-     inkscape:cx="76.737316"
-     inkscape:cy="121.00951"
-     inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
-     showgrid="false"
-     inkscape:window-width="1869"
-     inkscape:window-height="1056"
-     inkscape:window-x="1971"
-     inkscape:window-y="24"
-     inkscape:window-maximized="1"
-     fit-margin-top="0"
-     fit-margin-left="0"
-     fit-margin-right="0"
-     fit-margin-bottom="0"
-     inkscape:pagecheckerboard="false" />
-  <metadata
-     id="metadata5">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(-53.753912,-82.960833)">
-    <g
-       transform="translate(-57.326112,-175.59945)"
-       id="g9171">
-      <path
-         inkscape:connector-curvature="0"
-         id="path4991-3-6"
-         transform="matrix(0.26458333,0,0,0.26458333,-8.3176424,-7.9183424)"
-         d="m 591.57422,1011.6934 a 83.098512,82.305791 18.437406 0 0 -53.05664,20.1914 83.098512,82.305791 18.437406 0 0 -26.49805,78.3183 83.098512,82.305791 18.437406 0 0 54.18164,61.5059 l -0.0371,0.1113 123.08203,41.0332 -2.51171,7.6485 -123.47461,-41.1661 v 0 l -77.85938,-25.957 a 82.244946,81.781039 18.437412 0 0 -1.26562,38.1523 82.244946,81.781039 18.437412 0 0 54.88671,61.3047 l 0.004,-0.01 123.56055,41.1914 -0.008,0.021 a 82.216504,82.216504 0 0 0 0.46094,0.1309 l 0.33594,0.1113 0.006,-0.016 a 82.216504,82.216504 0 0 0 80.125,-16.7149 82.216504,82.216504 0 0 0 25.77344,-78.4648 82.216504,82.216504 0 0 0 -53.91602,-60.75 v 0 l -0.16992,-0.057 a 82.216504,82.216504 0 0 0 -1.30274,-0.4551 l -0.006,0.02 -121.01758,-40.3458 2.64843,-7.83 119.71485,39.9121 -0.002,0.01 78.07226,26.0293 c 3.44134,-12.4392 14.87561,-39.3166 12.27344,-51.9727 -5.95174,-28.611 -37.64693,-38.2382 -65.52734,-47.4199 -0.10692,-0.035 -0.21742,-0.072 -0.32422,-0.1074 l -121.63282,-40.5508 -0.0117,0.033 a 83.098512,82.305791 18.437406 0 0 -26.5039,-3.9062 z"
-         style="fill:#0072aa;fill-opacity:1;stroke:none;stroke-width:32.70064163;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-      <path
-         transform="rotate(18.437412)"
-         sodipodi:open="true"
-         d="m 273.07885,208.13282 a 3.2002347,3.2002347 0 0 1 3.20327,-3.19481 3.2002347,3.2002347 0 0 1 3.1972,3.20089 3.2002347,3.2002347 0 0 1 -3.1985,3.19958 3.2002347,3.2002347 0 0 1 -3.20197,-3.19611"
-         sodipodi:end="3.1403035"
-         sodipodi:start="3.1432891"
-         sodipodi:ry="3.2002347"
-         sodipodi:rx="3.2002347"
-         sodipodi:cy="208.13824"
-         sodipodi:cx="276.27908"
-         sodipodi:type="arc"
-         id="path5097-9-2"
-         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:6.38603258;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-      <path
-         transform="rotate(18.437412)"
-         sodipodi:open="true"
-         d="m 227.2124,219.8216 a 3.2002347,3.2002347 0 0 1 3.20327,-3.19481 3.2002347,3.2002347 0 0 1 3.19719,3.20089 3.2002347,3.2002347 0 0 1 -3.19849,3.19958 3.2002347,3.2002347 0 0 1 -3.20197,-3.19611"
-         sodipodi:end="3.1403035"
-         sodipodi:start="3.1432891"
-         sodipodi:ry="3.2002347"
-         sodipodi:rx="3.2002347"
-         sodipodi:cy="219.82703"
-         sodipodi:cx="230.41263"
-         sodipodi:type="arc"
-         id="path5097-0-7-8"
-         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:6.38603258;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-      <path
-         transform="rotate(18.437412)"
-         sodipodi:open="true"
-         d="m 258.29068,242.97 a 3.2002347,3.2002347 0 0 1 3.20327,-3.1948 3.2002347,3.2002347 0 0 1 3.19719,3.20089 3.2002347,3.2002347 0 0 1 -3.1985,3.19958 3.2002347,3.2002347 0 0 1 -3.20197,-3.19611"
-         sodipodi:end="3.1403035"
-         sodipodi:start="3.1432891"
-         sodipodi:ry="3.2002347"
-         sodipodi:rx="3.2002347"
-         sodipodi:cy="242.97543"
-         sodipodi:cx="261.49091"
-         sodipodi:type="arc"
-         id="path5097-0-9-7-8"
-         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:6.38603258;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-    </g>
-  </g>
-</svg>
-"""
 
 BROWSER_HTML_WRAPPER = """\
 <!DOCTYPE html>
@@ -358,112 +115,6 @@ CODE_CSS = """\
 .codehilite .vm { color: #19177C } /* Name.Variable.Magic */
 .codehilite .il { color: #666666 } /* Literal.Number.Integer.Long */
 """
-
-INTERNAL_CSS = """\
-body {
-  background-color: white;
-  %(margin_css)s
-  %(max_width_css)s
-}
-h1, h2 {
-  color: #0072aa;
-  font-weight: bold;
-}
-h1 {
-  font-size: 16px;
-}
-h2 {
-  font-size: 14px;
-  margin-top: 24px;
-}
-h3 {
-  font-size: 12px;
-}
-h4 {
-  font-size: 11px;
-}
-h5 {
-  font-size: 9px;
-  font-style: italic;
-}
-p {
-  font-size: 10px;
-}
-li {
-  font-size: 10px;
-}
-label {
-  font-size: 12px;
-}
-blockquote {
-  font-style: italic;
-  color: #666666;
-}
-blockquote p {
-  font-size: 13px;
-}
-svg {
-  height: 50px;
-  width: 60px;
-}
-.warning {
-  border-radius: 2px;
-  padding: 12px 6px 6px 12px;
-  margin: 10px 0 0 0;
-  border: 2px solid #0072aa;
-}
-
-#star {
-  padding: 9px 10px 10px 10px;
-  background-color: #0072aa;
-  color: white;
-  font-size: 15px;
-  font-weight: bold;
-  border-radius: 8px;
-  text-align: center;
-}
-#star a:link {
-  color: white;
-  border-bottom: 1px solid white;
-  text-decoration: none;
-}
-#star a:visited {
-  color: white;
-  border-bottom: 1px solid white;
-  text-decoration: none;
-}
-#star a:hover {
-  color: white;
-  border-bottom: 1px solid white;
-  text-decoration: none;
-}
-#star a:active {
-  color: white;
-  border-bottom: 1px solid white;
-  text-decoration: none;
-}
-#star #grow {
-  font-size: 20px;
-}
-
-.help {
-  display: none;
-}
-.help.help-visible {
-  display: inherit;
-}
-%(code_css)s
-"""
-
-HTML_HEAD = f"""\
-<head>
-<meta charset="utf-8">
-<meta content="IE=edge" http-equiv="X-UA-Compatible">
-<title>SuperHELP - Help for Humans!</title>
-<style type="text/css">
-%(internal_css)s
-</style>
-</head>"""
 
 VISIBILITY_SCRIPT = """\
 <script>
@@ -594,11 +245,11 @@ def get_message_html_strs(message_dets):
         message_html_strs.append("</div>")
     return message_html_strs
 
-def repeat_overall_snippet(snippet, file_name):
+def repeat_overall_snippet(snippet, file_path):
     html_strs = []
-    code_desc = get_code_desc(file_name)
+    code_desc = gen_utils.get_code_desc(file_path)
     html_strs.append(f"<h2>{code_desc}</h2>")
-    line_numbered_snippet = get_line_numbered_snippet(snippet)
+    line_numbered_snippet = gen_utils.get_line_numbered_snippet(snippet)
     overall_code_str = indent(
         f"{conf.MD_PYTHON_CODE_START}\n{line_numbered_snippet}",
         ' '*4)
@@ -625,7 +276,7 @@ def _need_snippet_displayed(overall_messages_dets, block_messages_dets, *,
         return False
     return True
 
-def _get_all_html_strs(snippet, file_name,
+def _get_all_html_strs(snippet, file_path,
         overall_messages_dets, block_messages_dets, *,
         warnings_only=False, in_notebook=False, multi_block=False):
     """
@@ -654,7 +305,7 @@ def _get_all_html_strs(snippet, file_name,
         overall_messages_dets, block_messages_dets,
         in_notebook=in_notebook, multi_block=multi_block)
     if display_snippet:
-        overall_snippet_html_strs = repeat_overall_snippet(snippet, file_name)
+        overall_snippet_html_strs = repeat_overall_snippet(snippet, file_path)
         all_html_strs.extend(overall_snippet_html_strs)
 
     ## overall messages
@@ -691,30 +342,30 @@ def _get_all_html_strs(snippet, file_name,
     return all_html_strs
 
 def _get_head(*, in_notebook=False):
-    internal_css = INTERNAL_CSS % {
+    internal_css = conf.INTERNAL_CSS % {
         'code_css': CODE_CSS,
         'margin_css': '' if in_notebook else 'margin: 40px 70px 20px 70px;',
         'max_width_css': '' if in_notebook else 'max-width: 700px;'
     }
-    head = HTML_HEAD % {
+    head = conf.HTML_HEAD % {
         'internal_css': internal_css}
     return head
 
-def display(snippet, file_name, messages_dets, *,
+def display(snippet, file_path, messages_dets, *,
         detail_level=conf.BRIEF,
         in_notebook=False, warnings_only=False,
-        multi_block=False, theme_name=None):  # @UnusedVariable
+        multi_block=False, multi_script=False):
     """
     Show for overall snippet and then by code blocks as appropriate.
 
     :param bool in_notebook: if True, return HTML as string; else open browser
      and display
     """
-    raw_intro = get_intro(file_name, multi_block=multi_block)
+    raw_intro = gen_utils.get_intro(file_path, multi_block=multi_block)
     intro = f"<p>{raw_intro}</p>" if raw_intro else ''
     radio_buttons = _get_radio_buttons(detail_level=detail_level)
     overall_messages_dets, block_messages_dets = messages_dets
-    all_html_strs = _get_all_html_strs(snippet, file_name,
+    all_html_strs = _get_all_html_strs(snippet, file_path,
         overall_messages_dets, block_messages_dets, warnings_only=warnings_only,
         in_notebook=in_notebook, multi_block=multi_block)
     body_inner = '\n'.join(all_html_strs)
@@ -727,17 +378,30 @@ def display(snippet, file_name, messages_dets, *,
             missing_advice_message=conf.MISSING_ADVICE_MESSAGE,
             body_inner=body_inner,
             visibility_script=VISIBILITY_SCRIPT)
-        return html2write
+        deferred_display = html2write
+        return deferred_display
     else:
         html2write = BROWSER_HTML_WRAPPER.format(
-            head=head, logo_svg=LOGO_SVG,
+            head=head, logo_svg=conf.LOGO_SVG,
             radio_buttons=radio_buttons,
             intro=intro,
             missing_advice_message=conf.MISSING_ADVICE_MESSAGE,
             body_inner=body_inner,
             visibility_script=VISIBILITY_SCRIPT)
-        tmp_fh, fpath = make_open_tmp_file('superhelp_output.html', mode='w')
-        tmp_fh.write(html2write)
-        tmp_fh.close()
-        url = fpath.as_uri()
-        webbrowser.open_new_tab(url)
+        if file_path:
+            raw_file_name = gen_utils.clean_path_name(file_path)
+            file_name = f'{raw_file_name}.html'
+        else:
+            file_name = 'superhelp_output.html'
+        superhelp_tmpdir = gen_utils.get_superhelp_tmpdir(
+            folder=conf.SUPERHELP_GEN_OUTPUT)
+        with gen_utils.make_open_tmp_file(
+                file_name, superhelp_tmpdir=superhelp_tmpdir,
+                mode='w') as tmp_dets:
+            _superhelp_tmpdir, tmp_fh, fpath = tmp_dets
+            tmp_fh.write(html2write)
+        if multi_script:
+            pass  ## display is deferred
+        else:
+            url = fpath.as_uri()
+            webbrowser.open_new_tab(url)

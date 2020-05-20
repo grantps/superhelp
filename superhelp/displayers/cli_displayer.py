@@ -46,21 +46,20 @@ def _need_snippet_displayed(overall_messages_dets, block_messages_dets, *,
         return False
     return True
 
-def display(snippet, file_name, messages_dets, *,
+def display(snippet, file_path, messages_dets, *,
         detail_level=conf.BRIEF,
-        warnings_only=False, in_notebook=False,
-        multi_block=False, theme_name=None):
+        warnings_only=False, multi_block=False, multi_script=False,
+        theme_name=None):
     """
     Show by code blocks.
     """
     set_global_colours(theme_name)
-    logging.debug(f"{__name__} doesn't use in_notebook setting {in_notebook}")
     md2cli.term_columns = TERMINAL_WIDTH
     if warnings_only:
         options_msg = conf.WARNINGS_ONLY_MSG
     else:
         options_msg = conf.ALL_HELP_SHOWING_MSG
-    intro = get_intro(file_name, multi_block=multi_block)
+    intro = get_intro(file_path, multi_block=multi_block)
     text = [
         md2cli.main(layout(f"""\
             # SuperHELP - Help for Humans!
@@ -83,7 +82,7 @@ def display(snippet, file_name, messages_dets, *,
         overall_messages_dets, block_messages_dets, multi_block=multi_block)
     if display_snippet:
         line_numbered_snippet = get_line_numbered_snippet(snippet)
-        code_desc = get_code_desc(file_name)
+        code_desc = get_code_desc(file_path)
         text.append(md2cli.main(dedent(
             f"## {code_desc}"
             f"\n{MDV_CODE_BOUNDARY}\n"
@@ -119,3 +118,5 @@ def display(snippet, file_name, messages_dets, *,
         text.append(message)
     content = '\n'.join(text)
     print(content)
+    if multi_script:
+        input("Press any key to continue ...")

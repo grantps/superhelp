@@ -49,7 +49,7 @@ def check_as_expected(test_conf):
         ast_funcs.store_ast_output(xml)
         snippet_block_els = xml.xpath('body')[0].getchildren()  ## [0] because there is only one body under root
         messages_dets = get_separated_messages_dets(
-            snippet, snippet_block_els, xml)
+            snippet, snippet_block_els, xml, repeat_set=set())
         actual_source_freqs = get_actual_source_freqs(
             messages_dets, expected_source_freqs)
         assert_equal(actual_source_freqs, expected_source_freqs,

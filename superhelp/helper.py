@@ -1,6 +1,6 @@
 import argparse
 import logging
-from pathlib import Path
+import os
 
 """
 Do not use relative imports (dot notation) in this module. Relative importing
@@ -44,27 +44,6 @@ logging.basicConfig(
 
 helpers.load_helpers()
 
-def _get_snippet(snippet, file_path):
-    if snippet and file_path:
-        raise Exception("Either set code or file-path, not both")
-    elif file_path:
-        with open(file_path) as f:
-            snippet = f.read()
-    elif snippet:
-        pass
-    else:
-        snippet = conf.TEST_SNIPPET
-        logging.info("Using default snippet because no snippet provided")
-    snippet = snippet.strip('\n')
-    ## prevent infinite recursion where superhelp executes script calling superhelp which in turn would etc etc
-    snippet = (snippet  ## only fixing simple cases - if people try harder they _will_ be able to break everything ;-)
-        .replace('import superhelp', '# import superhelp')
-        .replace('\nsuperhelp.this(', '\n# superhelp.this(')
-        .replace('from superhelp import this', '# from superhelp import this')
-        .replace('\nthis(', '\n# this(')
-    )
-    return snippet
-
 def _get_displayer_module(output):
     ARG2DISPLAYER = {
         'html': html_displayer,
@@ -77,16 +56,112 @@ def _get_displayer_module(output):
             "a displayer if you want advice displayed")
     return displayer_module
 
-def get_help(snippet=None, *, file_path=None,
+def _run_display(code, displayer_module, messages_dets, *,
+        file_path=None, output='html', detail_level=conf.EXTRA,
+        warnings_only=False, in_notebook=False,
+        multi_script=False, multi_block=False,
+        theme_name=None):
+    if len(str(file_path)) > conf.MAX_FILE_PATH_IN_HEADING:
+        n_chars2_keep = conf.MAX_FILE_PATH_IN_HEADING - 4
+        file_path = '...' + str(file_path)[-n_chars2_keep:]
+    kwargs = {'multi_script': multi_script}
+    if output == 'cli':
+        kwargs.update({'theme_name': theme_name})
+    elif output == 'html':
+        kwargs.update(
+            {'in_notebook': in_notebook, 'multi_script': multi_script})
+    else:
+        pass
+    deferred_display = displayer_module.display(code, file_path,
+        messages_dets, detail_level=detail_level,
+        warnings_only=warnings_only, multi_block=multi_block,
+        **kwargs)
+    return deferred_display
+
+def get_code_help(code, *, file_path=None,
+        output='html', detail_level=conf.EXTRA,
+        warnings_only=False, in_notebook=False,
+        multi_script=False, theme_name=None, repeat_set=None):
+    if multi_script and in_notebook:
+        raise Exception("Notebooks should only ever run on snippets not on "
+            "multiple scripts")
+    if code.strip() == 'import community':
+        messages_dets = messages.get_community_message(code)
+        multi_block = False
+    elif all([word in code for word in conf.XKCD_WARNING_WORDS]):
+        messages_dets = messages.get_xkcd_warning(code)
+        multi_block = False
+    else:
+        try:
+            messages_dets, multi_block = messages.get_snippet_dets(
+                code, warnings_only=warnings_only, repeat_set=repeat_set)
+        except Exception as e:
+            messages_dets = messages.get_error_messages_dets(e, code)
+            multi_block = False
+    displayer_module = _get_displayer_module(output)
+    if displayer_module:
+        deferred_display = _run_display(code, displayer_module, messages_dets,
+            file_path=file_path, output=output, detail_level=detail_level,
+            warnings_only=warnings_only, in_notebook=in_notebook,
+            multi_script=multi_script, multi_block=multi_block,
+            theme_name=theme_name)
+    else:
+        deferred_display = None
+    return deferred_display
+
+def get_script_help(file_path, *, output='html', detail_level=conf.EXTRA,
+        warnings_only=False, in_notebook=False,
+        multi_script=False, theme_name=None, repeat_set=None):
+    with open(file_path) as f:
+        code = f.read()
+    code = code.strip('\n')
+    ## prevent infinite recursion where superhelp executes script calling superhelp which in turn would etc etc
+    code = (code  ## only fixing simple cases - if people try harder they _will_ be able to break everything ;-)
+        .replace('import superhelp', '# import superhelp')
+        .replace('\nsuperhelp.this(', '\n# superhelp.this(')
+        .replace('from superhelp import this', '# from superhelp import this')
+        .replace('\nthis(', '\n# this(')
+    )
+    get_code_help(code, file_path=file_path,
+        output=output, detail_level=detail_level,
+        warnings_only=warnings_only, in_notebook=in_notebook,
+        multi_script=multi_script, theme_name=theme_name, repeat_set=repeat_set)
+
+def _get_file_paths(project_path, exclude_folders):
+    """
+    Very easy to end up with far too many modules to process e.g. if
+    inadvertently looking at every module inside the site packages in a virtual
+    env ;-).
+    """
+    file_paths = []
+    for root, dirs, files in os.walk(project_path, topdown=True):
+        dirs[:] = [d for d in dirs if d not in exclude_folders]
+        py_files = [os.path.join(root, file)
+            for file in files if file.endswith('.py')]
+        file_paths.extend(py_files)
+    if len(file_paths) > conf.MAX_PROJECT_MODULES:
+        raise Exception(
+            f"Too many modules to process - {len(file_paths):,}")
+    return file_paths
+
+def get_help(code=None, *,
+        file_path=None, project_path=None, exclude_folders=None,
         output='html', detail_level=conf.EXTRA,
         warnings_only=False, in_notebook=False, theme_name=None):
     """
-    Provide advice about the snippet of Python code supplied
+    If a snippet of code supplied, get help for that. If not, try file_path and
+    use that instead. And if not that, try project_path. Finally use the default
+    snippet.
 
-    :param str snippet: (optional) snippet of valid Python code to get help for.
-     If None will try the file_path and if that is None will use the default
-     snippet.
+    Only getting deferred display from displayers when looking at code snippets.
+
+    :param str code: (optional) snippet of valid Python code to get help for.
+     If None will try the file_path, then the project_path, and finally the
+     default snippet.
     :param str file_path: (optional) file path containing Python code
+    :param str project_path: (optional) path to project containing Python code
+    :param list exclude_folders: may be crucial if setting project_path e.g. to
+     avoid processing all python scripts in a virtual environment folder
     :param str output: type of output e.g. 'html', 'cli', 'md'. Defaults to
      'html'.
     :param str detail_level: e.g. 'Brief', 'Main', 'Extra'
@@ -96,29 +171,40 @@ def get_help(snippet=None, *, file_path=None,
     :param str theme_name: currently only needed by the CLIC displayer (to
      handle dark and light terminal themes)
     """
-    snippet = _get_snippet(snippet, file_path)
-    if snippet.strip() == 'import community':
-        messages_dets = messages.get_community_message(snippet)
-        multi_block = False
-    elif all([word in snippet for word in conf.XKCD_WARNING_WORDS]):
-        messages_dets = messages.get_xkcd_warning(snippet)
-        multi_block = False
-    else:
-        try:
-            messages_dets, multi_block = messages.get_snippet_dets(
-                snippet, warnings_only=warnings_only)
-        except Exception as e:
-            messages_dets = messages.get_error_messages_dets(e, snippet)
-            multi_block = False
-    displayer_module = _get_displayer_module(output)
-    if displayer_module:
-        file_name = Path(file_path).name if file_path else None
-        res = displayer_module.display(snippet, file_name,
-            messages_dets, detail_level=detail_level,
+    repeat_set = set()  ## mutates as we hand it around to keep track of repeats
+    if code:
+        code = code.strip('\n')
+        deferred_display = get_code_help(code, file_path=None,
+            output=output, detail_level=detail_level,
             warnings_only=warnings_only, in_notebook=in_notebook,
-            multi_block=multi_block, theme_name=theme_name)
-        if in_notebook:
-            return res
+            multi_script=False, theme_name=theme_name, repeat_set=repeat_set)
+        if not deferred_display:
+            return
+        if (in_notebook and output == 'html'):
+            return deferred_display  ## assumed notebook always HTML and we need to pass on the HTML string to the jupyter notebook
+        else:
+            raise Exception(
+                "Only a notebook with html output should use deferred display")
+    elif file_path:
+        get_script_help(file_path,
+            output=output, detail_level=detail_level,
+            warnings_only=warnings_only, in_notebook=in_notebook,
+            multi_script=False, theme_name=theme_name, repeat_set=repeat_set)
+    elif project_path:
+        file_paths = _get_file_paths(project_path, exclude_folders)
+        for file_path in file_paths:
+            get_script_help(file_path, output=output, detail_level=detail_level,
+                warnings_only=warnings_only, in_notebook=in_notebook,
+                multi_script=True, theme_name=theme_name, repeat_set=repeat_set)
+        if output == 'html':
+            gen_utils.open_output_folder()
+    else:
+        code = conf.TEST_SNIPPET
+        logging.info("Using default snippet because no code provided")
+        get_code_help(code, file_path=None,
+            output=output, detail_level=detail_level,
+            warnings_only=warnings_only, in_notebook=in_notebook,
+            multi_script=False, theme_name=theme_name, repeat_set=repeat_set)
 
 def this(*, output='html', detail_level=conf.EXTRA,
         warnings_only=False, file_path=None, theme_name='dark'):
@@ -142,7 +228,7 @@ def this(*, output='html', detail_level=conf.EXTRA,
     """
     if not file_path:
         file_path = gen_utils.get_introspected_file_path()
-    get_help(snippet=None, file_path=file_path,
+    get_help(code=None, file_path=file_path, project_path=None,
         output=output, detail_level=detail_level, warnings_only=warnings_only,
         in_notebook=False, theme_name=theme_name)
 
@@ -159,11 +245,19 @@ def shelp():
     parser.add_argument('-c', '--code', type=str,
         required=False,
         help=("Python code - usually only a line or snippet. "
-            "Either supply the code here or via --file-path (-f)"))
+            "An alternative to --file-path and --project-path"))
     parser.add_argument('-f', '--file-path', type=str,
         required=False,
         help=("File location of a line, snippet, or script of Python code. "
-            "Either point to the code here or supply it using --code (-c)"))
+            "An alternative to --code and --project-path"))
+    parser.add_argument('-p', '--project-path', type=str,
+        required=False,
+        help=("Project folder containing all the modules you want help on. "
+            "An alternative to --code and --file-path"))
+    parser.add_argument('-e', '--exclude-folders', type=str,
+        nargs='*', help=("If using -p / --project-path you probably need to "
+            "supply to exclude modules in storage folders or a virtual env "
+            "folder e.g. --exclude store env back_ups misc"))
     parser.add_argument('-d', '--detail-level', type=str,
         required=False, default='Extra',
         help="What level of detail do you want? Brief, Main, or Extra?")
@@ -190,19 +284,30 @@ def shelp():
         for n, (comment, source, warning) in enumerate(helper_comments, 1):
             print(f"{n:>{num_width}}) {warning}{comment} ({source})")
         return
-    if args.code and args.file_path:
+    sources = [
+        src for src in (args.code, args.file_path, args.project_path) if src]
+    if len(sources) > 1:
         print(
-            "Either supply code using -c / --code "
-            "(usually for smaller snippets of Python) "
-            "OR refer to a file of Python code using -f / --file-path")
+            "The code you want help on can only be identified in one way. "
+            "Either supply code by:"
+            "\n1) supplying it directly using -c / --code "
+            "(usually for smaller snippets of Python)"
+            "\n2) or by referring to a Python script using -f / --file-path "
+            "\n3) or by referring to a folder of Python modules using "
+            "-p / --project-path"
+        )
         return
+    logging.debug(args)
     output = args.output if conf.SHOW_OUTPUT else None
     theme_name = args.theme
-    get_help(args.code, file_path=args.file_path,
-        output=output, detail_level=args.detail_level,
-        warnings_only=args.warnings_only, in_notebook=False,
-        theme_name=theme_name)
+    get_help(args.code,
+        file_path=args.file_path,
+        project_path=args.project_path, exclude_folders=args.exclude_folders,
+        output=output, theme_name=theme_name,
+        detail_level=args.detail_level, warnings_only=args.warnings_only,
+        in_notebook=False
+    )
 
 if __name__ == '__main__':
-    get_help(file_path='/home/g/projects/superhelp/setup.py') #, output=None)
-#     shelp()
+#     get_help(file_path='/home/g/projects/superhelp/superhelp/store/misc_scripts/get_digicam_videos_off.py') #, output=None)
+    shelp()

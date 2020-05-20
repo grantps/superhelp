@@ -24,9 +24,9 @@ def _store_snippet(snippet):
     so an rstrip('\n') needed.
     Having done this need to deactivate W292 (blank line at end of file) LOL
     """
-    tmp_fh, fpath = make_open_tmp_file(conf.SNIPPET_FNAME, mode='w')
-    tmp_fh.write(snippet.rstrip('\n') + '\n')
-    tmp_fh.close()
+    with make_open_tmp_file(conf.SNIPPET_FNAME, mode='w') as tmp_dets:
+        _superhelp_tmpdir, tmp_fh, fpath = tmp_dets
+        tmp_fh.write(snippet.rstrip('\n') + '\n')
     return fpath
 
 def _get_env_flake8_fpath():
