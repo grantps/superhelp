@@ -8,9 +8,13 @@ f = False
 
 ## Release settings in (). Enforced by Makefile using good old sed :-)
 
-c = 'cli'
-h = 'html'
-m = 'md'
+CLI = 'cli'
+HTML = 'html'
+MD = 'md'
+
+c = CLI
+h = HTML
+m = MD
 
 RECORD_AST = f  ## (f)
 OUTPUT = h  ## set html as default output (h)
@@ -136,6 +140,9 @@ LINT_LINE_NO = 'line_no'
 LINE_FEED = '&#10;'
 
 FORCE_SPLIT = '__force_split__'
+
+DARK = 'dark'
+LIGHT = 'light'
 
 ## scraped from https://docs.python.org/3/py-modindex.html 2020-04-02
 STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',

@@ -57,7 +57,7 @@ def _get_displayer_module(output):
     return displayer_module
 
 def _run_display(code, displayer_module, messages_dets, *,
-        file_path=None, output='html', detail_level=conf.EXTRA,
+        file_path=None, output=conf.HTML, detail_level=conf.EXTRA,
         warnings_only=False, in_notebook=False,
         multi_script=False, multi_block=False,
         theme_name=None):
@@ -65,9 +65,9 @@ def _run_display(code, displayer_module, messages_dets, *,
         n_chars2_keep = conf.MAX_FILE_PATH_IN_HEADING - 4
         file_path = '...' + str(file_path)[-n_chars2_keep:]
     kwargs = {'multi_script': multi_script}
-    if output == 'cli':
+    if output == conf.CLI:
         kwargs.update({'theme_name': theme_name})
-    elif output == 'html':
+    elif output == conf.HTML:
         kwargs.update(
             {'in_notebook': in_notebook, 'multi_script': multi_script})
     else:
@@ -79,7 +79,7 @@ def _run_display(code, displayer_module, messages_dets, *,
     return deferred_display
 
 def get_code_help(code, *, file_path=None,
-        output='html', detail_level=conf.EXTRA,
+        output=conf.HTML, detail_level=conf.EXTRA,
         warnings_only=False, in_notebook=False,
         multi_script=False, theme_name=None, repeat_set=None):
     if multi_script and in_notebook:
@@ -109,7 +109,7 @@ def get_code_help(code, *, file_path=None,
         deferred_display = None
     return deferred_display
 
-def get_script_help(file_path, *, output='html', detail_level=conf.EXTRA,
+def get_script_help(file_path, *, output=conf.HTML, detail_level=conf.EXTRA,
         warnings_only=False, in_notebook=False,
         multi_script=False, theme_name=None, repeat_set=None):
     with open(file_path) as f:
@@ -146,7 +146,7 @@ def _get_file_paths(project_path, exclude_folders):
 
 def get_help(code=None, *,
         file_path=None, project_path=None, exclude_folders=None,
-        output='html', detail_level=conf.EXTRA,
+        output=conf.HTML, detail_level=conf.EXTRA,
         warnings_only=False, in_notebook=False, theme_name=None):
     """
     If a snippet of code supplied, get help for that. If not, try file_path and
@@ -180,7 +180,7 @@ def get_help(code=None, *,
             multi_script=False, theme_name=theme_name, repeat_set=repeat_set)
         if not deferred_display:
             return
-        if (in_notebook and output == 'html'):
+        if (in_notebook and output == conf.HTML):
             return deferred_display  ## assumed notebook always HTML and we need to pass on the HTML string to the jupyter notebook
         else:
             raise Exception(
@@ -196,7 +196,7 @@ def get_help(code=None, *,
             get_script_help(file_path, output=output, detail_level=detail_level,
                 warnings_only=warnings_only, in_notebook=in_notebook,
                 multi_script=True, theme_name=theme_name, repeat_set=repeat_set)
-        if output == 'html':
+        if output == conf.HTML:
             gen_utils.open_output_folder()
     else:
         code = conf.TEST_SNIPPET
@@ -206,8 +206,8 @@ def get_help(code=None, *,
             warnings_only=warnings_only, in_notebook=in_notebook,
             multi_script=False, theme_name=theme_name, repeat_set=repeat_set)
 
-def this(*, output='html', detail_level=conf.EXTRA,
-        warnings_only=False, file_path=None, theme_name='dark'):
+def this(*, output=conf.HTML, detail_level=conf.EXTRA,
+        warnings_only=False, file_path=None, theme_name=conf.DARK):
     """
     Get SuperHELP output on the file_path Python script.
 
@@ -256,8 +256,8 @@ def shelp():
             "An alternative to --code and --file-path"))
     parser.add_argument('-e', '--exclude-folders', type=str,
         nargs='*', help=("If using -p / --project-path you probably need to "
-            "supply to exclude modules in storage folders or a virtual env "
-            "folder e.g. --exclude store env back_ups misc"))
+            "exclude modules in storage folders or a virtual env folder "
+            "e.g. --exclude store env back_ups misc"))
     parser.add_argument('-d', '--detail-level', type=str,
         required=False, default='Extra',
         help="What level of detail do you want? Brief, Main, or Extra?")
@@ -268,9 +268,9 @@ def shelp():
         default=False,
         help="Show warnings only")
     parser.add_argument('-t', '--theme', type=str,
-        required=False, default='dark',
+        required=False, default=conf.DARK,
         help=("Select an output theme - currently only affects cli output "
-            "option. 'dark' or 'light'"))
+            f"option. '{conf.DARK}' or '{conf.LIGHT}'"))
     parser.add_argument('-a', '--advice-list', action='store_true',
         default=False,
         help="List available advice")
@@ -309,5 +309,5 @@ def shelp():
     )
 
 if __name__ == '__main__':
-#     get_help(file_path='/home/g/projects/superhelp/superhelp/store/misc_scripts/get_digicam_videos_off.py') #, output=None)
+#     get_help(project_path='/home/g/projects/superhelp/superhelp/store/misc_scripts')
     shelp()

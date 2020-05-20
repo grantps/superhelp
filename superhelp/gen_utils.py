@@ -116,7 +116,7 @@ def open_output_folder():
     project_output_tmpdir = get_superhelp_tmpdir(
         folder=conf.SUPERHELP_PROJECT_OUTPUT)
     project_output_url = project_output_tmpdir.as_uri()
-    gen_tmpdir = get_superhelp_tmpdir(folder='superhelp')
+    gen_tmpdir = get_superhelp_tmpdir(folder=conf.SUPERHELP_GEN_OUTPUT)
     with make_open_tmp_file('project_help.html',
             superhelp_tmpdir=gen_tmpdir, mode='w') as tmp_dets:
         _superhelp_tmpdir, tmp_fh, fpath = tmp_dets

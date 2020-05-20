@@ -394,7 +394,7 @@ def display(snippet, file_path, messages_dets, *,
         else:
             file_name = 'superhelp_output.html'
         superhelp_tmpdir = gen_utils.get_superhelp_tmpdir(
-            folder=conf.SUPERHELP_GEN_OUTPUT)
+            folder=conf.SUPERHELP_PROJECT_OUTPUT)
         with gen_utils.make_open_tmp_file(
                 file_name, superhelp_tmpdir=superhelp_tmpdir,
                 mode='w') as tmp_dets:
