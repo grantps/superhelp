@@ -54,6 +54,9 @@ def assigned_num_els_from_block_3_8(block_el):
     return num_els
 
 def num_str_from_val_3_7(val_el):
+    """
+    As for 3_8 version but Num / Str instead of Constant etc.
+    """
     positive_num_els = val_el.xpath('Num')
     if len(positive_num_els) == 1:
         num = positive_num_els[0].get('n')
@@ -69,6 +72,30 @@ def num_str_from_val_3_7(val_el):
     return num
 
 def num_str_from_val_3_8(val_el):
+    """
+    ## a positive number
+    <Assign lineno="1" col_offset="0">
+      ...
+      <value>
+        <Constant lineno="1" col_offset="4" type="int" value="0"/>
+      </value>
+    </Assign>
+
+    ## a negative number
+    <Assign lineno="1" col_offset="0">
+      ...
+      <value>
+        <UnaryOp lineno="1" col_offset="4">
+          <op>
+            <USub/>
+          </op>
+          <operand>
+            <Constant lineno="1" col_offset="5" type="int" value="1"/>
+          </operand>
+        </UnaryOp>
+      </value>
+    </Assign>
+    """
     positive_num_els = val_el.xpath('Constant')
     if len(positive_num_els) == 1:
         positive_num_el = positive_num_els[0]
@@ -180,6 +207,9 @@ def _get_var_plus_equalled_all(el):
     return target, plus_equalled_el
 
 def _get_var_plus_equalled_3_7(el):
+    """
+    As for 3_8 version but Num / Str vs Constant etc.
+    """
     ok_num = '1'
     res = _get_var_plus_equalled_all(el)
     if res is None:
@@ -195,6 +225,25 @@ def _get_var_plus_equalled_3_7(el):
     return var_plus_equalled
 
 def _get_var_plus_equalled_3_8(el):
+    """
+    e.g. i if i += 1
+
+    <AugAssign lineno="2" col_offset="0">
+      <target>
+        <Name lineno="2" col_offset="0" id="counter">
+          <ctx>
+            <Store/>
+          </ctx>
+        </Name>
+      </target>
+      <op>
+        <Add/>
+      </op>
+      <value>
+        <Constant lineno="2" col_offset="11" value="1"/>
+      </value>
+    </AugAssign>
+    """
     ok_num = '1'
     res = _get_var_plus_equalled_all(el)
     if res is None:
@@ -237,6 +286,36 @@ def _get_var_equal_plussed_all(el):
     return var_name, bin_op_el
 
 def _get_var_equal_plussed_3_7(el):
+    """
+    e.g. i if i = i + 1
+
+    <Assign lineno="4" col_offset="0">
+      <targets>
+        <Name lineno="4" col_offset="0" id="counter">
+          <ctx>
+            <Store/>
+          </ctx>
+        </Name>
+      </targets>
+      <value>
+        <BinOp lineno="4" col_offset="10">
+          <left>
+            <Name lineno="4" col_offset="10" id="counter">
+              <ctx>
+                <Load/>
+              </ctx>
+            </Name>
+          </left>
+          <op>
+            <Add/>
+          </op>
+          <right>
+            <Num lineno="4" col_offset="20" n="1"/>
+          </right>
+        </BinOp>
+      </value>
+    </Assign>
+    """
     ok_val = '1'
     res = _get_var_equal_plussed_all(el)
     if res is None:
@@ -252,6 +331,9 @@ def _get_var_equal_plussed_3_7(el):
     return var_equal_plussed
 
 def _get_var_equal_plussed_3_8(el):
+    """
+    As for 3_7 version but Constant instead of Num / Str etc.
+    """
     ok_val = '1'
     res = _get_var_equal_plussed_all(el)
     if res is None:

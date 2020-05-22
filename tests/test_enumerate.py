@@ -86,6 +86,35 @@ def test_misc():
                 ROOT + 'manual_incrementing': 1,  ## snippet level so just once
             }
         ),
+        (
+            dedent("""\
+            n = -1
+            while True:
+                if n == 4:
+                    break
+                n += 1
+            """),
+            {
+                ROOT + 'manual_incrementing': 0,  ## snippet level so just once
+            }
+        ),
+        (
+            dedent("""\
+            var_b4_init = 'Audi'
+            n = 1
+            var_b4_for_1 = 'Jan'
+            var_b4_for_2 = 'Lithuania'
+            for image in images:
+                if n % 10 == 0:
+                    print(f"Just processed image {{n}}")
+                process_image(image)
+                n += 1
+                print("Extra line after incrementing")
+            """),
+            {
+                ROOT + 'manual_incrementing': 1,
+            }
+        ),
     ]
     check_as_expected(test_conf)
 

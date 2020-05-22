@@ -26,10 +26,16 @@ LOG_LEVEL = logging.INFO  ## (logging.INFO)
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 ## All snippets here should be raw strings (see https://stackoverflow.com/questions/53636723/python-parsing-code-with-new-line-character-in-them-using-ast)
 TEST_SNIPPET = r"""
-msgs = []
-for i in range(20):
-    msgs.append(f"i is {i}")
-name = 'Grant'
+var_b4_init = 'Audi'
+n = 1
+var_b4_for_1 = 'Jan'
+var_b4_for_2 = 'Lithuania'
+for image in images:
+    if n % 10 == 0:
+        print(f"Just processed image {{n}}")
+    process_image(image)
+    n += 1
+    print("Extra line after incrementing")
 """
 
 PY3_6 = '3.6'

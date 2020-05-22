@@ -1,42 +1,13 @@
-import logging
-
-from superhelp.helpers import all_blocks_help
-from ..ast_funcs import num_str_from_val, _get_var_equal_plussed, _get_var_plus_equalled
-from .. import conf
-from superhelp.gen_utils import layout_comment as layout
-
-def get_num(value_el):
-    """
-    ## a positive number
-    <Assign lineno="1" col_offset="0">
-      ...
-      <value>
-        <Constant lineno="1" col_offset="4" type="int" value="0"/>
-      </value>
-    </Assign>
-    
-    ## a negative number
-    <Assign lineno="1" col_offset="0">
-      ...
-      <value>
-        <UnaryOp lineno="1" col_offset="4">
-          <op>
-            <USub/>
-          </op>
-          <operand>
-            <Constant lineno="1" col_offset="5" type="int" value="1"/>
-          </operand>
-        </UnaryOp>
-      </value>
-    </Assign>
-    """
-    return num_str_from_val(value_el)
+from ..helpers import all_blocks_help
+from .. import ast_funcs, conf
+from ..gen_utils import layout_comment as layout
 
 def get_var_initialised(el):
     """
-    e.g. i = 0 or i = -1 or i = 1
+    e.g. var i if
+    i = 0 or i = -1 or i = 1
 
-    ## example where a positive number
+    ## 3.8+ example where a positive number
     <Assign lineno="1" col_offset="0">
       <targets>
         <Name lineno="1" col_offset="0" type="str" id="counter">
@@ -58,7 +29,7 @@ def get_var_initialised(el):
         value_els = assign_el.xpath('value')
         if len(value_els) != 1:
             continue
-        num = get_num(value_els[0])
+        num = ast_funcs.num_str_from_val(value_els[0])
         if num not in ['0', '-1', '1']:
             continue
         name_els = assign_el.xpath('targets/Name')
@@ -70,121 +41,80 @@ def get_var_initialised(el):
     var_initialised = name if has_var_init else None
     return var_initialised
 
-def get_var_plus_equalled(el):
+def get_incrementing_var(el):
     """
-    e.g. i += 1
+    Get name of incrementing variable.
 
-    <AugAssign lineno="2" col_offset="0">
-      <target>
-        <Name lineno="2" col_offset="0" id="counter">
-          <ctx>
-            <Store/>
-          </ctx>
-        </Name>
-      </target>
-      <op>
-        <Add/>
-      </op>
-      <value>
-        <Constant lineno="2" col_offset="11" value="1"/>
-      </value>
-    </AugAssign>
+    e.g. i if i += 1 or i = i + 1
     """
-    return _get_var_plus_equalled(el)
-
-def get_var_equal_plussed(el):
-    """
-    e.g. i = i + 1
-
-    <Assign lineno="4" col_offset="0">
-      <targets>
-        <Name lineno="4" col_offset="0" id="counter">
-          <ctx>
-            <Store/>
-          </ctx>
-        </Name>
-      </targets>
-      <value>
-        <BinOp lineno="4" col_offset="10">
-          <left>
-            <Name lineno="4" col_offset="10" id="counter">
-              <ctx>
-                <Load/>
-              </ctx>
-            </Name>
-          </left>
-          <op>
-            <Add/>
-          </op>
-          <right>
-            <Num lineno="4" col_offset="20" n="1"/>
-          </right>
-        </BinOp>
-      </value>
-    </Assign>
-    """
-    return _get_var_equal_plussed(el)
-
-def get_var_incremented(el):
-    """
-    e.g. i += 1 or i = i + 1
-    """
-    var_incremented = get_var_plus_equalled(el)
+    var_incremented = ast_funcs._get_var_plus_equalled(el)
     if not var_incremented:
-        var_incremented = get_var_equal_plussed(el)
+        var_incremented = ast_funcs._get_var_equal_plussed(el)
     return var_incremented
 
-def process_el(el, vars_initialised, vars_incremented):
+def get_incrementing_vars(for_el):
     """
-    Look for either init or incrementing.
+    Look at children for incrementation. Do any has signs of incrementation?
+    Collect vars that do.
+    """
+    children = for_el.getchildren()
+    incrementing_vars = []
+    for child in children:
+        incrementing_var = get_incrementing_var(child)
+        if incrementing_var:
+            incrementing_vars.append(incrementing_var)
+    return incrementing_vars
 
-    Update vars_init set and, if var already in init set, in
-    vars_incremented set. Once anything in vars_incremented set, return
-    because we only need one. If neither, get children and process down each
-    path. Then return.
+def get_init_vars(for_el):
     """
-    var_initialised = get_var_initialised(el)
-    if var_initialised:
-        vars_initialised.add(var_initialised)
-    var_incremented = get_var_incremented(el)
-    if var_incremented:
-        if var_incremented in vars_initialised:
-            vars_incremented.add(var_incremented)
-            return
-    for child_el in el.getchildren():
-        process_el(child_el, vars_initialised, vars_incremented)
-    return
+    Get variable names that have been initialised in a pattern common when
+    preparing for manual incrementation.
 
-def get_incrementing_var(block_dets, vars_initialised, vars_incremented):
+    Do previous siblings have common patterns of variable incrementer
+    initialisation? Collect any vars that do.
     """
-    Iterate through lines in AST (depth first). Look for var init and once
-    found, then incrementing. On first init-incrementing pair found, halt and
-    give message about enumerate using the var name in example.
+    init_vars = []
+    for prev_sibling_el in for_el.itersiblings(preceding=True):
+        var_initialised = get_var_initialised(prev_sibling_el)
+        if var_initialised:
+            init_vars.append(var_initialised)
+    return init_vars
+
+def get_manual_incrementing_var(for_el):
     """
-    process_el(block_dets.element, vars_initialised, vars_incremented)
-    if not vars_incremented:
-        incrementing_var = None
+    Get first manual incrementing var.
+
+    Look at previous siblings for common patterns of variable incrementer
+    initialisation. Then look at children for incrementation. If we find both,
+    we have found likely manual incrementation.
+    """
+    init_vars = get_init_vars(for_el)
+    if not init_vars:
+        return None
+    incrementing_vars = get_incrementing_vars(for_el)
+    if not incrementing_vars:
+        return None
+    manual_incrementing_vars = sorted(
+        set(init_vars).intersection(set(incrementing_vars)))
+    if manual_incrementing_vars:
+        return manual_incrementing_vars[0]
     else:
-        incrementing_var = vars_incremented.pop()
-    return incrementing_var
+        return None
 
 @all_blocks_help()
 def manual_incrementing(blocks_dets):
     """
-    Look for manual handling of incrementing inside loops.
+    Look for manual handling of incrementing inside for loops.
     """
-    vars_initialised = set()
-    vars_incremented = set()
-    has_incrementing = False
+    for_els = []
     for block_dets in blocks_dets:
-        incrementing_var = get_incrementing_var(
-            block_dets, vars_initialised, vars_incremented)
-        logging.debug(f"vars_initialised: {vars_initialised}; "
-            f"vars_incremented: {vars_incremented}")
+        for_els.extend(block_dets.element.xpath('descendant-or-self::For'))
+    incrementing_var = None
+    for for_el in for_els:
+        incrementing_var = get_manual_incrementing_var(for_el)
         if incrementing_var:
-            has_incrementing = True
             break
-    if not has_incrementing:
+    if not incrementing_var:
         return None
 
     summary = layout(f"""\
