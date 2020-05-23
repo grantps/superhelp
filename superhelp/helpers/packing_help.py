@@ -1,10 +1,9 @@
 from collections import defaultdict
 
-from superhelp.helpers import get_unpacking_msg, all_blocks_help, \
-    filt_block_help
+from ..helpers import get_unpacking_msg, all_blocks_help, filt_block_help
 from .. import ast_funcs, conf
-from superhelp import gen_utils
-from superhelp.gen_utils import layout_comment as layout
+from .. import gen_utils
+from ..gen_utils import layout_comment as layout
 
 ASSIGN_UNPACKING_XPATH = 'descendant-or-self::Assign/targets/Tuple'
 
@@ -42,7 +41,7 @@ def unpacking(block_dets, *, repeat=False):
     return message
 
 @all_blocks_help()
-def unpacking_opportunity(blocks_dets):
+def unpacking_opportunity(blocks_dets, *, repeat=False):
     """
     Look for opportunities to unpack values into multiple names instead of
     repeated and un-pythonic extraction using indexes.
@@ -78,7 +77,8 @@ def unpacking_opportunity(blocks_dets):
     """)
     multiple_items = len(sources2unpack) > 1
     if multiple_items:
-        nice_sources_list = gen_utils.get_nice_str_list(sources2unpack, quoter='`')
+        nice_sources_list = gen_utils.get_nice_str_list(
+            sources2unpack, quoter='`')
         unpackable = layout(f"""\
 
         {nice_sources_list} have multiple items extracted by indexing so might
@@ -90,9 +90,13 @@ def unpacking_opportunity(blocks_dets):
         Name (variable) `{sources2unpack[0]}` has multiple items extracted by
         indexing so might be a suitable candidate for unpacking.
         """)
+    if not repeat:
+        extra_msg = get_unpacking_msg()
+    else:
+        extra_msg = ''
 
     message = {
         conf.BRIEF: title + unpackable,
-        conf.EXTRA: get_unpacking_msg(),
+        conf.EXTRA: extra_msg,
     }
     return message

@@ -102,7 +102,7 @@ def get_manual_incrementing_var(for_el):
         return None
 
 @all_blocks_help()
-def manual_incrementing(blocks_dets):
+def manual_incrementing(blocks_dets, *, repeat=False):
     """
     Look for manual handling of incrementing inside for loops.
     """
@@ -123,48 +123,52 @@ def manual_incrementing(blocks_dets):
     It looks like your code is manually incrementing `{incrementing_var}`. In
     Python you can use the `enumerate` function to handle this for you.
     """)
-    demo = (
-        layout("""\
-        Here is an example of the manual approach:
-        """)
-        +
-        layout("""\
-        n = 1
-        for image in images:
-            if n % 10 == 0:
-                print(f"Just processed image {{n}}")
-            process_image(image)
-            n += 1
-        """, is_code=True)
-        +
-        layout("""\
-        Here is how we can use `enumerate()` instead:
-        """)
-        +
-        layout("""\
-        for n, image in enumerate(images, 1):
-            if n % 10 == 0:
-                print(f"Just processed image {{n}}")
-            process_image(image)
-        """, is_code=True)
-        +
-        layout("""\
+    if not repeat:
+        demo = (
+            layout("""\
+            Here is an example of the manual approach:
+            """)
+            +
+            layout("""\
+            n = 1
+            for image in images:
+                if n % 10 == 0:
+                    print(f"Just processed image {{n}}")
+                process_image(image)
+                n += 1
+            """, is_code=True)
+            +
+            layout("""\
+            Here is how we can use `enumerate()` instead:
+            """)
+            +
+            layout("""\
+            for n, image in enumerate(images, 1):
+                if n % 10 == 0:
+                    print(f"Just processed image {{n}}")
+                process_image(image)
+            """, is_code=True)
+            +
+            layout("""\
 
-        Often you want counting from 0 in which case you don't need to specify
-        the start value (0 is the default):
-        """)
-        +
-        layout("""\
-        for i, image in enumerate(images):
-            ...
-        """, is_code=True)
-        +
-        layout("""\
+            Often you want counting from 0 in which case you don't need to
+            specify the start value (0 is the default):
+            """)
+            +
+            layout("""\
+            for i, image in enumerate(images):
+                ...
+            """, is_code=True)
+            +
+            layout("""\
 
-        You can give the enumerated value any name that makes sense but reserve
-        `i` for incrementing starting at 0 and prefer `n` when starting at 1.
-        """)
-    )
+            You can give the enumerated value any name that makes sense but
+            reserve `i` for incrementing starting at 0 and prefer `n` when
+            starting at 1.
+            """)
+        )
+    else:
+        demo = ''
 
     message = {
         conf.BRIEF: summary,

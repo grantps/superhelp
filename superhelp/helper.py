@@ -82,6 +82,10 @@ def get_code_help(code, *, file_path=None,
         output=conf.HTML, detail_level=conf.EXTRA,
         warnings_only=False, in_notebook=False,
         multi_script=False, theme_name=None, repeat_set=None):
+    """
+    Whether looking at individual snippets / scripts or multiple project scripts
+    everything passes through here for each code 'snippet'.
+    """
     if multi_script and in_notebook:
         raise Exception("Notebooks should only ever run on snippets not on "
             "multiple scripts")

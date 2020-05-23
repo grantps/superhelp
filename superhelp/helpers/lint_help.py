@@ -13,6 +13,8 @@ prog = re.compile(lint_conf.LINT_PATTERN, flags=re.VERBOSE)  # @UndefinedVariabl
 
 MsgDets = namedtuple('MsgDets', 'msg, line_no')
 
+already_supplemented = set()
+
 MISC_ISSUES_TITLE = layout("""\
     #### Misc lint issues
     """)
@@ -142,15 +144,21 @@ def _get_unfinished_messages(msg_type_and_dets):
     """
     Get list of unfinished messages. May contain placeholders that need to be
     replaced.
+
+    Messages are possibly unfinished in the sense that placeholders need to be
+    replaced with actual message content.
+
+    :return: list of strings. Individual strings may contain placeholders.
+    :rtype: list
     """
     unfinished_msgs = []
-    already_supplemented = set()
+    global already_supplemented  ## needs to persist over multiple calls (e.g. running lint help every script in a project)
     for msg_type, msgs_dets in msg_type_and_dets.items():
         unfinished_msg = _get_msg_line(msgs_dets)
         generic_msg_type = msg_type not in lint_conf.CUSTOM_LINT_MSGS
         if generic_msg_type:
             unfinished_msg = '* ' + unfinished_msg.lstrip('\n')  ## bullet points for generic messages (custom messages have full layout treatment e.g. code highlighting)
-        ## add supplementary line?
+        ## add custom supplementary lint message?
         supplement_configured = msg_type in lint_conf.CUSTOM_LINT_MSGS
         if msg_type not in already_supplemented and supplement_configured:
             msg_placeholder = _msg_type_to_placeholder(msg_type)
@@ -248,9 +256,14 @@ def get_lint_messages_by_level(raw_lint_feedback_str):
     return lint_msgs
 
 @snippet_str_help(warning=True)
-def lint_snippet(snippet):
+def lint_snippet(snippet, *, repeat=False):
     """
     Look for "lint" as defined by flake8 linter and share the results.
+
+    The repeat argument is used to avoid repeating all the generic linter
+    information. But we also need to know if specific linter msg_types have been
+    repeated or not. We track those with module-level set
+    `already_supplemented`.
     """
     if not conf.INCLUDE_LINTING:  ## disabled when testing for speed reasons
         return None
@@ -262,42 +275,46 @@ def lint_snippet(snippet):
     title = layout("""\
     ### Python code issues (found by flake8 linter)
     """)
-    linting = layout("""\
+    if not repeat:
+        linting = layout("""\
 
-    "Linters" are software tools. They detect everything from trivial style
-    mistakes of no consequence to program behaviour through to show-stopper
-    syntax errors.
+        "Linters" are software tools. They detect everything from trivial style
+        mistakes of no consequence to program behaviour through to show-stopper
+        syntax errors.
 
-    Software developers can be notoriously fussy about the smallest details of
-    code styling and a linter can not only detect actual errors in code it can
-    also prevent developers becoming completely distracted by trivial irritants.
-    Distracted developers miss real issues with programs so it can be of
-    practical importance to pick up the "small stuff". Plus it enables teams of
-    programmers to work on the same code base without spending all their time
-    restyling each other's code and arguing about
-    "standards".
-    """)
+        Software developers can be notoriously fussy about the smallest details
+        of code styling and a linter can not only detect actual errors in code
+        it can also prevent developers becoming completely distracted by trivial
+        irritants. Distracted developers miss real issues with programs so it
+        can be of practical importance to pick up the "small stuff". Plus it
+        enables teams of programmers to work on the same code base without
+        spending all their time restyling each other's code and arguing about
+        "standards".
+        """)
+        obviousness = layout("""\
+        #### Good code is simple enough to reason about
+
+        Linting is especially useful for an interpreted language like Python
+        because there is no compiler to pick up "lint" errors. Linting is no
+        substitute for unit testing though. And neither are a substitute for
+        writing readable code that can be reasoned about with confidence - the
+        single best protection against code not doing what it is meant to do.
+        The goal should be code where there is obviously nothing wrong rather
+        than code where there nothing obviously wrong.
+
+        > "There are two ways of constructing a software design. One way is to
+        make it so simple that there are obviously no deficiencies. And the
+        other way is to make it so complicated that there are no obvious
+        deficiencies." C.A.R. Hoare
+        """)
+    else:
+        linting = ''
+        obviousness = ''
     findings = layout("""\
     Here is what the linter reported about your snippet.
     """)
     brief_msg, main_msg, extra_msg = get_lint_messages_by_level(
         raw_lint_feedback_str=res.stdout)
-    obviousness = layout("""\
-    #### Good code is simple enough to reason about
-
-    Linting is especially useful for an interpreted language like Python because
-    there is no compiler to pick up "lint" errors. Linting is no substitute for
-    unit testing though. And neither are a substitute for writing readable code
-    that can be reasoned about with confidence - the single best protection
-    against code not doing what it is meant to do. The goal should be code where
-    there is obviously nothing wrong rather than code where there nothing
-    obviously wrong.
-
-    > "There are two ways of constructing a software design. One way is to make
-    it so simple that there are obviously no deficiencies. And the other way is
-    to make it so complicated that there are no obvious deficiencies." C.A.R.
-    Hoare
-    """)
 
     message = {
         conf.BRIEF: title + findings + brief_msg,

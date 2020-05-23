@@ -65,7 +65,7 @@ def used_compile(block_el):
     pass
 
 @all_blocks_help()
-def verbose_option(blocks_dets):
+def verbose_option(blocks_dets, *, repeat=False):
     """
     Check for use of regex without verbose mode and introduce the idea.
     """
@@ -88,69 +88,74 @@ def verbose_option(blocks_dets):
     title = layout("""\
     ### Option of using verbose mode with regex
     """)
-    tm = '\N{TRADE MARK SIGN}'
-    brief_explain = layout(f"""\
+    if not repeat:
+        tm = '\N{TRADE MARK SIGN}'
+        brief_explain = layout(f"""\
 
-    Regular expressions are infamous for being hard to understand, hard to
-    debug, and hard to maintain / extend. It is sometimes said that when you
-    have a problem, and you solve it with regex, now you have two problems ;-).
-    So anything you can do to make your regex more readable is a very Good
-    Thing{tm}. Which is where verbose mode is often helpful.
-    """)
-    longer_explain = (
-            layout("""\
+        Regular expressions are infamous for being hard to understand, hard to
+        debug, and hard to maintain / extend. It is sometimes said that when you
+        have a problem, and you solve it with regex, now you have two problems
+        ;-). So anything you can do to make your regex more readable is a very
+        Good Thing{tm}. Which is where verbose mode is often helpful.
+        """)
+        longer_explain = (
+                layout("""\
 
-            Verbose mode lets you split your regex into smaller, more manageable
-            parts, and you can comment your intentions for each part. The
-            following example is hard enough to understand _with_ comments -
-            imagine trying to make sense of it without! Or make modifications
-            without breaking everything. Good luck with that!
-            """)
-            +
-            layout('''\
-            pattern = r"""
-                (?P<before_id>
-                var\sdiv_icon_                    ## var div_icon
-                \w+                               ## lots of characters (don't care which until ...)
-                \s=\sL.divIcon\(\{[\s\S]*?\<div)  ##  = L.divIcon({ anything till <div (non-greedy)
-                (?P<after_id>[\s\S]*? ;)          ## anything until first semi-colon (we're non-greedy
-                                                  ## so we can pick up multiple instances of pattern)
-                """
-            ''', is_code=True)
-            +
-            layout("""\
+                Verbose mode lets you split your regex into smaller, more
+                manageable parts, and you can comment your intentions for each
+                part. The following example is hard enough to understand _with_
+                comments - imagine trying to make sense of it without! Or make
+                modifications without breaking everything. Good luck with that!
+                """)
+                +
+                layout('''\
+                pattern = r"""
+                    (?P<before_id>
+                    var\sdiv_icon_                    ## var div_icon
+                    \w+                               ## lots of characters (don't care which until ...)
+                    \s=\sL.divIcon\(\{[\s\S]*?\<div)  ##  = L.divIcon({ anything till <div (non-greedy)
+                    (?P<after_id>[\s\S]*? ;)          ## anything until first semi-colon (we're non-greedy
+                                                      ## so we can pick up multiple instances of pattern)
+                    """
+                ''', is_code=True)
+                +
+                layout("""\
 
-            Note - because whitespace is ignored it must be explicitly handled
-            in your pattern. In some cases the overhead of doing this will
-            outweigh the benefits of using verbose mode.
-            """)
-            +
-            layout("""\
-            You can either use the verbose flag e.g.
-            """)
-            +
-            layout("""\
-            re.match(r'car', 'cardboard', flags=re.VERBOSE)
-            """, is_code=True)
-            +
-            layout("""\
-            or the in-line version of the flag e.g.
-            """)
-            +
-            layout("""\
-            re.match(r'(?x)car', 'cardboard')
-            """, is_code=True)
-        )
-    extra = layout("""\
+                Note - because whitespace is ignored it must be explicitly
+                handled in your pattern. In some cases the overhead of doing
+                this will outweigh the benefits of using verbose mode.
+                """)
+                +
+                layout("""\
+                You can either use the verbose flag e.g.
+                """)
+                +
+                layout("""\
+                re.match(r'car', 'cardboard', flags=re.VERBOSE)
+                """, is_code=True)
+                +
+                layout("""\
+                or the in-line version of the flag e.g.
+                """)
+                +
+                layout("""\
+                re.match(r'(?x)car', 'cardboard')
+                """, is_code=True)
+            )
+        extra = layout("""\
 
-    The standard documentation at <https://docs.python.org/3/howto/regex.html>
-    is really good. Having said that, regex is never trivial so don't worry if
-    you find it challenging.
+        The standard documentation at
+        <https://docs.python.org/3/howto/regex.html> is really good. Having said
+        that, regex is never trivial so don't worry if you find it challenging.
 
-    Pronunciation: reggex or rejex? Regex with a hard 'g' probably makes most
-    sense because regular also has a hard 'g' but there is no consensus on
-    pronunciation.
-    """)
+        Pronunciation: reggex or rejex? Regex with a hard 'g' probably makes
+        most sense because regular also has a hard 'g' but there is no consensus
+        on pronunciation.
+        """)
+    else:
+        brief_explain = ''
+        longer_explain = ''
+        extra = ''
 
     message = {
         conf.BRIEF: title + brief_explain,

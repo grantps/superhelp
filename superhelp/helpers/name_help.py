@@ -97,21 +97,7 @@ def pairs_dets_from_block(block_el):
             pairs_dets.extend(el_pairs_dets)
     return pairs_dets
 
-@all_blocks_help()
-def names_and_values(blocks_dets):
-    """
-    Look for names assigned to other names and explain names and values in
-    Python.
-    """
-    name2name_pairs_dets = []
-    for block_dets in blocks_dets:
-        block_el = block_dets.element
-        block_name2name_pairs_dets = pairs_dets_from_block(block_el)
-        if block_name2name_pairs_dets:
-            name2name_pairs_dets.extend(block_name2name_pairs_dets)
-    if not name2name_pairs_dets:
-        return None
-
+def _get_names_and_values_msg(name2name_pairs_dets):
     name2name_pair_strs = []
     for pair_dets in name2name_pairs_dets:
         if pair_dets.unpacking_idx is not None:
@@ -238,7 +224,7 @@ def names_and_values(blocks_dets):
         ## confidence.
         """, is_code=True)
     )
-    ned_talk = layout("""\
+    ned_talk_etc = layout("""\
     The talk to watch / read on the topic is:
     <https://nedbatchelder.com/text/names1.html>
 
@@ -250,13 +236,37 @@ def names_and_values(blocks_dets):
     Python actually works. The central reality in Python is the value not the
     name. The name is nothing substantial - it's not a container for a value
     or anything like that - it is merely a label.
+
+    In technical terms, Python is not pass-by-value or pass-by-reference but
+    pass-by-object-reference. See
+    <https://robertheaton.com/2014/02/09/pythons-pass-by-object-reference-as-explained-by-philip-k-dick/>
     """)
 
     message = {
         conf.BRIEF: title + assignments + brief_summary,
         conf.MAIN: title + assignments + main_summary,
-        conf.EXTRA: ned_talk,
+        conf.EXTRA: ned_talk_etc,
     }
+    return message
+
+@all_blocks_help()
+def names_and_values(blocks_dets, *, repeat=False):
+    """
+    Look for names assigned to other names and explain names and values in
+    Python.
+    """
+    name2name_pairs_dets = []
+    for block_dets in blocks_dets:
+        block_el = block_dets.element
+        block_name2name_pairs_dets = pairs_dets_from_block(block_el)
+        if block_name2name_pairs_dets:
+            name2name_pairs_dets.extend(block_name2name_pairs_dets)
+    if not name2name_pairs_dets:
+        return None
+    if repeat:
+        return None
+
+    message = _get_names_and_values_msg(name2name_pairs_dets)
     return message
 
 def _get_shamed_names_title(reserved_names, bad_names, dubious_names):

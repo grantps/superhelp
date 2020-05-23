@@ -1,7 +1,7 @@
 from collections import namedtuple
 
-from . import conf  # @UnresolvedImport
-from superhelp.gen_utils import layout_comment as layout
+from . import conf
+from .gen_utils import layout_comment as layout
 
 ## extract patterns e.g. from:
 ## /tmp/snippet.py:1:23: W291 trailing whitespace

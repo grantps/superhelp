@@ -69,18 +69,18 @@ def complete_message(message, *, source):
 
 def get_message_dets_from_input(helper_dets, *,
         helper_input, code_str, first_line_no, repeat=False):
+    """
+    :param namedtuple helper_dets: details of the helper e.g. name, function,
+     etc depending on type of HelperDets (e.g. FiltHelperDets)
+    :param obj helper_input: the main input to the helper function
+     e.g. block_dets, blocks_dets, or snippet_str.
+    """
     name = helper_dets.helper_name
     docstring = helper_dets.helper.__doc__
     if not docstring:
         raise Exception(f'Helper "{name}" lacks a docstring - add one!')
     try:
-        try:
-            message = helper_dets.helper(helper_input, repeat=repeat)
-        except TypeError as e:
-            if "unexpected keyword argument 'repeat'" in str(e):
-                message = helper_dets.helper(helper_input)
-            else:
-                raise
+        message = helper_dets.helper(helper_input, repeat=repeat)
     except Exception as e:
         brief_name = '.'.join(name.split('.')[-2:])  ## last two parts only
         message = {

@@ -3,11 +3,13 @@ from ..gen_utils import layout_comment as layout
 from ..helpers import snippet_str_help
 
 @snippet_str_help()
-def lambda_advice(snippet):
+def lambda_advice(snippet, *, repeat=False):
     """
     Look for use of lambda and given general advice on when / how to use.
     """
     if not 'lambda' in snippet:
+        return None
+    if repeat:
         return None
 
     title = layout("""\

@@ -33,12 +33,14 @@ def get_named_tuples_dets(blocks_dets):
     return all_named_tuples_dets
 
 @all_blocks_help()
-def named_tuple_overview(blocks_dets):
+def named_tuple_overview(blocks_dets, *, repeat=False):
     """
     Look for named tuples and explain how they can be enhanced.
     """
     named_tuples_dets = get_named_tuples_dets(blocks_dets)
     if not named_tuples_dets:
+        return None
+    if repeat:
         return None
 
     example_dets = named_tuples_dets[0]
