@@ -209,7 +209,7 @@ def get_help(code=None, *,
             output_settings=output_settings, run_context=run_context)
         if not deferred_display:
             return
-        if (in_notebook and output_settings.output == conf.HTML):
+        if (in_notebook and output_settings.displayer == conf.HTML):
             return deferred_display  ## assumed notebook always HTML and we need to pass on the HTML string to the jupyter notebook
         else:
             raise Exception(
@@ -226,7 +226,7 @@ def get_help(code=None, *,
         for file_path in file_paths:
             get_script_help(file_path,
                 output_settings=output_settings, run_context=run_context)
-        if output_settings.output == conf.HTML:
+        if output_settings.displayer == conf.HTML:
             gen_utils.open_output_folder()
     else:
         code = conf.TEST_SNIPPET
