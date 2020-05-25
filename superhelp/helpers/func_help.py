@@ -1,12 +1,12 @@
 """
 Covers functions and methods.
 """
-from superhelp.helpers import filt_block_help
+from ..helpers import filt_block_help
 from ..ast_funcs import get_danger_status, get_docstring_from_value, \
     get_el_lines_dets
 from .. import conf
-from superhelp import gen_utils
-from superhelp.gen_utils import get_nice_pairs, layout_comment as layout
+from .. import gen_utils
+from ..gen_utils import get_nice_pairs, layout_comment as layout
 
 FUNC_DEFN_XPATH = 'descendant-or-self::FunctionDef'
 
@@ -162,12 +162,14 @@ def _get_exit_comment(func_el, func_type_lbl, *, repeat=False):
     return exit_comment
 
 @filt_block_help(xpath=FUNC_DEFN_XPATH)
-def func_overview(block_dets, *, repeat=False):
+def func_overview(block_dets, *, repeat=False, **_kwargs):
     """
     Advise on function (or method) definition statements.
     e.g. def greeting(): ...
     """
     func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
+    if not func_els:
+        return None
     overall_func_type_lbl = get_overall_func_type_lbl(func_els)
 
     title = layout(f"""\
@@ -219,11 +221,13 @@ def func_overview(block_dets, *, repeat=False):
     return message
 
 @filt_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
-def func_len_check(block_dets, *, repeat=False):
+def func_len_check(block_dets, *, repeat=False, **_kwargs):
     """
     Warn about functions that might be too long.
     """
     func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
+    if not func_els:
+        return None
     overall_func_type_lbl = get_overall_func_type_lbl(func_els)
     long_func_dets = []
     for func_el in func_els:
@@ -274,11 +278,13 @@ def get_n_args(func_el):
     return n_args
 
 @filt_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
-def func_excess_parameters(block_dets, *, repeat=False):
+def func_excess_parameters(block_dets, *, repeat=False, **_kwargs):
     """
     Warn about functions that might have too many parameters.
     """
     func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
+    if not func_els:
+        return None
     overall_func_type_lbl = get_overall_func_type_lbl(func_els)
     excess_param_dets = []
     for func_el in func_els:
@@ -358,11 +364,13 @@ def _get_mutable_default_args(func_el):
         func_el, get_issue_status_func=get_mutable_status, include_kw=True)
 
 @filt_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
-def mutable_default(block_dets, *, repeat=False):
+def mutable_default(block_dets, *, repeat=False, **_kwargs):
     """
     Look for use of mutable defaults and warn against use except in rare cases.
     """
     func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
+    if not func_els:
+        return None
     overall_func_type_lbl = get_overall_func_type_lbl(func_els)
     mutable_defaults_dets = []
     for func_el in func_els:
@@ -471,7 +479,7 @@ def _get_positional_danger_args(func_el):
         func_el, get_issue_status_func=get_danger_status, include_kw=False)
 
 @filt_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
-def positional_boolean(block_dets, *, repeat=False):
+def positional_boolean(block_dets, *, repeat=False, **_kwargs):
     """
     Look for any obvious candidates for forced keyword use e.g. where a
     parameter is a boolean or a number.
@@ -480,6 +488,8 @@ def positional_boolean(block_dets, *, repeat=False):
     defaults or kw_defaults (related to kwonlyargs)).
     """
     func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
+    if not func_els:
+        return None
     overall_func_type_lbl = get_overall_func_type_lbl(func_els)
     positional_dets = []
     for func_el in func_els:
@@ -588,7 +598,7 @@ def get_funcs_dets_and_docstring(func_els):
     return funcs_dets_and_docstring
 
 @filt_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
-def docstring_issues(block_dets, *, repeat=False):
+def docstring_issues(block_dets, *, repeat=False, **_kwargs):
     """
     Check over function doc strings. Missing doc string, not enough lines to
     cover params, return etc.
@@ -597,6 +607,8 @@ def docstring_issues(block_dets, *, repeat=False):
     MISSING_DOCSTRING = 'missing_docstring'
     DOCSTRING_TOO_SHORT = 'docstring_too_short'
     func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
+    if not func_els:
+        return None
     funcs_dets_and_docstring = get_funcs_dets_and_docstring(func_els)
     docstring_issues = []
     for func_el, func_name, docstring in funcs_dets_and_docstring:

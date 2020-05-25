@@ -13,7 +13,7 @@ import webbrowser
 
 import ast
 
-from . import conf
+from . import code_execution, conf, name_utils
 from lxml import etree
 import astpath  # @UnresolvedImport
 
@@ -94,6 +94,7 @@ def convert_to_xml(node, omit_docstrings=False, node_mappings=None):
 
 astpath.asts.convert_to_xml = convert_to_xml
 
+
 starting_num_space_pattern = r"""(?x)
     ^      ## start
     \d{1}  ## one digit
@@ -101,6 +102,140 @@ starting_num_space_pattern = r"""(?x)
     \S+    ## at least one non-whitespace
     """
 starting_num_space_prog = re.compile(starting_num_space_pattern)
+
+def get_items(raw_item_els):
+    """
+    Handles strings and numbers only. Everything else becomes conf.UNKNOWN_ITEM.
+
+    :rtype: list
+    """
+    from . import ast_funcs  ## avoid circular import
+    items = []
+    for raw_el in raw_item_els:
+        res = ast_funcs.val_dets(raw_el)
+        if res is None:
+            items.append(conf.UNKNOWN_ITEM)
+        else:
+            val, _needs_quoting = res
+            items.append(val)
+    return items
+
+def ast_collection_items(named_el):
+    """
+    Get items in collection using AST only. Cope with unknowns using
+    conf.UNKNOWN_ITEM and conf.UNKNOWN_ITEMS as appropriate.
+
+    Warning - dicts may result in lists of key:value pairs with repeated keys if
+    they are mapped to conf.UNKNOWN_ITEM. So always count items first before
+    creating a dict from them at any stage otherwise the number of items will be
+    understated.
+
+    For List Comprehension, always return conf.UNKNOWN_ITEMS
+    because it is not practical to evaluate values using AST.
+
+    Throw exception if named_el not as expected.
+
+    :return: list of items. These may include some conf.UNKNOWN_ITEMs if we
+     can't resolve individual items e.g. results of functions like
+     datetime.date(). If unable to get any results, e.g. ListComp, return
+     conf.UNKNOWN_ITEMS
+    :rtype: list or conf.UNKNOWN_ITEMS str
+    """
+    items = []
+    tag = named_el.tag
+    if tag == 'Dict':
+        raw_key_els = named_el.xpath('keys')[0].getchildren()
+        raw_val_els = named_el.xpath('values')[0].getchildren()
+        keys = get_items(raw_key_els)
+        vals = get_items(raw_val_els)
+        items = list(zip(keys, vals))
+    elif tag == 'Set':
+        raw_val_els = named_el.xpath('elts')[0].getchildren()
+        items = list(set(get_items(raw_val_els)))  ## inner set casting needed in case multiple Nones - just because they must be different to be in a set doesn't mean this code can tell the difference ;-)
+    elif tag in ('List', 'Tuple'):
+        raw_val_els = named_el.xpath('elts')[0].getchildren()
+        items = get_items(raw_val_els)
+    elif tag == 'ListComp':
+        items = conf.UNKNOWN_ITEMS  ## impractical to evaluate using AST
+    elif tag == 'Name':
+        name_id = named_el.get('id')
+        call_el = named_el.xpath('ancestor::Call')[-1]
+        elts_els = call_el.xpath('args/List/elts | args/Tuple/elts')
+        if len(elts_els) == 1:
+            if name_id == 'dict':
+                ## args/List/elts/Tuple should have one or more two-tuples
+                ## convert to list of two-tuples
+                tuple_elts_els = call_el.xpath('args/List/elts/Tuple/elts')
+                tups_list = []
+                for tuple_elts_el in tuple_elts_els:
+                    raw_val_els = tuple_elts_el.getchildren()
+                    tup_items = get_items(raw_val_els)
+                    if len(tup_items) != 2:
+                        raise Exception("All tuples in a dict definition should"
+                            " be two-tuples (key, value)")
+                    tups_list.append(tup_items)
+                items = tups_list
+            else:
+                raw_val_els = elts_els[0].getchildren()
+                items = get_items(raw_val_els)
+        elif len(elts_els) == 0 and name_id in ('list', 'set', 'tuple'):
+            items = []  ## empty collection that's why no elts_els
+        else:
+            items = conf.UNKNOWN_ITEMS
+    else:
+        raise Exception(f"Unexpected named_el: '{tag}'")
+    return items
+
+def get_collections_dets(named_els, block_dets, *,
+        collection_plural, truncated_items_func, execute_code=True):
+    """
+    Get information on collections - names with associated items, plus a string
+    message (empty str if no oversized items) which can be assembled as part of
+    a full helper message.
+
+    :param list named_els: list of Assign elements which have collections as the
+     value e.g. Assign/value/List (Dict, Set, Tuple, List, ListComp etc)
+    :return: names_items: list of (name, items) tuples, and oversized_msg (str).
+     items is either a list (in the case of a dict, a list of (k, v) tuples) or
+     conf.UNKNOWN_ITEMS.
+    :rtype: list
+    """
+    names_items = []
+    oversized_names = []
+    for named_el in named_els:
+        names_dets = name_utils.get_assigned_names(named_el)
+        for name_dets in names_dets:
+            if execute_code:
+                items = code_execution.execute_collection_dets(
+                    block_dets, name_dets)
+                if items == conf.UNKNOWN_ITEMS:
+                    items = ast_collection_items(named_el)
+            else:
+                items = ast_collection_items(named_el)
+            if items != conf.UNKNOWN_ITEMS:
+                if len(items) > conf.MAX_ITEMS_EVALUATED:
+                    items = truncated_items_func(items)
+                    oversized_names.append(name_dets.name_str)
+                names_items.append((name_dets.name_str, items))
+    if oversized_names:
+        multi_oversized = len(oversized_names) > 1
+        if multi_oversized:
+            nice_names = get_nice_str_list(oversized_names, quoter='`')
+            oversized_msg = layout_comment(f"""\
+
+            Because the following {collection_plural} were large SuperHELP has
+            only examined the first {conf.MAX_ITEMS_EVALUATED} items:
+            {nice_names}
+            """)
+        else:
+            oversized_msg = layout_comment(f"""\
+
+            Because `{name_dets.name_str}` is large SuperHELP has only examined
+            the first {conf.MAX_ITEMS_EVALUATED} items.
+            """)
+    else:
+        oversized_msg = ''
+    return names_items, oversized_msg
 
 def open_output_folder():
     """
@@ -208,7 +343,7 @@ def get_code_desc(file_path):
     return code_desc
 
 def get_line_numbered_snippet(snippet):
-    snippet_lines = snippet.split('\n')
+    snippet_lines = snippet.strip('\n').split('\n')
     n_lines = len(snippet_lines)
     width = len(str(n_lines))
     new_snippet_lines = []

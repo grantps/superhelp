@@ -88,7 +88,35 @@ def test_misc():
                 ROOT + 'mixed_key_types': 1,
             }
         ),
+        (
+            dedent("""\
+            name = dict([('NZ', 'Wellington'), ('Australia', 'Canberra')])
+            """),
+            {
+                ROOT + 'dict_overview': 1,
+                ROOT + 'mixed_key_types': 0,
+            }
+        ),
+        (
+            dedent("""\
+            name = dict([('NZ', 'Wellington'), (1, 'Canberra')])
+            """),
+            {
+                ROOT + 'dict_overview': 1,
+                ROOT + 'mixed_key_types': 1,
+            }
+        ),
+        (
+            dedent("""\
+            name = dict([])
+            """),
+            {
+                ROOT + 'dict_overview': 1,
+                ROOT + 'mixed_key_types': 0,
+            }
+        ),
     ]
-    check_as_expected(test_conf)
+    check_as_expected(test_conf, execute_code=True)
+    check_as_expected(test_conf, execute_code=False)
 
 # test_misc()

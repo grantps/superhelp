@@ -8,11 +8,13 @@ from ..gen_utils import layout_comment as layout
 ASSIGN_UNPACKING_XPATH = 'descendant-or-self::Assign/targets/Tuple'
 
 @filt_block_help(xpath=ASSIGN_UNPACKING_XPATH)
-def unpacking(block_dets, *, repeat=False):
+def unpacking(block_dets, *, repeat=False, **_kwargs):
     """
     Identify name unpacking e.g. x, y = coord
     """
     unpacked_els = block_dets.element.xpath(ASSIGN_UNPACKING_XPATH)
+    if not unpacked_els:
+        return None
 
     title = layout("""\
     ### Name unpacking
@@ -41,7 +43,7 @@ def unpacking(block_dets, *, repeat=False):
     return message
 
 @all_blocks_help()
-def unpacking_opportunity(blocks_dets, *, repeat=False):
+def unpacking_opportunity(blocks_dets, *, repeat=False, **_kwargs):
     """
     Look for opportunities to unpack values into multiple names instead of
     repeated and un-pythonic extraction using indexes.

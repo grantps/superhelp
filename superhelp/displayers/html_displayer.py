@@ -296,10 +296,8 @@ def _get_all_html_strs(snippet, file_path,
             options_msg = f"<p>{conf.ALL_HELP_SHOWING_MSG}.</p>"
         all_html_strs.append(options_msg)
         all_html_strs.append("<div id='star'>"
-            "Please give us a star <span id='grow'>&starf;</span> on "
-            "<a href='https://github.com/grantps/superhelp'>"
-            "SuperHELP's GitHub page</a></br>so others can learn about us. "
-            "Thanks!</div>")
+            "Help by spreading the word about SuperHELP on social media.<br>"
+            f"Twitter: {conf.TWITTER_HANDLE}. Thanks!</div>")
     ## overall snippet display
     display_snippet = _need_snippet_displayed(
         overall_messages_dets, block_messages_dets,

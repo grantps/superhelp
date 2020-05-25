@@ -1,22 +1,32 @@
-from superhelp.helpers import filt_block_help
-from .. import code_execution, conf
-from superhelp import gen_utils
-from superhelp.gen_utils import layout_comment as layout
+from ..helpers import filt_block_help
+from .. import conf
+from .. import gen_utils
+from ..gen_utils import layout_comment as layout
 
 def truncate_tuple(items):
     return tuple(items[: conf.MAX_ITEMS_EVALUATED])
 
-ASSIGN_TUPLE_XPATH = 'descendant-or-self::Assign/value/Tuple'
+ASSIGN_TUPLE_XPATH = (
+    'descendant-or-self::Assign/value/Call/func/Name '
+    '| descendant-or-self::Assign/value/Tuple')
+
+def get_tup_els(block_el):
+    tup_els = [el for el in block_el.xpath(ASSIGN_TUPLE_XPATH)
+        if el.tag == 'Tuple' or el.get('id') == 'tuple']
+    return tup_els
 
 @filt_block_help(xpath=ASSIGN_TUPLE_XPATH)
-def tuple_overview(block_dets, *, repeat=False):
+def tuple_overview(block_dets, *, repeat=False, execute_code=True, **_kwargs):
     """
     Explain usage of tuples.
     """
-    tup_els = block_dets.element.xpath(ASSIGN_TUPLE_XPATH)
-    names_items, oversized_msg = code_execution.get_collections_dets(
+    tup_els = get_tup_els(block_dets.element)
+    if not tup_els:
+        return None
+    names_items, oversized_msg = gen_utils.get_collections_dets(
         tup_els, block_dets,
-        collection_plural='tuples', truncated_items_func=truncate_tuple)
+        collection_plural='tuples', truncated_items_func=truncate_tuple,
+        execute_code=execute_code)
     assigned_names_items = [
         (name, items) for name, items in names_items if name]
     if not assigned_names_items:
@@ -26,14 +36,18 @@ def tuple_overview(block_dets, *, repeat=False):
     #### Tuple Overview
     """)
     summary_bits = []
-    for name, tup in assigned_names_items:
-        if tup:
+    for name, items in assigned_names_items:
+        empty = len(items) == 0
+        if empty:
             summary_bits.append(layout(f"""\
-            `{name}` is a tuple. Unable to evaluate items.
+            `{name}` is an empty tuple.
             """))
         else:
+            plural = 's' if len(items) > 1 else ''
             summary_bits.append(layout(f"""\
-            `{name}` is a tuple with {gen_utils.int2nice(len(tup))} items.
+
+            `{name}` is a tuple with {gen_utils.int2nice(len(items))}
+            item{plural}.
             """))
     summary = ''.join(summary_bits)
     if not repeat:
@@ -61,12 +75,13 @@ def tuple_overview(block_dets, *, repeat=False):
         Tuples have an order, and can contain duplicate items and items of
         different types (usually not advisable).
         """)
-        non_empty_name_tups = [
-            (name, tup) for name, tup in assigned_names_items if tup]
+        good_name_tups = [
+            (name, items) for name, items in assigned_names_items
+            if items and conf.UNKNOWN_ITEM not in items]
         immutability_question = ("So what is tuple immutability in practice? "
             "It means that tuple items:")
-        if non_empty_name_tups:
-            first_name, first_tup = non_empty_name_tups[0]
+        if good_name_tups:
+            first_name, first_tup = good_name_tups[0]
             tup_replaced = list(first_tup)
             tup_replaced[0] = 100
             tup_replaced = tuple(tup_replaced)
@@ -80,8 +95,8 @@ def tuple_overview(block_dets, *, repeat=False):
             {immutability_question}
 
             * cannot be *replaced* - so we can't run `{first_name}`[0] = 100 to
-            get {tup_replaced}. It will raise an exception - TypeError:
-            'tuple' object does not support item assignment)
+            get {tup_replaced}. It will raise an exception - `TypeError:
+            'tuple' object does not support item assignment`
 
             * cannot be *removed* - so we can't run `{first_name}`.pop() to get
             {tup_popped}.
@@ -93,8 +108,8 @@ def tuple_overview(block_dets, *, repeat=False):
             longer_immutability = layout(f"""
             {immutability_question}
 
-            * cannot be *replaced*. It will raise an exception - TypeError:
-            'tuple' object does not support item assignment)
+            * cannot be *replaced*. It will raise an exception - `TypeError:
+            'tuple' object does not support item assignment`
 
             * cannot be *removed*
 

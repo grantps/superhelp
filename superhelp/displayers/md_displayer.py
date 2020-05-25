@@ -66,9 +66,9 @@ def display(snippet, file_path, messages_dets, *,
 
                 #################################################################
 
-                # Please give us a star on https://github.com/grantps/superhelp #
+                #  Help by spreading the word about SuperHELP on social media.  #
 
-                #             so others can learn about us. Thanks!             #
+                #                Twitter: {conf.TWITTER_HANDLE}. Thanks!              #
 
                 #################################################################
             """

@@ -1,9 +1,9 @@
 from collections import defaultdict, namedtuple
 
-from superhelp.helpers import all_blocks_help, any_block_help, is_reserved_name
+from ..helpers import all_blocks_help, any_block_help, is_reserved_name
 from .. import ast_funcs, conf, name_utils
-from superhelp import gen_utils
-from superhelp.gen_utils import (get_nice_str_list, int2first_etc, int2nice,
+from .. import gen_utils
+from ..gen_utils import (get_nice_str_list, int2first_etc, int2nice,
     layout_comment as layout)
 
 PairDets = namedtuple('PairDets', 'name, name_value, unpacking_idx')
@@ -250,7 +250,7 @@ def _get_names_and_values_msg(name2name_pairs_dets):
     return message
 
 @all_blocks_help()
-def names_and_values(blocks_dets, *, repeat=False):
+def names_and_values(blocks_dets, *, repeat=False, **_kwargs):
     """
     Look for names assigned to other names and explain names and values in
     Python.
@@ -394,11 +394,13 @@ def get_all_names(block_dets, *, include_non_standard=False):
     return all_names
 
 @any_block_help(warning=True)
-def unpythonic_name_check(block_dets, *, repeat=False):
+def unpythonic_name_check(block_dets, *, repeat=False, **_kwargs):
     """
     Check names used for use of reserved words and camel case.
     """
     names = get_all_names(block_dets, include_non_standard=False)
+    if not names:
+        return None
     reserved_names = set()
     bad_names = set()
     dubious_names = set()
@@ -476,11 +478,13 @@ def unpythonic_name_check(block_dets, *, repeat=False):
     return message
 
 @any_block_help(warning=True)
-def short_name_check(block_dets, *, repeat=False):
+def short_name_check(block_dets, *, repeat=False, **_kwargs):
     """
     Check for short variable names.
     """
     names = get_all_names(block_dets, include_non_standard=True)
+    if not names:
+        return None
     short_names = defaultdict(set)
     for name in names:
         if len(name) < conf.MIN_BRIEF_NAME:

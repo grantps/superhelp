@@ -1,6 +1,6 @@
-from superhelp.helpers import any_block_help, filt_block_help
+from ..helpers import any_block_help, filt_block_help
 from .. import conf, name_utils
-from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
+from ..gen_utils import get_nice_str_list, layout_comment as layout
 
 def _get_sorting_or_reversing_comment(block_dets):
     """
@@ -32,7 +32,7 @@ def _get_sorting_or_reversing_comment(block_dets):
     return comment
 
 @any_block_help()
-def sorting_reversing_overview(block_dets, *, repeat=False):
+def sorting_reversing_overview(block_dets, *, repeat=False, **_kwargs):
     """
     Provide an overview of sorting and/or reversing. Advise on common
     confusions.
@@ -137,11 +137,13 @@ def sorting_reversing_overview(block_dets, *, repeat=False):
 ASSIGN_FUNC_ATTRIBUTE_XPATH = 'descendant-or-self::Assign/value/Call/func/Attribute'
 
 @filt_block_help(xpath=ASSIGN_FUNC_ATTRIBUTE_XPATH, warning=True)
-def list_sort_as_value(block_dets, *, repeat=False):
+def list_sort_as_value(block_dets, *, repeat=False, **_kwargs):
     """
     Warn about assigning a name to the result using .sort() on a list.
     """
     func_attr_els = block_dets.element.xpath(ASSIGN_FUNC_ATTRIBUTE_XPATH)
+    if not func_attr_els:
+        return None
     names_assigned_to_sort = []
     for func_attr_el in func_attr_els:
         is_sort = (func_attr_el.get('attr') == 'sort')

@@ -68,7 +68,7 @@ def complete_message(message, *, source):
     return message
 
 def get_message_dets_from_input(helper_dets, *,
-        helper_input, code_str, first_line_no, repeat=False):
+        helper_input, code_str, first_line_no, execute_code=True, repeat=False):
     """
     :param namedtuple helper_dets: details of the helper e.g. name, function,
      etc depending on type of HelperDets (e.g. FiltHelperDets)
@@ -80,13 +80,13 @@ def get_message_dets_from_input(helper_dets, *,
     if not docstring:
         raise Exception(f'Helper "{name}" lacks a docstring - add one!')
     try:
-        message = helper_dets.helper(helper_input, repeat=repeat)
+        message = helper_dets.helper(
+            helper_input, execute_code=execute_code, repeat=repeat)
     except Exception as e:
         brief_name = '.'.join(name.split('.')[-2:])  ## last two parts only
         message = {
             conf.BRIEF: (
                 layout(f"""\
-
                     ### Helper "`{brief_name}`" unable to run
 
                     Helper {brief_name} unable to run. Helper description:
@@ -141,7 +141,7 @@ def _get_filtered_blocks_dets(helper_dets, xml, blocks_dets):
     return filtered_blocks_dets
 
 def get_block_level_messages_dets(blocks_dets, xml, *,
-        warnings_only=False, repeat_set=None):
+        warnings_only=False, execute_code=True, repeat_set=None):
     """
     For each helper, get advice on every relevant block. Element type specific
     helpers process filtered blocks_dets; all block helpers process all blocks
@@ -171,14 +171,14 @@ def get_block_level_messages_dets(blocks_dets, xml, *,
             message_dets = get_message_dets_from_input(helper_dets,
                 helper_input=block_dets, code_str=block_dets.block_code_str,
                 first_line_no=block_dets.first_line_no,
-                repeat=repeat)
+                execute_code=execute_code, repeat=repeat)
             if message_dets:
                 repeat_set.add(helper_dets.helper_name)
                 messages_dets.append(message_dets)
     return messages_dets
 
 def get_overall_snippet_messages_dets(snippet, blocks_dets, *,
-        warnings_only=False, repeat_set=None):
+        warnings_only=False, execute_code=True, repeat_set=None):
     """
     Returns messages which apply to snippet as a whole, not just specific
     blocks. E.g. looking at every block to look for opportunities to unpack. Or
@@ -201,14 +201,14 @@ def get_overall_snippet_messages_dets(snippet, blocks_dets, *,
         repeat = (helper_dets.helper_name in repeat_set)
         message_dets = get_message_dets_from_input(helper_dets,
             helper_input=helper_input, code_str=snippet, first_line_no=None,
-            repeat=repeat)
+            execute_code=execute_code, repeat=repeat)
         if message_dets:
             repeat_set.add(helper_dets.helper_name)
             messages_dets.append(message_dets)
     return messages_dets
 
 def get_separated_messages_dets(snippet, snippet_block_els, xml, *,
-        warnings_only=False, repeat_set=None):
+        warnings_only=False, execute_code=True, repeat_set=None):
     """
     Break snippet up into syntactical parts and blocks of code. Apply helper
     functions and get message details. Split into overall messages and block-
@@ -218,6 +218,8 @@ def get_separated_messages_dets(snippet, snippet_block_els, xml, *,
     :param list snippet_block_els: list of block elements for snippet
     :param xml xml: snippet code as xml object
     :param bool warnings_only: if True, warnings only
+    :param bool execute_code: if False, do not execute any code and rely
+     exclusively on AST inspection
     :param set repeat_set: we need to track if a help message is a repeat
      especially across multiple scripts being processed.
     :return: a tuple of two MessageDets lists
@@ -227,10 +229,13 @@ def get_separated_messages_dets(snippet, snippet_block_els, xml, *,
     """
     blocks_dets = get_blocks_dets(snippet, snippet_block_els)
     overall_snippet_messages_dets = get_overall_snippet_messages_dets(
-        snippet, blocks_dets, warnings_only=warnings_only,
+        snippet, blocks_dets,
+        warnings_only=warnings_only, execute_code=execute_code,
         repeat_set=repeat_set)
     block_level_messages_dets = get_block_level_messages_dets(
-        blocks_dets, xml, warnings_only=warnings_only, repeat_set=repeat_set)
+        blocks_dets, xml,
+        warnings_only=warnings_only, execute_code=execute_code,
+        repeat_set=repeat_set)
     for messages_dets in [
             overall_snippet_messages_dets, block_level_messages_dets]:
         if None in messages_dets:
@@ -246,7 +251,8 @@ def get_separated_messages_dets(snippet, snippet_block_els, xml, *,
                 first_line_no=None, warning=False, source=conf.SYSTEM_MESSAGE)]
     return overall_snippet_messages_dets, block_level_messages_dets
 
-def get_snippet_dets(snippet, *, warnings_only=False, repeat_set=None):
+def get_snippet_dets(snippet, *,
+        warnings_only=False, execute_code=True, repeat_set=None):
     """
     Get details for snippet of code.
 
@@ -262,7 +268,8 @@ def get_snippet_dets(snippet, *, warnings_only=False, repeat_set=None):
     snippet_block_els = xml.xpath('body')[0].getchildren()  ## [0] because there is only one body under root
     multi_block_snippet = len(snippet_block_els) > 1
     snippet_messages_dets = get_separated_messages_dets(
-        snippet, snippet_block_els, xml, warnings_only=warnings_only,
+        snippet, snippet_block_els, xml,
+        warnings_only=warnings_only, execute_code=execute_code,
         repeat_set=repeat_set)
     return snippet_messages_dets, multi_block_snippet
 

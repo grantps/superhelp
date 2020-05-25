@@ -1,6 +1,6 @@
-from superhelp.helpers import all_blocks_help
+from ..helpers import all_blocks_help
 from .. import ast_funcs, conf
-from superhelp.gen_utils import layout_comment as layout
+from ..gen_utils import layout_comment as layout
 
 def imported_re(block_el):
     ## straight import
@@ -65,7 +65,7 @@ def used_compile(block_el):
     pass
 
 @all_blocks_help()
-def verbose_option(blocks_dets, *, repeat=False):
+def verbose_option(blocks_dets, *, repeat=False, **_kwargs):
     """
     Check for use of regex without verbose mode and introduce the idea.
     """

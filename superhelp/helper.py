@@ -1,4 +1,5 @@
 import argparse
+from collections import namedtuple
 import logging
 import os
 
@@ -44,6 +45,26 @@ logging.basicConfig(
 
 helpers.load_helpers()
 
+RunContext = namedtuple('RunContext', 'in_notebook, multi_script, repeat_set')
+RunContext.__doc__ += (
+    ". Information on the context in which this code is being inspected.")
+RunContext.in_notebook.__doc__ = ("Is this code inspection being run in a "
+    "Jupyter notebook? Boolean. If True might change way display happens "
+    "e.g. HTML not sent to browser but returned for display by notebook itself")
+RunContext.multi_script.__doc__ = (
+    "Is this code inspection being run as one of multiple scripts? Boolean.")
+RunContext.repeat_set.__doc__ = ("Data on what has already been run so repeated"
+    " content can be skipped or handled in a more light-weight way. Set.")
+
+OutputSettings = namedtuple('OutputSettings',
+    'displayer, theme_name, detail_level, warnings_only, execute_code')
+OutputSettings.displayer.__doc__ = "str - name of displayer e.g. html"
+OutputSettings.theme_name.__doc__ = "str - theme name e.g. dark"
+OutputSettings.detail_level.__doc__ = "str - level of detail e.g. Extra"
+OutputSettings.warnings_only.__doc__ = "bool - show warnings only"
+OutputSettings.execute_code.__doc__ = (
+    "bool - execute code (vs only relying on inspection of AST")
+
 def _get_displayer_module(output):
     ARG2DISPLAYER = {
         'html': html_displayer,
@@ -56,37 +77,42 @@ def _get_displayer_module(output):
             "a displayer if you want advice displayed")
     return displayer_module
 
-def _run_display(code, displayer_module, messages_dets, *,
-        file_path=None, output=conf.HTML, detail_level=conf.EXTRA,
-        warnings_only=False, in_notebook=False,
-        multi_script=False, multi_block=False,
-        theme_name=None):
+def _run_display(code, *,
+        file_path=None, displayer_module=None, messages_dets=None,
+        output_settings=None, run_context=None, multi_block=False):
+    if not output_settings:
+        raise Exception("Expected OutputSettings named tuple")
+    if not run_context:
+        raise Exception("Expected RunContext named tuple")
     if len(str(file_path)) > conf.MAX_FILE_PATH_IN_HEADING:
         n_chars2_keep = conf.MAX_FILE_PATH_IN_HEADING - 4
         file_path = '...' + str(file_path)[-n_chars2_keep:]
-    kwargs = {'multi_script': multi_script}
-    if output == conf.CLI:
-        kwargs.update({'theme_name': theme_name})
-    elif output == conf.HTML:
+    kwargs = {'multi_script': run_context.multi_script}
+    if output_settings.displayer == conf.CLI:
+        kwargs.update({'theme_name': output_settings.theme_name})
+    elif output_settings.displayer == conf.HTML:
         kwargs.update(
-            {'in_notebook': in_notebook, 'multi_script': multi_script})
+            {'in_notebook': run_context.in_notebook,
+             'multi_script': run_context.multi_script})
     else:
         pass
     deferred_display = displayer_module.display(code, file_path,
-        messages_dets, detail_level=detail_level,
-        warnings_only=warnings_only, multi_block=multi_block,
+        messages_dets, detail_level=output_settings.detail_level,
+        warnings_only=output_settings.warnings_only, multi_block=multi_block,
         **kwargs)
     return deferred_display
 
 def get_code_help(code, *, file_path=None,
-        output=conf.HTML, detail_level=conf.EXTRA,
-        warnings_only=False, in_notebook=False,
-        multi_script=False, theme_name=None, repeat_set=None):
+        output_settings=None, run_context=None):
     """
     Whether looking at individual snippets / scripts or multiple project scripts
     everything passes through here for each code 'snippet'.
     """
-    if multi_script and in_notebook:
+    if not output_settings:
+        raise Exception("Expected an OutputSettings namedtuple")
+    if not run_context:
+        raise Exception("Expected a RunContext namedtuple")
+    if run_context.multi_script and run_context.in_notebook:
         raise Exception("Notebooks should only ever run on snippets not on "
             "multiple scripts")
     if code.strip() == 'import community':
@@ -97,25 +123,27 @@ def get_code_help(code, *, file_path=None,
         multi_block = False
     else:
         try:
-            messages_dets, multi_block = messages.get_snippet_dets(
-                code, warnings_only=warnings_only, repeat_set=repeat_set)
+            messages_dets, multi_block = messages.get_snippet_dets(code,
+                warnings_only=output_settings.warnings_only,
+                execute_code=output_settings.execute_code,
+                repeat_set=run_context.repeat_set)
         except Exception as e:
             messages_dets = messages.get_error_messages_dets(e, code)
             multi_block = False
-    displayer_module = _get_displayer_module(output)
+    displayer_module = _get_displayer_module(output_settings.displayer)
     if displayer_module:
-        deferred_display = _run_display(code, displayer_module, messages_dets,
-            file_path=file_path, output=output, detail_level=detail_level,
-            warnings_only=warnings_only, in_notebook=in_notebook,
-            multi_script=multi_script, multi_block=multi_block,
-            theme_name=theme_name)
+        deferred_display = _run_display(
+            code, file_path=file_path,
+            displayer_module=displayer_module, messages_dets=messages_dets,
+            output_settings=output_settings, run_context=run_context,
+            multi_block=multi_block)
     else:
         deferred_display = None
     return deferred_display
 
-def get_script_help(file_path, *, output=conf.HTML, detail_level=conf.EXTRA,
-        warnings_only=False, in_notebook=False,
-        multi_script=False, theme_name=None, repeat_set=None):
+def get_script_help(file_path, *,
+        output=conf.HTML, detail_level=conf.EXTRA, theme_name=None,
+        warnings_only=False, execute_code=True, run_context=None):
     with open(file_path) as f:
         code = f.read()
     code = code.strip('\n')
@@ -127,9 +155,9 @@ def get_script_help(file_path, *, output=conf.HTML, detail_level=conf.EXTRA,
         .replace('\nthis(', '\n# this(')
     )
     get_code_help(code, file_path=file_path,
-        output=output, detail_level=detail_level,
-        warnings_only=warnings_only, in_notebook=in_notebook,
-        multi_script=multi_script, theme_name=theme_name, repeat_set=repeat_set)
+        output=output, theme_name=theme_name, detail_level=detail_level,
+        warnings_only=warnings_only, execute_code=execute_code,
+        run_context=run_context)
 
 def _get_file_paths(project_path, exclude_folders):
     """
@@ -150,8 +178,7 @@ def _get_file_paths(project_path, exclude_folders):
 
 def get_help(code=None, *,
         file_path=None, project_path=None, exclude_folders=None,
-        output=conf.HTML, detail_level=conf.EXTRA,
-        warnings_only=False, in_notebook=False, theme_name=None):
+        output_settings=None, in_notebook=False):
     """
     If a snippet of code supplied, get help for that. If not, try file_path and
     use that instead. And if not that, try project_path. Finally use the default
@@ -166,52 +193,52 @@ def get_help(code=None, *,
     :param str project_path: (optional) path to project containing Python code
     :param list exclude_folders: may be crucial if setting project_path e.g. to
      avoid processing all python scripts in a virtual environment folder
-    :param str output: type of output e.g. 'html', 'cli', 'md'. Defaults to
-     'html'.
-    :param str detail_level: e.g. 'Brief', 'Main', 'Extra'
-    :param bool warnings_only: if True only displays warnings
+    :param str output_settings: OutputSettings named tuple
     :param bool in_notebook: if True might change way display happens e.g. HTML
      not sent to browser but returned for display by notebook itself
-    :param str theme_name: currently only needed by the CLIC displayer (to
-     handle dark and light terminal themes)
+     (default False)
     """
+    if not output_settings:
+        raise Exception("Expected OutputSettings named tuple")
     repeat_set = set()  ## mutates as we hand it around to keep track of repeats
     if code:
         code = code.strip('\n')
+        run_context = RunContext(
+            in_notebook=in_notebook, multi_script=False, repeat_set=repeat_set)
         deferred_display = get_code_help(code, file_path=None,
-            output=output, detail_level=detail_level,
-            warnings_only=warnings_only, in_notebook=in_notebook,
-            multi_script=False, theme_name=theme_name, repeat_set=repeat_set)
+            output_settings=output_settings, run_context=run_context)
         if not deferred_display:
             return
-        if (in_notebook and output == conf.HTML):
+        if (in_notebook and output_settings.output == conf.HTML):
             return deferred_display  ## assumed notebook always HTML and we need to pass on the HTML string to the jupyter notebook
         else:
             raise Exception(
                 "Only a notebook with html output should use deferred display")
     elif file_path:
+        run_context = RunContext(
+            in_notebook=in_notebook, multi_script=False, repeat_set=repeat_set)
         get_script_help(file_path,
-            output=output, detail_level=detail_level,
-            warnings_only=warnings_only, in_notebook=in_notebook,
-            multi_script=False, theme_name=theme_name, repeat_set=repeat_set)
+            output_settings=output_settings, run_context=run_context)
     elif project_path:
+        run_context = RunContext(
+            in_notebook=in_notebook, multi_script=True, repeat_set=repeat_set)
         file_paths = _get_file_paths(project_path, exclude_folders)
         for file_path in file_paths:
-            get_script_help(file_path, output=output, detail_level=detail_level,
-                warnings_only=warnings_only, in_notebook=in_notebook,
-                multi_script=True, theme_name=theme_name, repeat_set=repeat_set)
-        if output == conf.HTML:
+            get_script_help(file_path,
+                output_settings=output_settings, run_context=run_context)
+        if output_settings.output == conf.HTML:
             gen_utils.open_output_folder()
     else:
         code = conf.TEST_SNIPPET
         logging.info("Using default snippet because no code provided")
+        run_context = RunContext(
+            in_notebook=in_notebook, multi_script=False, repeat_set=repeat_set)
         get_code_help(code, file_path=None,
-            output=output, detail_level=detail_level,
-            warnings_only=warnings_only, in_notebook=in_notebook,
-            multi_script=False, theme_name=theme_name, repeat_set=repeat_set)
+            output_settings=output_settings, run_context=run_context)
 
-def this(*, output=conf.HTML, detail_level=conf.EXTRA,
-        warnings_only=False, file_path=None, theme_name=conf.DARK):
+def this(*, file_path=None,
+        output=conf.HTML, theme_name=conf.DARK, detail_level=conf.EXTRA,
+        warnings_only=False, execute_code=True):
     """
     Get SuperHELP output on the file_path Python script.
 
@@ -220,21 +247,24 @@ def this(*, output=conf.HTML, detail_level=conf.EXTRA,
     But it was considered of paramount importance to give users a simple and
     easy-to-remember superhelp.this() interface.
 
-    :param str output: type of output e.g. 'html', 'cli', 'md'. Defaults to
-     'html'.
-    :param str detail_level: e.g. 'Brief', 'Main', 'Extra'
-    :param bool warnings_only: if True only displays warnings
     :param str / Path file_path: full path to script location. Only needed if
      SuperHELP is unable to locate the script by itself. Usually should be
      __file__ (note the double underscores on either side of file).
-    :param str theme_name: currently only needed by the CLIC displayer (to
-     handle dark and light terminal themes)
+    :param str output: type of output e.g. 'html', 'cli', 'md' (default 'html')
+    :param str theme_name: currently only needed by the CLIC displayer to handle
+     dark and light terminal themes (default 'dark')
+    :param str detail_level: e.g. 'Brief', 'Main', 'Extra' (default 'Extra')
+    :param bool warnings_only: if True only displays warnings (default False)
+    :param bool execute_code: if True executes code to enable extra checks
+     (default True)
     """
     if not file_path:
         file_path = gen_utils.get_introspected_file_path()
+    output_settings = OutputSettings(
+        displayer=output, theme_name=theme_name, detail_level=detail_level,
+        warnings_only=warnings_only, execute_code=execute_code)
     get_help(code=None, file_path=file_path, project_path=None,
-        output=output, detail_level=detail_level, warnings_only=warnings_only,
-        in_notebook=False, theme_name=theme_name)
+        output_settings=output_settings, in_notebook=False)
 
 def shelp():
     """
@@ -271,6 +301,9 @@ def shelp():
     parser.add_argument('-w', '--warnings-only', action='store_true',
         default=False,
         help="Show warnings only")
+    parser.add_argument('-x', '--execute-code', action='store_false',
+        default=True,
+        help="Execute script to enable additional checks")
     parser.add_argument('-t', '--theme', type=str,
         required=False, default=conf.DARK,
         help=("Select an output theme - currently only affects cli output "
@@ -303,15 +336,19 @@ def shelp():
         return
     logging.debug(args)
     output = args.output if conf.SHOW_OUTPUT else None
-    theme_name = args.theme
+    output_settings = OutputSettings(
+        displayer=output, theme_name=args.theme, detail_level=args.detail_level,
+        warnings_only=args.warnings_only, execute_code=args.execute_code)
     get_help(args.code,
         file_path=args.file_path,
         project_path=args.project_path, exclude_folders=args.exclude_folders,
-        output=output, theme_name=theme_name,
-        detail_level=args.detail_level, warnings_only=args.warnings_only,
-        in_notebook=False
+        output_settings=output_settings, in_notebook=False
     )
 
 if __name__ == '__main__':
-#     get_help(project_path='/home/g/projects/superhelp/superhelp/store/misc_scripts')
+#     output_settings = OutputSettings(
+#         displayer='html'if conf.SHOW_OUTPUT else None,
+#         theme_name=None, detail_level='Extra',
+#         warnings_only=False, execute_code=False)
+#     get_help(output_settings=output_settings)
     shelp()

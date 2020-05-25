@@ -326,12 +326,12 @@ def get_list_comprehension_msg():
 
             """)
         +
-        layout(str(
+        layout('`' + str(
             {
                 len(name)
                 for name in ['Tinky Winky', 'Dipsy', 'La La', 'Po']
             }
-            ))
+            ) + '`')
         +
         layout("""\
 
@@ -353,13 +353,13 @@ def get_list_comprehension_msg():
 
             """)
         +
-        layout(str(
+        layout('`' + str(
             {
                 len(name)
                 for name in ['Tinky Winky', 'Dipsy', 'La La', 'Po']
                 if not name.startswith('T')
             }
-            ))
+            ) + '`')
     )
 
 def get_dict_comprehension_msg():
@@ -383,13 +383,13 @@ def get_dict_comprehension_msg():
 
             """)
         +
-        layout(str(
+        layout('`' + str(
             {
                 country: capital
                 for country, capital
                 in [('NZ', 'Wellington'), ('Italy', 'Rome')]
             }
-            ))
+            ) + '`')
         +
         layout("""\
 
@@ -411,14 +411,14 @@ def get_dict_comprehension_msg():
 
             """)
         +
-        layout(str(
+        layout('`' + str(
             {
                 country: capital
                 for country, capital
                 in [('NZ', 'Wellington'), ('Italy', 'Rome')]
                 if country == 'NZ'
             }
-            ))
+            ) + '`')
     )
 
 def get_set_comprehension_msg():
@@ -442,12 +442,12 @@ def get_set_comprehension_msg():
 
             """)
         +
-        layout(str(
+        layout('`' + str(
             {
                 pet for _person, pet
                     in [('Rachel', 'cat'), ('Elliot', 'goat'), ('Giles', 'cat'),]
             }
-            ))
+            ) + '`')
         +
         layout("""\
 
@@ -469,11 +469,11 @@ def get_set_comprehension_msg():
 
             """)
         +
-        layout(str(
+        layout('`' + str(
             {
                 pet for person, pet
                     in [('Rachel', 'cat'), ('Elliot', 'goat'), ('Giles', 'cat'),]
                     if person != 'Elliot'
             }
-            ))
+            ) + '`')
     )

@@ -1,6 +1,6 @@
-from superhelp.helpers import filt_block_help
+from ..helpers import filt_block_help
 from .. import ast_funcs, conf
-from superhelp.gen_utils import layout_comment as layout
+from ..gen_utils import layout_comment as layout
 
 FOR_XPATH = 'descendant-or-self::For'
 WHILE_XPATH = 'descendant-or-self::While'
@@ -30,7 +30,7 @@ def has_long_block(block_el, xpath):
     return long_block
 
 @filt_block_help(xpath=NESTING_XPATH, warning=True)
-def bloated_nested_block(block_dets, *, repeat=False):
+def bloated_nested_block(block_dets, *, repeat=False, **_kwargs):
     """
     Look for long indented blocks under conditionals, inside loops etc that are
     candidates for separating into functions to simplify the narrative of the

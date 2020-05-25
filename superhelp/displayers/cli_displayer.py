@@ -71,9 +71,8 @@ def display(snippet, file_path, messages_dets, *,
 
             {conf.MISSING_ADVICE_MESSAGE}
 
-            ## Please give us a star &starf; on
-            https://github.com/grantps/superhelp{conf.FORCE_SPLIT}
-            so others can learn about us. Thanks!
+            ## Help by spreading the word about SuperHELP on social media.
+            {conf.FORCE_SPLIT}Twitter: {conf.TWITTER_HANDLE}. Thanks!
             """
         )),
     ]

@@ -1,8 +1,8 @@
 from collections import namedtuple
 
-from superhelp.helpers import all_blocks_help
+from ..helpers import all_blocks_help
 from .. import ast_funcs, conf
-from superhelp.gen_utils import layout_comment as layout
+from ..gen_utils import layout_comment as layout
 
 NTDets = namedtuple('NamedTupleDetails', 'name, label, fields_str, fields_list')
 
@@ -33,7 +33,7 @@ def get_named_tuples_dets(blocks_dets):
     return all_named_tuples_dets
 
 @all_blocks_help()
-def named_tuple_overview(blocks_dets, *, repeat=False):
+def named_tuple_overview(blocks_dets, *, repeat=False, **_kwargs):
     """
     Look for named tuples and explain how they can be enhanced.
     """

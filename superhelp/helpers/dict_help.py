@@ -1,7 +1,8 @@
-from superhelp.helpers import filt_block_help
-from .. import code_execution, conf
-from superhelp import gen_utils
-from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
+from ..helpers import filt_block_help
+from .. import conf
+from .. import gen_utils
+from ..gen_utils import (
+    get_collections_dets, get_nice_str_list, layout_comment as layout)
 
 def truncate_dict(input_dict):
     output_dict = {}
@@ -11,35 +12,88 @@ def truncate_dict(input_dict):
         output_dict[k] = v
     return output_dict
 
-ASSIGN_DICT_XPATH = 'descendant-or-self::Assign/value/Dict'
+def get_unknown_status(items):
+    if conf.UNKNOWN_ITEM in items:
+        return True
+    raw_keys = [k for k, _v in items]
+    raw_vals = [v for _k, v in items]
+    unknowns = (
+        items == conf.UNKNOWN_ITEMS
+        or conf.UNKNOWN_ITEM in raw_keys
+        or conf.UNKNOWN_ITEM in raw_vals)
+    return unknowns
+
+ASSIGN_DICT_XPATH = (
+    'descendant-or-self::Assign/value/Call/func/Name '
+    '| descendant-or-self::Assign/value/Dict')
+
+def get_dict_els(block_el):
+    raw_els = block_el.xpath(ASSIGN_DICT_XPATH)
+    dict_els = [
+        el for el in raw_els if el.tag == 'Dict' or el.get('id') == 'dict']
+    return dict_els
+
+def get_comment(names_items, *, brief=True, repeat=False):
+    comment_bits = []
+    for name, items in names_items:
+        empty = len(items) == 0
+        unknowns = get_unknown_status(items)
+        if unknowns:
+            if not repeat:
+                comment_bits.append(layout(f"""\
+
+                Unable to evaluate all contents of dictionary `{name}` but still
+                able to make some general comments.
+                """))
+            else:
+                comment_bits.append(layout(f"""\
+                `{name}` is a dictionary but unable to evaluate contents.
+                """))
+        elif empty:
+            comment_bits.append(layout(f"""\
+            `{name}` is an empty dictionary.
+            """))
+        else:
+            plural = '' if len(items) == 1 else 's'
+            if brief:
+                comment_bits.append(layout(f"""\
+
+                `{name}` is a dictionary with {gen_utils.int2nice(len(items))}
+                item{plural} (i.e. {gen_utils.int2nice(len(items))}
+                mapping{plural}).
+                """))
+            else:
+                dic = dict(items)  ## safe because no unknowns in this branch
+                comment_bits.append(layout(f"""\
+
+                `{name}` is a dictionary with {gen_utils.int2nice(len(dic))}
+                item{plural} (i.e. {gen_utils.int2nice(len(dic))}
+                mapping{plural}). In this case, the keys are:
+                {list(dic.keys())}. We can get the keys using the
+                `.keys()` method e.g. `{name}`.`keys()`. The values are
+                {list(dic.values())}. We can get the values using the
+                `.values()` method e.g. `{name}`.`values()`.
+                """))
+    comment = ''.join(comment_bits)
+    return comment
 
 @filt_block_help(xpath=ASSIGN_DICT_XPATH)
-def dict_overview(block_dets, *, repeat=False):
+def dict_overview(block_dets, *, repeat=False, execute_code=True, **_kwargs):
     """
     Look at assigned dictionaries e.g. location = {'country' 'New Zealand',
     'city': 'Auckland'}
     """
-    dict_els = block_dets.element.xpath(ASSIGN_DICT_XPATH)
+    dict_els = get_dict_els(block_dets.element)
+    if not dict_els:
+        return None
     plural = 'ies' if len(dict_els) > 1 else 'y'
     title = layout(f"""\
     ### Dictionar{plural} defined
     """)
-    brief_desc_bits = []
-    names_items, oversized_msg = code_execution.get_collections_dets(
-        dict_els, block_dets,
-        collection_plural='dictionaries', truncated_items_func=truncate_dict)
-    for name, items in names_items:
-        if items is None:
-            brief_desc_bits.append(layout(f"""\
-            `{name}` is a dictionary. Unable to evaluate items.
-            """))
-        else:
-            brief_desc_bits.append(layout(f"""\
-
-            `{name}` is a dictionary with {gen_utils.int2nice(len(items))} items
-            (i.e. {gen_utils.int2nice(len(items))} mappings).
-            """))
-    brief_desc = ''.join(brief_desc_bits)
+    names_items, oversized_msg = get_collections_dets(dict_els, block_dets,
+        collection_plural='dictionaries', truncated_items_func=truncate_dict,
+        execute_code=execute_code)
+    brief_desc = get_comment(names_items, repeat=repeat)
     if not repeat:
         dict_def = layout("""\
         Dictionaries map keys to values.
@@ -52,36 +106,14 @@ def dict_overview(block_dets, *, repeat=False):
         keys_and_vals = layout("""\
         Keys are unique but values can be repeated.
         """)
-        dict_desc_bits = []
         first_name = None
+        main_dict_desc = get_comment(names_items, brief=False, repeat=repeat)
         for name, items in names_items:
-            if not items:
-                dict_desc_bits.append(layout(f"""\
-                `{name}` is a dictionary. Unable to evaluate items.
-                """))
-            else:
-                if not first_name:
-                    first_name = name
-                empty_dict = (len(items) == 0)
-                if empty_dict:
-                    dict_desc_bits.append(layout(f"""\
-                    `{name}` is an empty dictionary.
-                    """))
-                else:
-                    plural = '' if len(items) == 1 else 's'
-                    dict_desc_bits.append(layout(f"""\
-
-                    `{name}` is a dictionary with {gen_utils.int2nice(len(items))}
-                    item{plural} (i.e. {gen_utils.int2nice(len(items))}
-                    mapping{plural}). In this case, the keys are:
-                    {list(items.keys())}. We can get the keys using the
-                    `.keys()` method e.g. `{name}`.`keys()`. The values are
-                    {list(items.values())}. We can get the values using the
-                    `.values()` method e.g. `{name}`.`values()`.
-                    """))
+            unknowns = get_unknown_status(items)
+            if not first_name and not unknowns:
+                first_name = name
         if first_name is None:
             first_name = 'demo_dict'
-        main_dict_desc = ''.join(dict_desc_bits)
         general = (
             layout(f"""
 
@@ -121,7 +153,7 @@ def dict_overview(block_dets, *, repeat=False):
         Python dictionaries (now) keep the order in which items are added.
 
         They are also super-efficient and fast. The two presentations to watch
-        are by living treasure Brandon Rhodes:
+        are by the mighty Brandon Rhodes:
 
         1. The Dictionary Even Mightier -
         <https://www.youtube.com/watch?v=66P5FMkWoVU>
@@ -146,7 +178,7 @@ def dict_overview(block_dets, *, repeat=False):
 
 def get_key_type_names(items):
     key_type_names = sorted(set(
-        [type(item).__name__ for item in items]
+        [type(k).__name__ for k, _v in items]
     ))
     key_type_nice_names = [
         conf.TYPE2NAME.get(key_type, key_type)
@@ -154,15 +186,17 @@ def get_key_type_names(items):
     return key_type_names, key_type_nice_names
 
 @filt_block_help(xpath=ASSIGN_DICT_XPATH, warning=True)
-def mixed_key_types(block_dets, *, repeat=False):
+def mixed_key_types(block_dets, *, repeat=False, execute_code=True, **_kwargs):
     """
     Warns about dictionaries with mix of string and integer keys.
     """
-    dict_els = block_dets.element.xpath(ASSIGN_DICT_XPATH)
+    dict_els = get_dict_els(block_dets.element)
+    if not dict_els:
+        return None
     mixed_names = []
-    names_items, oversized_msg = code_execution.get_collections_dets(
-        dict_els, block_dets,
-        collection_plural='dictionaries', truncated_items_func=truncate_dict)
+    names_items, oversized_msg = get_collections_dets(dict_els, block_dets,
+        collection_plural='dictionaries', truncated_items_func=truncate_dict,
+        execute_code=execute_code)
     for name, items in names_items:
         if not items:
             continue

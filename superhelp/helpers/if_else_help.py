@@ -1,8 +1,8 @@
 from collections import defaultdict, namedtuple, Counter
 
-from superhelp.helpers import filt_block_help
+from ..helpers import filt_block_help
 from .. import ast_funcs, conf
-from superhelp.gen_utils import int2nice, layout_comment as layout
+from ..gen_utils import int2nice, layout_comment as layout
 
 IfDets = namedtuple('IfDetails',
     'multiple_conditions, missing_else, if_clauses')
@@ -124,7 +124,7 @@ def _get_if_comment(block_dets):
     return if_comment
 
 @filt_block_help(xpath=IF_XPATH)
-def if_else_overview(block_dets, *, repeat=False):
+def if_else_overview(block_dets, *, repeat=False, **_kwargs):
     """
     Look at conditional statements using if (apart from if __name__ ==
     '__main__").
@@ -174,7 +174,7 @@ def if_else_overview(block_dets, *, repeat=False):
     return message
 
 @filt_block_help(xpath=IF_XPATH, warning=True)
-def missing_else(block_dets, *, repeat=False):
+def missing_else(block_dets, *, repeat=False, **_kwargs):
     """
     Warn about benefits in many cases of adding else clause if missing.
     """
@@ -325,7 +325,7 @@ def get_split_membership_dets(if_el):
     return comp_var, comp_vals_gp_str
 
 @filt_block_help(xpath=IF_XPATH)
-def split_group_membership(block_dets, *, repeat=False):
+def split_group_membership(block_dets, *, repeat=False, **_kwargs):
     """
     Explain how to use in group and not in group rather than multiple
     comparisons.
@@ -337,6 +337,8 @@ def split_group_membership(block_dets, *, repeat=False):
         print(x)
     """
     if_els = block_dets.element.xpath(IF_XPATH)
+    if not if_els:
+        return None
     has_split = False
     for if_el in if_els:
         try:
@@ -427,13 +429,15 @@ def get_has_explicit_count(if_el):
     return has_explicit_boolean
 
 @filt_block_help(xpath=IF_XPATH)
-def implicit_boolean_enough(block_dets, *, repeat=False):
+def implicit_boolean_enough(block_dets, *, repeat=False, **_kwargs):
     """
     Look for cases where an implicit boolean comparison is enough.
     """
     if repeat:
         return None
     if_els = block_dets.element.xpath(IF_XPATH)
+    if not if_els:
+        return None
     implicit_boolean_possible = False
     for if_el in if_els:
         has_explicit_count = get_has_explicit_count(if_el)
@@ -521,11 +525,13 @@ def could_short_circuit(if_el):
     return True
 
 @filt_block_help(xpath=IF_XPATH)
-def short_circuit(block_dets, *, repeat=False):
+def short_circuit(block_dets, *, repeat=False, **_kwargs):
     """
     Look for cases where short-circuiting is possible.
     """
     if_els = block_dets.element.xpath(IF_XPATH)
+    if not if_els:
+        return None
     could_short_circuit_something = False
     for if_el in if_els:
         if could_short_circuit(if_el):
@@ -606,11 +612,13 @@ def could_any_or_all(if_el):
     return could_any, could_all
 
 @filt_block_help(xpath=IF_XPATH)
-def any_all(block_dets, *, repeat=False):
+def any_all(block_dets, *, repeat=False, **_kwargs):
     """
     Look for cases where using built-in any or all functions makes sense.
     """
     if_els = block_dets.element.xpath(IF_XPATH)
+    if not if_els:
+        return None
     could_any_something = False
     could_all_something = False
     for if_el in if_els:

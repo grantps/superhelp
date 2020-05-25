@@ -1,8 +1,8 @@
 import logging
 
 from . import conf
-from superhelp import ast_versioned_funcs as avf
-from superhelp.gen_utils import get_python_version, make_open_tmp_file
+from . import ast_versioned_funcs as avf
+from . import gen_utils
 
 def get_el_lines_dets(el, *, ignore_trailing_lines=False):
     """
@@ -80,7 +80,8 @@ def get_el_lines_dets(el, *, ignore_trailing_lines=False):
     return first_line_no, last_line_no, el_lines_n
 
 def store_ast_output(xml):
-    with make_open_tmp_file(conf.AST_OUTPUT_XML_FNAME, mode='w') as tmp_dets:
+    fname = conf.AST_OUTPUT_XML_FNAME
+    with gen_utils.make_open_tmp_file(fname, mode='w') as tmp_dets:
         _superhelp_tmpdir, _tmp_ast_fh, tmp_ast_output_xml_fpath = tmp_dets
         xml.getroottree().write(
             str(tmp_ast_output_xml_fpath), pretty_print=True)
@@ -101,7 +102,7 @@ def get_standardised_el_dict(el):
 
 ## when backward compatibility with 3.6 can be dropped use def __getattr__(name):
 ## https://stackoverflow.com/questions/2447353/getattr-on-a-module
-python_version = get_python_version()
+python_version = gen_utils.get_python_version()
 
 if python_version in (conf.PY3_6, conf.PY3_7):
 

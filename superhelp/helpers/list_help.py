@@ -1,11 +1,18 @@
-from superhelp.helpers import filt_block_help
-from .. import code_execution, conf
-from superhelp import gen_utils
-from superhelp.gen_utils import layout_comment as layout
+from ..helpers import filt_block_help
+from .. import conf
+from .. import gen_utils
+from ..gen_utils import get_collections_dets, layout_comment as layout
 
-ASSIGN_LIST_XPATH = 'descendant-or-self::Assign/value/List'
+ASSIGN_LIST_XPATH = (
+    'descendant-or-self::Assign/value/Call/func/Name '
+    '| descendant-or-self::Assign/value/List')
 
 DEFAULT_EXAMPLE_TYPE = conf.STR_TYPE
+
+def get_list_els(block_el):
+    list_els = [el for el in block_el.xpath(ASSIGN_LIST_XPATH)
+        if el.tag == 'List' or el.get('id') == 'list']
+    return list_els
 
 def get_item_type_names(items):
     item_type_names = sorted(set(
@@ -16,16 +23,18 @@ def get_item_type_names(items):
         for item_type in item_type_names]
     return item_type_names, item_type_nice_names
 
-def get_type_for_example(list_items):
+def get_type_for_example(items):
     """
     If all else fails, just use strings for examples.
     """
-    if list_items is None:
+    if not items:
         type4example = DEFAULT_EXAMPLE_TYPE
     else:
-        item_type_names, _item_type_nice_names = get_item_type_names(list_items)
+        usable_items = [item for item in items if item != conf.UNKNOWN_ITEM]
+        item_type_names, _item_type_nice_names = get_item_type_names(
+            usable_items)
         try:
-            type4example = item_type_names.pop()
+            type4example = item_type_names[0]
         except IndexError:
             type4example = DEFAULT_EXAMPLE_TYPE
     return type4example
@@ -37,8 +46,10 @@ def _get_detailed_list_comment(first_name, first_items):
     except KeyError:
         example_items = conf.EXAMPLES_OF_TYPES[DEFAULT_EXAMPLE_TYPE]
     example_item = example_items[0]
-    listable_example_item = (f"'{example_item}'"
-        if type4example == conf.STR_TYPE else example_item)
+    needs_quoting = type4example in (
+        conf.STR_TYPE, conf.DATETIME_TYPE, conf.DATE_TYPE)
+    listable_example_item = (f"'{example_item}'" if needs_quoting
+        else example_item)
     if first_items is None:
         appended_list = []
     else:
@@ -131,40 +142,53 @@ def truncate_list(items):
     return items[: conf.MAX_ITEMS_EVALUATED]
 
 ## only interested in lists when being assigned as a value
-## (i.e. <body><Assign><value><List> so we're looking for List under value only)
+## (e.g. <body><Assign><value><List> so we're looking for List under value only)
 @filt_block_help(xpath=ASSIGN_LIST_XPATH)
-def list_overview(block_dets, *, repeat=False):
+def list_overview(block_dets, *, repeat=False, execute_code=True, **_kwargs):
     """
     General overview of list taking content details into account.
     """
-    list_els = block_dets.element.xpath(ASSIGN_LIST_XPATH)
+    list_els = get_list_els(block_dets.element)
+    if not list_els:
+        return None
     plural = 's' if len(list_els) > 1 else ''
     title = layout(f"""\
     ### List{plural} defined
     """)
     first_name = None
     first_items = None
-    names_items, oversized_msg = code_execution.get_collections_dets(
-        list_els, block_dets,
-        collection_plural='lists', truncated_items_func=truncate_list)
+    names_items, oversized_msg = get_collections_dets(list_els, block_dets,
+        collection_plural='lists', truncated_items_func=truncate_list,
+        execute_code=execute_code)
+    summary_bits = []
     for name, items in names_items:
-        if items is None:
-            list_desc = layout(f"""\
-            `{name}` is a list. Unable to evaluate items.
-            """)
-        else:
-            if not first_name:
-                first_name = name
-                first_items = items
-            if items == []:
-                list_desc = layout(f"""\
-                `{name}` is an empty list.
-                """)
+        unknowns = (items == conf.UNKNOWN_ITEMS or conf.UNKNOWN_ITEM in items)
+        empty = len(items) == 0
+        if unknowns:
+            if not repeat:
+                summary_bits.append(layout(f"""\
+                Unable to evaluate all contents of list `{name}` but still able
+                to make some general comments.
+                """))
             else:
-                list_desc = layout(f"""\
+                summary_bits.append(layout(f"""\
+                `{name}` is a list but unable to evaluate contents.
+                """))
+        elif empty:
+            summary_bits.append(layout(f"""\
+            `{name}` is an empty list.
+            """))
+        else:
+            plural = 's' if len(items) > 1 else ''
+            summary_bits.append(layout(f"""\
 
-                `{name}` is a list with {gen_utils.int2nice(len(items))} items.
-                """)
+            `{name}` is a list with {gen_utils.int2nice(len(items))}
+            item{plural}.
+            """))
+        if not first_name and not unknowns:
+            first_name = name
+            first_items = items
+    summary = ''.join(summary_bits)
     if not first_name:
         first_name = 'demo_list'
         first_items = ['apple', 'banana', 'cherry', ]
@@ -184,21 +208,23 @@ def list_overview(block_dets, *, repeat=False):
         detailed_list_comment = ''
 
     message = {
-        conf.BRIEF: title + oversized_msg + list_desc + brief_overview,
-        conf.MAIN: title + oversized_msg + list_desc + detailed_list_comment,
+        conf.BRIEF: title + oversized_msg + summary + brief_overview,
+        conf.MAIN: title + oversized_msg + summary + detailed_list_comment,
     }
     return message
 
 @filt_block_help(xpath=ASSIGN_LIST_XPATH, warning=True)
-def mixed_list_types(block_dets, *, repeat=False):  # @UnusedVariable
+def mixed_list_types(block_dets, *, repeat=False, execute_code=True, **_kwargs):  # @UnusedVariable
     """
     Warns about lists containing a mix of data types.
     """
-    list_els = block_dets.element.xpath(ASSIGN_LIST_XPATH)
+    list_els = get_list_els(block_dets.element)
+    if not list_els:
+        return None
     list_dets = []
-    names_items, oversized_msg = code_execution.get_collections_dets(
-        list_els, block_dets,
-        collection_plural='lists', truncated_items_func=truncate_list)
+    names_items, oversized_msg = get_collections_dets(list_els, block_dets,
+        collection_plural='lists', truncated_items_func=truncate_list,
+        execute_code=execute_code)
     has_mixed = False
     for name, items in names_items:
         if items is None:

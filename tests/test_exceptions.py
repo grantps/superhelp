@@ -84,6 +84,7 @@ def test_misc():
             }
         ),
     ]
-    check_as_expected(test_conf)
+    check_as_expected(test_conf, execute_code=True)
+    check_as_expected(test_conf, execute_code=False)
 
 # test_misc()

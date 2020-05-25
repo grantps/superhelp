@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-from . import ast_funcs, conf
+from . import conf
 
 AssignedNameDets = namedtuple('AssignedNameDets',
     'name_type, name_details, name_str, unpacking_idx')
@@ -42,6 +42,7 @@ def _obj_attr_name_dets_from_assign_el(assign_el):
     return _obj_attr_name_dets_from_attribute_el(attribute_el)
 
 def _dict_key_name_dets_from_subscript_el(subscript_el, unpacking_idx=None):
+    from . import ast_funcs  ## avoid circular import
     dict_name_els = subscript_el.xpath('value/Name')
     if len(dict_name_els) != 1:
         return None

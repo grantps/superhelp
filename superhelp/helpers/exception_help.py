@@ -1,6 +1,6 @@
-from superhelp.helpers import all_blocks_help
+from ..helpers import all_blocks_help
 from .. import conf
-from superhelp.gen_utils import get_nice_str_list, int2nice, layout_comment as layout
+from ..gen_utils import get_nice_str_list, int2nice, layout_comment as layout
 
 UNSPECIFIC_EXCEPTION = 'Exception'
 
@@ -26,7 +26,7 @@ def get_exception_blocks(blocks_dets):
     return exception_blocks
 
 @all_blocks_help()
-def exception_overview(blocks_dets, *, repeat=False):
+def exception_overview(blocks_dets, *, repeat=False, **_kwargs):
     """
     Provide overview of exception handling.
     """
@@ -56,7 +56,7 @@ def exception_overview(blocks_dets, *, repeat=False):
     return message
 
 @all_blocks_help(warning=True)
-def unspecific_exception(blocks_dets, *, repeat=False):
+def unspecific_exception(blocks_dets, *, repeat=False, **_kwargs):
     """
     Look for unspecific exceptions.
     """

@@ -1,7 +1,6 @@
-from superhelp.helpers import filt_block_help
+from ..helpers import filt_block_help, get_aop_msg
 from .. import conf
-from superhelp.helpers import get_aop_msg
-from superhelp.gen_utils import layout_comment as layout
+from ..gen_utils import layout_comment as layout
 
 def get_open_cm_msg():
     return (
@@ -97,14 +96,14 @@ def with_is_using_open(with_el):
     return func_name == 'open'
 
 @filt_block_help(xpath=WITH_XPATH)
-def content_manager_overview(block_dets, *, repeat=False):
+def content_manager_overview(block_dets, *, repeat=False, **_kwargs):
     """
     Explain context managers.
     """
     with_els = block_dets.element.xpath(WITH_XPATH)
-    using_open_cm = any([with_is_using_open(with_el) for with_el in with_els])
     if not with_els:
         return None
+    using_open_cm = any([with_is_using_open(with_el) for with_el in with_els])
 
     title = layout("""\
     ### Context manager(s) used
@@ -160,7 +159,7 @@ def has_with_ancestor(open_el):
 FUNC_NAME_XPATH = 'descendant-or-self::Call/func/Name'
 
 @filt_block_help(xpath=FUNC_NAME_XPATH, warning=True)
-def file_cm_needed(block_dets, *, repeat=False):
+def file_cm_needed(block_dets, *, repeat=False, **_kwargs):
     """
     Look for opening of file without a context managers - recommend use of the
     "with open" context manager.

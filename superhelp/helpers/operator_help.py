@@ -18,12 +18,14 @@ op_name2symbol = {
 }
 
 @any_block_help()
-def compound_operator_possible(block_dets, *, repeat=False):
+def compound_operator_possible(block_dets, *, repeat=False, **_kwargs):
     """
     Look for code like x = x + 1 and suggest the compound operator option.
     """
     block_el = block_dets.element
     assign_els = block_el.xpath('descendant-or-self::Assign')
+    if not assign_els:
+        return None
     missing_compound = False
     for assign_el in assign_els:
         target_name_els = assign_el.xpath('targets/Name')
@@ -122,4 +124,3 @@ def compound_operator_possible(block_dets, *, repeat=False):
         conf.MAIN: title + brief_msg + compound_operators,
     }
     return message
-

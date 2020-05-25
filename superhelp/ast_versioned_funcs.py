@@ -21,6 +21,8 @@ def val_dets_3_8(val_el):
     As per 3_7 version
     """
     const_type = val_el.get('type')
+    if not const_type:
+        return None
     raw_val = val_el.get('value')
     if const_type == 'int':
         val = int(raw_val)

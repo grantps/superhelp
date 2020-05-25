@@ -256,7 +256,7 @@ def get_lint_messages_by_level(raw_lint_feedback_str):
     return lint_msgs
 
 @snippet_str_help(warning=True)
-def lint_snippet(snippet, *, repeat=False):
+def lint_snippet(snippet, *, repeat=False, **_kwargs):
     """
     Look for "lint" as defined by flake8 linter and share the results.
 

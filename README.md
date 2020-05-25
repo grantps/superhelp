@@ -2,7 +2,7 @@
 
 ![Example HTML output](https://github.com/grantps/superhelp/raw/master/superhelp_logo_padded_small.png)
 
-version number: 1.0.6
+version number: 1.0.7
 author: Grant Paton-Simpson
 
 ## Overview
@@ -88,6 +88,8 @@ it.
 ## Screenshot from Terminal output
 
 ![Example Terminal output](https://github.com/grantps/superhelp/raw/master/example_terminal_output_1.png)
+
+### Terminal themes available ('dark' and 'light')
 
 ![Example Terminal themes](https://github.com/grantps/superhelp/raw/master/example_terminal_themes_1.png)
 

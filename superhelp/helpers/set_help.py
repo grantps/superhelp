@@ -1,43 +1,73 @@
 from ..helpers import filt_block_help
-from .. import ast_funcs, code_execution, conf
-from ..gen_utils import layout_comment as layout, get_nice_str_list, int2nice
+from .. import ast_funcs, conf
+from ..gen_utils import layout_comment as layout
+from .. import gen_utils
 
 def truncate_set(items):
     return set(list(items)[: conf.MAX_ITEMS_EVALUATED])
 
-ASSIGN_FUNC_NAME_XPATH = 'descendant-or-self::Assign/value/Call/func/Name'
+ASSIGN_SET_XPATH = (
+    'descendant-or-self::Assign/value/Call/func/Name '
+    '| descendant-or-self::Assign/value/Set')
 
-@filt_block_help(xpath=ASSIGN_FUNC_NAME_XPATH)
-def set_overview(block_dets, *, repeat=False):
+def get_set_els(block_el):
+    set_els = [el for el in block_el.xpath(ASSIGN_SET_XPATH)
+        if el.tag == 'Set' or el.get('id') == 'set']
+    return set_els
+
+@filt_block_help(xpath=ASSIGN_SET_XPATH)
+def set_overview(block_dets, *, repeat=False, execute_code=True, **_kwargs):
     """
     Look for sets and provide general advice on using them and finding out more.
+
+    Need to handle both:
+    a = set([1, 2, 3])
+    a = {1, 2, 3}
+
+    If any items are conf.UNKNOWN_ITEM we cannot comment on true length of set
+    so have to say its contents couldn't be evaluated.
+
+    E.g. {dt, dt, dt, 4} -> {conf.UNKNOWN_ITEM, 4} i.e. 2 items when it should
+    be 4.
     """
-    func_type_els = block_dets.element.xpath(ASSIGN_FUNC_NAME_XPATH)
-    set_els = [func_type_el for func_type_el in func_type_els
-        if func_type_el.get('id') == 'set']
-    names_items, oversized_msg = code_execution.get_collections_dets(
+    set_els = [el for el in block_dets.element.xpath(ASSIGN_SET_XPATH)
+        if el.tag == 'Set' or el.get('id') == 'set']
+    if not set_els:
+        return None
+    names_items, oversized_msg = gen_utils.get_collections_dets(
         set_els, block_dets,
-        collection_plural='sets', truncated_items_func=truncate_set)
-    name_sets = [
-        (name, items) for name, items in names_items if items is not None]
-    if not name_sets:
+        collection_plural='sets', truncated_items_func=truncate_set,
+        execute_code=execute_code)
+    if not names_items:
         return None
 
     title = layout("""\
     ### Set details
     """)
     summary_bits = []
-    for name, my_set in name_sets:
-        empty_set = len(my_set) == 0
-        if empty_set:
+    for name, items in names_items:
+        unknowns = (items == conf.UNKNOWN_ITEMS or conf.UNKNOWN_ITEM in items)
+        if unknowns:
+            if not repeat:
+                summary_bits.append(layout(f"""\
+                Unable to evaluate all contents of set `{name}` but still able
+                to make some general comments.
+                """))
+            else:
+                summary_bits.append(layout(f"""\
+                `{name}` is a set but unable to evaluate contents.
+                """))
+        elif len(items) == 0:  ## no unknowns, just empty
             summary_bits.append(layout(f"""\
             `{name}` is an empty set.
             """))
         else:
-            members = str(sorted(my_set)).strip('[').strip(']')
+            members = str(sorted(items)).strip('[').strip(']')
+            plural = 's' if len(members) > 1 else ''
             summary_bits.append(layout(f"""\
 
-            `{name}` is a set with {int2nice(len(my_set))} members: {members}
+            `{name}` is a set with {gen_utils.int2nice(len(items))}
+            member{plural}: {members}
             """))
     summary = ''.join(summary_bits)
     if not repeat:
@@ -62,11 +92,12 @@ def set_overview(block_dets, *, repeat=False):
             """, is_code=True)
         )
         no_duplicates_demo = ''
-        for name, my_set in name_sets:
-            empty_set = len(my_set) == 0
-            if not empty_set:
-                members = str(sorted(my_set)).strip('[').strip(']')
-                existing_set_item = list(my_set)[0]
+        for name, items in names_items:
+            unknown_set = conf.UNKNOWN_ITEM in items
+            empty_set = len(items) == 0
+            if not (empty_set or unknown_set):
+                members = str(sorted(items)).strip('[').strip(']')
+                existing_set_item = list(items)[0]
                 no_duplicates_demo = (
                     layout("""\
                     For example:
@@ -74,7 +105,7 @@ def set_overview(block_dets, *, repeat=False):
                     +
                     layout(f"""\
                     {name}.add({existing_set_item})
-                    ## >>> {my_set}
+                    ## >>> {items}
                     """, is_code=True)
                 )
                 break
@@ -257,12 +288,14 @@ def _get_inappropriate_list(if_el):
 XPATH_COMPARE = 'descendant-or-self::If/test/Compare'
 
 @filt_block_help(xpath=XPATH_COMPARE, warning=True)
-def set_better_than_list(block_dets, *, repeat=False):
+def set_better_than_list(block_dets, *, repeat=False, **_kwargs):
     """
     Look for cases where the code checks list membership before adding.
     Candidate for a set?
     """
     if_els = block_dets.element.xpath('descendant-or-self::If')
+    if not if_els:
+        return None
     inappropriate_lists = []
     for if_el in if_els:
         inappropriate_list = _get_inappropriate_list(if_el)
@@ -277,7 +310,8 @@ def set_better_than_list(block_dets, *, repeat=False):
     first_list = inappropriate_lists[0]
     multiple = len(inappropriate_lists) > 1
     if multiple:
-        dubious_lists_msg = get_nice_str_list(inappropriate_lists, quoter='`')
+        dubious_lists_msg = gen_utils.get_nice_str_list(
+            inappropriate_lists, quoter='`')
         summary = layout(f"""\
 
         It looks like the following collections are built by checking potential

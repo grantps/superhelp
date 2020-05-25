@@ -2,7 +2,7 @@ from setuptools import setup, find_packages  # @UnresolvedImport
 from codecs import open
 from os import path
 
-__version__ = '1.0.6'
+__version__ = '1.0.7'
 
 here = path.abspath(path.dirname(__file__))
 
@@ -26,14 +26,19 @@ setup(
     url='https://github.com/grantps/superhelp',
     license='MIT',
     classifiers=[
-      'Development Status :: 4 - Beta',
+      'Development Status :: 5 - Production/Stable',
       'Intended Audience :: Developers',
+      'Intended Audience :: Information Technology',
+      'Intended Audience :: End Users/Desktop',
       'Programming Language :: Python :: 3',
       'Programming Language :: Python :: 3.6',
       'Programming Language :: Python :: 3.7',
       'Programming Language :: Python :: 3.8',
       'Programming Language :: Python :: 3.9',
       'Operating System :: OS Independent',
+      'Topic :: Education',
+      'Topic :: Software Development :: Testing',
+      'Topic :: Education :: Computer Aided Instruction (CAI)',
     ],
     keywords='',
     packages=find_packages(exclude=['docs', 'tests*']),

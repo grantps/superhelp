@@ -38,7 +38,7 @@ def get_actual_source_freqs(messages_dets, expected_source_freqs):
             actual_source_freqs[message_dets.source] += 1  ## if we track any sources not in the expected list the dicts will vary even if the results for the tracked sources are exactly as expected and we'll fail the test when we shouldn't)
     return actual_source_freqs
 
-def check_as_expected(test_conf):
+def check_as_expected(test_conf, *, execute_code=True):
     """
     :param list test_conf: list of tuples: snippet, dict of expected message
      sources and their expected frequencies
@@ -49,12 +49,14 @@ def check_as_expected(test_conf):
         ast_funcs.store_ast_output(xml)
         snippet_block_els = xml.xpath('body')[0].getchildren()  ## [0] because there is only one body under root
         messages_dets = get_separated_messages_dets(
-            snippet, snippet_block_els, xml, repeat_set=set())
+            snippet, snippet_block_els, xml,
+            execute_code=execute_code, repeat_set=set())
         actual_source_freqs = get_actual_source_freqs(
             messages_dets, expected_source_freqs)
         assert_equal(actual_source_freqs, expected_source_freqs,
             (f"\n\nSnippet\n\n{snippet}\n\n"
-             "didn't get messages as expected from the sources:"
+             "didn't get messages as expected from the sources"
+             f"\n(execute_code={execute_code}):"
              f"\n\nExpected:\n{expected_source_freqs}"
              f"\n\nActual:\n{actual_source_freqs}"
             )

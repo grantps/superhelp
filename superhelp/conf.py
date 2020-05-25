@@ -26,16 +26,8 @@ LOG_LEVEL = logging.INFO  ## (logging.INFO)
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 ## All snippets here should be raw strings (see https://stackoverflow.com/questions/53636723/python-parsing-code-with-new-line-character-in-them-using-ast)
 TEST_SNIPPET = r"""
-var_b4_init = 'Audi'
-n = 1
-var_b4_for_1 = 'Jan'
-var_b4_for_2 = 'Lithuania'
-for image in images:
-    if n % 10 == 0:
-        print(f"Just processed image {{n}}")
-    process_image(image)
-    n += 1
-    print("Extra line after incrementing")
+# countries = ['NZ', 'Australia', 'Malaysia', 'Israel', 'China', 'UK']
+name = dict([('NZ', 'Wellington'), (1, 'Canberra')])
 """
 
 PY3_6 = '3.6'
@@ -59,11 +51,15 @@ EXTRA = 'Extra'
 DETAIL_LEVELS = [BRIEF, MAIN, EXTRA]
 
 ANON_NAME = 'Anonymous'
+UNKNOWN_ITEM = '__unknown item__'
+UNKNOWN_ITEMS = '__unknown items__'
 
 INT_TYPE = 'int'
 FLOAT_TYPE = 'float'
+NUM_TYPE = 'number'
 STR_TYPE = 'str'
 DATETIME_TYPE = 'datetime'
+DATE_TYPE = 'date'
 BOOLEAN_TYPE = 'bool'
 LIST_TYPE = 'list'
 DICT_TYPE = 'dict'
@@ -72,6 +68,7 @@ TUPLE_TYPE = 'tuple'
 TYPE2NAME = {
     INT_TYPE: 'integer',
     FLOAT_TYPE: 'float',
+    NUM_TYPE: 'number (specific type unknown)',
     STR_TYPE: 'string',
     DATETIME_TYPE: 'datetime object',
     BOOLEAN_TYPE: 'boolean',
@@ -84,10 +81,16 @@ EXAMPLES_OF_TYPES = {  ## best to include at least three so we have enough to ap
     INT_TYPE: [123, 9, 17, 20, 100, 2020, 16],
     FLOAT_TYPE: [1.2345, 0.667, 0.1, 0.001, 10.0],
     STR_TYPE: ['apple', 'banana', 'kiwifruit', 'Auckland, New Zealand'],
-    DATETIME_TYPE: [
+    DATETIME_TYPE: [  ## use strings so it is already quoted ready for use as an example
+        datetime.datetime(2020, 4, 4),
+        datetime.datetime(1066, 10, 14),
+        datetime.datetime(1995, 9, 14),
+    ],
+    DATE_TYPE: [  ## use strings so it is already quoted ready for use as an example
         datetime.date(2020, 4, 4),
         datetime.date(1066, 10, 14),
-        datetime.datetime.today(), ],
+        datetime.date(1995, 9, 14),
+    ],
     BOOLEAN_TYPE: [True, False],
     LIST_TYPE: [[10, 2], [-3, 20], [44, -180]],
     DICT_TYPE: [{'x': 10, 'y': 2}, {'x': -3, 'y': 20}, {'x': 44, 'y': -180}],
@@ -114,6 +117,7 @@ FUNCTION_LBL = 'function'
 METHOD_LBL = 'method'
 
 EMAIL2USE = 'superhelp@p-s.co.nz'
+TWITTER_HANDLE = 'PythonSuperHELP'
 
 WARNINGS_ONLY_MSG = ("Only displaying warnings. "
     "To see all help, set warnings only option to False")

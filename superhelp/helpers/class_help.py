@@ -3,14 +3,14 @@ Method helpers are effectively function helpers and are covered there.
 """
 from collections import defaultdict
 
-from superhelp.helpers import filt_block_help
+from ..helpers import filt_block_help
 from .. import conf
-from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
+from ..gen_utils import get_nice_str_list, layout_comment as layout
 
 CLASS_XPATH = ('descendant-or-self::ClassDef')
 
 @filt_block_help(xpath=CLASS_XPATH, warning=True)
-def getters_setters(block_dets, *, repeat=False):
+def getters_setters(block_dets, *, repeat=False, **_kwargs):
     """
     Look for getters and setters and suggest @property if appropriate.
     """
@@ -186,7 +186,7 @@ def getters_setters(block_dets, *, repeat=False):
     return message
 
 @filt_block_help(xpath=CLASS_XPATH, warning=True)
-def selfless_methods(block_dets, *, repeat=False):
+def selfless_methods(block_dets, *, repeat=False, **_kwargs):
     """
     Look for class methods that don't use self as candidates for @staticmethod
     decorator. Note - not worried about detecting sophisticated cases with
@@ -283,7 +283,7 @@ def selfless_methods(block_dets, *, repeat=False):
     return message
 
 @filt_block_help(xpath=CLASS_XPATH, warning=True)
-def one_method_classes(block_dets, *, repeat=False):
+def one_method_classes(block_dets, *, repeat=False, **_kwargs):
     """
     Look for classes with only one method (other than __init__) and suggest a
     simple function as an alternative.

@@ -1,9 +1,9 @@
-from superhelp.helpers import  get_dict_comprehension_msg, \
-    get_general_comprehension_msg, get_set_comprehension_msg, \
-    filt_block_help
-from .. import code_execution, conf
-from superhelp import gen_utils
-from superhelp.gen_utils import layout_comment as layout
+from ..helpers import (get_dict_comprehension_msg,
+    get_general_comprehension_msg, get_set_comprehension_msg,
+    filt_block_help)
+from .. import conf
+from .. import gen_utils
+from ..gen_utils import layout_comment as layout
 
 def truncate_list(items):
     return items[: conf.MAX_ITEMS_EVALUATED]
@@ -11,29 +11,39 @@ def truncate_list(items):
 ASSIGN_LISTCOMP_XPATH = 'descendant-or-self::Assign/value/ListComp'
 
 @filt_block_help(xpath=ASSIGN_LISTCOMP_XPATH)
-def listcomp_overview(block_dets, *, repeat=False):
+def listcomp_overview(block_dets, *,
+        repeat=False, execute_code=True, **_kwargs):
     """
     Provide advice on list comprehensions and explain other types of
     comprehension available in Python.
     """
     listcomp_els = block_dets.element.xpath(ASSIGN_LISTCOMP_XPATH)
-    try:
-        names_items, oversized_msg = code_execution.get_collections_dets(
-            listcomp_els, block_dets,
-            collection_plural='lists', truncated_items_func=truncate_list)
-    except Exception:
-        names_items = []
-        oversized_msg = ''
-
+    if not listcomp_els:
+        return None
+    names_items, oversized_msg = gen_utils.get_collections_dets(
+        listcomp_els, block_dets,
+        collection_plural='lists', truncated_items_func=truncate_list,
+        execute_code=execute_code)
     plural = 's' if len(names_items) > 1 else ''
     title = layout(f"""\
     ### List comprehension{plural} used
     """)
     summary_bits = []
     for name, items in names_items:
-        if items is None:
-            summary_bits.append(layout(f"""
-            `{name}` is a list comprehension. Unable to evaluate items.
+        if items is None or items == conf.UNKNOWN_ITEMS:
+            if not repeat:
+                summary_bits.append(layout(f"""\
+                Unable to evaluate all contents of list comprehension `{name}`
+                but still able to make some general comments.
+                """))
+            else:
+                summary_bits.append(layout(f"""\
+                `{name}` is a list comprehension but unable to evaluate
+                contents.
+                """))
+        elif len(items) == 0:
+            summary_bits.append(layout(f"""\
+            `{name}` is an empty list comprehension.
             """))
         else:
             summary_bits.append(layout(f"""
@@ -44,22 +54,6 @@ def listcomp_overview(block_dets, *, repeat=False):
     summary = ''.join(summary_bits)
     brief_summary = summary
     main_summary = summary
-    if not brief_summary:
-        brief_summary = layout("""\
-        List comprehension detected but unable to evaluate individual list
-        comprehensions in your code.
-        """)
-    if not main_summary:
-        if not repeat:
-            main_summary = layout("""\
-            Unable to evaluate individual list comprehensions in your code but
-            still able to make some general comments.
-            """)
-        else:
-            main_summary = layout("""\
-            List comprehension detected but unable to evaluate individual list
-            comprehensions in your code.
-        """)
     if not repeat:
         other_comprehensions = (
             layout("""\

@@ -1,7 +1,7 @@
-from superhelp.helpers import any_block_help, filt_block_help
-from ..ast_funcs import assigned_str_els_from_block, get_str_els_being_combined
+from ..helpers import any_block_help, filt_block_help
+from .. import ast_funcs
 from .. import code_execution, conf, name_utils
-from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
+from ..gen_utils import get_nice_str_list, layout_comment as layout
 
 F_STR = 'f-string'
 STR_FORMAT_FUNC = 'str_format'
@@ -14,14 +14,23 @@ JOINED_STR_XPATH = 'descendant-or-self::Assign/value/JoinedStr'
 SPRINTF_XPATH = 'descendant-or-self::value/BinOp/op/Mod'
 STR_ADDITION_XPATH = 'descendant-or-self::BinOp/left/Str'  ## each left has a right as well so only need to look at one to get at binop and assign ancestors etc
 
+def get_str_from_ast(str_el):
+    res = ast_funcs.val_dets(str_el)
+    if res is None:
+        val = conf.UNKNOWN_ITEM
+    else:
+        val, _needs_quoting = res
+    return val
+
 F_STR_REMINDER = False
 
 @filt_block_help(xpath=ASSIGN_VALUE_XPATH)
-def assigned_str_overview(block_dets, *, repeat=False):
+def assigned_str_overview(block_dets, *,
+        execute_code=True, repeat=False, **_kwargs):
     """
     Provide overview of assigned strings e.g. name = 'Hamish'.
     """
-    str_els = assigned_str_els_from_block(block_dets.element)
+    str_els = ast_funcs.assigned_str_els_from_block(block_dets.element)
     if not str_els:
         return None
     names = []
@@ -48,17 +57,25 @@ def assigned_str_overview(block_dets, *, repeat=False):
         Python makes it easy to do lots of cool things with strings.
         """)
         first_name_dets = names[0]
-        try:
-            first_val = code_execution.get_val(
-                block_dets.pre_block_code_str, block_dets.block_code_str,
-                first_name_dets.name_type,
-                first_name_dets.name_details, first_name_dets.name_str)
-        except KeyError:
-            name2use = 'address'
-            val2use = 'Waiuku, New Zealand'
+        if execute_code:
+            try:
+                first_val = code_execution.get_val(
+                    block_dets.pre_block_code_str, block_dets.block_code_str,
+                    first_name_dets.name_type,
+                    first_name_dets.name_details, first_name_dets.name_str)
+            except KeyError:
+                str_val = get_str_from_ast(str_el)
+                first_val = None if str_val == conf.UNKNOWN_ITEM else str_val
         else:
+            str_val = get_str_from_ast(str_el)
+            first_val = None if str_val == conf.UNKNOWN_ITEM else str_val
+        if first_val:
             name2use = first_name_dets.name_str
             val2use = first_val
+        else:
+            name2use = 'address'
+            val2use = 'Waiuku, New Zealand'
+
         short_demo = layout(f"""\
 
         For illustration, imagine we have string '{val2use}' assigned to
@@ -205,20 +222,24 @@ def str_combination(combination_type, str_els, *, repeat=False):
     return message
 
 @filt_block_help(xpath=JOINED_STR_XPATH)
-def f_str_interpolation(block_dets, *, repeat=False):
+def f_str_interpolation(block_dets, *, repeat=False, **_kwargs):
     """
     Examine f-string interpolation.
     """
     joined_els = block_dets.element.xpath(JOINED_STR_XPATH)
+    if not joined_els:
+        return None
     return str_combination(F_STR,
         joined_els, repeat=repeat)
 
 @filt_block_help(xpath=FUNC_ATTR_XPATH)
-def format_str_interpolation(block_dets, repeat=False):
+def format_str_interpolation(block_dets, *, repeat=False, **_kwargs):
     """
     Look at use of .format() to interpolate into strings.
     """
     func_attr_els = block_dets.element.xpath(FUNC_ATTR_XPATH)
+    if not func_attr_els:
+        return None
     format_funcs = []
     for func_attr_el in func_attr_els:
         is_format_func = func_attr_el.get('attr') == 'format'
@@ -230,25 +251,27 @@ def format_str_interpolation(block_dets, repeat=False):
         format_funcs, repeat=repeat)
 
 @any_block_help()
-def sprintf(block_dets, *, repeat=False):
+def sprintf(block_dets, *, repeat=False, **_kwargs):
     """
     Look at use of sprintf for string interpolation
     e.g. greeting = "Hi %s" % name
     """
     sprintf_els = block_dets.element.xpath(SPRINTF_XPATH)
-    has_sprintf = bool(sprintf_els)
-    if not has_sprintf:
+    if not sprintf_els:
         return None
     return str_combination(SPRINTF,
         sprintf_els, repeat=repeat)
 
 @any_block_help()
-def string_addition(block_dets, *, repeat=False):
+def string_addition(block_dets, *, repeat=False, **_kwargs):
     """
     Advise on string combination using +.
     Explain how f-string alternative works.
     """
-    str_els_being_combined = get_str_els_being_combined(block_dets.element)
+    str_els_being_combined = ast_funcs.get_str_els_being_combined(
+        block_dets.element)
+    if not str_els_being_combined:
+        return None
     has_string_addition = False
     str_addition_els = []
     for str_el in str_els_being_combined:

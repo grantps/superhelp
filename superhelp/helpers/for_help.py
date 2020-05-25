@@ -1,13 +1,14 @@
-from superhelp.helpers import get_dict_comprehension_msg, \
-    get_general_comprehension_msg, get_set_comprehension_msg, filt_block_help
+from ..helpers import (
+    get_dict_comprehension_msg, get_general_comprehension_msg,
+    get_set_comprehension_msg, filt_block_help)
 from ..ast_funcs import get_el_lines_dets
 from .. import conf
-from superhelp.gen_utils import layout_comment as layout
+from ..gen_utils import layout_comment as layout
 
 FOR_XPATH = 'descendant-or-self::For'
 
 @filt_block_help(xpath=FOR_XPATH)
-def comprehension_option(block_dets, *, repeat=False):
+def comprehension_option(block_dets, *, repeat=False, **_kwargs):
     """
     Provide overview of for loop to see if simple enough to be a possible
     candidate for a comprehension.
@@ -18,6 +19,8 @@ def comprehension_option(block_dets, *, repeat=False):
     is happening and suggesting the right comprehension accordingly.
     """
     for_els = block_dets.element.xpath(FOR_XPATH)
+    if not for_els:
+        return None
     any_short_enough = False
     for for_el in for_els:
         _first_line_no, _last_line_no, for_lines_n = get_el_lines_dets(
@@ -120,7 +123,7 @@ def get_incremental_iteration_dets(for_el):
     return index_name, iterable_name
 
 @filt_block_help(xpath=FOR_XPATH)
-def for_index_iteration(block_dets, *, repeat=False):
+def for_index_iteration(block_dets, *, repeat=False, **_kwargs):
     """
     Look to see if an opportunity for simple iteration available as more
     pythonic alternative to incremental indexing.
@@ -183,7 +186,7 @@ def for_index_iteration(block_dets, *, repeat=False):
     return message
 
 @filt_block_help(xpath=FOR_XPATH, warning=True)
-def for_else(block_dets, *, repeat=False):
+def for_else(block_dets, *, repeat=False, **_kwargs):
     """
     Look for the for-else construct and warn about its safe usage.
     """
@@ -261,7 +264,7 @@ def for_else(block_dets, *, repeat=False):
     return message
 
 @filt_block_help(xpath=FOR_XPATH)
-def nested_fors(block_dets, *, repeat=False):
+def nested_fors(block_dets, *, repeat=False, **_kwargs):
     """
     Look to see if an opportunity for using itertools.product instead of nested
     iteration.

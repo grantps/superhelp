@@ -102,13 +102,15 @@ def get_manual_incrementing_var(for_el):
         return None
 
 @all_blocks_help()
-def manual_incrementing(blocks_dets, *, repeat=False):
+def manual_incrementing(blocks_dets, *, repeat=False, **_kwargs):
     """
     Look for manual handling of incrementing inside for loops.
     """
     for_els = []
     for block_dets in blocks_dets:
         for_els.extend(block_dets.element.xpath('descendant-or-self::For'))
+    if not for_els:
+        return None
     incrementing_var = None
     for for_el in for_els:
         incrementing_var = get_manual_incrementing_var(for_el)
