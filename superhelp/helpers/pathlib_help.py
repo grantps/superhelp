@@ -157,18 +157,67 @@ def using_os(blocks_dets, *, repeat=False, **_kwargs):
         return None
 
     title = layout("""\
-    ### Consider using pathlib
+    ### Consider using `pathlib`
     """)
     if not repeat:
-        brief_msg =layout("""\
-        brief pathlib
+        brief_msg = layout("""\
+
+        The `pathlib` library often provides a superior way of working with
+        paths than `os` and `os.path`. It was introduced in Python 3.4.
         """)
-        main_msg =layout("""\
-        main pathlib
-        """)
+        main_msg = (
+            layout("""\
+
+            The `pathlib` library often provides a superior way of working with
+            paths than `os` and `os.path`. Instead of manipulating strings,
+            `pathlib` has semantic methods and operators. Consider the following
+            alternatives:
+            """)
+            +
+            layout("""\
+            #### `os` and `os.path`
+            """)
+            +
+            layout("""\
+            fpath = os.path.join(os.getcwd(), 'superhelp', 'conf.py')
+            # '/home/g/Documents/python/python_scripts/superhelp/conf.py'
+
+            parent = os.path.split(fpath)[0]
+            # '/home/g/Documents/python/python_scripts/superhelp'
+
+            fname = fpath.split('/')[-1]
+            # 'conf.py'
+            """, is_code=True)
+            +
+            layout("""\
+            #### `pathlib`
+            """)
+            +
+            layout("""\
+            fpath = Path.cwd() / 'superhelp' / 'conf.py'
+            # PosixPath('/home/g/Documents/python/python_scripts/superhelp/conf.py')
+
+            parent = fpath.parent
+            # PosixPath('/home/g/Documents/python/python_scripts/superhelp')
+
+            fname = fpath.name
+            # 'conf.py'
+            """, is_code=True)
+            +
+            layout("""\
+
+            The `pathlib` library was introduced in Python 3.4. Increasingly,
+            functions expecting a path argument as a string will accept
+            `pathlib` `Path`s as well. If a `Path` isn't accepted (yet) wrapping
+            the path in `str()` creates the required string.
+            """)
+        )
         extra_msg =layout("""\
-        <https://treyhunner.com/2019/01/no-really-pathlib-is-great/>
-        <https://treyhunner.com/2018/12/why-you-should-be-using-pathlib/>
+        Further advocacy can be found at:
+
+        * <https://treyhunner.com/2019/01/no-really-pathlib-is-great/>
+
+        * <https://treyhunner.com/2018/12/why-you-should-be-using-pathlib/>
         """)
     else:
         brief_msg = ''
