@@ -5,7 +5,7 @@ from ..helpers import snippet_str_help
 @snippet_str_help()
 def lambda_advice(snippet, *, repeat=False, **_kwargs):
     """
-    Look for use of lambda and given general advice on when / how to use.
+    Look for use of lambda and give general advice on when / how to use.
     """
     if not 'lambda' in snippet:
         return None

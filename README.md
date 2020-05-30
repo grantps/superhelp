@@ -2,7 +2,7 @@
 
 ![Example HTML output](https://github.com/grantps/superhelp/raw/master/superhelp_logo_padded_small.png)
 
-version number: 1.0.9
+version number: 1.0.10
 author: Grant Paton-Simpson
 
 ## Overview
@@ -128,7 +128,7 @@ If you don't want the default web output you can specify another output such as 
 If you don't want the default 'Extra' level of messages you can specify a different detail level ('Brief' or 'Main') e.g.
 
     import superhelp
-    superhelp.this(output='md', detail_level='Brief')
+    superhelp.this(detail_level='Brief')
 
 or:
 
@@ -140,43 +140,39 @@ If you only want to see warnings you can specify warnings only e.g.
     import superhelp
     superhelp.this(warnings_only=True)
 
-**Changes since 0.9.21**:
+If you don't want your code executed while SuperHELP is evaluating it
 
-Changed:
+    import superhelp
+    superhelp.this(execute_code=False)
 
-    output (replaces displayer)
-    detail_level (replaces level)
+You can use as many options as you want e.g.
 
-Added:
-
-    warnings_only
+    import superhelp
+    superhelp.this(output='md', execute_code=False, warnings_only=True)
 
 ### From the command line (terminal / console)
 
-    $ shelp -h  ## get help on usage
+    $ shelp -h  ## get extended help on usage (purpose, defaults, etc)
 
     $ shelp --code "people = ['Tomas', 'Sal', 'Raj']" --output html --detail-level Main
     $ shelp -c "people = ['Tomas', 'Sal', 'Raj']" -o html -d Main
 
-    $ shelp --file-path my_script.py --output cli  --detail-level Extra
-    $ shelp -f my_snippet.py -o cli -d Brief
+    $ shelp --file-path my_script.py --output cli --theme light --detail-level Extra
+    $ shelp -f my_snippet.py -o cli -t light -d Extra
 
-    $ shelp -w --code "people = ['Tomas', 'Sal', 'Raj']"
-    $ shelp --warnings-only --code "people = ['Tomas', 'Sal', 'Raj']"
+    $ shelp --project-path /home/g/proj --exclude-folders env
+    $ shelp -p /home/g/proj -e env
+
+    $ shelp --file-path my_script.py --warnings-only
+    $ shelp -f my_snippet.py -w
+
+    $ shelp --file-path my_script.py --execute-code True
+    $ shelp -f my_snippet.py -x True
 
     $ shelp  ## to see advice on an example snippet displayed (detail level 'Extra')
 
-**Changes since 0.9.21**:
-
-Changed:
-
-    --output and -o (replaces --displayer and -d)
-    --detail-level and -d (replaces --level and -l)
-
-Added:
-
-    --warnings-only and -w
-
+    $ shelp --advice-list  ## to see all types of help listed
+    $ shelp -a
     
 ## Stretch Ideas
 

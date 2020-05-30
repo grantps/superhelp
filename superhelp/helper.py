@@ -3,38 +3,7 @@ from collections import namedtuple
 import logging
 import os
 
-"""
-Do not use relative imports (dot notation) in this module. Relative importing
-would be an option if we only wanted to run this module as part of superhelp as
-a library but not if we also want to run it as a script. Running this module as
-a script is very useful for development purposes from within the IDE - it allows
-full step-by-step debugging etc. Absolute imports make this possible because
-statements like:
-
-    from superhelp import conf
-
-are successful both when helper.py is run as part of a library module and when
-it is run as a script. How? When run as part of a library the import statement
-functions as an absolute import relating everything to the root folder of the
-library. As a script, the import statement runs superhelp as an installed site
-package. Obviously, for this library import to work we have to have superhelp
-installed as a site package.
-
-To reference the existing superhelp code in the IDE when importing superhelp as
-a library the superhelp package must have been installed in --edit mode which
-places a link in the standard site-packages folder pointing to this set of
-files.
-
-Because superhelp references this module in its __init__ we pass through this
-module twice when we run this module as a script. The first time starts when we
-run the script. As we proceed through the script line-by-line, we hit the import
-statement and then import superhelp as a library. That imports the entire module
-again (the library links to the exact same file so it can reference the `this`
-function) and we then continue through the rest of the module.
-
-In tests we should import superhelp as a library, i.e. no relative importing, so
-tests can be run from anywhere.
-"""
+## absolute importing needed in any script being run as a script (vs as library import)
 from superhelp import conf, gen_utils, helpers, messages
 from superhelp.displayers import cli_displayer, html_displayer, md_displayer
 

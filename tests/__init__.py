@@ -1,13 +1,14 @@
 import astpath
 from nose.tools import assert_equal, assert_not_equal, assert_true, assert_false  # @UnusedImport @UnresolvedImport
 
-from superhelp import conf
-from superhelp import ast_funcs
+from superhelp import ast_funcs, conf, helpers
 from superhelp.messages import get_separated_messages_dets
 from superhelp.gen_utils import get_tree, xml_from_tree
 
 conf.INCLUDE_LINTING = False
 conf.RECORD_AST = True
+
+helpers.load_helpers()
 
 def get_actual_source_freqs(messages_dets, expected_source_freqs):
     """

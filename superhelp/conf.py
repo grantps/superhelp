@@ -18,7 +18,7 @@ m = MD
 
 RECORD_AST = f  ## (f)
 OUTPUT = h  ## set html as default output (h)
-SHOW_OUTPUT = t  ## f is only ever used when testing pre-display (t)
+SHOW_OUTPUT = f  ## f is only ever used when testing pre-display (t)
 INCLUDE_LINTING = t  ## f when running unit tests to massively speed them up (otherwise every snippet in tests is linted each time) (t)
 LOG_LEVEL = logging.INFO  ## (logging.INFO)
 ## =============================================================================
@@ -26,8 +26,7 @@ LOG_LEVEL = logging.INFO  ## (logging.INFO)
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 ## All snippets here should be raw strings (see https://stackoverflow.com/questions/53636723/python-parsing-code-with-new-line-character-in-them-using-ast)
 TEST_SNIPPET = r"""
-# countries = ['NZ', 'Australia', 'Malaysia', 'Israel', 'China', 'UK']
-name = dict([('NZ', 'Wellington'), (1, 'Canberra')])
+os.path.join('a/', 'b')
 """
 
 PY3_6 = '3.6'
