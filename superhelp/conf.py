@@ -26,7 +26,7 @@ LOG_LEVEL = logging.INFO  ## (logging.INFO)
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 ## All snippets here should be raw strings (see https://stackoverflow.com/questions/53636723/python-parsing-code-with-new-line-character-in-them-using-ast)
 TEST_SNIPPET = r"""
-path = os.path.join('a/', 'b')
+import os, requests, conf
 """
 
 PY3_6 = '3.6'
@@ -184,6 +184,7 @@ STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',
 'uu', 'uuid', 'venv', 'warnings', 'wave', 'weakref', 'webbrowser', 'winreg',
 'winsound', 'wsgiref', 'xdrlib', 'xml', 'xmlrpc', 'zipapp', 'zipfile',
 'zipimport', 'zlib']
+POPULAR_LIBS = ['requests', 'flask', 'django', ]
 
 SUPERHELP_PROJECT_OUTPUT = 'superhelp_project_output'
 SUPERHELP_GEN_OUTPUT = 'superhelp_output'
