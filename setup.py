@@ -2,7 +2,7 @@ from setuptools import setup, find_packages  # @UnresolvedImport
 from codecs import open
 from os import path
 
-__version__ = '1.0.10'
+__version__ = '1.0.11'
 
 here = path.abspath(path.dirname(__file__))
 
@@ -50,7 +50,7 @@ setup(
     python_requires='>=3.6',
     entry_points = {
         'console_scripts': [
-            'shelp=superhelp:shelp',  ## using argparse to allow arguments
+            'shelp=superhelp.helper:shelp',  ## using argparse to allow arguments
         ]
     },
 )

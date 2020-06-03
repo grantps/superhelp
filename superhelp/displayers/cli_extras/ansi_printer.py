@@ -258,7 +258,7 @@ class AnsiPrinter(Treeprocessor):
             if links_list:
                 for i, l in enumerate(links_list, 1):
                     out.append(cli_colour.colourise_low_vis(
-                        f"{indent}[{i}] {l}"))
+                        f"{indent}[{i}] {l}\n"))
 
         if is_txt_and_inline_markup:
             if el.tag == 'li':

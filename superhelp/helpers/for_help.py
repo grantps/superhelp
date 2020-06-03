@@ -247,7 +247,7 @@ def for_else(block_dets, *, repeat=False, **_kwargs):
         extra_msg = layout("""\
         #### Interesting discussion on `for`-`else`
 
-        <https://nedbatchelder.com/blog/201110/forelse.html>
+        [For/else](https://nedbatchelder.com/blog/201110/forelse.html)
         One comment noted that the construct violates the principle of Least
         Astonishment.
         """)

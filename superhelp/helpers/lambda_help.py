@@ -18,9 +18,9 @@ def lambda_advice(snippet, *, repeat=False, **_kwargs):
     brief_msg = layout("""\
 
     Lambdas are commonly overused so it is worth reading
-    <https://treyhunner.com/2018/09/stop-writing-lambda-expressions/>. Having
-    said this, lambdas used appropriately in sorting as key are idiomatic and
-    readable as a result.
+    [Overusing lambda expressions in Python](https://treyhunner.com/2018/09/stop-writing-lambda-expressions/).
+    Having said this, lambdas used appropriately in sorting as key are idiomatic
+    and readable as a result.
     """)
     main_msg = (
         layout("""\
@@ -153,8 +153,7 @@ def lambda_advice(snippet, *, repeat=False, **_kwargs):
     )
     extra = layout("""\
 
-    Trey Hunner's "Overusing lambda expressions in Python"
-    <https://treyhunner.com/2018/09/stop-writing-lambda-expressions/> is well
+    Trey Hunner's [Overusing lambda expressions in Python](https://treyhunner.com/2018/09/stop-writing-lambda-expressions/) is well
     worth reading. The position taken in SuperHELP differs in some regards but
     has been influenced by Trey's thinking.
 

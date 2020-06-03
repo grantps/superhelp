@@ -60,7 +60,7 @@ def getters_setters(block_dets, *, repeat=False, **_kwargs):
         why_getters_etc = layout(f"""\
 
         A good discussion of getters, setters, and properties can be found at
-        <https://www.python-course.eu/python3_properties.php>.
+        [Properties vs. Getters and Setters](https://www.python-course.eu/python3_properties.php)
 
         Getters and setters are usually added in other languages such as Java
         because direct attribute access doesn't give the ability to calculate

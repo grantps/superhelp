@@ -142,8 +142,8 @@ def _get_names_and_values_msg(name2name_pairs_dets):
     brief_summary = layout("""\
 
     To get a better understanding of what that means in Python see / read
-    <https://nedbatchelder.com/text/names1.html>. Or look at this advice at a
-    higher level of detail e.g. 'Main'.
+    [Python Names and Values](https://nedbatchelder.com/text/names1.html). Or
+    look at this advice at a higher level of detail e.g. 'Main'.
     """)
     main_summary = (
         layout(f"""\
@@ -226,10 +226,10 @@ def _get_names_and_values_msg(name2name_pairs_dets):
     )
     ned_talk_etc = layout("""\
     The talk to watch / read on the topic is:
-    <https://nedbatchelder.com/text/names1.html>
+    [Python Names and Values](https://nedbatchelder.com/text/names1.html)
 
-    <https://lerner.co.il/2019/06/18/understanding-python-assignment/> is also
-    helpful.
+    [Understanding Python assignment](https://lerner.co.il/2019/06/18/understanding-python-assignment/)
+    is also helpful.
 
     A note about using the verb 'assign'? I recommend saying that we assign
     names to values rather than the other way around because it better fits how
@@ -239,7 +239,7 @@ def _get_names_and_values_msg(name2name_pairs_dets):
 
     In technical terms, Python is not pass-by-value or pass-by-reference but
     pass-by-object-reference. See
-    <https://robertheaton.com/2014/02/09/pythons-pass-by-object-reference-as-explained-by-philip-k-dick/>
+    [Is Python pass-by-reference or pass-by-value?](https://robertheaton.com/2014/02/09/pythons-pass-by-object-reference-as-explained-by-philip-k-dick/)
     """)
 
     message = {

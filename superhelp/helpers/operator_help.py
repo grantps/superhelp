@@ -98,7 +98,7 @@ def compound_operator_possible(block_dets, *, repeat=False, **_kwargs):
             """, is_code=True)
             + layout("""\
             See more details here:
-            <https://www.programiz.com/python-programming/operators>
+            [Python Operators](https://www.programiz.com/python-programming/operators)
 
             `+=` and `-+` are probably the most readable but other compound
             operators become more useful when names used are longer. For example

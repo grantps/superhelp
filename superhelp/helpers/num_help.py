@@ -99,8 +99,8 @@ def num_overview(block_dets, *, execute_code=True, repeat=False, **_kwargs):
             general, the decimal floating-point numbers you enter are only
             approximated by the binary floating-point numbers actually stored in
             the machine." For more information, read the rest of
-            <https://docs.python.org/3/tutorial/floatingpoint.html>. It is
-            really interesting - honest!
+            [Floating Point Arithmetic: Issues and Limitations](https://docs.python.org/3/tutorial/floatingpoint.html).
+            It is really interesting - honest!
             """)
         else:
             floats = ''

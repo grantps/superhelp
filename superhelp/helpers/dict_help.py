@@ -155,9 +155,10 @@ def dict_overview(block_dets, *, repeat=False, execute_code=True, **_kwargs):
         They are also super-efficient and fast. The two presentations to watch
         are by the mighty Brandon Rhodes:
 
-        1. The Dictionary Even Mightier -
-        <https://www.youtube.com/watch?v=66P5FMkWoVU>
-        2. The Mighty Dictionary - <https://www.youtube.com/watch?v=oMyy4Sm0uBs>
+        1. [The Dictionary Even Mightier](https://www.youtube.com/watch?v=66P5FMkWoVU)
+
+
+        2. [The Mighty Dictionary](https://www.youtube.com/watch?v=oMyy4Sm0uBs)
         """)
     else:
         dict_def = ''

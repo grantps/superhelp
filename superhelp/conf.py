@@ -184,7 +184,12 @@ STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',
 'uu', 'uuid', 'venv', 'warnings', 'wave', 'weakref', 'webbrowser', 'winreg',
 'winsound', 'wsgiref', 'xdrlib', 'xml', 'xmlrpc', 'zipapp', 'zipfile',
 'zipimport', 'zlib']
-POPULAR_LIBS = ['requests', 'flask', 'django', ]
+POPULAR_LIBS = ['urllib3', 'six', 'botocore', 'requests', 's3transfer', 'idna',
+    'certifi', 'python-dateutil', 'docutils', 'chardet', 'pyyaml', 'pip',
+    'jmespath', 'setuptools', 'boto3', 'rsa', 'pyasn1', 'numpy', 'wheel',
+    'pytz', 'markupsafe', 'flask', 'django', 'pandas', 'geopandas', 'bs4',
+    'requests_html', 'pipenv', 'poetry', 'scikit_learn', 'matplotlib',
+    'openpyxl', 'psycopg2', 'scrapy', 'twisted', ]
 
 SUPERHELP_PROJECT_OUTPUT = 'superhelp_project_output'
 SUPERHELP_GEN_OUTPUT = 'superhelp_output'

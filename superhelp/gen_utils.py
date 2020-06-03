@@ -97,7 +97,8 @@ astpath.asts.convert_to_xml = convert_to_xml
 
 starting_num_space_pattern = r"""(?x)
     ^      ## start
-    \d{1}  ## one digit
+    \d+  ## one or more digits
+    \.?    ## optional dot
     \s{1}  ## one whitespace
     \S+    ## at least one non-whitespace
     """
@@ -511,6 +512,23 @@ def int2first_etc(num):
     }
     return nice.get(num, num)
 
+def _is_special_line(one_line_paragraph):
+    """
+    Special lines are ones we shouldn't break into sub-lines. Title, list items,
+    links etc.
+
+    :rtype: bool
+    """
+    res = starting_num_space_prog.match(one_line_paragraph)
+    if res is not None:
+        return True
+    if one_line_paragraph.startswith((
+            '#',  ## could be one hash or multiple depending on heading level
+            '* '  ## trying to detect bulleted (unordered) lists
+        )):
+        return True
+    return False
+
 def layout_comment(raw_comment, *, is_code=False):
     """
     Layout comment ready for MD. Handles dedenting and code.
@@ -548,15 +566,7 @@ def layout_comment(raw_comment, *, is_code=False):
                 len(raw_paragraph) - len(raw_paragraph.rstrip('\n')))
             paragraph = raw_paragraph.strip()
             one_line_paragraph = paragraph.replace('\n', ' ')  ## actually continuations of same line so no need to put on separate lines
-            special_line = False
-            res = starting_num_space_prog.match(one_line_paragraph)
-            if res is not None:
-                special_line = True
-            if one_line_paragraph.startswith((
-                    '#',  ## could be one hash or multiple depending on heading level
-                    '* '  ## trying to detect bulleted (unordered) lists
-                )):
-                special_line = True
+            special_line = _is_special_line(one_line_paragraph)
             if special_line:
                 wrapped_paragraph_lines = [one_line_paragraph, ]
             else:

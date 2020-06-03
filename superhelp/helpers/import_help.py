@@ -122,6 +122,8 @@ def internal_imports(blocks_dets, *, repeat=False, **_kwargs):
     Note – other modules you don’t want to run directly can continue to use
     relative importing – even if they are imported (absolutely) from modules you
     will be running directly as scripts.
+
+    [Python Modules and Packages – An Introduction](https://realpython.com/python-modules-packages/)
     """)
 
     message = {

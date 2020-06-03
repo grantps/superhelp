@@ -168,10 +168,10 @@ def using_os(blocks_dets, *, repeat=False, **_kwargs):
         main_msg = (
             layout("""\
 
-            The `pathlib` library often provides a superior way of working with
-            paths than `os` and `os.path`. Instead of manipulating strings,
-            `pathlib` has semantic methods and operators. Consider the following
-            alternatives:
+            The `pathlib` library often provides a better way of working with
+            paths than `os` and `os.path`, especially when code needs to run
+            cross-platform. Instead of manipulating strings, `pathlib` has
+            semantic methods and operators. Consider the following alternatives:
             """)
             +
             layout("""\
@@ -215,9 +215,9 @@ def using_os(blocks_dets, *, repeat=False, **_kwargs):
         extra_msg =layout("""\
         Further advocacy can be found at:
 
-        * <https://treyhunner.com/2019/01/no-really-pathlib-is-great/>
+        * [No really, pathlib is great](https://treyhunner.com/2019/01/no-really-pathlib-is-great/)
 
-        * <https://treyhunner.com/2018/12/why-you-should-be-using-pathlib/>
+        * [Why you should be using pathlib](https://treyhunner.com/2018/12/why-you-should-be-using-pathlib/)
         """)
     else:
         brief_msg = ''

@@ -262,6 +262,7 @@ def get_text_if_inline_markup(el):
 def replace_links(el, html, link_display_type='it'):
     """
     Digging through inline "<a href=..."
+
     :return: links_list, and tag
     """
     parts = html.split('<a ')
@@ -269,14 +270,14 @@ def replace_links(el, html, link_display_type='it'):
         links_list = None
         return links_list, html
     links_list, cur_link = [], 0
-    links = [l for l in el.getchildren() if "href" in l.keys()]
+    links = [l for l in el.getchildren() if 'href' in l.keys()]
     if not len(parts) == len(links) + 1:
         ## contains an html element we don't support e.g. blockquote
         links_list = None
         return links_list, html
     cur = ''
     while parts:
-        cur += parts.pop(0).rsplit("</a>")[-1]
+        cur += parts.pop(0).rsplit('</a>')[-1]
         if not parts:
             break
         
@@ -293,7 +294,7 @@ def replace_links(el, html, link_display_type='it'):
             cur += cli_colour.colourise_low_vis(f"({link_str})")
         elif link_display_type != "h":  # inline table (it)
             # we build a link list, add the number like ① :
-            cur += f"{chr(cli_conf.LINK_START_ORD + cur_link)} "
+            cur += f" {chr(cli_conf.LINK_START_ORD + cur_link)} "
             links_list.append(link_str)
         else:
             pass  ## apparently we ignore h
