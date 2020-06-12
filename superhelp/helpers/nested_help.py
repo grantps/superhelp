@@ -1,5 +1,6 @@
 from ..helpers import filt_block_help
-from .. import ast_funcs, conf
+from .. import conf
+from ..ast_funcs import general as ast_gen
 from ..gen_utils import layout_comment as layout
 
 FOR_XPATH = 'descendant-or-self::For'
@@ -13,7 +14,7 @@ OUTER_XPATHS = {
 NESTING_XPATH = ' | '.join(OUTER_XPATHS.values())
 
 def _long_nested_block(outer_el):
-    _first_line_no, _last_line_no, el_lines_n = ast_funcs.get_el_lines_dets(
+    _first_line_no, _last_line_no, el_lines_n = ast_gen.get_el_lines_dets(
         outer_el, ignore_trailing_lines=True)
     nested_block_line_len = el_lines_n - 1  ## ignore the actual outer el e.g. for:
     too_long = nested_block_line_len > conf.MAX_BRIEF_NESTED_BLOCK

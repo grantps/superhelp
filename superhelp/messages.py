@@ -1,7 +1,8 @@
 from collections import namedtuple
 import logging
 
-from . import ast_funcs, conf, helpers
+from .ast_funcs import general as ast_gen
+from . import conf, helpers
 from .gen_utils import (get_docstring_start, get_tree,
     layout_comment as layout, xml_from_tree)
 
@@ -31,7 +32,7 @@ def get_blocks_dets(snippet, snippet_block_els):
     snippet_lines = snippet.split('\n')
     blocks_dets = []
     for snippet_block_el in snippet_block_els:
-        first_line_no, last_line_no, _el_lines_n = ast_funcs.get_el_lines_dets(
+        first_line_no, last_line_no, _el_lines_n = ast_gen.get_el_lines_dets(
             snippet_block_el)
         block_code_str = (
             '\n'.join(snippet_lines[first_line_no - 1: last_line_no]).strip())
@@ -264,7 +265,7 @@ def get_snippet_dets(snippet, *,
     tree = get_tree(snippet)
     xml = xml_from_tree(tree)
     if conf.RECORD_AST:
-        ast_funcs.store_ast_output(xml)
+        ast_gen.store_ast_output(xml)
     snippet_block_els = xml.xpath('body')[0].getchildren()  ## [0] because there is only one body under root
     multi_block_snippet = len(snippet_block_els) > 1
     snippet_messages_dets = get_separated_messages_dets(

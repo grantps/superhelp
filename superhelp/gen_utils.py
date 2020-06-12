@@ -512,22 +512,81 @@ def int2first_etc(num):
     }
     return nice.get(num, num)
 
-def _is_special_line(one_line_paragraph):
+def _needs_resplitting_into_lines(one_line_paragraph):
     """
-    Special lines are ones we shouldn't break into sub-lines. Title, list items,
-    links etc.
+    No-split lines are ones we shouldn't break into sub-lines. Title, list
+    items, links etc.
 
     :rtype: bool
     """
     res = starting_num_space_prog.match(one_line_paragraph)
     if res is not None:
-        return True
+        return False
     if one_line_paragraph.startswith((
             '#',  ## could be one hash or multiple depending on heading level
             '* '  ## trying to detect bulleted (unordered) lists
         )):
-        return True
-    return False
+        return False
+    return True
+
+def _get_tidy_paragraph(raw_paragraph):
+    """
+    Undo supplied internal line-splitting by rejoining paragraph content into
+    single lines (by replacing internal new-line characters with single spaces)
+    and controlling the splitting into lines. Special lines are not split; other
+    lines are split to MAX_STD_LINE_LEN.
+
+    Remove lead and trailing new-lines - at the end there will always be two
+    new-line characters added to the start. 
+
+    :rtype: str
+    """
+    ## strip external new-line characters
+    paragraph = raw_paragraph.strip()
+    ## remove supplied internal line-splitting
+    one_line_paragraph = paragraph.replace('\n', ' ')  ## 
+    needs_resplitting = _needs_resplitting_into_lines(one_line_paragraph)
+    if needs_resplitting:
+        wrapped_paragraph_lines = wrap(
+            one_line_paragraph, width=conf.MAX_STD_LINE_LEN)
+    else:
+        wrapped_paragraph_lines = [one_line_paragraph, ]
+    new_paragraph = '\n'.join(wrapped_paragraph_lines)
+    return new_paragraph
+
+def _layout_non_code(raw_comment):
+    """
+    Split into paragraphs. Must have two new line characters to count as
+    separate paragraphs.
+
+    :rtype: str
+    """
+    raw_paragraphs = dedent(raw_comment).split('\n\n')  ## we only split paragraphs if two new lines
+    tidy_paragraphs = []
+    for raw_paragraph in raw_paragraphs:
+        tidy_paragraph = _get_tidy_paragraph(raw_paragraph)
+        tidy_paragraphs.append(tidy_paragraph)
+    comment = '\n\n'.join(tidy_paragraphs)
+    return comment
+
+def _layout_code(raw_comment):
+    """
+    Return code with indented lines, and special code markers before and after
+    to indicate that the content is code. Add trailing new line. It is needed
+    otherwise content of next str (if any) becomes part of code highlighting.
+
+    Four spaces is the required indentation for code.
+
+    :rtype: str
+    """
+    lines = (
+        [conf.PYTHON_CODE_START]
+        + dedent(raw_comment).split('\n')
+        + [conf.PYTHON_CODE_END]
+    )
+    indented_lines = [f"{' ' * 4}{line}" for line in lines]
+    comment = f'\n'.join(indented_lines) + '\n'
+    return comment
 
 def layout_comment(raw_comment, *, is_code=False):
     """
@@ -539,8 +598,8 @@ def layout_comment(raw_comment, *, is_code=False):
     :param str raw_comment: Comment ready to be dedented, consolidated, split
      etc. Usually will have new line characters at start and end to ensure MD
      doesn't lump paragraphs together. Extra new lines have no effect in the
-     output but might be useful in the source e.g. to allow automatic line
-     breaking after editing content.
+     output but might be useful in the source e.g. to allow IDE-managed line
+     breaking after content is edited.
     :param bool is_code: if True then special code markers are inserted. These
      are replaced by the appropriate code markers in the displayer.
     :rtype: str
@@ -548,37 +607,10 @@ def layout_comment(raw_comment, *, is_code=False):
     if '`' in raw_comment and is_code:
         logging.debug("Backtick detected in code which is probably a mistake")
     if is_code:
-        lines = (
-            [conf.PYTHON_CODE_START]
-            + dedent(raw_comment).split('\n')
-            + [conf.PYTHON_CODE_END]
-        )
-        indented_lines = [f"{' ' * 4}{line}" for line in lines]
-        comment = f'\n'.join(indented_lines) + '\n'  ## new line at end needed otherwise content of next str (if any) becomes part of code highlighting
+        comment = _layout_code(raw_comment)
     else:
-        raw_paragraphs = dedent(raw_comment).split('\n\n')  ## we only split paragraphs if two new lines
-        new_paragraphs = []
-        for raw_paragraph in raw_paragraphs:
-            ## replace internal new lines only - we need to preserve the outer ones
-            n_start_new_lines = (
-                len(raw_paragraph) - len(raw_paragraph.lstrip('\n')))
-            n_end_new_lines = (
-                len(raw_paragraph) - len(raw_paragraph.rstrip('\n')))
-            paragraph = raw_paragraph.strip()
-            one_line_paragraph = paragraph.replace('\n', ' ')  ## actually continuations of same line so no need to put on separate lines
-            special_line = _is_special_line(one_line_paragraph)
-            if special_line:
-                wrapped_paragraph_lines = [one_line_paragraph, ]
-            else:
-                wrapped_paragraph_lines = wrap(one_line_paragraph)
-            new_paragraph = (
-                (n_start_new_lines * '\n\n')
-                + '\n'.join(wrapped_paragraph_lines)
-                + (n_end_new_lines * '\n\n')
-            )
-            new_paragraphs.append(new_paragraph)
-        comment = '\n' + '\n\n'.join(new_paragraphs)
-    return comment
+        comment = _layout_non_code(raw_comment)
+    return '\n\n' + comment  ## so a separate paragraph from what came before it
 
 def get_docstring_start(docstring):
     docstring_start = (

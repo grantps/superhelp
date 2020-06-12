@@ -26,7 +26,11 @@ LOG_LEVEL = logging.INFO  ## (logging.INFO)
 ## When testing user-supplied snippets watch out for the BOM MS inserts via Notepad. AST chokes on it.
 ## All snippets here should be raw strings (see https://stackoverflow.com/questions/53636723/python-parsing-code-with-new-line-character-in-them-using-ast)
 TEST_SNIPPET = r"""
-import os, requests, conf
+for i in range(2):
+    if var == 123:
+        print(var)
+    if var == 678:
+        print(var)
 """
 
 PY3_6 = '3.6'
@@ -96,6 +100,13 @@ EXAMPLES_OF_TYPES = {  ## best to include at least three so we have enough to ap
     TUPLE_TYPE: [(10, 2), (-3, 20), (44, -180)],
 }
 
+NON_MAGIC_NUM_STRS = [
+    '-1', '0', '1',
+    '5', '10', '100', '1000',  ## often used to convert between different decimal units
+    '200', '404', '401', '403', '500', ## HTTP - obvious enough
+    '60', '3600',  ## seconds - obvious enough
+]
+
 STD_NAME = 'std_name'
 DICT_KEY_NAME = 'dict_key_name'
 OBJ_ATTR_NAME = 'obj_attr_name'
@@ -111,6 +122,7 @@ MIN4ANY_OR_ALL = 3
 MAX_ITEMS_EVALUATED = 25
 MAX_PROJECT_MODULES = 50
 MAX_FILE_PATH_IN_HEADING = 75
+MAX_STD_LINE_LEN = 70
 
 FUNCTION_LBL = 'function'
 METHOD_LBL = 'method'

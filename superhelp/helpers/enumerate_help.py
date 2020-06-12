@@ -29,7 +29,7 @@ def get_var_initialised(el):
         value_els = assign_el.xpath('value')
         if len(value_els) != 1:
             continue
-        num = ast_funcs.num_str_from_val(value_els[0])
+        num = ast_funcs.num_str_from_parent_el(value_els[0])
         if num not in ['0', '-1', '1']:
             continue
         name_els = assign_el.xpath('targets/Name')

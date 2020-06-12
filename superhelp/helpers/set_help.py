@@ -1,5 +1,6 @@
 from ..helpers import filt_block_help
-from .. import ast_funcs, conf
+from ..ast_funcs import general as ast_gen
+from .. import conf
 from ..gen_utils import layout_comment as layout
 from .. import gen_utils
 
@@ -205,7 +206,7 @@ def _get_test_item_dict(compare_el):
     if len(left_val_els) != 1:
         raise Exception("Should only be one value item in a Compare/left")
     left_val_el = left_val_els[0]
-    test_item_dict = ast_funcs.get_standardised_el_dict(left_val_el)
+    test_item_dict = ast_gen.get_standardised_el_dict(left_val_el)
     return test_item_dict
 
 def _get_append_item_dict(call_el):
@@ -217,7 +218,7 @@ def _get_append_item_dict(call_el):
     if len(args_children_els) != 1:
         return None
     args_child_el = args_children_els[0]
-    append_item_dict = ast_funcs.get_standardised_el_dict(args_child_el)
+    append_item_dict = ast_gen.get_standardised_el_dict(args_child_el)
     return append_item_dict
 
 def _get_test_collection_dict(compare_el):
@@ -225,8 +226,7 @@ def _get_test_collection_dict(compare_el):
     if len(comparator_name_els) != 1:
         return None
     comparator_name_el = comparator_name_els[0]
-    test_collection_dict = ast_funcs.get_standardised_el_dict(
-        comparator_name_el)
+    test_collection_dict = ast_gen.get_standardised_el_dict(comparator_name_el)
     return test_collection_dict
 
 def _get_append_collection_dict(call_el):
@@ -234,8 +234,7 @@ def _get_append_collection_dict(call_el):
     if len(appended_name_els) != 1:
         return None
     appended_name_el = appended_name_els[0]
-    append_collection_dict = ast_funcs.get_standardised_el_dict(
-        appended_name_el)
+    append_collection_dict = ast_gen.get_standardised_el_dict(appended_name_el)
     return append_collection_dict
 
 def _get_inappropriate_list(if_el):

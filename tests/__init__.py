@@ -47,7 +47,7 @@ def check_as_expected(test_conf, *, execute_code=True):
     for snippet, expected_source_freqs in test_conf:
         tree = get_tree(snippet)
         xml = astpath.asts.convert_to_xml(tree)
-        ast_funcs.store_ast_output(xml)
+        ast_funcs.general.store_ast_output(xml)
         snippet_block_els = xml.xpath('body')[0].getchildren()  ## [0] because there is only one body under root
         messages_dets = get_separated_messages_dets(
             snippet, snippet_block_els, xml,
@@ -75,7 +75,7 @@ def get_actual_result(snippet, xpath, func):
     tree = get_tree(snippet)
     xml = xml_from_tree(tree)
     if conf.RECORD_AST:
-        ast_funcs.store_ast_output(xml)
+        ast_funcs.general.store_ast_output(xml)
     el = xml.xpath(xpath)[0]
     actual_result = func(el)
     return actual_result

@@ -1,4 +1,6 @@
 
+from . import versioned_nums as nums
+
 def val_dets_3_7(val_el):
     """
     val_el is the element under value e.g. Constant (3.8+) or Str, Num (<3.8)
@@ -37,101 +39,6 @@ def val_dets_3_8(val_el):
         return None
     return val, needs_quoting
 
-## nums ******************************
-
-def assigned_num_els_from_block_3_7(block_el):
-    num_els = block_el.xpath('descendant-or-self::Assign/value/Num')
-    return num_els
-
-def assigned_num_els_from_block_3_8(block_el):
-    val_els = block_el.xpath('descendant-or-self::Assign/value')
-    num_els = []
-    for val_el in val_els:
-        constant_els = val_el.xpath('Constant')
-        if len(constant_els) != 1:
-            continue
-        constant_el = constant_els[0]
-        if constant_el.get('type') in ('int', 'float'):
-            num_els.append(constant_el)
-    return num_els
-
-def num_str_from_val_3_7(val_el):
-    """
-    As for 3_8 version but Num / Str instead of Constant etc.
-    """
-    positive_num_els = val_el.xpath('Num')
-    if len(positive_num_els) == 1:
-        num = positive_num_els[0].get('n')
-    else:
-        sub_els = val_el.xpath('UnaryOp/op/USub')
-        if not sub_els:
-            return None
-        negative_num_els = val_el.xpath('UnaryOp/operand/Num')
-        if len(negative_num_els) != 1:
-            return None
-        pos_num = negative_num_els[0].get('n')
-        num = f'-{pos_num}'
-    return num
-
-def num_str_from_val_3_8(val_el):
-    """
-    ## a positive number
-    <Assign lineno="1" col_offset="0">
-      ...
-      <value>
-        <Constant lineno="1" col_offset="4" type="int" value="0"/>
-      </value>
-    </Assign>
-
-    ## a negative number
-    <Assign lineno="1" col_offset="0">
-      ...
-      <value>
-        <UnaryOp lineno="1" col_offset="4">
-          <op>
-            <USub/>
-          </op>
-          <operand>
-            <Constant lineno="1" col_offset="5" type="int" value="1"/>
-          </operand>
-        </UnaryOp>
-      </value>
-    </Assign>
-    """
-    positive_num_els = val_el.xpath('Constant')
-    if len(positive_num_els) == 1:
-        positive_num_el = positive_num_els[0]
-        val = positive_num_el.get('value')
-        if positive_num_el.get('type') not in ('int', 'float'):
-            return None
-        num = val
-    else:
-        sub_els = val_el.xpath('UnaryOp/op/USub')
-        if not sub_els:
-            return None
-        negative_num_els = val_el.xpath('UnaryOp/operand/Constant')
-        if len(negative_num_els) != 1:
-            return None
-        negative_num_el = negative_num_els[0]
-        val = negative_num_el.get('value')
-        if negative_num_el.get('type') not in ('int', 'float'):
-            return None
-        num = f'-{val}'
-    return num
-
-def num_str_from_el_3_7(comparison_el):
-    num = comparison_el.get('n')
-    if not num:
-        return None
-    return num
-
-def num_str_from_el_3_8(comparison_el):
-    val = comparison_el.get('value')
-    if comparison_el.get('type') in ('int', 'float'):
-        num = val
-    else:
-        num = None
-    return num
 
 ## strs ******************************
 
@@ -405,7 +312,7 @@ def get_slice_dets_3_7(assign_subscript_el):
     if len(val_els) != 1:
         return None
     val_el = val_els[0]
-    num_str = num_str_from_val_3_7(val_el)
+    num_str = nums.num_str_from_parent_el_3_7(val_el)
     if num_str:
         slice_dets = slice_dets = f'[{num_str}]'
     else:
@@ -425,7 +332,7 @@ def get_slice_dets_3_8(assign_subscript_el):
     if len(val_els) != 1:
         return None
     val_el = val_els[0]
-    num_str = num_str_from_val_3_8(val_el)
+    num_str = nums.num_str_from_parent_el_3_8(val_el)
     if num_str:
         slice_dets = slice_dets = f'[{num_str}]'
     else:

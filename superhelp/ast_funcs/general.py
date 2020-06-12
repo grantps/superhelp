@@ -1,8 +1,7 @@
 import logging
 
-from . import conf
-from . import ast_versioned_funcs as avf
-from . import gen_utils
+from .. import conf
+from .. import gen_utils
 
 def get_el_lines_dets(el, *, ignore_trailing_lines=False):
     """
@@ -99,57 +98,3 @@ def get_standardised_el_dict(el):
     std_el_dict = {key: value for key, value in el.items()
         if key not in conf.NON_STD_EL_KEYS}
     return std_el_dict
-
-## when backward compatibility with 3.6 can be dropped use def __getattr__(name):
-## https://stackoverflow.com/questions/2447353/getattr-on-a-module
-python_version = gen_utils.get_python_version()
-
-if python_version in (conf.PY3_6, conf.PY3_7):
-
-    val_dets = avf.val_dets_3_7
-
-    assigned_num_els_from_block = avf.assigned_num_els_from_block_3_7
-    num_str_from_val = avf.num_str_from_val_3_7
-    num_str_from_el = avf.num_str_from_el_3_7
-
-    assigned_str_els_from_block = avf.assigned_str_els_from_block_3_7
-    str_from_el = avf.str_from_el_3_7
-    str_els_from_block = avf.str_els_from_block_3_7
-
-    dict_key_from_subscript = avf.dict_key_from_subscript_3_7
-
-    _get_var_plus_equalled = avf._get_var_plus_equalled_3_7
-    _get_var_equal_plussed = avf._get_var_equal_plussed_3_7
-    get_danger_status = avf.get_danger_status_3_7
-
-    get_docstring_from_value = avf.get_docstring_from_value_3_7
-    get_slice_dets = avf.get_slice_dets_3_7
-    get_nt_lbl_flds = avf.get_nt_lbl_flds_3_7
-    get_slice_n = avf.get_slice_n_3_7
-    get_str_els_being_combined = avf.get_str_els_being_combined_3_7
-
-elif python_version == conf.PY3_8:
-
-    val_dets = avf.val_dets_3_8
-
-    assigned_num_els_from_block = avf.assigned_num_els_from_block_3_8
-    num_str_from_val = avf.num_str_from_val_3_8
-    num_str_from_el = avf.num_str_from_el_3_8
-
-    assigned_str_els_from_block = avf.assigned_str_els_from_block_3_8
-    str_from_el = avf.str_from_el_3_8
-    str_els_from_block = avf.str_els_from_block_3_8
-
-    dict_key_from_subscript = avf.dict_key_from_subscript_3_8
-
-    _get_var_plus_equalled = avf._get_var_plus_equalled_3_8
-    _get_var_equal_plussed = avf._get_var_equal_plussed_3_8
-    get_danger_status = avf.get_danger_status_3_8
-    get_docstring_from_value = avf.get_docstring_from_value_3_8
-    get_slice_dets = avf.get_slice_dets_3_8
-    get_nt_lbl_flds = avf.get_nt_lbl_flds_3_8
-    get_slice_n = avf.get_slice_n_3_8
-    get_str_els_being_combined = avf.get_str_els_being_combined_3_8
-
-else:
-    raise Exception(f"Unexpected Python version {python_version}")

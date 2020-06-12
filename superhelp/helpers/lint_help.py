@@ -300,7 +300,7 @@ def lint_snippet(snippet, *, repeat=False, **_kwargs):
         writing readable code that can be reasoned about with confidence - the
         single best protection against code not doing what it is meant to do.
         The goal should be code where there is obviously nothing wrong rather
-        than code where there nothing obviously wrong.
+        than code where there is nothing obviously wrong.
 
         > "There are two ways of constructing a software design. One way is to
         make it so simple that there are obviously no deficiencies. And the

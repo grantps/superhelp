@@ -17,6 +17,16 @@ If looking at individual code blocks, are you prefiltering or looking at every
 sort? If prefiltering use filt_block_help; if not use any_block_help.
 Simple really :-)
 
+Re: function signatures:
+* block_dets for filt_block_help and any_block_help; blocks_dets (note plural)
+  for snippet_str_help and all_blocks_help.
+* kwargs is used to stop too many needless parameters
+when a function doesn't use everything supplied e.g. execute_code.
+   (block_dets, *, repeat=False, **_kwargs)
+or (block_dets, *, repeat=False, execute_code=True, **_kwargs)
+
+Re: decorator signatures, see actual code below after comment:
+
 The basic pattern within an help function is:
 
 * Get the correct elements and see if the target pattern is found e.g. a value
