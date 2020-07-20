@@ -1,4 +1,3 @@
-import logging
 from textwrap import dedent
 
 from .cli_extras import md2cli
@@ -12,6 +11,8 @@ e.g. Eclipse console.
 
 Lots in common with md displayer but risks of DRYing probably outweigh benefits
 at this stage.
+
+Probably should swap out for https://github.com/willmcgugan/rich
 """
 
 from .. import conf

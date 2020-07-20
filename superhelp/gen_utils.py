@@ -537,14 +537,14 @@ def _get_tidy_paragraph(raw_paragraph):
     lines are split to MAX_STD_LINE_LEN.
 
     Remove lead and trailing new-lines - at the end there will always be two
-    new-line characters added to the start. 
+    new-line characters added to the start.
 
     :rtype: str
     """
     ## strip external new-line characters
     paragraph = raw_paragraph.strip()
     ## remove supplied internal line-splitting
-    one_line_paragraph = paragraph.replace('\n', ' ')  ## 
+    one_line_paragraph = paragraph.replace('\n', ' ')
     needs_resplitting = _needs_resplitting_into_lines(one_line_paragraph)
     if needs_resplitting:
         wrapped_paragraph_lines = wrap(

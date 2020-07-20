@@ -110,9 +110,7 @@ def get_code_help(code, *, file_path=None,
         deferred_display = None
     return deferred_display
 
-def get_script_help(file_path, *,
-        output=conf.HTML, detail_level=conf.EXTRA, theme_name=None,
-        warnings_only=False, execute_code=True, run_context=None):
+def get_script_help(file_path, *, output_settings=None,run_context=None):
     with open(file_path) as f:
         code = f.read()
     code = code.strip('\n')
@@ -124,9 +122,7 @@ def get_script_help(file_path, *,
         .replace('\nthis(', '\n# this(')
     )
     get_code_help(code, file_path=file_path,
-        output=output, theme_name=theme_name, detail_level=detail_level,
-        warnings_only=warnings_only, execute_code=execute_code,
-        run_context=run_context)
+        output_settings=output_settings, run_context=run_context)
 
 def _get_file_paths(project_path, exclude_folders):
     """

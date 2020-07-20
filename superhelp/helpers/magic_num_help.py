@@ -45,7 +45,7 @@ def magic_number(block_dets, *, repeat=False, **_kwargs):
             +
             layout("""\
             or the snippet using "constant" SECONDS_IN_DAY, which has an obvious
-            meaning: 
+            meaning:
             """)
             +
             layout("""\
@@ -57,9 +57,11 @@ def magic_number(block_dets, *, repeat=False, **_kwargs):
             Named constants are much more semantic i.e. readable. They clearly
             express their meaning.
 
-            Note - Python doesn't really have constants as such but it is
-            conventional to use SCREAMING_SNAKE_CASE (capitals joined by
-            underscores) to indicate a variable should be treated as a constant.
+            A constant is a value which is fixed throughout the program e.g.
+            SCREEN_WIDTH, PI, or GRAVITY. Note - Python doesn't really have
+            constants as such but it is conventional to use SCREAMING_SNAKE_CASE
+            (capitals joined by underscores) to indicate a variable should be
+            treated as a constant.
 
             Magic numbers make it hard to understand the code. They certainly
             make it more difficult to maintain and develop in the future when
