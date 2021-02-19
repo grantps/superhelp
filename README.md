@@ -2,7 +2,7 @@
 
 ![Example HTML output](https://github.com/grantps/superhelp/raw/master/superhelp_logo_padded_small.png)
 
-version number: 1.1.0
+version number: 1.1.1
 author: Grant Paton-Simpson
 
 ## Overview
@@ -32,13 +32,19 @@ Jupyter Notebook button instead (see higher up)
 
 To install
 
-1) Use pip e.g.
+Note 
 
-    $ pip3 install superhelp
+1) Use pip
 
-or similar
+E.g.
 
     $ python3 -m pip install superhelp
+
+Check by running 
+
+On Linux, you may also need to add the following to your .bashrc file:
+
+    export PATH=$PATH:~/.local/bin
 
 2) Or clone the repo
 
@@ -140,17 +146,34 @@ If you only want to see warnings you can specify warnings only e.g.
     import superhelp
     superhelp.this(warnings_only=True)
 
-If you don't want your code executed while SuperHELP is evaluating it
+Executing your code allows SuperHELP to better understand your code.
+
+If you want your code executed while SuperHELP is evaluating it
 
     import superhelp
-    superhelp.this(execute_code=False)
+    superhelp.this(execute_code=True)
 
 You can use as many options as you want e.g.
 
     import superhelp
-    superhelp.this(output='md', execute_code=False, warnings_only=True)
+    superhelp.this(output='md', execute_code=True, warnings_only=True)
 
 ### From the command line (terminal / console)
+
+
+
+
+
+
+/////NOTE - shelp will not be available if superhelp has only been installed locally.
+
+/////On Linux you need to sudo install.
+
+
+
+
+
+
 
     $ shelp -h  ## get extended help on usage (purpose, defaults, etc)
 
@@ -177,3 +200,7 @@ You can use as many options as you want e.g.
 ## Stretch Ideas
 
 * Extend beyond standard library into popular libraries like requests, bottle, flask etc.
+
+## Other Packages
+
+[https://github.com/aroberge/friendly-traceback](https://github.com/aroberge/friendly-traceback)

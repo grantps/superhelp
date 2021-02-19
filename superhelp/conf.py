@@ -50,7 +50,7 @@ MD_PYTHON_CODE_START = '::python'
 BRIEF = 'Brief'  ## no spaces; used as labels and as parts of class names in CSS
 MAIN = 'Main'
 EXTRA = 'Extra'
-DETAIL_LEVELS = [BRIEF, MAIN, EXTRA]
+DETAIL_LEVELS = (BRIEF, MAIN, EXTRA)
 
 ANON_NAME = 'Anonymous'
 UNKNOWN_ITEM = '__unknown item__'
@@ -163,6 +163,7 @@ FORCE_SPLIT = '__force_split__'
 
 DARK = 'dark'
 LIGHT = 'light'
+THEME_NAMES = (DARK, LIGHT)
 
 ## scraped from https://docs.python.org/3/py-modindex.html 2020-04-02
 STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',

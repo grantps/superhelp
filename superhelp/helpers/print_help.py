@@ -56,8 +56,9 @@ def print_overview(blocks_dets, *, repeat=False, **_kwargs):
             +
             layout("""\
             from time import sleep
-            print('.', end='', flush=True)
-            sleep(0.25)
+            for i in range(10):
+                print('.', end='', flush=True)
+                sleep(0.25)
             """, is_code=True)
             +
             layout("""\

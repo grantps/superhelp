@@ -1,8 +1,25 @@
+from itertools import product
+import logging
+from pathlib import Path
 from textwrap import dedent
 
 from nose.tools import assert_equal, assert_not_equal, assert_true, assert_false  # @UnusedImport @UnresolvedImport
 
+from superhelp import conf
 from superhelp.gen_utils import layout_comment as layout
+from superhelp.helper import this
+
+def test_this():
+    conf.SHOW_OUTPUT = False
+    file_path = Path(__file__).parent / 'demo_NOT_using_this.py'  ## already protection against infinite recursion (see _neutralise_superhelp_import_in_code)
+    ## not testing output as this is suppressed by setting SHOW_OUTPUT to False
+    bools = [True, False]
+    for n, (theme_name, detail_level, warnings_only, execute_code) in enumerate(
+            product(conf.THEME_NAMES, conf.DETAIL_LEVELS, bools, bools), 1):
+        logging.info(f"Run #{n} of test_this (approx a few dozen)")
+        this(file_path=file_path,
+            output=conf.HTML, theme_name=theme_name, detail_level=detail_level,
+            warnings_only=warnings_only, execute_code=execute_code)
 
 def test_layout():
     """
@@ -42,3 +59,4 @@ def test_layout():
         assert_equal(actual_res, expected_res, f"'{actual_res}'")
 
 # test_layout()
+# test_this()

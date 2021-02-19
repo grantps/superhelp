@@ -36,9 +36,9 @@ OutputSettings.execute_code.__doc__ = (
 
 def _get_displayer_module(output):
     ARG2DISPLAYER = {
-        'html': html_displayer,
-        'cli': cli_displayer,
-        'md': md_displayer,
+        conf.HTML: html_displayer,
+        conf.CLI: cli_displayer,
+        conf.MD: md_displayer,
     }
     displayer_module = ARG2DISPLAYER.get(output)
     if displayer_module is None:
@@ -110,10 +110,7 @@ def get_code_help(code, *, file_path=None,
         deferred_display = None
     return deferred_display
 
-def get_script_help(file_path, *, output_settings=None,run_context=None):
-    with open(file_path) as f:
-        code = f.read()
-    code = code.strip('\n')
+def _neutralise_superhelp_import_in_code(code):
     ## prevent infinite recursion where superhelp executes script calling superhelp which in turn would etc etc
     code = (code  ## only fixing simple cases - if people try harder they _will_ be able to break everything ;-)
         .replace('import superhelp', '# import superhelp')
@@ -121,6 +118,13 @@ def get_script_help(file_path, *, output_settings=None,run_context=None):
         .replace('from superhelp import this', '# from superhelp import this')
         .replace('\nthis(', '\n# this(')
     )
+    return code
+
+def get_script_help(file_path, *, output_settings=None,run_context=None):
+    with open(file_path) as f:
+        code = f.read()
+    code = code.strip('\n')
+    code = _neutralise_superhelp_import_in_code(code)
     get_code_help(code, file_path=file_path,
         output_settings=output_settings, run_context=run_context)
 
@@ -203,7 +207,7 @@ def get_help(code=None, *,
 
 def this(*, file_path=None,
         output=conf.HTML, theme_name=conf.DARK, detail_level=conf.EXTRA,
-        warnings_only=False, execute_code=True):
+        warnings_only=False, execute_code=False):
     """
     Get SuperHELP output on the file_path Python script.
 
@@ -221,10 +225,11 @@ def this(*, file_path=None,
     :param str detail_level: e.g. 'Brief', 'Main', 'Extra' (default 'Extra')
     :param bool warnings_only: if True only displays warnings (default False)
     :param bool execute_code: if True executes code to enable extra checks
-     (default True)
+     (default False)
     """
     if not file_path:
         file_path = gen_utils.get_introspected_file_path()
+    output = output if conf.SHOW_OUTPUT else None
     output_settings = OutputSettings(
         displayer=output, theme_name=theme_name, detail_level=detail_level,
         warnings_only=warnings_only, execute_code=execute_code)
@@ -258,19 +263,23 @@ def shelp():
             "exclude modules in storage folders or a virtual env folder "
             "e.g. --exclude store env back_ups misc"))
     parser.add_argument('-d', '--detail-level', type=str,
-        required=False, default='Extra',
-        help="What level of detail do you want? Brief, Main, or Extra?")
+        required=False,
+        choices=[conf.BRIEF, conf.MAIN, conf.EXTRA], default=conf.EXTRA,
+        help="What level of detail do you want?")
     parser.add_argument('-o', '--output', type=str,
-        required=False, default=default_output,
+        required=False,
+        choices=[conf.CLI, conf.HTML, conf.MD], default=default_output,
         help="How do you want your help shown? html, cli, md, etc")
+    ## https://docs.python.org/3.10/library/argparse.html#action-classes 'store_true' and 'store_false' - These are special cases of 'store_const' used for storing the values True and False respectively. In addition, they create default values of False and True respectively.
     parser.add_argument('-w', '--warnings-only', action='store_true',
         default=False,
         help="Show warnings only")
-    parser.add_argument('-x', '--execute-code', action='store_false',
-        default=True,
+    parser.add_argument('-x', '--execute-code', action='store_true',
+        default=False,
         help="Execute script to enable additional checks")
     parser.add_argument('-t', '--theme', type=str,
-        required=False, default=conf.DARK,
+        required=False,
+        choices=[conf.DARK, conf.LIGHT], default=conf.DARK,
         help=("Select an output theme - currently only affects cli output "
             f"option. '{conf.DARK}' or '{conf.LIGHT}'"))
     parser.add_argument('-a', '--advice-list', action='store_true',

@@ -387,10 +387,12 @@ def clean_path_name(raw_path):
     """
     Get a path we can use in a url or file path.
     """
-    clean_path = (raw_path
+    clean_path = (
+        str(raw_path)
         .replace('...', '_')
         .replace('/', '_')
-        .replace('\\', '_'))
+        .replace('\\', '_')
+    )
     return clean_path
 
 def get_superhelp_tmpdir(folder='superhelp'):
