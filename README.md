@@ -40,9 +40,12 @@ E.g.
 
     $ python3 -m pip install superhelp
 
-Check by running 
+Check by running
 
-On Linux, you may also need to add the following to your .bashrc file:
+    $ shelp
+
+If it doesn't work, and you are on Linux, adding the following to your .bashrc
+file might fix the problem:
 
     export PATH=$PATH:~/.local/bin
 
@@ -160,21 +163,6 @@ You can use as many options as you want e.g.
 
 ### From the command line (terminal / console)
 
-
-
-
-
-
-/////NOTE - shelp will not be available if superhelp has only been installed locally.
-
-/////On Linux you need to sudo install.
-
-
-
-
-
-
-
     $ shelp -h  ## get extended help on usage (purpose, defaults, etc)
 
     $ shelp --code "people = ['Tomas', 'Sal', 'Raj']" --output html --detail-level Main
@@ -189,14 +177,14 @@ You can use as many options as you want e.g.
     $ shelp --file-path my_script.py --warnings-only
     $ shelp -f my_snippet.py -w
 
-    $ shelp --file-path my_script.py --execute-code True
-    $ shelp -f my_snippet.py -x True
+    $ shelp --file-path my_script.py --execute-code
+    $ shelp -f my_snippet.py -x
 
     $ shelp  ## to see advice on an example snippet displayed (detail level 'Extra')
 
     $ shelp --advice-list  ## to see all types of help listed
     $ shelp -a
-    
+
 ## Stretch Ideas
 
 * Extend beyond standard library into popular libraries like requests, bottle, flask etc.

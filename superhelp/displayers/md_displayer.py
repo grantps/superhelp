@@ -1,4 +1,3 @@
-import logging
 from textwrap import dedent
 
 from .. import gen_utils
