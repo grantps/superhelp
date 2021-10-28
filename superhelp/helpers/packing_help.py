@@ -1,9 +1,10 @@
 from collections import defaultdict
 
-from ..helpers import get_unpacking_msg, all_blocks_help, filt_block_help
-from .. import ast_funcs, conf
-from .. import gen_utils
-from ..gen_utils import layout_comment as layout
+from superhelp.helpers import (
+    get_unpacking_msg, all_blocks_help, filt_block_help)
+from superhelp import ast_funcs, conf, gen_utils
+from superhelp.gen_utils import layout_comment as layout
+from superhelp.utils import inspect_el  # @UnusedImport
 
 ASSIGN_UNPACKING_XPATH = 'descendant-or-self::Assign/targets/Tuple'
 
@@ -60,6 +61,7 @@ def unpacking_opportunity(blocks_dets, *, repeat=False, **_kwargs):
     for block_dets in blocks_dets:
         assign_els = block_dets.element.xpath('descendant-or-self::Assign')
         for assign_el in assign_els:
+            # inspect_el(assign_el)
             try:
                 slice_source = assign_el.xpath(
                     'value/Subscript/value/Name')[0].get('id')

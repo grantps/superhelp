@@ -1,9 +1,9 @@
 from ..helpers import (get_dict_comprehension_msg,
     get_general_comprehension_msg, get_set_comprehension_msg,
     filt_block_help)
-from .. import conf
-from .. import gen_utils
-from ..gen_utils import layout_comment as layout
+from superhelp import conf
+from superhelp import gen_utils
+from superhelp.gen_utils import layout_comment as layout
 
 def truncate_list(items):
     return items[: conf.MAX_ITEMS_EVALUATED]
@@ -79,8 +79,8 @@ def listcomp_overview(block_dets, *,
         other_comprehensions = ''
 
     message = {
-        conf.Level.Level.BRIEF: title + oversized_msg + brief_summary,
-        conf.Level.Level.MAIN: title + oversized_msg + main_summary,
-        conf.Level.Level.EXTRA: other_comprehensions,
+        conf.Level.BRIEF: title + oversized_msg + brief_summary,
+        conf.Level.MAIN: title + oversized_msg + main_summary,
+        conf.Level.EXTRA: other_comprehensions,
     }
     return message

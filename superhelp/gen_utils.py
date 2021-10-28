@@ -94,7 +94,6 @@ def convert_to_xml(node, omit_docstrings=False, node_mappings=None):
 
 astpath.asts.convert_to_xml = convert_to_xml
 
-
 starting_num_space_pattern = r"""(?x)
     ^      ## start
     \d+  ## one or more digits

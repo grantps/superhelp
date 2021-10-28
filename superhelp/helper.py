@@ -142,7 +142,8 @@ class Pipeline:
         try:
             displayer_module = Pipeline.FORMAT2DISPLAYER_MOD[format_name]
         except KeyError:
-            raise ValueError(f"A format was supplied that lacks a displayer module")
+            raise ValueError(f"A format ({format_name}) was supplied "
+                "that lacks a displayer module")
         else:
             return displayer_module
 
@@ -242,9 +243,14 @@ def show_help(code=None, *,
         file_path=file_path,
         project_path=project_path, exclude_folders=exclude_folders,
         output_settings=output_settings, in_notebook=in_notebook)
-    single_script = project_path is None
-    Pipeline.display_help(formatted_help_strs, output_settings.format_name,
-        single_script=single_script)
+    if conf.SHOW_OUTPUT:
+        single_script = project_path is None
+        Pipeline.display_help(formatted_help_strs, output_settings.format_name,
+            single_script=single_script)
+    else:
+        logging.info("NOT showing output because conf.SHOW_OUTPUT is False "
+            "- presumably running tests "
+            "and not wanting lots of HTML windows opening ;-)")
 
 def this(*, file_path=None,
         output=Format.HTML, theme_name=Theme.DARK,
@@ -271,9 +277,8 @@ def this(*, file_path=None,
     """
     if not file_path:
         file_path = gen_utils.get_introspected_file_path()
-    output = output if conf.SHOW_OUTPUT else None
     output_settings = OutputSettings(
-        displayer=output, theme_name=theme_name, detail_level=detail_level,
+        format_name=output, theme_name=theme_name, detail_level=detail_level,
         warnings_only=warnings_only, execute_code=execute_code)
     show_help(code=None, file_path=file_path, project_path=None,
         output_settings=output_settings, in_notebook=False)

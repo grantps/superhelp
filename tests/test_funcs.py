@@ -1,6 +1,6 @@
 from textwrap import dedent
 
-from nose.tools import assert_equal
+from nose.tools import assert_equal  # @UnresolvedImport
 
 from tests import check_as_expected, get_repeated_lines, get_actual_result
 
@@ -260,9 +260,6 @@ def test_arg_count():
     for snippet, test_func, expected_result in tests:
         actual_result = get_actual_result(snippet, xpath, test_func)
         assert_equal(expected_result, actual_result)
-
-## enable use of nosetests -a "!three_point_seven_plus_only" so can run on 3.6
-test_arg_count.three_point_seven_plus_only = True
 
 # test_misc()
 # test_arg_count()

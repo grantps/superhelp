@@ -1,10 +1,11 @@
 from collections import defaultdict, namedtuple
 
-from ..helpers import all_blocks_help, any_block_help, is_reserved_name
-from .. import ast_funcs, conf, name_utils
-from .. import gen_utils
-from ..gen_utils import (get_nice_str_list, int2first_etc, int2nice,
-    layout_comment as layout)
+from superhelp.helpers import all_blocks_help, any_block_help, is_reserved_name
+from superhelp import ast_funcs, conf, name_utils
+from superhelp import gen_utils
+from superhelp.utils import inspect_el  # @UnusedImport
+from superhelp.gen_utils import (get_nice_str_list,
+    int2first_etc, int2nice, layout_comment as layout)
 
 PairDets = namedtuple('PairDets', 'name, name_value, unpacking_idx')
 PairDets.name.__doc__ = (
@@ -15,7 +16,9 @@ PairDets.unpacking_idx.__doc__ = ("The unpacking index if applicable "
     "e.g if a, b = c and name is a then unpacking_idx is 0; for b it is 1")
 
 ASSIGN_SUBSCRIPT_XPATH = 'descendant-or-self::Assign/value/Subscript'
-ASSIGN_NAME_XPATH = 'descendant-or-self::Assign/value/Name'
+ASSIGN_NAME_XPATH = (
+    'descendant-or-self::Assign/value/Name'
+    '|descendant-or-self::Assign/value/Tuple/elts/Name')
 
 def get_subscript_name_value(assign_subscript_el):
     """
@@ -258,6 +261,7 @@ def names_and_values(blocks_dets, *, repeat=False, **_kwargs):
     name2name_pairs_dets = []
     for block_dets in blocks_dets:
         block_el = block_dets.element
+        # inspect_el(block_el)
         block_name2name_pairs_dets = pairs_dets_from_block(block_el)
         if block_name2name_pairs_dets:
             name2name_pairs_dets.extend(block_name2name_pairs_dets)

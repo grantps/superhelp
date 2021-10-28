@@ -1,4 +1,5 @@
 from superhelp.ast_funcs import versioned_nums as nums
+from superhelp.utils import inspect_el
 
 def val_dets(val_el):
     const_type = val_el.get('type')
@@ -49,7 +50,7 @@ def str_els_from_block(block_el):
 ## dict keys ******************************
 
 def dict_key_from_subscript(subscript_el):
-    key_els = subscript_el.xpath('slice/Index/value/Constant')
+    key_els = subscript_el.xpath('slice/Constant')
     if len(key_els) != 1:
         return None
     key_el = key_els[0]
@@ -180,7 +181,7 @@ def get_slice_dets(assign_subscript_el):
     if len(val_els) != 1:
         return None
     val_el = val_els[0]
-    num_str = nums.num_str_from_parent_el_3_8(val_el)
+    num_str = nums.num_str_from_parent_el(val_el)
     if num_str:
         slice_dets = slice_dets = f'[{num_str}]'
     else:
@@ -225,7 +226,8 @@ def get_nt_lbl_flds(assign_block_el):
         assign_block_el, tag='Constant', id_attr='value')
 
 def get_slice_n(assign_el):
-    val_els = assign_el.xpath('value/Subscript/slice/Index/value/Constant')
+    # inspect_el(assign_el)
+    val_els = assign_el.xpath('value/Subscript/slice/Constant')
     val_el = val_els[0]
     if val_el.get('type') in ('int', 'float'):
         slice_n = val_el.get('value')

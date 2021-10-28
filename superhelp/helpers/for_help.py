@@ -1,9 +1,9 @@
-from ..helpers import (
+from superhelp.helpers import (
     get_dict_comprehension_msg, get_general_comprehension_msg,
     get_set_comprehension_msg, filt_block_help)
-from ..ast_funcs.general import get_el_lines_dets
-from .. import conf
-from ..gen_utils import layout_comment as layout
+from superhelp.ast_funcs.general import get_el_lines_dets
+from superhelp import conf
+from superhelp.gen_utils import layout_comment as layout
 
 FOR_XPATH = 'descendant-or-self::For'
 
@@ -81,6 +81,14 @@ def get_incremental_iteration_dets(for_el):
 
     ... Subscript/value/Name id = pets
                   slice/Index/value/Name = i
+
+    ## the original for_el might be nested inside the body
+    for x in range(2):
+        pets = ['cat', 'dog']
+        for i in range(len(pets)):
+            comment = f"My {pets[i]}"
+
+    utils.inspect_el(for_el)  ## to inspect
     """
     target_name_els = for_el.xpath('target/Name')
     if not target_name_els:
@@ -112,8 +120,9 @@ def get_incremental_iteration_dets(for_el):
     slicing_iterable = (iterable_name == subscript_name)
     if not slicing_iterable:
         return None
+    ## <slice><Name lineno="4" col_offset="29" type="str" id="i"><ctx><Load/></ctx></Name></slice>
     slice_index_name_els = for_el.xpath(
-        'descendant-or-self::Subscript/slice/Index/value/Name')
+        'descendant-or-self::Subscript/slice/Name')
     if not slice_index_name_els:
         return None
     slice_index_name = slice_index_name_els[0].get('id')

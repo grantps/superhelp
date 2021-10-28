@@ -1,9 +1,9 @@
 from collections import defaultdict
 
-from ..helpers import filt_block_help
-from .. import ast_funcs
-from .. import code_execution, conf, name_utils
-from ..gen_utils import get_nice_str_list, layout_comment as layout
+from superhelp.helpers import filt_block_help
+from superhelp import ast_funcs, code_execution, conf, name_utils
+from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
+from superhelp.utils import inspect_el  # @UnusedImport
 
 ASSIGN_VAL_XPATH = 'descendant-or-self::Assign/value'
 
@@ -18,14 +18,19 @@ def get_num_from_ast(num_el):
 @filt_block_help(xpath=ASSIGN_VAL_XPATH)
 def num_overview(block_dets, *, execute_code=True, repeat=False, **_kwargs):
     """
-    Get general advice about assigned numbers e.g. var = 123
+    Get general advice about assigned numbers e.g.
+    var = 123
+    mydict[1] = 5
     """
-    num_els = ast_funcs.assigned_num_els_from_block(block_dets.element)
+    block_el = block_dets.element
+    # inspect_el(block_el)
+    num_els = ast_funcs.assigned_num_els_from_block(block_el)
     if not num_els:
         return None
     val_types = defaultdict(list)
     type_firsts = {}
     for num_el in num_els:
+        # inspect_el(num_el)
         name_dets = name_utils.get_assigned_name(num_el)
         if execute_code:
             try:

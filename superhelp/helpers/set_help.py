@@ -1,8 +1,7 @@
-from ..helpers import filt_block_help
-from ..ast_funcs import general as ast_gen
-from .. import conf
-from ..gen_utils import layout_comment as layout
-from .. import gen_utils
+from superhelp.helpers import filt_block_help
+from superhelp.ast_funcs import general as ast_gen
+from superhelp import conf, gen_utils
+from superhelp.gen_utils import layout_comment as layout
 
 def truncate_set(items):
     return set(list(items)[: conf.MAX_ITEMS_EVALUATED])
@@ -165,10 +164,9 @@ def set_overview(block_dets, *, repeat=False, execute_code=True, **_kwargs):
         set_extras = ''
 
     message = {
-        conf.Level.Level.BRIEF: title + oversized_msg + summary + sets_rock,
-        conf.Level.Level.MAIN: (
-            title + oversized_msg + summary + sets_rock + set_dets),
-        conf.Level.Level.EXTRA: set_extras,
+        conf.Level.BRIEF: title + oversized_msg + summary + sets_rock,
+        conf.Level.MAIN: title + oversized_msg + summary + sets_rock + set_dets,
+        conf.Level.EXTRA: set_extras,
     }
     return message
 
