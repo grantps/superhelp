@@ -243,9 +243,9 @@ def _get_names_and_values_msg(name2name_pairs_dets):
     """)
 
     message = {
-        conf.BRIEF: title + assignments + brief_summary,
-        conf.MAIN: title + assignments + main_summary,
-        conf.EXTRA: ned_talk_etc,
+        conf.Level.BRIEF: title + assignments + brief_summary,
+        conf.Level.MAIN: title + assignments + main_summary,
+        conf.Level.EXTRA: ned_talk_etc,
     }
     return message
 
@@ -470,9 +470,9 @@ def unpythonic_name_check(block_dets, *, repeat=False, **_kwargs):
         pascal = ''
 
     message = {
-        conf.BRIEF: (title + reserved_comment + bad_comment
+        conf.Level.BRIEF: (title + reserved_comment + bad_comment
             + dubious_comment + snake_case + pascal),
-        conf.MAIN: (title + reserved_comment + bad_comment
+        conf.Level.MAIN: (title + reserved_comment + bad_comment
             + dubious_comment + snake_case + pascal),
     }
     return message
@@ -570,7 +570,7 @@ def short_name_check(block_dets, *, repeat=False, **_kwargs):
         idiomatic = ''
 
     message = {
-        conf.BRIEF: title + sometimes_ok,
-        conf.MAIN: title + sometimes_ok + idiomatic,
+        conf.Level.BRIEF: title + sometimes_ok,
+        conf.Level.MAIN: title + sometimes_ok + idiomatic,
     }
     return message

@@ -3,7 +3,8 @@ from markdown.extensions import Extension  # @UnresolvedImport
 from markdown.treeprocessors import Treeprocessor  # @UnresolvedImport
 from tabulate import tabulate  # @UnresolvedImport
 
-from . import cli_colour, cli_conf, cli_utils, tag_formatting
+from superhelp.formatters.cli_extras import (
+    cli_colour, cli_conf, cli_utils, tag_formatting)
 
 
 class AnsiPrinter(Treeprocessor):
@@ -34,11 +35,11 @@ class AnsiPrinter(Treeprocessor):
 
     @staticmethod
     def handle_blockquotes(el, out, *, nesting_level):
-        for el1 in el.getchildren():
+        for child_el in el:
             iout = []
-            AnsiPrinter.formatter(el1, iout, nesting_level + 2, parent=el)
+            AnsiPrinter.formatter(child_el, iout, nesting_level + 2, parent=el)
             pr = cli_colour.colourise(
-                cli_conf.BQUOTE_PREFIX, cli_colour.H1_COLOUR)
+                cli_conf.BQUOTE_PREFIX, cli_colour.H1_COLOUR)  # @UndefinedVariable
             sp = ' ' * (nesting_level + 2)
             for l in iout:
                 for l1 in l.splitlines():
@@ -48,7 +49,7 @@ class AnsiPrinter(Treeprocessor):
 
     @staticmethod
     def handle_list_item(el, out, *, nesting_level):
-        childs = el.getchildren()
+        childs = [child for child in el]
         for nested in ['ul', 'ol']:
             if childs and childs[-1].tag == nested:
                 ul = childs[-1]

@@ -51,7 +51,7 @@ def exception_overview(blocks_dets, *, repeat=False, **_kwargs):
     block_comments = ''.join(block_comment_bits)
 
     message = {
-        conf.BRIEF: title + block_comments,
+        conf.Level.BRIEF: title + block_comments,
     }
     return message
 
@@ -118,7 +118,7 @@ def unspecific_exception(blocks_dets, *, repeat=False, **_kwargs):
         unspecific_demo = ''
 
     message = {
-        conf.BRIEF: title + unspecific_warning,
-        conf.MAIN: title + unspecific_warning + unspecific_demo,
+        conf.Level.BRIEF: title + unspecific_warning,
+        conf.Level.MAIN: title + unspecific_warning + unspecific_demo,
     }
     return message

@@ -173,7 +173,7 @@ def manual_incrementing(blocks_dets, *, repeat=False, **_kwargs):
         demo = ''
 
     message = {
-        conf.BRIEF: summary,
-        conf.MAIN: summary + demo,
+        conf.Level.BRIEF: summary,
+        conf.Level.MAIN: summary + demo,
     }
     return message

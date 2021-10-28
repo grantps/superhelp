@@ -158,8 +158,8 @@ def verbose_option(blocks_dets, *, repeat=False, **_kwargs):
         extra = ''
 
     message = {
-        conf.BRIEF: title + brief_explain,
-        conf.MAIN: title + longer_explain,
-        conf.EXTRA: extra,
+        conf.Level.BRIEF: title + brief_explain,
+        conf.Level.MAIN: title + longer_explain,
+        conf.Level.EXTRA: extra,
     }
     return message

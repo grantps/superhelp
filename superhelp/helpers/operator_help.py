@@ -120,7 +120,7 @@ def compound_operator_possible(block_dets, *, repeat=False, **_kwargs):
         compound_operators = ''
 
     message = {
-        conf.BRIEF: title + brief_msg,
-        conf.MAIN: title + brief_msg + compound_operators,
+        conf.Level.BRIEF: title + brief_msg,
+        conf.Level.MAIN: title + brief_msg + compound_operators,
     }
     return message

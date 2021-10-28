@@ -13,11 +13,11 @@ import webbrowser
 
 import ast
 
-from . import code_execution, conf, name_utils
-from lxml import etree
+from superhelp import code_execution, conf, name_utils
+from lxml import etree  # @UnresolvedImport
 import astpath  # @UnresolvedImport
 
-from astpath.asts import _set_encoded_literal, _strip_docstring
+from astpath.asts import _set_encoded_literal, _strip_docstring  # @UnresolvedImport
 
 ## Monkey-patch as at astpath Python 3.8 as at 2020-04-26
 ## Need to be able to tell val = 1 from val = '1' (that little detail ;-))
@@ -378,8 +378,8 @@ def get_introspected_file_path():
     return file_path
 
 def get_os_platform():
-    platforms = {
-        'Linux': conf.LINUX, 'Windows': conf.WINDOWS, 'Darwin': conf.MAC}
+    platforms = {'Linux': conf.OS.LINUX,
+        'Windows': conf.OS.WINDOWS, 'Darwin': conf.OS.MAC}
     os_platform = platforms.get(platform.system())
     return os_platform
 

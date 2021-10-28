@@ -52,7 +52,7 @@ def _visibly_centred_text(text):
     return true_centred_text
 
 def h(text, level):
-    level_colour = cli_colour.LEVEL2COLOUR.get(level)
+    level_colour = cli_colour.LEVEL2COLOUR.get(level)  # @UndefinedVariable
     bold = False
     if level <= 2:
         vertical_padding_line = _get_vertical_padding_line(
@@ -97,7 +97,7 @@ def h5(s, **_kwargs):
     return h(s, level=5)
 
 def p(text, **_kwargs):
-    return cli_colour.colourise(text.strip('\n') + '\n', cli_colour.TEXT)
+    return cli_colour.colourise(text.strip('\n') + '\n', cli_colour.TEXT)  # @UndefinedVariable
 
 def a(text, **_kwargs):
     return cli_colour.colourise_low_vis(text)
@@ -108,7 +108,7 @@ def hr(_text, **kw):
     """
     nesting_level = kw.get('nesting_level', 1)
     indent = (nesting_level - 1) * cli_conf.LEFT_INDENT
-    colour = cli_colour.LEVEL2COLOUR[nesting_level]
+    colour = cli_colour.LEVEL2COLOUR[nesting_level]  # @UndefinedVariable
     start = end = cli_colour.colourise(cli_conf.HR_ENDS, colour)
     return cli_colour.colourise_low_vis(
         f"\n{indent}{start}{cli_conf.HR_MARKER}{end}{indent}\n")
@@ -143,7 +143,7 @@ def code(text, from_fenced_block=None, **kw):
     # we want an indent of one and low vis prefix. this does it:
     code_lines = text.splitlines()
     code_prefix = cli_colour.colourise_low_vis(cli_conf.CODE_PREFIX)
-    empty = cli_colour.colourise('', cli_colour.CODE_COLOUR, no_reset=True)
+    empty = cli_colour.colourise('', cli_colour.CODE_COLOUR, no_reset=True)  # @UndefinedVariable
     prefix = f"\n{indent}{code_prefix} {empty}"
     if code_lines[-1] == '\x1b[0m':
         code_lines.pop()

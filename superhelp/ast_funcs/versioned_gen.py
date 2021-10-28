@@ -1,27 +1,6 @@
+from superhelp.ast_funcs import versioned_nums as nums
 
-from . import versioned_nums as nums
-
-def val_dets_3_7(val_el):
-    """
-    val_el is the element under value e.g. Constant (3.8+) or Str, Num (<3.8)
-    """
-    raw_val = val_el.get('s')
-    if raw_val:
-        val = raw_val
-        needs_quoting = True
-    else:
-        raw_val = val_el.get('n')
-        if raw_val:
-            val = float(raw_val)  ## 1 and 1.0 are the same val when a key in a dict
-            needs_quoting = False
-        else:
-            return None
-    return val, needs_quoting
-
-def val_dets_3_8(val_el):
-    """
-    As per 3_7 version
-    """
+def val_dets(val_el):
     const_type = val_el.get('type')
     if not const_type:
         return None
@@ -39,16 +18,9 @@ def val_dets_3_8(val_el):
         return None
     return val, needs_quoting
 
-
 ## strs ******************************
 
-def str_from_el_3_7(el):
-    string = el.get('s')
-    if not string:
-        return None
-    return string
-
-def str_from_el_3_8(el):
+def str_from_el(el):
     val = el.get('value')
     if el.get('type') == 'str':
         string = val
@@ -56,11 +28,7 @@ def str_from_el_3_8(el):
         string = None
     return string
 
-def assigned_str_els_from_block_3_7(block_el):
-    str_els = block_el.xpath('descendant-or-self::Assign/value/Str')
-    return str_els
-
-def assigned_str_els_from_block_3_8(block_el):
+def assigned_str_els_from_block(block_el):
     assign_val_els = block_el.xpath('descendant-or-self::Assign/value')
     str_els = []
     for assign_val_el in assign_val_els:
@@ -72,11 +40,7 @@ def assigned_str_els_from_block_3_8(block_el):
             str_els.append(assign_str_el)
     return str_els
 
-def str_els_from_block_3_7(block_el):
-    str_els = block_el.xpath('descendant-or-self::Str')
-    return str_els
-
-def str_els_from_block_3_8(block_el):
+def str_els_from_block(block_el):
     constant_els = block_el.xpath('descendant-or-self::Constant')
     str_els = [constant_el for constant_el in constant_els
         if constant_el.get('type') == 'str']
@@ -84,20 +48,12 @@ def str_els_from_block_3_8(block_el):
 
 ## dict keys ******************************
 
-def dict_key_from_subscript_3_7(subscript_el):
-    key_els = subscript_el.xpath(
-        'slice/Index/value/Num | slice/Index/value/Str')
-    if len(key_els) != 1:
-        return None
-    key_el = key_els[0]
-    return val_dets_3_7(val_el=key_el)
-
-def dict_key_from_subscript_3_8(subscript_el):
+def dict_key_from_subscript(subscript_el):
     key_els = subscript_el.xpath('slice/Index/value/Constant')
     if len(key_els) != 1:
         return None
     key_el = key_els[0]
-    return val_dets_3_8(val_el=key_el)
+    return val_dets(val_el=key_el)
 
 ## other ******************************
 
@@ -115,25 +71,7 @@ def _get_var_plus_equalled_all(el):
         return None
     return target, plus_equalled_el
 
-def _get_var_plus_equalled_3_7(el):
-    """
-    As for 3_8 version but Num / Str vs Constant etc.
-    """
-    ok_num = '1'
-    res = _get_var_plus_equalled_all(el)
-    if res is None:
-        return None
-    target, plus_equalled_el = res
-    num_els = plus_equalled_el.xpath('value/Num')
-    if len(num_els) != 1:
-        return None
-    num = num_els[0].get('n')
-    if num != ok_num:
-        return None
-    var_plus_equalled = target
-    return var_plus_equalled
-
-def _get_var_plus_equalled_3_8(el):
+def _get_var_plus_equalled(el):
     """
     e.g. i if i += 1
 
@@ -194,55 +132,7 @@ def _get_var_equal_plussed_all(el):
         return None
     return var_name, bin_op_el
 
-def _get_var_equal_plussed_3_7(el):
-    """
-    e.g. i if i = i + 1
-
-    <Assign lineno="4" col_offset="0">
-      <targets>
-        <Name lineno="4" col_offset="0" id="counter">
-          <ctx>
-            <Store/>
-          </ctx>
-        </Name>
-      </targets>
-      <value>
-        <BinOp lineno="4" col_offset="10">
-          <left>
-            <Name lineno="4" col_offset="10" id="counter">
-              <ctx>
-                <Load/>
-              </ctx>
-            </Name>
-          </left>
-          <op>
-            <Add/>
-          </op>
-          <right>
-            <Num lineno="4" col_offset="20" n="1"/>
-          </right>
-        </BinOp>
-      </value>
-    </Assign>
-    """
-    ok_val = '1'
-    res = _get_var_equal_plussed_all(el)
-    if res is None:
-        return None
-    var_name, bin_op_el = res
-    right_els = bin_op_el.xpath('right/Num')
-    if len(right_els) != 1:
-        return None
-    right_val = right_els[0].get('n')  ## ... + 1
-    if right_val != ok_val:
-        return None
-    var_equal_plussed = var_name
-    return var_equal_plussed
-
-def _get_var_equal_plussed_3_8(el):
-    """
-    As for 3_7 version but Constant instead of Num / Str etc.
-    """
+def _get_var_equal_plussed(el):
     ok_val = '1'
     res = _get_var_equal_plussed_all(el)
     if res is None:
@@ -260,17 +150,7 @@ def _get_var_equal_plussed_3_8(el):
     var_equal_plussed = var_name
     return var_equal_plussed
 
-def get_danger_status_3_7(child_el):
-    if (child_el.tag == 'NameConstant'
-            and child_el.get('value') in ['True', 'False']):
-        danger_status = 'Boolean'
-    elif child_el.tag == 'Num' and child_el.get('n'):
-        danger_status = 'Number'
-    else:
-        danger_status = None
-    return danger_status
-
-def get_danger_status_3_8(child_el):
+def get_danger_status(child_el):
     if child_el.tag == 'Constant':
         val = child_el.get('value')
         if val in ['True', 'False']:
@@ -286,14 +166,7 @@ def get_danger_status_3_8(child_el):
         danger_status = None
     return danger_status
 
-def get_docstring_from_value_3_7(first_value_el):
-    if first_value_el.tag != 'Str':
-        docstring = None
-    else:
-        docstring = first_value_el.get('s')
-    return docstring
-
-def get_docstring_from_value_3_8(first_value_el):
+def get_docstring_from_value(first_value_el):
     if first_value_el.tag != 'Constant':
         docstring = None
     elif first_value_el.get('type') != 'str':
@@ -302,32 +175,7 @@ def get_docstring_from_value_3_8(first_value_el):
         docstring = first_value_el.get('value')
     return docstring
 
-def get_slice_dets_3_7(assign_subscript_el):
-    """
-    Get slice dets e.g. '[2]', '[-1]' or '["NZ"]'. Only interested in numbers or
-    strings. If the person is doing something funky they'll miss out on learning
-    about names and values.
-    """
-    val_els = assign_subscript_el.xpath('slice/Index/value')
-    if len(val_els) != 1:
-        return None
-    val_el = val_els[0]
-    num_str = nums.num_str_from_parent_el_3_7(val_el)
-    if num_str:
-        slice_dets = slice_dets = f'[{num_str}]'
-    else:
-        slice_str_els = assign_subscript_el.xpath('slice/Index/value/Str')
-        if slice_str_els:
-            slice_str = slice_str_els[0].get('s')
-            slice_dets = f'["{slice_str}"]'
-        else:
-            raise Exception("Unable to get slice_dets")
-    return slice_dets
-
-def get_slice_dets_3_8(assign_subscript_el):
-    """
-    As for get_slice_dets_3_7.
-    """
+def get_slice_dets(assign_subscript_el):
     val_els = assign_subscript_el.xpath('slice/Index/value')
     if len(val_els) != 1:
         return None
@@ -372,19 +220,11 @@ def _get_nt_lbl_flds_any(assign_block_el, tag='Constant', id_attr='value'):
         fields_list = [el.get(id_attr) for el in field_els]
     return label, fields_list
 
-def get_nt_lbl_flds_3_7(assign_block_el):
-    return _get_nt_lbl_flds_any(assign_block_el, tag='Str', id_attr='s')
-
-def get_nt_lbl_flds_3_8(assign_block_el):
+def get_nt_lbl_flds(assign_block_el):
     return _get_nt_lbl_flds_any(
         assign_block_el, tag='Constant', id_attr='value')
 
-def get_slice_n_3_7(assign_el):
-    slice_n = assign_el.xpath(
-        'value/Subscript/slice/Index/value/Num')[0].get('n')
-    return slice_n
-
-def get_slice_n_3_8(assign_el):
+def get_slice_n(assign_el):
     val_els = assign_el.xpath('value/Subscript/slice/Index/value/Constant')
     val_el = val_els[0]
     if val_el.get('type') in ('int', 'float'):
@@ -394,12 +234,7 @@ def get_slice_n_3_8(assign_el):
             f"'{val_el.get('type')}'")
     return slice_n
 
-def get_str_els_being_combined_3_7(block_el):
-    str_els_being_combined = block_el.xpath(
-        'descendant-or-self::BinOp/left/Str')
-    return str_els_being_combined
-
-def get_str_els_being_combined_3_8(block_el):
+def get_str_els_being_combined(block_el):
     left_str_els = block_el.xpath('descendant-or-self::BinOp/left/Constant')
     str_els_being_combined = []
     for left_str_el in left_str_els:

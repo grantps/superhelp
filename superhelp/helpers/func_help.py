@@ -214,9 +214,9 @@ def func_overview(block_dets, *, repeat=False, **_kwargs):
         methods = ''
 
     message = {
-        conf.BRIEF: title + details,
-        conf.MAIN: title + details + methods,
-        conf.EXTRA: args_vs_params,
+        conf.Level.BRIEF: title + details,
+        conf.Level.MAIN: title + details + methods,
+        conf.Level.EXTRA: args_vs_params,
     }
     return message
 
@@ -266,7 +266,7 @@ def func_len_check(block_dets, *, repeat=False, **_kwargs):
         sometimes_ok = ''
 
     message = {
-        conf.BRIEF: title + summary + sometimes_ok,
+        conf.Level.BRIEF: title + summary + sometimes_ok,
     }
     return message
 
@@ -319,7 +319,7 @@ def func_excess_parameters(block_dets, *, repeat=False, **_kwargs):
     summary = ''.join(summary_bits)
 
     message = {
-        conf.BRIEF: title + summary,
+        conf.Level.BRIEF: title + summary,
     }
     return message
 
@@ -464,8 +464,8 @@ def mutable_default(block_dets, *, repeat=False, **_kwargs):
         defaults_explained = ''
 
     message = {
-        conf.BRIEF: title + brief_summary,
-        conf.MAIN: title + main_summary + defaults_explained,
+        conf.Level.BRIEF: title + brief_summary,
+        conf.Level.MAIN: title + main_summary + defaults_explained,
     }
     return message
 
@@ -556,8 +556,8 @@ def positional_boolean(block_dets, *, repeat=False, **_kwargs):
         asterisk_explained = ''
 
     message = {
-        conf.BRIEF: title + summary + asterisk_demo,
-        conf.EXTRA: asterisk_explained,
+        conf.Level.BRIEF: title + summary + asterisk_demo,
+        conf.Level.EXTRA: asterisk_explained,
     }
     return message
 
@@ -697,6 +697,6 @@ def docstring_issues(block_dets, *, repeat=False, **_kwargs):
     summary = ''.join(summary_bits)
 
     message = {
-        conf.BRIEF: title + summary,
+        conf.Level.BRIEF: title + summary,
     }
     return message

@@ -169,11 +169,11 @@ def dict_overview(block_dets, *, repeat=False, execute_code=True, **_kwargs):
         mighty_dict = ''
 
     message = {
-        conf.BRIEF: (title + oversized_msg + dict_def + brief_desc
+        conf.Level.BRIEF: (title + oversized_msg + dict_def + brief_desc
             + keys_and_vals + workhorses),
-        conf.MAIN: (
+        conf.Level.MAIN: (
             title + oversized_msg + main_dict_desc + workhorses + general),
-        conf.EXTRA: mighty_dict,
+        conf.Level.EXTRA: mighty_dict,
     }
     return message
 
@@ -239,7 +239,7 @@ def mixed_key_types(block_dets, *, repeat=False, execute_code=True, **_kwargs):
         one_vs_1 = ''
 
     message = {
-        conf.BRIEF: title + oversized_msg + mixed_warning,
-        conf.MAIN: title + oversized_msg + mixed_warning + one_vs_1,
+        conf.Level.BRIEF: title + oversized_msg + mixed_warning,
+        conf.Level.MAIN: title + oversized_msg + mixed_warning + one_vs_1,
     }
     return message

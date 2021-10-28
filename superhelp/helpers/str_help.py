@@ -128,9 +128,10 @@ def assigned_str_overview(block_dets, *,
         more = ''
 
     message = {
-        conf.BRIEF: title + summary + cool + short_demo + upper,
-        conf.MAIN: title + summary + cool + short_demo + upper + longer_demo,
-        conf.EXTRA: more,
+        conf.Level.BRIEF: title + summary + cool + short_demo + upper,
+        conf.Level.MAIN: (
+            title + summary + cool + short_demo + upper + longer_demo),
+        conf.Level.EXTRA: more,
     }
     return message
 
@@ -216,8 +217,8 @@ def str_combination(combination_type, str_els, *, repeat=False):
         longer_fstring_msg = ''
 
     message = {
-        conf.BRIEF: title + how_combined + brief_fstring_msg,
-        conf.MAIN: title + how_combined + longer_fstring_msg,
+        conf.Level.BRIEF: title + how_combined + brief_fstring_msg,
+        conf.Level.MAIN: title + how_combined + longer_fstring_msg,
     }
     return message
 

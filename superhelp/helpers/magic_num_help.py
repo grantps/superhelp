@@ -116,8 +116,8 @@ def magic_number(block_dets, *, repeat=False, **_kwargs):
         extra = ''
 
     message = {
-        conf.BRIEF: title + brief_comment,
-        conf.MAIN: title + brief_comment + main_explanation,
-        conf.EXTRA: extra,
+        conf.Level.BRIEF: title + brief_comment,
+        conf.Level.MAIN: title + brief_comment + main_explanation,
+        conf.Level.EXTRA: extra,
     }
     return message

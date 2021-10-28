@@ -6,7 +6,7 @@ from markdown.util import etree  # @UnresolvedImport
 from pygments import lex, token  # @UnresolvedImport
 from pygments.lexers import get_lexer_by_name  # @UnresolvedImport
 
-from . import cli_colour, cli_conf
+from superhelp.formatters.cli_extras import cli_colour, cli_conf
 
 ## monkey patch so invisible non-text is included in wrapping calculations making a mess of it
 def _wrap_text_chunks_only(self, chunks):
@@ -125,7 +125,7 @@ ansi_escape = re.compile(r"\x1b[^m]*m")
 def get_code_hl_tokens():
     code_hl_tokens = {}
     # replace code strs with tokens:
-    for token_name, colour in cli_colour.TOKEN_NAME_TO_HL_COLOUR.items():
+    for token_name, colour in cli_colour.TOKEN_NAME_TO_HL_COLOUR.items():  # @UndefinedVariable
         if '.' not in token_name:  ## cope with Operator.Word as token_name
             code_hl_tokens[getattr(token, token_name)] = colour
         else:
@@ -147,7 +147,7 @@ def style_ansi(raw_code):
     for my_token, text in tokens:
         if not text:
             continue
-        colour = code_hl_tokens.get(my_token, cli_colour.CODE_COLOUR)
+        colour = code_hl_tokens.get(my_token, cli_colour.CODE_COLOUR)  # @UndefinedVariable
         code_lines.append(cli_colour.colourise(text, colour))
         logging.debug(my_token, colour)
     styled_ansi_code = ''.join(code_lines)
@@ -186,7 +186,7 @@ def split_blocks(text_block, width, n_cols, part_formatter=None):
                 (' '
                 +
                 cli_colour.colourise(
-                    cli_conf.TEXT_BLOCK_CUT, cli_colour.LOW_VIS_COLOUR,
+                    cli_conf.TEXT_BLOCK_CUT, cli_colour.LOW_VIS_COLOUR,  # @UndefinedVariable
                     no_reset=True)
                 + line[i : i + scols]
                 )
@@ -201,7 +201,7 @@ def split_blocks(text_block, width, n_cols, part_formatter=None):
             tpart.append(lines_block[block_part_nr])
         if part_formatter:
             part_formatter(tpart)
-        tpart[1] = cli_colour.colourise(tpart[1], cli_colour.H3_COLOUR)
+        tpart[1] = cli_colour.colourise(tpart[1], cli_colour.H3_COLOUR)  # @UndefinedVariable
         blocks.append("\n".join(tpart))
     text = 'n' + '\n'.join(blocks) + '\n'
     return text
@@ -270,7 +270,7 @@ def replace_links(el, html, link_display_type='it'):
         links_list = None
         return links_list, html
     links_list, cur_link = [], 0
-    links = [l for l in el.getchildren() if 'href' in l.keys()]
+    links = [l for l in el if 'href' in l.keys()]
     if not len(parts) == len(links) + 1:
         ## contains an html element we don't support e.g. blockquote
         links_list = None

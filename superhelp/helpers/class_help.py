@@ -179,9 +179,9 @@ def getters_setters(block_dets, *, repeat=False, **_kwargs):
         + why_getters_etc + comparison)
     extra_msg = deleter
     message = {
-        conf.BRIEF: brief_msg,
-        conf.MAIN: main_msg,
-        conf.EXTRA: extra_msg,
+        conf.Level.BRIEF: brief_msg,
+        conf.Level.MAIN: main_msg,
+        conf.Level.EXTRA: extra_msg,
     }
     return message
 
@@ -276,9 +276,9 @@ def selfless_methods(block_dets, *, repeat=False, **_kwargs):
     main_msg = title + simple_class_msg + staticmethod_msg + staticmethod_demo
     extra_msg = call_it_self
     message = {
-        conf.BRIEF: brief_msg,
-        conf.MAIN: main_msg,
-        conf.EXTRA: extra_msg,
+        conf.Level.BRIEF: brief_msg,
+        conf.Level.MAIN: main_msg,
+        conf.Level.EXTRA: extra_msg,
     }
     return message
 
@@ -386,8 +386,9 @@ def one_method_classes(block_dets, *, repeat=False, **_kwargs):
         function_demo = ''
 
     message = {
-        conf.BRIEF: summary + n_methods_msg + function_option,
-        conf.MAIN: summary + n_methods_msg + function_option + function_demo,
-        conf.EXTRA: not_just_oo,
+        conf.Level.BRIEF: summary + n_methods_msg + function_option,
+        conf.Level.MAIN: (
+            summary + n_methods_msg + function_option + function_demo),
+        conf.Level.EXTRA: not_just_oo,
     }
     return message

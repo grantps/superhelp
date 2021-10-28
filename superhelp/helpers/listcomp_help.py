@@ -79,8 +79,8 @@ def listcomp_overview(block_dets, *,
         other_comprehensions = ''
 
     message = {
-        conf.BRIEF: title + oversized_msg + brief_summary,
-        conf.MAIN: title + oversized_msg + main_summary,
-        conf.EXTRA: other_comprehensions,
+        conf.Level.Level.BRIEF: title + oversized_msg + brief_summary,
+        conf.Level.Level.MAIN: title + oversized_msg + main_summary,
+        conf.Level.Level.EXTRA: other_comprehensions,
     }
     return message

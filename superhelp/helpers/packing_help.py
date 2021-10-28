@@ -37,8 +37,8 @@ def unpacking(block_dets, *, repeat=False, **_kwargs):
         unpacking_msg = ''
 
     message = {
-        conf.BRIEF: title + summary,
-        conf.EXTRA: unpacking_msg,
+        conf.Level.BRIEF: title + summary,
+        conf.Level.EXTRA: unpacking_msg,
     }
     return message
 
@@ -98,7 +98,7 @@ def unpacking_opportunity(blocks_dets, *, repeat=False, **_kwargs):
         extra_msg = ''
 
     message = {
-        conf.BRIEF: title + unpackable,
-        conf.EXTRA: extra_msg,
+        conf.Level.BRIEF: title + unpackable,
+        conf.Level.EXTRA: extra_msg,
     }
     return message

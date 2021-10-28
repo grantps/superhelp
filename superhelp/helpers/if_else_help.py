@@ -168,8 +168,8 @@ def if_else_overview(block_dets, *, repeat=False, **_kwargs):
         demo = ''
 
     message = {
-        conf.BRIEF: title + if_comment,
-        conf.MAIN: title + if_comment + demo,
+        conf.Level.BRIEF: title + if_comment,
+        conf.Level.MAIN: title + if_comment + demo,
     }
     return message
 
@@ -256,8 +256,8 @@ def missing_else(block_dets, *, repeat=False, **_kwargs):
         )
 
     message = {
-        conf.BRIEF: title + summary,
-        conf.MAIN: title + summary + dets,
+        conf.Level.BRIEF: title + summary,
+        conf.Level.MAIN: title + summary + dets,
     }
     return message
 
@@ -383,8 +383,8 @@ def split_group_membership(block_dets, *, repeat=False, **_kwargs):
         extra_demo = ''
 
     message = {
-        conf.BRIEF: summary + demo,
-        conf.MAIN: summary + demo + extra_demo,
+        conf.Level.BRIEF: summary + demo,
+        conf.Level.MAIN: summary + demo + extra_demo,
     }
     return message
 
@@ -483,7 +483,7 @@ def implicit_boolean_enough(block_dets, *, repeat=False, **_kwargs):
         There is often no need to check a non-zero length explicitly.
         """)
     message = {
-        conf.BRIEF: title + summary,
+        conf.Level.BRIEF: title + summary,
     }
     return message
 
@@ -586,8 +586,8 @@ def short_circuit(block_dets, *, repeat=False, **_kwargs):
         demo = ''
 
     message = {
-        conf.BRIEF: summary + how2short_circuit,
-        conf.MAIN: summary + how2short_circuit + demo,
+        conf.Level.BRIEF: summary + how2short_circuit,
+        conf.Level.MAIN: summary + how2short_circuit + demo,
     }
     return message
 
@@ -729,8 +729,8 @@ def any_all(block_dets, *, repeat=False, **_kwargs):
         extra = ''
 
     message = {
-        conf.BRIEF: title + summary,
-        conf.MAIN: title + summary + demo,
-        conf.EXTRA: extra,
+        conf.Level.BRIEF: title + summary,
+        conf.Level.MAIN: title + summary + demo,
+        conf.Level.EXTRA: extra,
     }
     return message

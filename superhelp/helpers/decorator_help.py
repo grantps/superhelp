@@ -96,8 +96,8 @@ def decorator_overview(block_dets, *, repeat=False, **_kwargs):
         aop = ''
 
     message = {
-        conf.BRIEF: summary,
-        conf.MAIN: summary + dec_dets,
-        conf.EXTRA: aop,
+        conf.Level.BRIEF: summary,
+        conf.Level.MAIN: summary + dec_dets,
+        conf.Level.EXTRA: aop,
     }
     return message

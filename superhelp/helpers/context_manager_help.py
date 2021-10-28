@@ -139,9 +139,9 @@ def content_manager_overview(block_dets, *, repeat=False, **_kwargs):
         aop = ''
 
     message = {
-        conf.BRIEF: title + summary + brief_usage + brief_example,
-        conf.MAIN: title + summary + brief_usage + long_example,
-        conf.EXTRA: aop,
+        conf.Level.BRIEF: title + summary + brief_usage + brief_example,
+        conf.Level.MAIN: title + summary + brief_usage + long_example,
+        conf.Level.EXTRA: aop,
     }
     return message
 
@@ -198,8 +198,8 @@ def file_cm_needed(block_dets, *, repeat=False, **_kwargs):
         aop = ''
 
     message = {
-        conf.BRIEF: title + summary,
-        conf.MAIN: title + summary + reasons + long_example,
-        conf.EXTRA: aop,
+        conf.Level.BRIEF: title + summary,
+        conf.Level.MAIN: title + summary + reasons + long_example,
+        conf.Level.EXTRA: aop,
     }
     return message

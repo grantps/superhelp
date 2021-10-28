@@ -127,8 +127,8 @@ def internal_imports(blocks_dets, *, repeat=False, **_kwargs):
     """)
 
     message = {
-        conf.BRIEF: title + brief_msg,
-        conf.MAIN: title + brief_msg + main_msg,
-        conf.EXTRA: extra_msg,
+        conf.Level.BRIEF: title + brief_msg,
+        conf.Level.MAIN: title + brief_msg + main_msg,
+        conf.Level.EXTRA: extra_msg,
     }
     return message

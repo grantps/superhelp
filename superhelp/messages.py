@@ -1,9 +1,9 @@
 from collections import namedtuple
 import logging
 
-from .ast_funcs import general as ast_gen
-from . import conf, helpers
-from .gen_utils import (get_docstring_start, get_tree,
+from superhelp.ast_funcs import general as ast_gen
+from superhelp import conf, helpers
+from superhelp.gen_utils import (get_docstring_start, get_tree,
     layout_comment as layout, xml_from_tree)
 
 BlockDets = namedtuple(
@@ -48,7 +48,7 @@ def complete_message(message, *, source):
     Ensure a complete message with all levels is available.
 
     :param dict message: a dict with as many as three levels
-     e.g. conf.BRIEF, MAIN, EXTRA.
+     e.g. conf.Level.BRIEF, MAIN, EXTRA.
     :param str source: usually helper name but might be the system sending the
      message e.g. if no advice given or a bug happened.
     :return: fixed version of original dict with all levels populated
@@ -59,13 +59,13 @@ def complete_message(message, *, source):
     except TypeError:
         raise TypeError(f"message had no keys - message: {message} "
             f"(type {type(message).__name__})")
-    if conf.BRIEF not in message_keys:
+    if conf.Level.BRIEF not in message_keys:
         raise Exception(f"'{source}' gave a message lacking the mandatory "
-            f"'{conf.BRIEF}' level")
-    if conf.MAIN not in message_keys:
-        message[conf.MAIN] = message[conf.BRIEF]
-    if conf.EXTRA not in message_keys:
-        message[conf.EXTRA] = ''
+            f"'{conf.Level.BRIEF}' level")
+    if conf.Level.MAIN not in message_keys:
+        message[conf.Level.MAIN] = message[conf.Level.BRIEF]
+    if conf.Level.EXTRA not in message_keys:
+        message[conf.Level.EXTRA] = ''
     return message
 
 def get_message_dets_from_input(helper_dets, *,
@@ -86,7 +86,7 @@ def get_message_dets_from_input(helper_dets, *,
     except Exception as e:
         brief_name = '.'.join(name.split('.')[-2:])  ## last two parts only
         message = {
-            conf.BRIEF: (
+            conf.Level.BRIEF: (
                 layout(f"""\
                     ### Helper "`{brief_name}`" unable to run
 
@@ -244,7 +244,7 @@ def get_separated_messages_dets(snippet, snippet_block_els, xml, *,
                 "MessageDets named tuples yet a None item was found")
     if not (overall_snippet_messages_dets or block_level_messages_dets):
         message = {
-            conf.BRIEF: conf.NO_ADVICE_MESSAGE,
+            conf.Level.BRIEF: conf.NO_ADVICE_MESSAGE,
         }
         message = complete_message(message, source=conf.SYSTEM_MESSAGE)
         overall_snippet_messages_dets = [
@@ -281,7 +281,7 @@ def get_system_messages_dets(snippet, brief_message, *, warning=True):
     messages_dets consuming ways :-).
     """
     message = {
-        conf.BRIEF: brief_message,
+        conf.Level.BRIEF: brief_message,
     }
     message = complete_message(message, source=conf.SYSTEM_MESSAGE)
     overall_messages_dets = [

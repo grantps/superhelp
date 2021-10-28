@@ -72,7 +72,7 @@ def print_overview(blocks_dets, *, repeat=False, **_kwargs):
         main_details = ''
 
     message = {
-        conf.BRIEF: title + brief_details,
-        conf.MAIN: title + main_details,
+        conf.Level.BRIEF: title + brief_details,
+        conf.Level.MAIN: title + main_details,
     }
     return message

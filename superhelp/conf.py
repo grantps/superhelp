@@ -8,13 +8,16 @@ f = False
 
 ## Release settings in (). Enforced by Makefile using good old sed :-)
 
-CLI = 'cli'
-HTML = 'html'
-MD = 'md'
+class Format:
+    CLI = 'cli'
+    HTML = 'html'
+    MD = 'md'
+    OPTIONS = (CLI, HTML, MD)
+    INTERACTIVE_FORMATS = (CLI, MD)
 
-c = CLI
-h = HTML
-m = MD
+c = Format.CLI
+h = Format.HTML
+m = Format.MD
 
 RECORD_AST = f  ## (f)
 OUTPUT = h  ## set html as default output (h)
@@ -32,13 +35,21 @@ class Product:
         self.id = id
 """
 
-PY3_6 = '3.6'
-PY3_7 = '3.7'
-PY3_8 = '3.8'
+class OS:
+    LINUX = 'linux'
+    WINDOWS = 'windows'
+    MAC = 'mac'
 
-LINUX = 'linux'
-WINDOWS = 'windows'
-MAC = 'mac'
+class Theme:
+    DARK = 'dark'
+    LIGHT = 'light'
+    OPTIONS = (DARK, LIGHT)
+
+class Level:
+    BRIEF = 'Brief'  ## no spaces; used as labels and as parts of class names in CSS
+    MAIN = 'Main'
+    EXTRA = 'Extra'
+    OPTIONS = (BRIEF, MAIN, EXTRA)
 
 AST_OUTPUT_XML_FNAME = 'ast_output.xml'
 
@@ -46,11 +57,6 @@ PYTHON_CODE_START = '__python_code_start__'
 PYTHON_CODE_END = '__python_code_end__'
 
 MD_PYTHON_CODE_START = '::python'
-
-BRIEF = 'Brief'  ## no spaces; used as labels and as parts of class names in CSS
-MAIN = 'Main'
-EXTRA = 'Extra'
-DETAIL_LEVELS = (BRIEF, MAIN, EXTRA)
 
 ANON_NAME = 'Anonymous'
 UNKNOWN_ITEM = '__unknown item__'
@@ -160,10 +166,6 @@ LINT_LINE_NO = 'line_no'
 LINE_FEED = '&#10;'
 
 FORCE_SPLIT = '__force_split__'
-
-DARK = 'dark'
-LIGHT = 'light'
-THEME_NAMES = (DARK, LIGHT)
 
 ## scraped from https://docs.python.org/3/py-modindex.html 2020-04-02
 STD_LIBS = ['__future__', '__main__', '_dummy_thread', '_thread', 'aifc',

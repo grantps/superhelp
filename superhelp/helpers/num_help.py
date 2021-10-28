@@ -109,7 +109,7 @@ def num_overview(block_dets, *, execute_code=True, repeat=False, **_kwargs):
         floats = ''
 
     message = {
-        conf.BRIEF: title + names_msg + specifics,
-        conf.EXTRA: floats,
+        conf.Level.BRIEF: title + names_msg + specifics,
+        conf.Level.EXTRA: floats,
     }
     return message

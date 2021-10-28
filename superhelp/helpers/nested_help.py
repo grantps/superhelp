@@ -167,10 +167,10 @@ def bloated_nested_block(block_dets, *, repeat=False, **_kwargs):
         human = ''
 
     message = {
-        conf.BRIEF: (title + summary + brief_strategy + short_circuit
+        conf.Level.BRIEF: (title + summary + brief_strategy + short_circuit
             + move_to_func),
-        conf.MAIN: (title + summary + brief_strategy + short_circuit
+        conf.Level.MAIN: (title + summary + brief_strategy + short_circuit
             + short_circuit_demo + move_to_func + move_to_func_demo),
-        conf.EXTRA: human,
+        conf.Level.EXTRA: human,
     }
     return message

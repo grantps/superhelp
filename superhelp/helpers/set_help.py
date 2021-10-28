@@ -165,9 +165,10 @@ def set_overview(block_dets, *, repeat=False, execute_code=True, **_kwargs):
         set_extras = ''
 
     message = {
-        conf.BRIEF: title + oversized_msg + summary + sets_rock,
-        conf.MAIN: title + oversized_msg + summary + sets_rock + set_dets,
-        conf.EXTRA: set_extras,
+        conf.Level.Level.BRIEF: title + oversized_msg + summary + sets_rock,
+        conf.Level.Level.MAIN: (
+            title + oversized_msg + summary + sets_rock + set_dets),
+        conf.Level.Level.EXTRA: set_extras,
     }
     return message
 
@@ -356,7 +357,7 @@ def set_better_than_list(block_dets, *, repeat=False, **_kwargs):
         alternative = ''
 
     message = {
-        conf.BRIEF: title + summary,
-        conf.MAIN: title + summary + alternative,
+        conf.Level.BRIEF: title + summary,
+        conf.Level.MAIN: title + summary + alternative,
     }
     return message

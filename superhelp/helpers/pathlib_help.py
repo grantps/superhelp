@@ -225,8 +225,8 @@ def using_os(blocks_dets, *, repeat=False, **_kwargs):
         extra_msg = ''
 
     message = {
-        conf.BRIEF: title + brief_msg,
-        conf.MAIN: title + main_msg,
-        conf.EXTRA: extra_msg,
+        conf.Level.BRIEF: title + brief_msg,
+        conf.Level.MAIN: title + main_msg,
+        conf.Level.EXTRA: extra_msg,
     }
     return message

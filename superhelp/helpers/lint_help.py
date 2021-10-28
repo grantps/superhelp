@@ -42,7 +42,7 @@ def _get_env_flake8_fpath():
 
 def _get_flake8_fpath():
     os_platform = get_os_platform()
-    if os_platform == conf.WINDOWS:
+    if os_platform == conf.OS.WINDOWS:
         """
         The Joys of Where
 
@@ -317,8 +317,8 @@ def lint_snippet(snippet, *, repeat=False, **_kwargs):
         raw_lint_feedback_str=res.stdout)
 
     message = {
-        conf.BRIEF: title + findings + brief_msg,
-        conf.MAIN: title + linting + findings + main_msg,
-        conf.EXTRA: obviousness + extra_msg,
+        conf.Level.BRIEF: title + findings + brief_msg,
+        conf.Level.MAIN: title + linting + findings + main_msg,
+        conf.Level.EXTRA: obviousness + extra_msg,
     }
     return message

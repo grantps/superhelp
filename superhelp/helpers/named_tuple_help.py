@@ -82,8 +82,8 @@ def named_tuple_overview(blocks_dets, *, repeat=False, **_kwargs):
     )
 
     message = {
-        conf.BRIEF: enhancement,
-        conf.MAIN: enhancement + defaults,
+        conf.Level.BRIEF: enhancement,
+        conf.Level.MAIN: enhancement + defaults,
     }
     return message
     

@@ -208,8 +208,9 @@ def list_overview(block_dets, *, repeat=False, execute_code=True, **_kwargs):
         detailed_list_comment = ''
 
     message = {
-        conf.BRIEF: title + oversized_msg + summary + brief_overview,
-        conf.MAIN: title + oversized_msg + summary + detailed_list_comment,
+        conf.Level.BRIEF: title + oversized_msg + summary + brief_overview,
+        conf.Level.MAIN: (
+            title + oversized_msg + summary + detailed_list_comment),
     }
     return message
 
@@ -256,7 +257,8 @@ def mixed_list_types(block_dets, *, repeat=False, execute_code=True, **_kwargs):
     """)
 
     message = {
-        conf.BRIEF: title + oversized_msg + mixed_warning,
-        conf.MAIN: title + oversized_msg + mixed_warning + mixed_dets,
+        conf.Level.Level.BRIEF: title + oversized_msg + mixed_warning,
+        conf.Level.Level.MAIN: (
+            title + oversized_msg + mixed_warning + mixed_dets),
     }
     return message

@@ -129,8 +129,8 @@ def sorting_reversing_overview(block_dets, *, repeat=False, **_kwargs):
         details = summary
 
     message = {
-        conf.BRIEF: title + summary,
-        conf.MAIN: title + details,
+        conf.Level.BRIEF: title + summary,
+        conf.Level.MAIN: title + details,
     }
     return message
 
@@ -184,6 +184,6 @@ def list_sort_as_value(block_dets, *, repeat=False, **_kwargs):
         details = ''
 
     message = {
-        conf.BRIEF: title + details,
+        conf.Level.BRIEF: title + details,
     }
     return message

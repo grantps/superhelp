@@ -163,9 +163,9 @@ def lambda_advice(snippet, *, repeat=False, **_kwargs):
     """)
 
     message = {
-        conf.BRIEF: title + brief_msg,
-        conf.MAIN: title + main_msg,
-        conf.EXTRA: extra,
+        conf.Level.BRIEF: title + brief_msg,
+        conf.Level.MAIN: title + main_msg,
+        conf.Level.EXTRA: extra,
     }
     return message
     

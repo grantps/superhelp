@@ -1,5 +1,5 @@
 
-from . import cli_conf
+from superhelp.formatters.cli_extras import cli_conf
 
 DEFAULT_ANSI_COLOUR_BYTE_STR = '\033[0m'
 

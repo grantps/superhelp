@@ -199,10 +199,10 @@ def tuple_overview(block_dets, *, repeat=False, execute_code=True, **_kwargs):
         extra = ''
 
     message = {
-        conf.BRIEF: (title + oversized_msg + summary + quick_immutability
+        conf.Level.BRIEF: (title + oversized_msg + summary + quick_immutability
             + why_immutability + ordered),
-        conf.MAIN: (title + oversized_msg + summary + pre_immutability
+        conf.Level.MAIN: (title + oversized_msg + summary + pre_immutability
             + why_immutability + longer_immutability + ordered),
-        conf.EXTRA: extra,
+        conf.Level.EXTRA: extra,
     }
     return message

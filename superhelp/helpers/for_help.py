@@ -60,8 +60,8 @@ def comprehension_option(block_dets, *, repeat=False, **_kwargs):
         option = ''
 
     message = {
-        conf.BRIEF: title + option,
-        conf.MAIN: (title + option + get_general_comprehension_msg()
+        conf.Level.BRIEF: title + option,
+        conf.Level.MAIN: (title + option + get_general_comprehension_msg()
             + '\n\n' + comp_comment),
     }
     return message
@@ -181,7 +181,7 @@ def for_index_iteration(block_dets, *, repeat=False, **_kwargs):
         examples = ''
 
     message = {
-        conf.BRIEF: summary + examples,
+        conf.Level.BRIEF: summary + examples,
     }
     return message
 
@@ -257,9 +257,9 @@ def for_else(block_dets, *, repeat=False, **_kwargs):
         extra_msg = ''
 
     message = {
-        conf.BRIEF: title + problem,
-        conf.MAIN: title + problem + solution,
-        conf.EXTRA: extra_msg,
+        conf.Level.BRIEF: title + problem,
+        conf.Level.MAIN: title + problem + solution,
+        conf.Level.EXTRA: extra_msg,
     }
     return message
 
@@ -320,7 +320,7 @@ def nested_fors(block_dets, *, repeat=False, **_kwargs):
         pros = ''
 
     message = {
-        conf.BRIEF: summary + demo,
-        conf.MAIN: summary + demo + pros,
+        conf.Level.BRIEF: summary + demo,
+        conf.Level.MAIN: summary + demo + pros,
     }
     return message
