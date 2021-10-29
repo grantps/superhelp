@@ -27,7 +27,7 @@ or put the following at the top of your Python script and run the script:
 
 ## Installation
 
-Note - Python 3.6+ only. If you have an older version of Python use the Binder
+Note - Python 3.9+ only. If you have an older version of Python use the Binder
 Jupyter Notebook button instead (see higher up)
 
 To install
