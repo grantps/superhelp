@@ -181,6 +181,10 @@ class Pipeline:
             single_script=True):
         """
         Final stage of the pipeline.
+
+        If HTML will open a tab per script.
+        If interactive, will open one after the other
+        with a user-controlled pause in between.
         """
         displayer_module = Pipeline._get_displayer_module(format_name)
         for formatted_help, file_path in formatted_help_dets:
@@ -189,7 +193,7 @@ class Pipeline:
                 input("Press any key to continue ...")
 
 
-def get_formatted_help_strs(code=None, *,
+def get_formatted_help_dets(code=None, *,
         file_path=None, project_path=None, exclude_folders=None,
         output_settings: OutputSettings = None, in_notebook=False):
     """
@@ -239,13 +243,13 @@ def show_help(code=None, *,
     :param bool in_notebook: if True changes the formatting to make it
      Jupyter notebook friendly (default False)
     """
-    formatted_help_strs = get_formatted_help_strs(code=code,
+    formatted_help_dets = get_formatted_help_dets(code=code,
         file_path=file_path,
         project_path=project_path, exclude_folders=exclude_folders,
         output_settings=output_settings, in_notebook=in_notebook)
     if conf.SHOW_OUTPUT:
         single_script = project_path is None
-        Pipeline.display_help(formatted_help_strs, output_settings.format_name,
+        Pipeline.display_help(formatted_help_dets, output_settings.format_name,
             single_script=single_script)
     else:
         logging.info("NOT showing output because conf.SHOW_OUTPUT is False "

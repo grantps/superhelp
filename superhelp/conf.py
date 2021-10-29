@@ -21,7 +21,7 @@ m = Format.MD
 
 RECORD_AST = f  ## (f)
 OUTPUT = h  ## set html as default output (h)
-SHOW_OUTPUT = f  ## f is only ever used when testing pre-display (t)
+SHOW_OUTPUT = t  ## f is only ever used when testing pre-display (t)
 INCLUDE_LINTING = t  ## f when running unit tests to massively speed them up (otherwise every snippet in tests is linted each time) (t)
 LOG_LEVEL = logging.INFO  ## (logging.INFO)
 ## =============================================================================
