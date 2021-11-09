@@ -1,3 +1,7 @@
+"""
+In future this might be a useful place to handle different versions of ast funcs
+according to Python version (3.9+).
+"""
 from superhelp import conf, gen_utils
 from superhelp.ast_funcs import versioned_gen as gen, versioned_nums as nums
 

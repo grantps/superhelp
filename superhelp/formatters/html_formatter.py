@@ -1,10 +1,15 @@
+"""
+Code highlighting approach:
+https://coderbook.com/@marcus/how-to-render-markdown-syntax-as-html-using-python/
+"""
+
 from pathlib import Path
 from textwrap import dedent, indent
 
 from superhelp import conf, gen_utils
 from superhelp.conf import Level
 
-from markdown import markdown  ## https://coderbook.com/@marcus/how-to-render-markdown-syntax-as-html-using-python/ @UnresolvedImport
+from markdown import markdown  # @UnresolvedImport
 
 DETAIL_LEVEL2CLASS = {
     detail_level: f"help help-{detail_level}"
@@ -41,6 +46,7 @@ NOTEBOOK_HTML_WRAPPER = """\
 </body>
 </html>"""
 
+## default CSS - grep -R ".c { color: #408080"  ~/projects/superhelp/store/richleland-pygments-css/
 CODE_CSS = """\
 /*From https://richleland.github.io/pygments-css/ */
 .codehilite .hll { background-color: #ffffcc }

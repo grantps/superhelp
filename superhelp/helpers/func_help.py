@@ -620,7 +620,12 @@ def docstring_issues(block_dets, *, repeat=False, **_kwargs):
             n_args = get_n_args(func_el)
             n_doc_lines = len(docstring.split('\n')) - WRAPPING_NEWLINE_N
             too_short = n_doc_lines < (conf.MIN_BRIEF_DOCSTRING + n_args)
-            param_str = ' given the number of parameters' if n_args > 1 else ''
+            if n_args > 1:
+                param_str = (' given the number of parameters.'
+                    '\nOf course, sometimes parameter names and type hinting'
+                    '\nare enough to explain the function.')
+            else:
+                param_str = ''
             if too_short:
                 docstring_issues.append(
                 (func_name, func_type_lbl, DOCSTRING_TOO_SHORT))
@@ -681,9 +686,9 @@ def docstring_issues(block_dets, *, repeat=False, **_kwargs):
                 summary_bits.append((layout(f"""\
                 #### Function doc string too brief?
 
-                The doc string for `{func_name}` seems a little
-                short{param_str}. You might want to rework it. Here is an
-                example using one of several valid formats:
+                The doc string for `{func_name}` might be a little
+                short{param_str}. You might want to rework it.
+                Here is an example using one of several valid formats:
                 """)
                 +
                 example_docstring
@@ -692,7 +697,7 @@ def docstring_issues(block_dets, *, repeat=False, **_kwargs):
                 summary_bits.append(layout(f"""\
                 #### Function doc string too brief?
 
-                The doc string for `{func_name}` seems a little short.
+                It might be good to add to the doc string for `{func_name}`.
                 """))
     summary = ''.join(summary_bits)
 

@@ -9,6 +9,8 @@ from pygments.lexers import get_lexer_by_name  # @UnresolvedImport
 from superhelp.formatters.cli_extras import cli_colour, cli_conf
 
 ## monkey patch so invisible non-text is included in wrapping calculations making a mess of it
+## probably never going to be worth trying to get merged as handling non-display text is of little value to almost everyone
+## probably will work forever as textwrap is very stable (and dull in a good way)
 def _wrap_text_chunks_only(self, chunks):
     """_wrap_chunks(chunks : [string]) -> [string]
 
