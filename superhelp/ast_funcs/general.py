@@ -1,7 +1,6 @@
 import logging
 
-from .. import conf
-from .. import gen_utils
+from superhelp import conf, gen_utils
 
 def get_el_lines_dets(el, *, ignore_trailing_lines=False):
     """
@@ -11,12 +10,14 @@ def get_el_lines_dets(el, *, ignore_trailing_lines=False):
     these trailing lines are not part of the AST (in the same way that comments
     are ignored). So:
 
-    d = {
-        1: 1}
+    a = {         lineno="1"
+        1: 1}     lineno="2"   1-2
+    b = 'apple'   lineno="3"
 
-    d = {
-        1: 1,
+    a = {         lineno="1"   1-2 but really should be 1-3 (if we include trailing lines) i.e. 1 to (4-1) where 4 is the start of the next block
+        1: 1,     lineno="2"
     }
+    b = 'apple'   lineno="4"
 
     are equivalent in the AST. And there are only lines 1-2 in the AST in both
     cases.
@@ -79,6 +80,10 @@ def get_el_lines_dets(el, *, ignore_trailing_lines=False):
     return first_line_no, last_line_no, el_lines_n
 
 def store_ast_output(xml):
+    """
+    Useful for seeing what the original AST XML looks like that
+    was being processed.
+    """
     fname = conf.AST_OUTPUT_XML_FNAME
     with gen_utils.make_open_tmp_file(fname, mode='w') as tmp_dets:
         _superhelp_tmpdir, _tmp_ast_fh, tmp_ast_output_xml_fpath = tmp_dets

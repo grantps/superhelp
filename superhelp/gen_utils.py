@@ -14,18 +14,17 @@ import webbrowser
 import ast
 
 from superhelp import code_execution, conf, name_utils
-from lxml import etree  # @UnresolvedImport
-import astpath  # @UnresolvedImport
+from lxml import etree
+import astpath
 
-from astpath.asts import _set_encoded_literal, _strip_docstring  # @UnresolvedImport
+from astpath.asts import _set_encoded_literal, _strip_docstring
 
 ## Monkey-patch as at astpath Python 3.8 as at 2020-04-26
 ## Need to be able to tell val = 1 from val = '1' (that little detail ;-))
 ## Pull request fixing this was accepted and merged May 2020
 def convert_to_xml(node, omit_docstrings=False, node_mappings=None):
     """Convert supplied AST node to XML."""
-    possible_docstring = isinstance(
-        node, (ast.FunctionDef, ast.ClassDef, ast.Module))
+    possible_docstring = isinstance(node, (ast.FunctionDef, ast.ClassDef, ast.Module))
 
     xml_node = etree.Element(node.__class__.__name__)
     for attr in ('lineno', 'col_offset'):
@@ -369,16 +368,14 @@ def get_introspected_file_path():
             calling_item = item
             break
     else:  ## didn't break for-loop
-        raise Exception('Unable to identify calling script through '
-            "introspection. Did you rename 'superhelp' or 'this'? "
-            "If that isn't the problem try explicitly supplying "
-            "file_path e.g. superhelp.this(file_path=__file__)'")
+        raise Exception("Unable to identify calling script through introspection. "
+            "Did you rename 'superhelp' or 'this'? "
+            "If that isn't the problem try explicitly supplying file_path e.g. superhelp.this(file_path=__file__)'")
     file_path = calling_item.filename
     return file_path
 
 def get_os_platform():
-    platforms = {'Linux': conf.OS.LINUX,
-        'Windows': conf.OS.WINDOWS, 'Darwin': conf.OS.MAC}
+    platforms = {'Linux': conf.OS.LINUX, 'Windows': conf.OS.WINDOWS, 'Darwin': conf.OS.MAC}
     os_platform = platforms.get(platform.system())
     return os_platform
 
@@ -410,8 +407,7 @@ def make_open_tmp_file(fname, *, superhelp_tmpdir=None, mode='w'):
         if not superhelp_tmpdir:
             superhelp_tmpdir = get_superhelp_tmpdir()
         superhelp_tmpdir.mkdir(exist_ok=True)
-        tmp_fh = tempfile.NamedTemporaryFile(
-            mode=mode, delete=False, dir=superhelp_tmpdir)
+        tmp_fh = tempfile.NamedTemporaryFile(mode=mode, delete=False, dir=superhelp_tmpdir)
         randomly_named_fpath = Path(tmp_fh.name)
         fpath = Path(randomly_named_fpath.parent) / fname
         os.rename(randomly_named_fpath, fpath)

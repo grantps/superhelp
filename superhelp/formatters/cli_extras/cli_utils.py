@@ -2,9 +2,9 @@ import logging
 import re
 import textwrap
 
-from markdown.util import etree  # @UnresolvedImport
-from pygments import lex, token  # @UnresolvedImport
-from pygments.lexers import get_lexer_by_name  # @UnresolvedImport
+from lxml import etree  ## https://python-markdown.github.io/changelog/#previously-deprecated-objects-have-been-removed
+from pygments import lex, token
+from pygments.lexers import get_lexer_by_name
 
 from superhelp.formatters.cli_extras import cli_colour, cli_conf
 

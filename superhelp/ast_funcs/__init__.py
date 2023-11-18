@@ -2,12 +2,18 @@
 In future this might be a useful place to handle different versions of ast funcs
 according to Python version (3.9+).
 """
-from superhelp import conf, gen_utils
+import sys
+
 from superhelp.ast_funcs import versioned_gen as gen, versioned_nums as nums
 
-python_version = gen_utils.get_python_version()
-
-if python_version < '3.8':
+major, minor = sys.version_info[:2]
+ok_version = True
+if int(major) < 3:
+    ok_version = False
+else:
+    if int(minor) < 8:
+        ok_version = False
+if not ok_version:
     raise Exception("SuperHELP only supports Python 3.8+")
 
 val_dets = gen.val_dets

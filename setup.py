@@ -2,7 +2,7 @@ from setuptools import setup, find_packages  # @UnresolvedImport
 from codecs import open
 from os import path
 
-__version__ = '1.9.2'
+__version__ = '1.9.3'
 
 here = path.abspath(path.dirname(__file__))
 
@@ -32,6 +32,8 @@ setup(
       'Intended Audience :: End Users/Desktop',
       'Programming Language :: Python :: 3.9',
       'Programming Language :: Python :: 3.10',
+      'Programming Language :: Python :: 3.11',
+      'Programming Language :: Python :: 3.12',
       'Operating System :: OS Independent',
       'Topic :: Education',
       'Topic :: Software Development :: Testing',

@@ -30,6 +30,9 @@ simple end-user syntax:
 
 import superhelp
 superhelp.this()
+
+TODO: add more from
+https://docs.quantifiedcode.com/python-anti-patterns/index.html
 """
 
 import warnings
