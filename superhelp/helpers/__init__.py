@@ -58,52 +58,37 @@ from importlib import import_module
 import keyword
 from pkgutil import iter_modules
 import sys
-from textwrap import dedent
 
-from .. import conf
-from ..gen_utils import get_docstring_start, layout_comment as layout
+from superhelp import conf
+from superhelp.gen_utils import get_docstring_start, layout_comment as layout
 
 
 FILT_BLOCK_HELPERS = []  ## block-based helpers which only apply to blocks filtered to contain specified element types
 
-FiltHelperDets = namedtuple('FilteredHelperDets',
-    'helper_name, helper, xpath, warning')
-FiltHelperDets.__doc__ += ('\n\nDetails for block-based helpers that only '
-    'apply to blocks filtered to contain specified elements')
-FiltHelperDets.helper.__doc__ = ('Functions which takes prefiltered '
-    'block dets containing the required elements and return message')
-FiltHelperDets.xpath.__doc__ = ('xpath filtering to get specified elements '
-    'e.g. body/Assign/value/Str')
+FiltHelperDets = namedtuple('FilteredHelperDets', 'helper_name, helper, xpath, warning')
+FiltHelperDets.__doc__ += '\n\nDetails for block-based helpers that only apply to blocks filtered to contain specified elements'
+FiltHelperDets.helper.__doc__ = 'Functions which takes prefiltered block dets containing the required elements and return message'
+FiltHelperDets.xpath.__doc__ = 'xpath filtering to get specified elements e.g. body/Assign/value/Str'
 
 ANY_BLOCK_HELPERS = []  ## block-based helpers which apply to all blocks
 
 AnyBlockHelperDets = namedtuple('AnyBlockHelperDets',
     'helper_name, helper, warning')
-AnyBlockHelperDets.__doc__ += (
-    '\n\nDetails for block-based helpers that work on each block')
-AnyBlockHelperDets.helper.__doc__ = ('Functions which take block dets '
-    '(including element and block code string) and return message')
+AnyBlockHelperDets.__doc__ += '\n\nDetails for block-based helpers that work on each block'
+AnyBlockHelperDets.helper.__doc__ = 'Functions which take block dets (including element and block code string) and return message'
 
 ALL_BLOCKS_HELPERS = []  ## all-blocks-based helpers (have to look at multiple blocks together at once)
-AllBlocksHelperDets = namedtuple('AllBlocksHelperDets',
-    'helper_name, helper, warning, input_type')
-AllBlocksHelperDets.__doc__ += (
-    '\n\nDetails for helpers that work on all blocks together')
-AllBlocksHelperDets.helper.__doc__ = ('Functions which take blocks dets '
-    '(multiple) and return message')
-AllBlocksHelperDets.input_type.__doc__ = (
-    'Input type for all blocks helper functions')
+AllBlocksHelperDets = namedtuple('AllBlocksHelperDets', 'helper_name, helper, warning, input_type')
+AllBlocksHelperDets.__doc__ += '\n\nDetails for helpers that work on all blocks together'
+AllBlocksHelperDets.helper.__doc__ = 'Functions which take blocks dets (multiple) and return message'
+AllBlocksHelperDets.input_type.__doc__ = 'Input type for all blocks helper functions'
 
 SNIPPET_STR_HELPERS = []  ## works on entire code snippet as a single string
 
-SnippetStrHelperDets = namedtuple('SnippetStrHelperDets',
-    'helper_name, helper, warning, input_type')
-SnippetStrHelperDets.__doc__ += (
-    '\n\nDetails for helpers that work on code snippet as a single string')
-SnippetStrHelperDets.helper.__doc__ = ('Functions which take the snippet as a'
-    ' single code str and return message')
-SnippetStrHelperDets.input_type.__doc__ = (
-    'Input type for all blocks helper functions')
+SnippetStrHelperDets = namedtuple('SnippetStrHelperDets', 'helper_name, helper, warning, input_type')
+SnippetStrHelperDets.__doc__ += '\n\nDetails for helpers that work on code snippet as a single string'
+SnippetStrHelperDets.helper.__doc__ = 'Functions which take the snippet as a single code str and return message'
+SnippetStrHelperDets.input_type.__doc__ = 'Input type for all blocks helper functions'
 
 def filt_block_help(*, xpath, warning=False):
     """

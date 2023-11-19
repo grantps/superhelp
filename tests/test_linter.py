@@ -1,8 +1,6 @@
 import re
 from textwrap import dedent
 
-from nose.tools import assert_equal, assert_not_equal, assert_true, assert_false  # @UnusedImport @UnresolvedImport
-
 from tests import check_as_expected
 
 from superhelp import conf, lint_conf
@@ -21,7 +19,7 @@ def test_linter_regex():
     for lint_str, expected_dict in tests:
         actual_dict = re.match(
             lint_conf.LINT_PATTERN, lint_str, flags=re.VERBOSE).groupdict()  # @UndefinedVariable
-        assert_equal(actual_dict, expected_dict)
+        assert actual_dict == expected_dict
 
 ROOT = 'superhelp.helpers.lint_help.'
 

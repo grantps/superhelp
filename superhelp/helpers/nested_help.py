@@ -1,7 +1,7 @@
-from ..helpers import filt_block_help
-from .. import conf
-from ..ast_funcs import general as ast_gen
-from ..gen_utils import layout_comment as layout
+from superhelp.helpers import filt_block_help
+from superhelp import conf
+from superhelp.ast_funcs import general as ast_gen
+from superhelp.gen_utils import layout_comment as layout
 
 FOR_XPATH = 'descendant-or-self::For'
 WHILE_XPATH = 'descendant-or-self::While'

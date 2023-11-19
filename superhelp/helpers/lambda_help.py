@@ -1,6 +1,6 @@
-from .. import conf
-from ..gen_utils import layout_comment as layout
-from ..helpers import snippet_str_help
+from superhelp import conf
+from superhelp.gen_utils import layout_comment as layout
+from superhelp.helpers import snippet_str_help
 
 @snippet_str_help()
 def lambda_advice(snippet, *, repeat=False, **_kwargs):

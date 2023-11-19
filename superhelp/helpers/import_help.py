@@ -1,6 +1,6 @@
-from .. import conf
-from ..gen_utils import layout_comment as layout
-from ..helpers import all_blocks_help
+from superhelp import conf
+from superhelp.gen_utils import layout_comment as layout
+from superhelp.helpers import all_blocks_help
 
 MAIN_EXTERNAL_LIBS = conf.STD_LIBS + conf.POPULAR_LIBS
 

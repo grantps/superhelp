@@ -108,7 +108,7 @@ def get_items(raw_item_els):
 
     :rtype: list
     """
-    from . import ast_funcs  ## avoid circular import
+    from superhelp import ast_funcs  ## avoid circular import
     items = []
     for raw_el in raw_item_els:
         res = ast_funcs.val_dets(raw_el)
@@ -308,12 +308,14 @@ def open_output_folder():
         tmp_fh.write(html)
     webbrowser.open(fpath.as_uri())
 
-def get_tree(snippet):
+def get_tree(snippet, *, debug=True):
     try:
-        tree = ast.parse(snippet)
+        tree = ast.parse(snippet)  ## ast.dump(tree) to see what you got
     except SyntaxError as e:
         raise SyntaxError(
             f"Oops - something seems broken in the snippet - details: {e}")
+    else:
+        print(ast.dump(tree))
     return tree
 
 def xml_from_tree(tree):

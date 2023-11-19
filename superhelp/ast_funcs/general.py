@@ -2,8 +2,10 @@ import logging
 
 from superhelp import conf, gen_utils
 
-def get_el_lines_dets(el, *, ignore_trailing_lines=False):
+def get_el_lines_dets(el, *, ignore_trailing_lines=False) -> tuple[int, int, int]:
     """
+    :return: first_line_no, last_line_no, el_lines_n
+
     How long is the snippet of code that completely wraps up this element? If
     there are no "trailing lines" it is simple because the AST includes line
     numbers. We just get the min and max line number values. But if there are,

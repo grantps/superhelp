@@ -1,12 +1,10 @@
 from textwrap import dedent
 
-from nose.tools import assert_equal, assert_not_equal, assert_true, assert_false  # @UnusedImport @UnresolvedImport
-
-from superhelp import ast_funcs, gen_utils  # @Reimport
+from superhelp import ast_funcs, gen_utils
 
 from tests import get_actual_result
 
-def test_get_el_lines_dets():
+def test_get_el_list_lines_dets():
     """
     b'<Module>
         <body>
@@ -45,28 +43,69 @@ def test_get_el_lines_dets():
         <type_ignores/>
     </Module>'
     """
-    snippet = dedent("""\
-    import random
+    tests = [
+        (dedent("""\
+            import random
 
-    options = [
-        'apple',
-        'banana',
-        'cherry',
+            options = [
+                'apple',
+                'banana',
+                'cherry',
+            ]
+            snack = random.choice(options)
+            print(snack)
+            """), (3, 7, 5)),
+        (dedent("""\
+            import random
+
+
+            options = [
+                'apple',
+                'banana',
+                'cherry',
+            ]
+            snack = random.choice(options)
+            print(snack)
+            """), (4, 8, 5)),
+        (dedent("""\
+            import random
+
+            options = [
+                'apple',
+                'banana',
+                'cherry',
+                'dates',
+            ]
+            snack = random.choice(options)
+            print(snack)
+            """), (3, 8, 6)),
+        (dedent("""\
+            import random
+
+            options = ['apple',
+                'banana',
+                'cherry',
+                'dates', ]
+            snack = random.choice(options)
+            print(snack)
+            """), (3, 6, 4)),
+        (dedent("""\
+            import random
+
+            options = ['apple',
+                'banana', 'cherry', 'dates', ]
+            snack = random.choice(options)
+            print(snack)
+            """), (3, 4, 2)),
     ]
-    snack = random.choice(options)
-    print(snack)
-    """)
-    tree = gen_utils.get_tree(snippet)
-    xml = gen_utils.xml_from_tree(tree)
-    list_el = xml.xpath('list')[0]
-    ast_funcs.general.get_el_lines_dets(list_el)
+    for snippet, expected_line_dets in tests:
+        tree = gen_utils.get_tree(snippet, debug=True)
+        xml = gen_utils.xml_from_tree(tree)
+        first_list_el = xml.xpath('descendant-or-self::List')[0]
+        actual_line_dets = ast_funcs.general.get_el_lines_dets(first_list_el)
+        assert actual_line_dets == expected_line_dets
 
-
-
-
-test_get_el_lines_dets()
-
-
+# test_get_el_list_lines_dets()
 
 def test_num_str_from_parent_el():
     simple = "a = 10"
@@ -95,6 +134,6 @@ def test_num_str_from_parent_el():
     for snippet, expected_res in tests:
         actual_res = get_actual_result(
             snippet, xpath, ast_funcs.num_str_from_parent_el)
-        assert_equal(actual_res, expected_res)
+        assert actual_res == expected_res
 
 # test_num_str_from_parent_el()

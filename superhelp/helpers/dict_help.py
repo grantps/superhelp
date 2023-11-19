@@ -1,8 +1,6 @@
-from ..helpers import filt_block_help
-from .. import conf
-from .. import gen_utils
-from ..gen_utils import (
-    get_collections_dets, get_nice_str_list, layout_comment as layout)
+from superhelp.helpers import filt_block_help
+from superhelp import conf, gen_utils
+from superhelp.gen_utils import get_collections_dets, get_nice_str_list, layout_comment as layout
 
 def truncate_dict(input_dict):
     output_dict = {}

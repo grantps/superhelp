@@ -1,6 +1,6 @@
-from ..helpers import any_block_help, filt_block_help
-from .. import conf, name_utils
-from ..gen_utils import get_nice_str_list, layout_comment as layout
+from superhelp.helpers import any_block_help, filt_block_help
+from superhelp import conf, name_utils
+from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
 
 def _get_sorting_or_reversing_comment(block_dets):
     """

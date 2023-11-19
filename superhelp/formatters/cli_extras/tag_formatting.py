@@ -1,5 +1,5 @@
-from . import cli_colour, cli_conf, cli_utils
-from ... import conf
+from superhelp.formatters.cli_extras import cli_colour, cli_conf, cli_utils
+from superhelp import conf
 
 def _get_vertical_padding_line(length):
     return length * ' '

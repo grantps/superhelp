@@ -1,7 +1,7 @@
-from .. import conf
-from ..ast_funcs import num_str_from_parent_el
-from ..gen_utils import get_nice_str_list, layout_comment as layout
-from ..helpers import any_block_help
+from superhelp import conf
+from superhelp.ast_funcs import num_str_from_parent_el
+from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
+from superhelp.helpers import any_block_help
 
 @any_block_help(warning=True)
 def magic_number(block_dets, *, repeat=False, **_kwargs):

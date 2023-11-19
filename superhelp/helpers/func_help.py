@@ -1,12 +1,11 @@
 """
 Covers functions and methods.
 """
-from ..helpers import filt_block_help
-from ..ast_funcs.general import get_el_lines_dets
-from ..ast_funcs import get_danger_status, get_docstring_from_value
-from .. import conf
-from .. import gen_utils
-from ..gen_utils import get_nice_pairs, layout_comment as layout
+from superhelp.helpers import filt_block_help
+from superhelp.ast_funcs.general import get_el_lines_dets
+from superhelp.ast_funcs import get_danger_status, get_docstring_from_value
+from superhelp import conf, gen_utils
+from superhelp.gen_utils import get_nice_pairs, layout_comment as layout
 
 FUNC_DEFN_XPATH = 'descendant-or-self::FunctionDef'
 
@@ -233,8 +232,7 @@ def func_len_check(block_dets, *, repeat=False, **_kwargs):
     for func_el in func_els:
         func_type_lbl = get_func_type_lbl(func_el)
         name = func_el.get('name')
-        first_line_no, last_line_no, _func_lines_n = get_el_lines_dets(
-            func_el, ignore_trailing_lines=True)
+        first_line_no, last_line_no, _func_lines_n = get_el_lines_dets(func_el, ignore_trailing_lines=True)
         block_lines = block_dets.block_code_str.split('\n')
         func_lines = block_lines[first_line_no - 1: last_line_no]
         func_non_empty_lines = [line for line in func_lines if line]

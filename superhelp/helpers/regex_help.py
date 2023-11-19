@@ -1,6 +1,6 @@
-from ..helpers import all_blocks_help
-from .. import ast_funcs, conf
-from ..gen_utils import layout_comment as layout
+from superhelp.helpers import all_blocks_help
+from superhelp import ast_funcs, conf
+from superhelp.gen_utils import layout_comment as layout
 
 def imported_re(block_el):
     ## straight import

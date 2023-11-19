@@ -1,7 +1,7 @@
-from ..helpers import any_block_help, filt_block_help
-from .. import ast_funcs
-from .. import code_execution, conf, name_utils
-from ..gen_utils import get_nice_str_list, layout_comment as layout
+from superhelp.helpers import any_block_help, filt_block_help
+from superhelp import ast_funcs
+from superhelp import code_execution, conf, name_utils
+from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
 
 F_STR = 'f-string'
 STR_FORMAT_FUNC = 'str_format'

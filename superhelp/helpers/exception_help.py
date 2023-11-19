@@ -1,6 +1,6 @@
-from ..helpers import all_blocks_help
-from .. import conf
-from ..gen_utils import get_nice_str_list, int2nice, layout_comment as layout
+from superhelp.helpers import all_blocks_help
+from superhelp import conf
+from superhelp.gen_utils import get_nice_str_list, int2nice, layout_comment as layout
 
 UNSPECIFIC_EXCEPTION = 'Exception'
 

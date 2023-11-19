@@ -1,7 +1,5 @@
 from textwrap import dedent
 
-from nose.tools import assert_equal  # @UnresolvedImport
-
 from tests import check_as_expected, get_repeated_lines, get_actual_result
 
 from superhelp.helpers.func_help import count_args
@@ -259,7 +257,7 @@ def test_arg_count():
     ]
     for snippet, test_func, expected_result in tests:
         actual_result = get_actual_result(snippet, xpath, test_func)
-        assert_equal(expected_result, actual_result)
+        assert expected_result == actual_result
 
 # test_misc()
 # test_arg_count()

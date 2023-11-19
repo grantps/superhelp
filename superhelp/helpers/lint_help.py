@@ -4,10 +4,9 @@ import re
 from subprocess import run, PIPE
 import sys
 
-from ..helpers import snippet_str_help
-from .. import conf, lint_conf
-from ..gen_utils import (get_nice_str_list, get_os_platform,
-    layout_comment as layout, make_open_tmp_file)
+from superhelp.helpers import snippet_str_help
+from superhelp import conf, lint_conf
+from superhelp.gen_utils import get_nice_str_list, get_os_platform, layout_comment as layout, make_open_tmp_file
 
 prog = re.compile(lint_conf.LINT_PATTERN, flags=re.VERBOSE)  # @UndefinedVariable
 
@@ -135,7 +134,7 @@ def _get_msg_line(msgs_dets):
         plural = 's' if len(line_nos) > 1 else ''
         nice_lines = get_nice_str_list(sorted(line_nos))
         msg2use = msg[0].upper() + msg[1:]  ## note - .capitalize() lower cases the remaining letters
-        msg2use = msg2use.replace('>', '\>').replace('<', '\<')
+        msg2use = msg2use.replace('>', '\\>').replace('<', '\\<')
         msg_type_details.append(f"{msg2use} (line{plural}:{nice_lines})")
     msg_line = layout('; '.join(msg_type_details))
     return msg_line

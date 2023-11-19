@@ -1,6 +1,6 @@
 import logging
 
-from . import conf
+from superhelp import conf
 
 def get_val(pre_block_code_str, block_code_str,
         name_type, name_details, name_str):

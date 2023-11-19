@@ -1,6 +1,6 @@
-from .. import conf
-from ..gen_utils import layout_comment as layout
-from ..helpers import all_blocks_help
+from superhelp import conf
+from superhelp.gen_utils import layout_comment as layout
+from superhelp.helpers import all_blocks_help
 
 def _method_from_mod(block_dets, modname, methodname):
     """
@@ -13,16 +13,15 @@ def _method_from_mod(block_dets, modname, methodname):
       <names>
         <alias type="str" name="getcwd"/>    
     """
-    importfrom_els = block_dets.element.xpath('descendant-or-self::ImportFrom')
-    mod_els = [el for el in importfrom_els if el.get('module') == modname]
+    import_from_els = block_dets.element.xpath('descendant-or-self::ImportFrom')
+    mod_els = [el for el in import_from_els if el.get('module') == modname]
     if not mod_els:
         return False
     has_mod_method = False
     for mod_el in mod_els:
         names_els = mod_el.xpath('names/alias')
-        methodname_els = [
-            el for el in names_els if el.get('name') == methodname]
-        if methodname_els:
+        method_name_els = [el for el in names_els if el.get('name') == methodname]
+        if method_name_els:
             has_mod_method = True
             break
     return has_mod_method

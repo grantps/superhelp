@@ -1,11 +1,10 @@
 from collections import defaultdict, namedtuple, Counter
 
-from ..helpers import filt_block_help
-from .. import ast_funcs, conf
-from ..gen_utils import int2nice, layout_comment as layout
+from superhelp.helpers import filt_block_help
+from superhelp import ast_funcs, conf
+from superhelp.gen_utils import int2nice, layout_comment as layout
 
-IfDets = namedtuple('IfDetails',
-    'multiple_conditions, missing_else, if_clauses')
+IfDets = namedtuple('IfDetails', 'multiple_conditions, missing_else, if_clauses')
 
 ELIF = 'elif'
 ELSE = 'else'

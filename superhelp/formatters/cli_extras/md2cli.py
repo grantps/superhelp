@@ -1,9 +1,9 @@
 from html import unescape
-import markdown  # @UnresolvedImport
-from markdown.extensions import fenced_code  # @UnresolvedImport
-from markdown.extensions.tables import TableExtension  # @UnresolvedImport
+import markdown
+from markdown.extensions import fenced_code
+from markdown.extensions.tables import TableExtension
 
-from . import ansi_printer, cli_utils, tag_formatting
+from superhelp.formatters.cli_extras import ansi_printer, cli_utils, tag_formatting
 
 def get_ansi(md):
     """

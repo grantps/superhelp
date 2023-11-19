@@ -1,6 +1,5 @@
-from ..helpers import (get_dict_comprehension_msg,
-    get_general_comprehension_msg, get_set_comprehension_msg,
-    filt_block_help)
+from superhelp.helpers import (get_dict_comprehension_msg, get_general_comprehension_msg,
+    get_set_comprehension_msg, filt_block_help)
 from superhelp import conf
 from superhelp import gen_utils
 from superhelp.gen_utils import layout_comment as layout

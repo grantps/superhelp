@@ -3,9 +3,9 @@ Method helpers are effectively function helpers and are covered there.
 """
 from collections import defaultdict
 
-from ..helpers import filt_block_help
-from .. import conf
-from ..gen_utils import get_nice_str_list, layout_comment as layout
+from superhelp.helpers import filt_block_help
+from superhelp import conf
+from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
 
 CLASS_XPATH = ('descendant-or-self::ClassDef')
 

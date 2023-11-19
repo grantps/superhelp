@@ -9,7 +9,7 @@ def test_misc():
         (
             "pet = 'cat'",
             {
-                ROOT + 'magic_number': 0,
+                ROOT + 'magic_number': 0,  ## expect 0 times
             }
         ),
         (
@@ -24,7 +24,7 @@ def test_misc():
                 is_num = True
             """),
             {
-                ROOT + 'magic_number': 1,
+                ROOT + 'magic_number': 1,  ## expect 1 warning about a magic_number
             }
         ),
         (

@@ -1,6 +1,6 @@
-from ..helpers import filt_block_help, get_aop_msg
-from .. import conf
-from ..gen_utils import layout_comment as layout
+from superhelp.helpers import filt_block_help, get_aop_msg
+from superhelp import conf
+from superhelp.gen_utils import layout_comment as layout
 
 def get_open_cm_msg():
     return (

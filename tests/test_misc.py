@@ -3,8 +3,6 @@ import logging
 from pathlib import Path
 from textwrap import dedent
 
-from nose.tools import assert_equal, assert_not_equal, assert_true, assert_false  # @UnusedImport @UnresolvedImport
-
 from superhelp import conf
 from superhelp.gen_utils import layout_comment as layout
 from superhelp.helper import this
@@ -56,7 +54,7 @@ def test_layout():
     ]
     for raw, expected_res, is_code in tests:
         actual_res = layout(raw, is_code=is_code)
-        assert_equal(actual_res, expected_res, f"'{actual_res}'")
+        assert actual_res == expected_res, f"'{actual_res}'"
 
 # test_layout()
 # test_this()

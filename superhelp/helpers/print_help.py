@@ -1,7 +1,7 @@
 
-from ..helpers import all_blocks_help
-from .. import conf
-from ..gen_utils import layout_comment as layout
+from superhelp.helpers import all_blocks_help
+from superhelp import conf
+from superhelp.gen_utils import layout_comment as layout
 
 def _includes_print(block_el):
     """
