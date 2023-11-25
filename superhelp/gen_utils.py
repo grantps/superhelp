@@ -355,9 +355,8 @@ def get_line_numbered_snippet(snippet):
 
 def get_introspected_file_path():
     """
-    The actual call we are interested in isn't necessarily the second one (e.g.
-    console first then actual script) so we have to explicitly filter for it. In
-    pydev, for example, it was the third item.
+    The actual call we are interested in isn't necessarily the second one (e.g. console first then actual script)
+    so we have to explicitly filter for it. In pydev, for example, it was the third item.
 
     https://stackoverflow.com/questions/13699283/how-to-get-the-callers-filename-method-name-in-python
     wasn't correct but gave some hints that I could build upon
@@ -468,7 +467,7 @@ def get_nice_pairs(pairs, *, pair_glue=': ', left_quoter='`', right_quoter='`'):
         final_left, final_right, pair_glue, left_quoter, right_quoter)
     return nice_pairs_list
 
-def int2nice(num):
+def int2nice(num: int) -> str:
     """
     :return: nicer version of number ready for use in sentences
     :rtype: str
@@ -490,10 +489,9 @@ def int2nice(num):
     }
     return nice.get(num, num)
 
-def int2first_etc(num):
+def int2first_etc(num: int) -> str:
     """
     :return: first for 1, second for 2 etc
-    :rtype: str
     """
     nice = {
         1: 'first',
@@ -511,12 +509,9 @@ def int2first_etc(num):
     }
     return nice.get(num, num)
 
-def _needs_resplitting_into_lines(one_line_paragraph):
+def _needs_resplitting_into_lines(one_line_paragraph: str) -> bool:
     """
-    No-split lines are ones we shouldn't break into sub-lines. Title, list
-    items, links etc.
-
-    :rtype: bool
+    No-split lines are ones we shouldn't break into sub-lines. Title, list items, links etc.
     """
     res = starting_num_space_prog.match(one_line_paragraph)
     if res is not None:
@@ -528,7 +523,7 @@ def _needs_resplitting_into_lines(one_line_paragraph):
         return False
     return True
 
-def _get_tidy_paragraph(raw_paragraph):
+def _get_tidy_paragraph(raw_paragraph: str) -> str:
     """
     Undo supplied internal line-splitting by rejoining paragraph content into
     single lines (by replacing internal new-line characters with single spaces)
@@ -537,8 +532,6 @@ def _get_tidy_paragraph(raw_paragraph):
 
     Remove lead and trailing new-lines - at the end there will always be two
     new-line characters added to the start.
-
-    :rtype: str
     """
     ## strip external new-line characters
     paragraph = raw_paragraph.strip()
@@ -553,12 +546,9 @@ def _get_tidy_paragraph(raw_paragraph):
     new_paragraph = '\n'.join(wrapped_paragraph_lines)
     return new_paragraph
 
-def _layout_non_code(raw_comment):
+def _layout_non_code(raw_comment: str) -> str:
     """
-    Split into paragraphs. Must have two new line characters to count as
-    separate paragraphs.
-
-    :rtype: str
+    Split into paragraphs. Must have two new line characters to count as separate paragraphs.
     """
     raw_paragraphs = dedent(raw_comment).split('\n\n')  ## we only split paragraphs if two new lines
     tidy_paragraphs = []
@@ -568,15 +558,12 @@ def _layout_non_code(raw_comment):
     comment = '\n\n'.join(tidy_paragraphs)
     return comment
 
-def _layout_code(raw_comment):
+def _layout_code(raw_comment: str) -> str:
     """
-    Return code with indented lines, and special code markers before and after
-    to indicate that the content is code. Add trailing new line. It is needed
-    otherwise content of next str (if any) becomes part of code highlighting.
+    Return code with indented lines, and special code markers before and after to indicate that the content is code.
+    Add trailing new line. It is needed otherwise content of next str (if any) becomes part of code highlighting.
 
     Four spaces is the required indentation for code.
-
-    :rtype: str
     """
     lines = (
         [conf.PYTHON_CODE_START]
@@ -587,21 +574,19 @@ def _layout_code(raw_comment):
     comment = f'\n'.join(indented_lines) + '\n'
     return comment
 
-def layout_comment(raw_comment, *, is_code=False):
+def layout_comment(raw_comment: str, *, is_code=False) -> str:
     """
     Layout comment ready for MD. Handles dedenting and code.
 
     Doesn't break up long lines which are titles otherwise the subsequent parts
     won't carry appropriate heading-level formatting.
 
-    :param str raw_comment: Comment ready to be dedented, consolidated, split
-     etc. Usually will have new line characters at start and end to ensure MD
-     doesn't lump paragraphs together. Extra new lines have no effect in the
-     output but might be useful in the source e.g. to allow IDE-managed line
-     breaking after content is edited.
-    :param bool is_code: if True then special code markers are inserted. These
-     are replaced by the appropriate code markers in the displayer.
-    :rtype: str
+    :param raw_comment: Comment ready to be dedented, consolidated, split etc.
+     Usually will have new line characters at start and end to ensure MD doesn't lump paragraphs together.
+     Extra new lines have no effect in the output but might be useful in the source
+     e.g. to allow IDE-managed line breaking after content is edited.
+    :param is_code: if True then special code markers are inserted.
+     These are replaced by the appropriate code markers in the displayer.
     """
     if '`' in raw_comment and is_code:
         logging.debug("Backtick detected in code which is probably a mistake")

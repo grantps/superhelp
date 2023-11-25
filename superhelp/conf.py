@@ -1,4 +1,5 @@
 import datetime
+from enum import StrEnum
 import logging
 
 t = True
@@ -8,12 +9,13 @@ f = False
 
 ## Release settings in (). Enforced by Makefile using good old sed :-)
 
-class Format:
+class Format(StrEnum):
     CLI = 'cli'
     HTML = 'html'
     MD = 'md'
-    OPTIONS = (CLI, HTML, MD)
-    INTERACTIVE_FORMATS = (CLI, MD)
+
+FORMAT_OPTIONS = (Format.CLI, Format.HTML, Format.MD)
+FORMAT_INTERACTIVE_FORMATS = (Format.CLI, Format.MD)
 
 c = Format.CLI
 h = Format.HTML
@@ -35,21 +37,23 @@ class Product:
         self.id = id
 """
 
-class OS:
+class OS(StrEnum):
     LINUX = 'linux'
     WINDOWS = 'windows'
     MAC = 'mac'
 
-class Theme:
+class Theme(StrEnum):
     DARK = 'dark'
     LIGHT = 'light'
-    OPTIONS = (DARK, LIGHT)
 
-class Level:
+THEME_OPTIONS = (Theme.DARK, Theme.LIGHT)
+
+class Level(StrEnum):
     BRIEF = 'Brief'  ## no spaces; used as labels and as parts of class names in CSS
     MAIN = 'Main'
     EXTRA = 'Extra'
-    OPTIONS = (BRIEF, MAIN, EXTRA)
+
+LEVEL_OPTIONS = (Level.BRIEF, Level.MAIN, Level.EXTRA)
 
 AST_OUTPUT_XML_FNAME = 'ast_output.xml'
 

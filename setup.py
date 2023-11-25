@@ -2,7 +2,7 @@ from setuptools import setup, find_packages  # @UnresolvedImport
 from codecs import open
 from os import path
 
-__version__ = '1.9.3'
+__version__ = '1.9.4'
 
 here = path.abspath(path.dirname(__file__))
 
@@ -30,8 +30,6 @@ setup(
       'Intended Audience :: Developers',
       'Intended Audience :: Information Technology',
       'Intended Audience :: End Users/Desktop',
-      'Programming Language :: Python :: 3.9',
-      'Programming Language :: Python :: 3.10',
       'Programming Language :: Python :: 3.11',
       'Programming Language :: Python :: 3.12',
       'Operating System :: OS Independent',
@@ -46,8 +44,8 @@ setup(
     install_requires=install_requires,
     dependency_links=dependency_links,
     author_email='grant@p-s.co.nz',
-    python_requires='>=3.9',
-    entry_points = {
+    python_requires='>=3.11',
+    entry_points={
         'console_scripts': [
             'shelp=superhelp.helper:shelp',  ## using argparse to allow arguments
         ]

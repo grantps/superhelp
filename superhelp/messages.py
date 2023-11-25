@@ -293,9 +293,8 @@ def get_system_messages_dets(snippet, brief_message, *, warning=True):
 
 def get_error_messages_dets(e, snippet):
     """
-    If unable to produce any messages, supply the problem in the form of
-    standard messages_dets so the displayers can operate in their usual
-    messages_dets consuming ways :-).
+    If unable to produce any messages, supply the problem in the form of standard messages_dets
+    so the displayers can operate in their usual messages_dets consuming ways :-).
     """
     brief_message = layout(f"""\
         ### No advice sorry :-(

@@ -1,4 +1,5 @@
 
+.PHONY: git_local
 git_local:
 	sed -i 's/^test_/# test_/' /home/g/projects/superhelp/tests/*.py  ## deactivate direct running of tests
 	sed -i 's/LOG_LEVEL = logging.DEBUG/LOG_LEVEL = logging.INFO/' /home/g/projects/superhelp/superhelp/conf.py
@@ -10,9 +11,11 @@ git_local:
 	grep "__version__ = '" /home/g/projects/superhelp/setup.py
 	@echo "It's up to you to update and commit"
 
+.PHONY: github
 github:
 	git push   
 
+.PHONY: upload
 upload:
 	rm -f dist/*
 	/home/g/projects/superhelp/env/bin/python3 setup.py sdist bdist_wheel

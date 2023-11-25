@@ -13,7 +13,7 @@ def test_this():
     ## not testing output as this is suppressed by setting SHOW_OUTPUT to False
     bools = [True, False]
     for n, (theme_name, detail_level, warnings_only, execute_code) in enumerate(
-            product(conf.Theme.OPTIONS, conf.Level.OPTIONS, bools, bools), 1):
+            product(conf.THEME_OPTIONS, conf.LEVEL_OPTIONS, bools, bools), 1):
         logging.info(f"Run #{n} of test_this (approx a few dozen)")
         this(file_path=file_path,
             output=conf.Format.HTML, theme_name=theme_name, detail_level=detail_level,

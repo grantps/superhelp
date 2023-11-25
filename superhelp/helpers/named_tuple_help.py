@@ -1,10 +1,15 @@
-from collections import namedtuple
+from dataclasses import dataclass
 
 from superhelp.helpers import all_blocks_help
 from superhelp import ast_funcs, conf
 from superhelp.gen_utils import layout_comment as layout
 
-NTDets = namedtuple('NamedTupleDetails', 'name, label, fields_str, fields_list')
+@dataclass
+class NTDets:
+    name: str
+    label: str
+    fields_str: str
+    fields_list: list[str]
 
 def get_named_tuple_dets(named_tuple_el):
     """
@@ -44,46 +49,72 @@ def named_tuple_overview(blocks_dets, *, repeat=False, **_kwargs):
         return None
 
     example_dets = named_tuples_dets[0]
-    first_field = example_dets.fields_list[0]
-    enhancement = (
+    fields = '\n                '.join(f"{field_str}: str" for field_str in example_dets.fields_list)
+    replacement = (
             layout("""\
-            ### Named Tuple Enhancements
+            ### Replacing Named Tuples with Dataclasses
 
-            Named tuples can be enhanced to make them even more useful -
-            especially when debugging. The label can be expanded beyond the
-            variable name; and the entire named tuple or individual fields can
-            be given their own doc strings.
+            Named tuples might be the correct answer in this case
+            but you should probably be using a dataclass instead
+            (see https://whenof.python.nz/blog/classy-data-with-dataclasses.html)
 
             For example:
             """)
             +
             layout(f"""\
-            {example_dets.name} = namedtuple("{example_dets.label}",
-                "{example_dets.fields_str}")
-            {example_dets.name}.__doc__ += "\\n\\nExtra comments"
-            {example_dets.name}.{first_field}.__doc__ = "Specific comment for {first_field}"
-            ## etc
+            from dataclasses import dataclass
+
+            @dataclass
+            class {example_dets.name.title()}:
+                {fields}
             """, is_code=True)
         )
-    defaults = (
+    replacement_options = (
         layout("""\
 
-        Default arguments are another nice option (added in Python 3.7). For
-        example the following named tuple has a default IQ of 100:
+        Dataclasses make it much easier to display default values e.g.
         """)
         +
         layout("""\
-        People = namedtuple('PeopleDets', 'name, IQ', defaults=(100, ))
+        @dataclass
+        class People:
+             name: str
+             IQ: int = 100
         """, is_code=True)
         +
         layout("""\
-        The official documentation has more details.
+        Validation is also easy to add to dataclasses e.g.
         """)
+        +
+        layout("""\
+        @dataclass
+        class People:
+             name: str
+             IQ: int = 100
+
+             def __post_init__(self):
+                 if not 70 <= self.IQ <= 170:
+                     raise ValueError(f"Invalid IQ ({self.IQ})")
+        """, is_code=True)
+        +
+        layout("""\
+        It is also easy to add derived values e.g.
+        """)
+        +
+        layout("""\
+        @dataclass
+        class Rect:
+             length: float
+             width: float
+
+             def __post_init__(self):
+                 self.area = self.length * self.width
+        """, is_code=True)
     )
 
     message = {
-        conf.Level.BRIEF: enhancement,
-        conf.Level.MAIN: enhancement + defaults,
+        conf.Level.BRIEF: replacement,
+        conf.Level.MAIN: replacement + replacement_options,
     }
     return message
     

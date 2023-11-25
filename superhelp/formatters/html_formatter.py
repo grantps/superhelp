@@ -7,13 +7,13 @@ from pathlib import Path
 from textwrap import dedent, indent
 
 from superhelp import conf, gen_utils
-from superhelp.conf import Level
+from superhelp.conf import LEVEL_OPTIONS, Level
 
 from markdown import markdown  # @UnresolvedImport
 
 DETAIL_LEVEL2CLASS = {
     detail_level: f"help help-{detail_level}"
-    for detail_level in Level.OPTIONS}
+    for detail_level in LEVEL_OPTIONS}
 
 BROWSER_HTML_WRAPPER = """\
 <!DOCTYPE html>
@@ -159,7 +159,7 @@ IS_CODE = 'is_code'
 
 def _get_radio_buttons(*, detail_level=Level.BRIEF):
     radio_buttons_dets = []
-    for message_type in conf.Level.OPTIONS:
+    for message_type in LEVEL_OPTIONS:
         checked = ' checked' if message_type == detail_level else ''
         radio_button_dets = f"""\
             <input type="radio"
@@ -226,7 +226,7 @@ def get_message_html_strs(message_dets):
     message_html_strs = []
     if message_dets.warning:
         message_html_strs.append("<div class='warning'>")
-    for detail_level in Level.OPTIONS:
+    for detail_level in LEVEL_OPTIONS:
         try:
             message = message_dets.message[detail_level]
         except KeyError:

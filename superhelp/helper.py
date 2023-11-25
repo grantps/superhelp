@@ -1,12 +1,14 @@
 import argparse
+from dataclasses import dataclass
 import logging
 import os
 from pathlib import Path
 from types import ModuleType
-from typing import Generator, NamedTuple
+from typing import Generator, Sequence
 
 from superhelp import conf, gen_utils, helpers, messages
-from superhelp.conf import Format, Level, Theme
+from superhelp.conf import (FORMAT_INTERACTIVE_FORMATS, FORMAT_OPTIONS, LEVEL_OPTIONS, THEME_OPTIONS,
+    Format, Level, Theme)
 from superhelp.formatters import cli_formatter, html_formatter, md_formatter
 from superhelp.displayers import cli_displayer, html_displayer, md_displayer
 
@@ -17,18 +19,18 @@ logging.basicConfig(
 
 helpers.load_helpers()
 
-class OutputSettings(NamedTuple):
-    format_name: Format  ## name of displayer e.g. html
-    theme_name: Theme  ## theme name e.g. dark
-    detail_level: Level  ## level of detail e.g. Extra
+@dataclass(frozen=True)
+class OutputSettings:
+    format_name: Format = Format.HTML  ## name of displayer e.g. html
+    theme_name: Theme = Theme.DARK  ## theme name e.g. dark
+    detail_level: Level = Level.MAIN  ## level of detail e.g. Extra
     warnings_only: bool = False  ## show warnings only
     execute_code: bool = False  ## execute code (vs only relying on inspection of AST)
 
 
 class Pipeline:
     """
-    The parts of the pipeline from source inputs to either
-    formatted help content or displayed help content.
+    The parts of the pipeline from source inputs to either formatted help content or displayed help content.
     """
     FORMAT2FORMATTER_MOD = {
         Format.HTML: html_formatter,
@@ -39,18 +41,15 @@ class Pipeline:
         Format.CLI: cli_displayer,
         Format.MD: md_displayer}
     @staticmethod
-    def _get_file_paths(
-            project_path: Path, exclude_folders: list[Path]) -> list[Path]:
+    def _get_file_paths(project_path: Path, exclude_folders: Sequence[Path]) -> list[Path]:
         """
-        Very easy to end up with far too many modules to process e.g. if
-        inadvertently looking at every module inside the site packages in a
-        virtual env ;-).
+        Very easy to end up with far too many modules to process
+        e.g. if inadvertently looking at every module inside the site packages in a virtual env ;-).
         """
         file_paths = []
         for root, dirs, files in os.walk(project_path, topdown=True):
             dirs[:] = [d for d in dirs if d not in exclude_folders]
-            py_files = [os.path.join(root, file)
-                for file in files if file.endswith('.py')]
+            py_files = [Path(os.path.join(root, file)) for file in files if file.endswith('.py')]
             file_paths.extend(py_files)
         if len(file_paths) > conf.MAX_PROJECT_MODULES:
             raise Exception(
@@ -104,8 +103,7 @@ class Pipeline:
             yield code, file_path
 
     @staticmethod
-    def get_code_items_dets(
-            code_items: Generator, *, output_settings: OutputSettings) -> Generator:
+    def get_code_items_dets(code_items: Generator, *, output_settings: OutputSettings) -> Generator:
         """
         Second part of pipeline - code items to code item details.
         """
@@ -188,20 +186,20 @@ class Pipeline:
         displayer_module = Pipeline._get_displayer_module(format_name)
         for formatted_help, file_path in formatted_help_dets:
             displayer_module.display(formatted_help, file_path)
-            if not single_script and format_name in Format.INTERACTIVE_FORMATS:
+            if not single_script and format_name in FORMAT_INTERACTIVE_FORMATS:
                 input("Press any key to continue ...")
 
 
-def get_formatted_help_dets(code=None, *,
-        file_path=None, project_path=None, exclude_folders=None,
-        output_settings: OutputSettings = None, in_notebook=False):
+def get_formatted_help_dets(code: str | None = None, *,
+        file_path: Path | str | None = None, project_path: Path | str | None = None,
+        exclude_folders: Sequence[Path] | Sequence[str] | None = None,
+        output_settings: OutputSettings | None = None, in_notebook=False):
     """
     Get formatted help text. Not displayed by SuperHELP.
     Any display is the responsibility of the calling code.
 
     If a snippet of code supplied, get help for that. If not, try file_path and
-    use that instead. And if not that, try project_path. Finally use the default
-    snippet.
+    use that instead. And if not that, try project_path. Finally, use the default snippet.
 
     :param str code: (optional) snippet of valid Python code to get help for.
      If None will try the file_path, then the project_path, and finally the
@@ -214,34 +212,35 @@ def get_formatted_help_dets(code=None, *,
     :param bool in_notebook: if True changes the formatting to make it
      Jupyter notebook friendly (default False)
     """
-    code_items = Pipeline.get_code_items(code=code, file_path=file_path,
-        project_path=project_path, exclude_folders=exclude_folders)
-    code_items_dets = Pipeline.get_code_items_dets(
-        code_items, output_settings=output_settings)
+    if not output_settings:
+        output_settings = OutputSettings()
+    code_items = Pipeline.get_code_items(code=code, file_path=file_path, project_path=project_path,
+        exclude_folders=exclude_folders)
+    code_items_dets = Pipeline.get_code_items_dets(code_items, output_settings=output_settings)
     formatted_help_dets = Pipeline.get_formatted_help_dets(
-        code_items_dets, output_settings=output_settings,
-        in_notebook=in_notebook)
+        code_items_dets, output_settings=output_settings, in_notebook=in_notebook)
     return formatted_help_dets
-    
-def show_help(code=None, *,
-        file_path=None, project_path=None, exclude_folders=None,
-        output_settings: OutputSettings = None, in_notebook=False):
+
+def show_help(code: str | None = None, *,
+        file_path: Path | str | None = None, project_path: Path | str | None = None,
+        exclude_folders: Sequence[Path] | Sequence[str] | None = None,
+        output_settings: OutputSettings | None = None, in_notebook=False):
     """
     If a snippet of code supplied, get help for that. If not, try file_path and
-    use that instead. And if not that, try project_path. Finally use the default
+    use that instead. And if not that, try project_path. Finally, use the default
     snippet.
 
-    :param str code: (optional) snippet of valid Python code to get help for.
-     If None will try the file_path, then the project_path, and finally the
-     default snippet.
-    :param str file_path: (optional) file path containing Python code
-    :param str project_path: (optional) path to project containing Python code
-    :param list exclude_folders: may be crucial if setting project_path e.g. to
-     avoid processing all python scripts in a virtual environment folder
-    :param OutputSettings output_settings:
-    :param bool in_notebook: if True changes the formatting to make it
-     Jupyter notebook friendly (default False)
+    :param code: (optional) snippet of valid Python code to get help for.
+     If None will try the file_path, then the project_path, and finally the default snippet.
+    :param file_path: (optional) file path containing Python code
+    :param project_path: (optional) path to project containing Python code
+    :param exclude_folders: may be crucial if setting project_path e.g. to avoid processing all python scripts
+     in a virtual environment folder
+    :param output_settings:
+    :param in_notebook: if True changes the formatting to make it Jupyter notebook friendly (default False)
     """
+    if not output_settings:
+        output_settings = OutputSettings()
     formatted_help_dets = get_formatted_help_dets(code=code, file_path=file_path,
         project_path=project_path, exclude_folders=exclude_folders,
         output_settings=output_settings, in_notebook=in_notebook)
@@ -253,9 +252,8 @@ def show_help(code=None, *,
             "- presumably running tests "
             "and not wanting lots of HTML windows opening ;-)")
 
-def this(*, file_path=None,
-        output=Format.HTML, theme_name=Theme.DARK,
-        detail_level=Level.EXTRA,
+def this(*, file_path: Path | str | None = None,
+        output: Format = Format.HTML, theme_name: Theme = Theme.DARK, detail_level: Level = Level.EXTRA,
         warnings_only=False, execute_code=False):
     """
     Get SuperHELP output on the file_path Python script.
@@ -265,24 +263,21 @@ def this(*, file_path=None,
     But it was considered of paramount importance to give users a simple and
     easy-to-remember superhelp.this() interface.
 
-    :param str / Path file_path: full path to script location. Only needed if
-     SuperHELP is unable to locate the script by itself. Usually should be
-     __file__ (note the double underscores on either side of file).
-    :param str output: type of output e.g. 'html', 'cli', 'md' (default 'html')
-    :param str theme_name: currently only needed by the CLIC displayer to handle
+    :param file_path: full path to script location. Only needed if SuperHELP is unable to locate the script by itself.
+     Usually should be __file__ (note the double underscores on either side of file).
+    :param output: type of output e.g. 'html', 'cli', 'md' (default 'html')
+    :param theme_name: currently only needed by the CLIC displayer to handle
      dark and light terminal themes (default 'dark')
-    :param str detail_level: e.g. 'Brief', 'Main', 'Extra' (default 'Extra')
-    :param bool warnings_only: if True only displays warnings (default False)
-    :param bool execute_code: if True executes code to enable extra checks
-     (default False)
+    :param detail_level: e.g. 'Brief', 'Main', 'Extra' (default 'Extra')
+    :param warnings_only: if True only displays warnings (default False)
+    :param execute_code: if True executes code to enable extra checks (default False)
     """
     if not file_path:
         file_path = gen_utils.get_introspected_file_path()
     output_settings = OutputSettings(
         format_name=output, theme_name=theme_name, detail_level=detail_level,
         warnings_only=warnings_only, execute_code=execute_code)
-    show_help(code=None, file_path=file_path, project_path=None,
-        output_settings=output_settings, in_notebook=False)
+    show_help(code=None, file_path=file_path, project_path=None, output_settings=output_settings, in_notebook=False)
 
 def shelp():
     """
@@ -312,11 +307,11 @@ def shelp():
             "e.g. --exclude store env back_ups misc"))
     parser.add_argument('-d', '--detail-level', type=str,
         required=False,
-        choices=Level.OPTIONS, default=Level.EXTRA,
+        choices=LEVEL_OPTIONS, default=Level.EXTRA,
         help="What level of detail do you want?")
     parser.add_argument('-o', '--output', type=str,
         required=False,
-        choices=Format.OPTIONS, default=default_output,
+        choices=FORMAT_OPTIONS, default=default_output,
         help="How do you want your help shown? html, cli, md, etc")
     ## https://docs.python.org/3.10/library/argparse.html#action-classes 'store_true' and 'store_false' - These are special cases of 'store_const' used for storing the values True and False respectively. In addition, they create default values of False and True respectively.
     parser.add_argument('-w', '--warnings-only', action='store_true',
@@ -327,7 +322,7 @@ def shelp():
         help="Execute script to enable additional checks")
     parser.add_argument('-t', '--theme', type=str,
         required=False,
-        choices=Theme.OPTIONS, default=Theme.DARK,
+        choices=THEME_OPTIONS, default=Theme.DARK,
         help=("Select an output theme - currently only affects cli output "
             f"option. '{conf.Theme.DARK}' or '{conf.Theme.LIGHT}'"))
     parser.add_argument('-a', '--advice-list', action='store_true',
@@ -364,8 +359,7 @@ def shelp():
     show_help(args.code,
         file_path=args.file_path,
         project_path=args.project_path, exclude_folders=args.exclude_folders,
-        output_settings=output_settings, in_notebook=False
-    )
+        output_settings=output_settings, in_notebook=False)
 
 if __name__ == '__main__':
     # output_settings = OutputSettings(
@@ -385,3 +379,5 @@ if __name__ == '__main__':
     # show_help(output_settings=output_settings)
     # shelp()
     pass
+
+show_help("from collections import namedtuple\n\nFruit = namedtuple('Fruit', 'colour, taste, price')")
