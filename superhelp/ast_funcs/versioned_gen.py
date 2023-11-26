@@ -222,8 +222,7 @@ def _get_nt_lbl_flds_any(assign_block_el, tag='Constant', id_attr='value'):
     return label, fields_list
 
 def get_nt_lbl_flds(assign_block_el):
-    return _get_nt_lbl_flds_any(
-        assign_block_el, tag='Constant', id_attr='value')
+    return _get_nt_lbl_flds_any(assign_block_el, tag='Constant', id_attr='value')
 
 def get_slice_n(assign_el):
     # inspect_el(assign_el)

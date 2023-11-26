@@ -9,11 +9,9 @@ from superhelp.gen_utils import (get_code_desc, get_intro,
     get_line_numbered_snippet, layout_comment as layout)
 
 """
-Note - displays properly in the terminal but not necessarily in other output
-e.g. Eclipse console.
+Note - displays properly in the terminal but not necessarily in other output e.g. Eclipse console.
 
-Lots in common with md displayer but risks of DRYing probably outweigh benefits
-at this stage.
+Lots in common with md displayer but risks of DRYing probably outweigh benefits at this stage.
 
 Probably should swap out for https://github.com/willmcgugan/rich
 """
@@ -48,7 +46,7 @@ def _need_snippet_displayed(overall_messages_dets, block_messages_dets, *,
         return False
     return True
 
-def get_formatted_help(code: str, file_path: Path, messages_dets, *,
+def get_formatted_help(code: str, code_file_path: Path, messages_dets, *,
         detail_level: Level = Level.BRIEF, theme_name: Theme = Theme.LIGHT,
         warnings_only=False, multi_block=False) -> str:
     """
@@ -60,7 +58,7 @@ def get_formatted_help(code: str, file_path: Path, messages_dets, *,
         options_msg = conf.WARNINGS_ONLY_MSG
     else:
         options_msg = conf.ALL_HELP_SHOWING_MSG
-    intro = get_intro(file_path, multi_block=multi_block)
+    intro = get_intro(code_file_path, multi_block=multi_block)
     text = [
         md2cli.main(layout(f"""\
             # SuperHELP - Help for Humans!
@@ -82,7 +80,7 @@ def get_formatted_help(code: str, file_path: Path, messages_dets, *,
         overall_messages_dets, block_messages_dets, multi_block=multi_block)
     if display_snippet:
         line_numbered_snippet = get_line_numbered_snippet(code)
-        code_desc = get_code_desc(file_path)
+        code_desc = get_code_desc(code_file_path)
         text.append(md2cli.main(dedent(
             f"## {code_desc}"
             f"\n{MDV_CODE_BOUNDARY}\n"

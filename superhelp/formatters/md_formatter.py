@@ -40,7 +40,7 @@ def _need_snippet_displayed(overall_messages_dets, block_messages_dets, *,
         return False
     return True
 
-def get_formatted_help(code: str, file_path: Path, messages_dets, *,
+def get_formatted_help(code: str, code_file_path: Path, messages_dets, *,
         detail_level: Level = Level.BRIEF,
         warnings_only=False, multi_block=False) -> str:
     """
@@ -50,7 +50,7 @@ def get_formatted_help(code: str, file_path: Path, messages_dets, *,
         options_msg = conf.WARNINGS_ONLY_MSG
     else:
         options_msg = conf.ALL_HELP_SHOWING_MSG
-    intro = gen_utils.get_intro(file_path, multi_block=multi_block)
+    intro = gen_utils.get_intro(code_file_path, multi_block=multi_block)
     text = [
         layout(f"""\
             # SuperHELP - Help for Humans!
@@ -77,7 +77,7 @@ def get_formatted_help(code: str, file_path: Path, messages_dets, *,
         overall_messages_dets, block_messages_dets, multi_block=multi_block)
     if display_snippet:
         line_numbered_snippet = gen_utils.get_line_numbered_snippet(code)
-        code_desc = gen_utils.get_code_desc(file_path)
+        code_desc = gen_utils.get_code_desc(code_file_path)
         text.append(dedent(
             f"## {code_desc}"
             f"\n{MDV_CODE_START}\n"

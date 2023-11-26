@@ -3,20 +3,18 @@ import webbrowser
 
 from superhelp import conf, gen_utils
 
-def display(formatted_help: str, file_path: Path):
+def display(formatted_help: str, code_file_path: Path):
     """
     Show for overall snippet and then by code blocks as appropriate.
+    If there are multiple output files (because we are getting help on multiple scripts) will be called multiple times.
     """
-    if file_path:
-        raw_file_name = gen_utils.clean_path_name(file_path)
-        file_name = f'{raw_file_name}.html'
+    if code_file_path:
+        raw_file_name = gen_utils.clean_path_name(code_file_path)
+        output_file_name = f'{raw_file_name}.html'
     else:
-        file_name = 'superhelp_output.html'
-    superhelp_tmpdir = gen_utils.get_superhelp_tmpdir(
-        folder=conf.SUPERHELP_PROJECT_OUTPUT)
-    with gen_utils.make_open_tmp_file(
-            file_name, superhelp_tmpdir=superhelp_tmpdir,
-            mode='w') as tmp_dets:
+        output_file_name = 'superhelp_output.html'
+    superhelp_tmpdir = gen_utils.get_superhelp_tmpdir(folder=conf.SUPERHELP_PROJECT_OUTPUT)
+    with gen_utils.make_open_tmp_file(output_file_name, superhelp_tmpdir=superhelp_tmpdir, mode='w') as tmp_dets:
         _superhelp_tmpdir, tmp_fh, fpath = tmp_dets
         tmp_fh.write(formatted_help)
     url = fpath.as_uri()

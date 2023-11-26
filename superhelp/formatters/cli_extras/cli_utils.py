@@ -2,7 +2,7 @@ import logging
 import re
 import textwrap
 
-from lxml import etree  ## https://python-markdown.github.io/changelog/#previously-deprecated-objects-have-been-removed
+import xml.etree.ElementTree as etree  ## https://python-markdown.github.io/changelog/#previously-deprecated-objects-have-been-removed
 from pygments import lex, token
 from pygments.lexers import get_lexer_by_name
 
@@ -236,15 +236,13 @@ def el2str(el):
     str2use = etree.tostring(el).decode('utf-8')
     return str2use
 
-def get_text_if_inline_markup(el):
+def get_text_if_inline_markup(el) -> str | None:
     """
     :return: html_str or None if not text with inline markup
-    :rtype: str
     """
     el_str = el2str(el)
     ## strip tag
-    html_str = (
-        el_str.split(f'<{el.tag}', 1)[1].split('>', 1)[1].rsplit('>', 1)[0])
+    html_str = el_str.split(f'<{el.tag}', 1)[1].split('>', 1)[1].rsplit('>', 1)[0]
     ## start with another tagged child which is NOT in inlines?
     inlines = ['<a', '<em>', '<code>', '<strong>']
     has_inline_markup = False

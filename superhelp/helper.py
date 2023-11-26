@@ -76,31 +76,37 @@ class Pipeline:
         return code
 
     @staticmethod
-    def get_code_items(*,
-            code: str = None, file_path: Path = None,
+    def get_code_items(*, code: str = None, file_path: Path = None,
             project_path: Path = None, exclude_folders=None) -> Generator:
         """
         The start of the pipeline.
 
         Return a generator (often yielding only details for one code item).
+        Each result is a tuple of the actual code (str) and a code_file_path we can use in the name of the output
+        if applicable e.g. in HTML output files.
+
+        This function exists to handle cases where there are multiple code files
+        i.e. because we are looking for all scripts in a project folder.
+        In most cases, only yielding a single result because there is only one snippet of code / one script involved.
         """
         if code:
             code = code.strip('\n')
-            file_path = None
-            yield code, file_path
+            code_file_path = None
+            yield code, code_file_path
         elif file_path:
             code = Pipeline._get_file_code(file_path)
-            yield code, file_path
+            code_file_path = file_path
+            yield code, code_file_path
         elif project_path:
-            file_paths = Pipeline._get_file_paths(project_path, exclude_folders)
-            for file_path in file_paths:
-                code = Pipeline._get_file_code(file_path)
-                yield code, file_path
+            code_file_paths = Pipeline._get_file_paths(project_path, exclude_folders)
+            for code_file_path in code_file_paths:
+                code = Pipeline._get_file_code(code_file_path)
+                yield code, code_file_path
         else:
             code = conf.TEST_SNIPPET
             logging.info("Using default snippet because no code provided")
-            file_path = None
-            yield code, file_path
+            code_file_path = None
+            yield code, code_file_path
 
     @staticmethod
     def get_code_items_dets(code_items: Generator, *, output_settings: OutputSettings) -> Generator:
@@ -108,7 +114,7 @@ class Pipeline:
         Second part of pipeline - code items to code item details.
         """
         repeat_set = set()  ## mutates as we hand it around to keep track of repeats
-        for code, file_path in code_items:
+        for code, code_file_path in code_items:
             if code.strip() == 'import community':
                 messages_dets = messages.get_community_message(code)
                 multi_block = False
@@ -124,7 +130,7 @@ class Pipeline:
                 except Exception as e:
                     messages_dets = messages.get_error_messages_dets(e, code)
                     multi_block = False
-            yield code, file_path, messages_dets, multi_block
+            yield code, code_file_path, messages_dets, multi_block
 
     @staticmethod
     def _get_formatter_module(format_name: Format) -> ModuleType:
@@ -150,11 +156,10 @@ class Pipeline:
         """
         Third part of pipeline - from code item details to formatted content.
         """
-        formatter_module = Pipeline._get_formatter_module(
-            output_settings.format_name)
-        for code, file_path, messages_dets, multi_block in code_items_dets:
+        formatter_module = Pipeline._get_formatter_module(output_settings.format_name)
+        for code, code_file_path, messages_dets, multi_block in code_items_dets:
             kwargs = {
-                'code': code, 'file_path': file_path,
+                'code': code, 'code_file_path': code_file_path,
                 'messages_dets': messages_dets,
                 'detail_level': output_settings.detail_level,
                 'warnings_only': output_settings.warnings_only,
@@ -168,20 +173,17 @@ class Pipeline:
             elif format_name == Format.MD:
                 pass  ## nothing to add
             else:
-                raise ValueError(f"Unexpected format_name {format_name} "
-                    "when setting formatter args")
+                raise ValueError(f"Unexpected format_name {format_name} when setting formatter args")
             formatted_help = formatter_module.get_formatted_help(**kwargs)
-            yield formatted_help, file_path
+            yield formatted_help, code_file_path
 
     @staticmethod
-    def display_help(formatted_help_dets: Generator, format_name: Format, *,
-            single_script=True):
+    def display_help(formatted_help_dets: Generator, format_name: Format, *, single_script=True):
         """
         Final stage of the pipeline.
 
         If HTML will open a tab per script.
-        If interactive, will open one after the other
-        with a user-controlled pause in between.
+        If interactive, will open one after the other with a user-controlled pause in between.
         """
         displayer_module = Pipeline._get_displayer_module(format_name)
         for formatted_help, file_path in formatted_help_dets:
@@ -201,21 +203,19 @@ def get_formatted_help_dets(code: str | None = None, *,
     If a snippet of code supplied, get help for that. If not, try file_path and
     use that instead. And if not that, try project_path. Finally, use the default snippet.
 
-    :param str code: (optional) snippet of valid Python code to get help for.
-     If None will try the file_path, then the project_path, and finally the
-     default snippet.
-    :param str file_path: (optional) file path containing Python code
-    :param str project_path: (optional) path to project containing Python code
-    :param list exclude_folders: may be crucial if setting project_path e.g. to
-     avoid processing all python scripts in a virtual environment folder
+    :param code: (optional) snippet of valid Python code to get help for.
+     If None will try the file_path, then the project_path, and finally the default snippet.
+    :param file_path: (optional) file path containing Python code
+    :param project_path: (optional) path to project containing Python code
+    :param exclude_folders: may be crucial if setting project_path
+     e.g. to avoid processing all python scripts in a virtual environment folder
     :param OutputSettings output_settings:
-    :param bool in_notebook: if True changes the formatting to make it
-     Jupyter notebook friendly (default False)
+    :param bool in_notebook: if True changes the formatting to make it Jupyter notebook friendly (default False)
     """
     if not output_settings:
         output_settings = OutputSettings()
-    code_items = Pipeline.get_code_items(code=code, file_path=file_path, project_path=project_path,
-        exclude_folders=exclude_folders)
+    code_items = Pipeline.get_code_items(
+        code=code, file_path=file_path, project_path=project_path, exclude_folders=exclude_folders)
     code_items_dets = Pipeline.get_code_items_dets(code_items, output_settings=output_settings)
     formatted_help_dets = Pipeline.get_formatted_help_dets(
         code_items_dets, output_settings=output_settings, in_notebook=in_notebook)
@@ -226,21 +226,32 @@ def show_help(code: str | None = None, *,
         exclude_folders: Sequence[Path] | Sequence[str] | None = None,
         output_settings: OutputSettings | None = None, in_notebook=False):
     """
-    If a snippet of code supplied, get help for that. If not, try file_path and
-    use that instead. And if not that, try project_path. Finally, use the default
-    snippet.
+    If a snippet of code supplied, get help for that.
+    If not, try file_path and use that instead.
+    And if not that, try project_path.
+    Finally, use the default snippet.
+
+    Code uses the name file_path to refer to the setting and the name code_file_path to refer to the path(s) of code
+    and output_file_name to refer to the file path of any output.
+    The distinction is because when file_path is None and project_path is set
+    we will have multiple code_file_path's set (even though file_path is None).
+    code_file_path may be used in the name of output files when there are multiple (i.e. a project_folder has been set).
 
     :param code: (optional) snippet of valid Python code to get help for.
      If None will try the file_path, then the project_path, and finally the default snippet.
     :param file_path: (optional) file path containing Python code
     :param project_path: (optional) path to project containing Python code
-    :param exclude_folders: may be crucial if setting project_path e.g. to avoid processing all python scripts
-     in a virtual environment folder
+    :param exclude_folders: may be crucial if setting project_path
+     e.g. to avoid processing all python scripts in a virtual environment folder
     :param output_settings:
     :param in_notebook: if True changes the formatting to make it Jupyter notebook friendly (default False)
     """
     if not output_settings:
-        output_settings = OutputSettings()
+
+
+        output_settings = OutputSettings(format_name=Format.CLI)
+
+
     formatted_help_dets = get_formatted_help_dets(code=code, file_path=file_path,
         project_path=project_path, exclude_folders=exclude_folders,
         output_settings=output_settings, in_notebook=in_notebook)
@@ -248,8 +259,7 @@ def show_help(code: str | None = None, *,
         single_script = project_path is None
         Pipeline.display_help(formatted_help_dets, output_settings.format_name, single_script=single_script)
     else:
-        logging.info("NOT showing output because conf.SHOW_OUTPUT is False "
-            "- presumably running tests "
+        logging.info("NOT showing output because conf.SHOW_OUTPUT is False - presumably running tests "
             "and not wanting lots of HTML windows opening ;-)")
 
 def this(*, file_path: Path | str | None = None,
@@ -362,6 +372,7 @@ def shelp():
         output_settings=output_settings, in_notebook=False)
 
 if __name__ == '__main__':
+    ## don't include anything outside of this block unless you like seeing it twice when import this happens in __init__ ;-)
     # output_settings = OutputSettings(
     #     format_name=Format.HTML if conf.SHOW_OUTPUT else None,
     #     theme_name=None, detail_level=Level.EXTRA,
@@ -379,5 +390,5 @@ if __name__ == '__main__':
     # show_help(output_settings=output_settings)
     # shelp()
     pass
-
-show_help("from collections import namedtuple\n\nFruit = namedtuple('Fruit', 'colour, taste, price')")
+    show_help("from collections import namedtuple\n\nFruit = namedtuple('Fruit', 'colour, taste, price')")
+    print('Finished!')

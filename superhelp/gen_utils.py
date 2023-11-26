@@ -9,6 +9,7 @@ import re
 import sys
 import tempfile
 from textwrap import dedent, wrap
+from typing import Sequence
 import webbrowser
 
 import ast
@@ -23,7 +24,9 @@ from astpath.asts import _set_encoded_literal, _strip_docstring
 ## Need to be able to tell val = 1 from val = '1' (that little detail ;-))
 ## Pull request fixing this was accepted and merged May 2020
 def convert_to_xml(node, omit_docstrings=False, node_mappings=None):
-    """Convert supplied AST node to XML."""
+    """
+    Convert supplied AST node to XML
+    """
     possible_docstring = isinstance(node, (ast.FunctionDef, ast.ClassDef, ast.Module))
 
     xml_node = etree.Element(node.__class__.__name__)
@@ -185,12 +188,10 @@ def ast_collection_items(named_el):
         raise Exception(f"Unexpected named_el: '{tag}'")
     return items
 
-def get_collections_dets(named_els, block_dets, *,
-        collection_plural, truncated_items_func, execute_code=True):
+def get_collections_dets(named_els, block_dets, *, collection_plural, truncated_items_func, execute_code=True):
     """
-    Get information on collections - names with associated items, plus a string
-    message (empty str if no oversized items) which can be assembled as part of
-    a full helper message.
+    Get information on collections - names with associated items, plus a string message
+    (empty str if no oversized items) which can be assembled as part of a full helper message.
 
     :param list named_els: list of Assign elements which have collections as the
      value e.g. Assign/value/List (Dict, Set, Tuple, List, ListComp etc)
@@ -238,21 +239,18 @@ def get_collections_dets(named_els, block_dets, *,
 
 def open_output_folder():
     """
-    On Linux, webbrowser delegates to xdg-open which checks mime type to decide
-    what gets to open something. Directories get delegated by xdg-open to
-    nautilus, for example, and html to the webbrowser usually.
+    On Linux, webbrowser delegates to xdg-open which checks mime type to decide what gets to open something.
+    Directories get delegated by xdg-open to nautilus, for example, and html to the web browser usually.
 
-    So even though web browsers display the contents of folders very easily we
-    can't get xdg-open to delegate a directory to a browser. So I'm cheating - I
-    make a wrapper page which has a link to the desired folder uri. Where
-    there's a will there's a way.
+    So even though web browsers display the contents of folders very easily
+    we can't get xdg-open to delegate a directory to a browser.
+    So I'm cheating - I make a wrapper page which has a link to the desired folder uri.
+    Where there's a will there's a way.
     """
-    project_output_tmpdir = get_superhelp_tmpdir(
-        folder=conf.SUPERHELP_PROJECT_OUTPUT)
+    project_output_tmpdir = get_superhelp_tmpdir(folder=conf.SUPERHELP_PROJECT_OUTPUT)
     project_output_url = project_output_tmpdir.as_uri()
     gen_tmpdir = get_superhelp_tmpdir(folder=conf.SUPERHELP_GEN_OUTPUT)
-    with make_open_tmp_file('project_help.html',
-            superhelp_tmpdir=gen_tmpdir, mode='w') as tmp_dets:
+    with make_open_tmp_file('project_help.html', superhelp_tmpdir=gen_tmpdir, mode='w') as tmp_dets:
         _superhelp_tmpdir, tmp_fh, fpath = tmp_dets
         internal_css = dedent("""\
         body {
@@ -308,14 +306,15 @@ def open_output_folder():
         tmp_fh.write(html)
     webbrowser.open(fpath.as_uri())
 
-def get_tree(snippet, *, debug=True):
+def get_tree(snippet, *, debug=False):
     try:
         tree = ast.parse(snippet)  ## ast.dump(tree) to see what you got
     except SyntaxError as e:
         raise SyntaxError(
             f"Oops - something seems broken in the snippet - details: {e}")
     else:
-        print(ast.dump(tree))
+        if debug:
+            print(ast.dump(tree))
     return tree
 
 def xml_from_tree(tree):
@@ -400,9 +399,8 @@ def get_superhelp_tmpdir(folder='superhelp'):
 @contextmanager
 def make_open_tmp_file(fname, *, superhelp_tmpdir=None, mode='w'):
     """
-    Note - file needs to be closed for changes to be saved to the file -
-    otherwise it will be 0 bytes. Up to client code to ensure it is closed and
-    properly available for subsequent steps.
+    Note - file needs to be closed for changes to be saved to the file - otherwise it will be 0 bytes.
+    Up to client code to ensure it is closed and properly available for subsequent steps.
     """
     try:
         if not superhelp_tmpdir:
@@ -420,15 +418,14 @@ def get_python_version():
     major, minor = sys.version_info[:2]
     return f"{major}.{minor}"
 
-def get_nice_str_list(items, *, item_glue=', ', quoter='`'):
+def get_nice_str_list(items: Sequence[str], *, item_glue: str = ', ', quoter: str = '`') -> str:
     """
     Get a nice English phrase listing the items.
 
-    :param sequence items: individual items to put into a phrase.
-    :param str quoter: default is backtick because it is expected that the most
+    :param items: individual items to put into a phrase.
+    :param quoter: default is backtick because it is expected that the most
      common items will be names (variables).
     :return: nice phrase
-    :rtype: str
     """
     nice_str_list = item_glue.join(
         [f"{quoter}{item}{quoter}" for item in items[:-1]])

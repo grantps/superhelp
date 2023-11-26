@@ -1,23 +1,29 @@
-from collections import namedtuple
+from dataclasses import dataclass
 import logging
+
+from lxml.etree import _Element
 
 from superhelp.ast_funcs import general as ast_gen
 from superhelp import conf, helpers
-from superhelp.gen_utils import (get_docstring_start, get_tree,
-    layout_comment as layout, xml_from_tree)
+from superhelp.gen_utils import get_docstring_start, get_tree, layout_comment as layout, xml_from_tree
 
-BlockDets = namedtuple(
-    'BlockDets', 'element, pre_block_code_str, block_code_str, first_line_no')
-BlockDets.pre_block_code_str.__doc__ = ("The code up until the line we are "
-    "interested in needs to be run - it may depend on names from earlier")
+@dataclass
+class BlockDets:
+    element: _Element
+    pre_block_code_str: str  ## The code up until the line we are interested in needs to be run - it may depend on names from earlier
+    block_code_str: str
+    first_line_no: int
 
-MessageDets = namedtuple('MessageDets',
-    'code_str, message, first_line_no, warning, source')
-MessageDets.__doc__ += (
-    "All the bits and pieces that might be needed to craft a message")
-MessageDets.code_str.__doc__ = ("The block of code the message relates to")
-MessageDets.source.__doc__ = ("A unique identifier of the source of message "
-    "- useful for auditing / testing")
+@dataclass
+class MessageDets:
+    """
+    All the bits and pieces that might be needed to craft a message
+    """
+    code_str: str  ## The block of code the message relates to
+    message: str
+    first_line_no: int
+    warning: bool
+    source: str  ## A unique identifier of the source of message - useful for auditing / testing
 
 def get_blocks_dets(snippet, snippet_block_els):
     """
@@ -32,15 +38,10 @@ def get_blocks_dets(snippet, snippet_block_els):
     snippet_lines = snippet.split('\n')
     blocks_dets = []
     for snippet_block_el in snippet_block_els:
-        first_line_no, last_line_no, _el_lines_n = ast_gen.get_el_lines_dets(
-            snippet_block_el)
-        block_code_str = (
-            '\n'.join(snippet_lines[first_line_no - 1: last_line_no]).strip())
-        pre_block_code_str = (
-            '\n'.join(snippet_lines[0: first_line_no - 1]).strip()
-            + '\n')
-        blocks_dets.append(BlockDets(
-            snippet_block_el, pre_block_code_str, block_code_str, first_line_no))
+        first_line_no, last_line_no, _el_lines_n = ast_gen.get_el_lines_dets(snippet_block_el)
+        block_code_str = '\n'.join(snippet_lines[first_line_no - 1: last_line_no]).strip()
+        pre_block_code_str = '\n'.join(snippet_lines[0: first_line_no - 1]).strip() + '\n'
+        blocks_dets.append(BlockDets(snippet_block_el, pre_block_code_str, block_code_str, first_line_no))
     return blocks_dets
 
 def complete_message(message, *, source):
@@ -106,8 +107,7 @@ def get_message_dets_from_input(helper_dets, *,
         if message is None:
             return None
     message = complete_message(message, source=source)
-    message_dets = MessageDets(
-        code_str, message, first_line_no, warning, source=source)
+    message_dets = MessageDets(code_str, message, first_line_no, warning, source=source)
     return message_dets
 
 def _get_ancestor_block_element(element):
@@ -212,8 +212,7 @@ def get_separated_messages_dets(snippet, snippet_block_els, xml, *,
         warnings_only=False, execute_code=True, repeat_set=None):
     """
     Break snippet up into syntactical parts and blocks of code. Apply helper
-    functions and get message details. Split into overall messages and block-
-    specific messages.
+    functions and get message details. Split into overall messages and block-specific messages.
 
     :param str snippet: code snippet
     :param list snippet_block_els: list of block elements for snippet

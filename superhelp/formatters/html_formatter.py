@@ -9,7 +9,7 @@ from textwrap import dedent, indent
 from superhelp import conf, gen_utils
 from superhelp.conf import LEVEL_OPTIONS, Level
 
-from markdown import markdown  # @UnresolvedImport
+from markdown import markdown
 
 DETAIL_LEVEL2CLASS = {
     detail_level: f"help help-{detail_level}"
@@ -202,7 +202,7 @@ def get_separate_code_message_parts(message):
             open_code_block = False
     return message_parts
 
-def get_html_strs(message, message_type, *, warning=False):  # @UnusedVariable
+def get_html_strs(message, message_type, *, warning=False):
     if not message:
         return []
     message_type_class = DETAIL_LEVEL2CLASS[message_type]
@@ -356,14 +356,14 @@ def _get_head(*, in_notebook=False):
         'internal_css': internal_css}
     return head
 
-def get_formatted_help(code: str, file_path: Path, messages_dets, *,
+def get_formatted_help(code: str, code_file_path: Path, messages_dets, *,
         detail_level: Level = Level.BRIEF,
         in_notebook=False, warnings_only=False, multi_block=False) -> str:
-    raw_intro = gen_utils.get_intro(file_path, multi_block=multi_block)
+    raw_intro = gen_utils.get_intro(code_file_path, multi_block=multi_block)
     intro = f"<p>{raw_intro}</p>" if raw_intro else ''
     radio_buttons = _get_radio_buttons(detail_level=detail_level)
     overall_messages_dets, block_messages_dets = messages_dets
-    all_html_strs = _get_all_html_strs(code, file_path,
+    all_html_strs = _get_all_html_strs(code, code_file_path,
         overall_messages_dets, block_messages_dets, warnings_only=warnings_only,
         in_notebook=in_notebook, multi_block=multi_block)
     body_inner = '\n'.join(all_html_strs)

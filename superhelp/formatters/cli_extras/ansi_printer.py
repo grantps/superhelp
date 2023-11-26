@@ -1,10 +1,10 @@
+## see https://github.com/axiros/terminal_markdown_viewer/blob/master/mdv/markdownviewer.py
 from html import unescape
-from markdown.extensions import Extension  # @UnresolvedImport
-from markdown.treeprocessors import Treeprocessor  # @UnresolvedImport
-from tabulate import tabulate  # @UnresolvedImport
+from markdown.extensions import Extension
+from markdown.treeprocessors import Treeprocessor
+from tabulate import tabulate
 
-from superhelp.formatters.cli_extras import (
-    cli_colour, cli_conf, cli_utils, tag_formatting)
+from superhelp.formatters.cli_extras import cli_colour, cli_conf, cli_utils, tag_formatting
 
 
 class AnsiPrinter(Treeprocessor):
@@ -49,16 +49,15 @@ class AnsiPrinter(Treeprocessor):
 
     @staticmethod
     def handle_list_item(el, out, *, nesting_level):
-        childs = [child for child in el]
+        children = [child for child in el]
         for nested in ['ul', 'ol']:
-            if childs and childs[-1].tag == nested:
-                ul = childs[-1]
+            if children and children[-1].tag == nested:
+                ul = children[-1]
                 # Nested sublist? The li was inline formatted so
                 # split all from <ul> off and format it as own tag:
-                # (ul always at the end of an li)
+                # (ul always at the end of a li)
                 out[-1] = out[-1].split(f"<{nested}>", 1)[0]
-                AnsiPrinter.formatter(
-                    ul, out, nesting_level + 1, parent=el)
+                AnsiPrinter.formatter(ul, out, nesting_level + 1, parent=el)
 
     @staticmethod
     def handle_table(el, out, *, nesting_level):
@@ -166,28 +165,32 @@ class AnsiPrinter(Treeprocessor):
             or el.tag.startswith('h')
         )
         if is_text:
+
+
             el.text = el.text or ''
-            # <a attributes>foo... -> we want "foo....". Is it a sub
-            # tag or inline text?
-            text_with_inline_markup = cli_utils.get_text_if_inline_markup(el)
-            if text_with_inline_markup:
-                is_txt_and_inline_markup = True
-                # foo:  \nbar -> will be seeing a foo:<br>bar with
-                # mardkown.py. Code blocks are already quoted -> no prob.
-                text_with_inline_markup = text_with_inline_markup.replace(
-                    '<br />', '\n')
-                # strip our own closing tag:
-                text = text_with_inline_markup.rsplit('<', 1)[0]
-                links_list, text = cli_utils.replace_links(
-                    el, html=text, link_display_type='it')
-                for tg, (start, end) in cli_conf.TAG2BOUNDS.items():
-                    text = text.replace(tg, start)
-                    tag_lbl = tg[1:]
-                    close_tag = f"</{tag_lbl}"
-                    text = text.replace(close_tag, end)
-                text = unescape(text)
+            # <a attributes>foo... -> we want "foo....". Is it a subtag or inline text?
+            if el.tag == 'code':
+                text = unescape(el.text)
             else:
-                text = el.text
+                text_with_inline_markup = cli_utils.get_text_if_inline_markup(el)
+                if text_with_inline_markup:
+                    is_txt_and_inline_markup = True
+                    # foo:  \nbar -> will be seeing a foo:<br>bar with
+                    # mardkown.py. Code blocks are already quoted -> no prob.
+                    text_with_inline_markup = text_with_inline_markup.replace(
+                        '<br />', '\n')
+                    # strip our own closing tag:
+                    text = text_with_inline_markup.rsplit('<', 1)[0]
+                    links_list, text = cli_utils.replace_links(
+                        el, html=text, link_display_type='it')
+                    for tg, (start, end) in cli_conf.TAG2BOUNDS.items():
+                        text = text.replace(tg, start)
+                        tag_lbl = tg[1:]
+                        close_tag = f"</{tag_lbl}"
+                        text = text.replace(close_tag, end)
+                    text = unescape(text)
+                else:
+                    text = el.text
             if cli_conf.BADLY_PARSED_UNDERSCORE in text:
                 text = text.replace(cli_conf.BADLY_PARSED_UNDERSCORE, '_')  ## so __doc__ is displayed not 9595doc9595 when the source md has \_\_doc|_|_
             text = text.strip()
@@ -263,8 +266,7 @@ class AnsiPrinter(Treeprocessor):
 
         if is_txt_and_inline_markup:
             if el.tag == 'li':
-                AnsiPrinter.handle_list_item(
-                    el, out, nesting_level=nesting_level)
+                AnsiPrinter.handle_list_item(el, out, nesting_level=nesting_level)
             return
 
         if el.tag == 'table':
@@ -277,10 +279,10 @@ class AnsiPrinter(Treeprocessor):
         out = []
         AnsiPrinter.formatter(doc, out)
         ansi = '\n'.join(out)
-        self.markdown.ansi = ansi
+        self.md.ansi = ansi
 
 
 class AnsiPrintExtension(Extension):
-    def extendMarkdown(self, md, md_globals):
+    def extendMarkdown(self, md):
         ansi_print_ext = AnsiPrinter(md)
-        md.treeprocessors.add('ansi_print_ext', ansi_print_ext, '>inline')
+        md.treeprocessors.register(ansi_print_ext, 'ansi_print_ext', 15)

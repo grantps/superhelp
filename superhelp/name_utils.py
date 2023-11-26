@@ -1,10 +1,14 @@
-from collections import namedtuple
+from dataclasses import dataclass
+from typing import Sequence
 
 from superhelp import conf
-from superhelp.utils import inspect_el
 
-AssignedNameDets = namedtuple('AssignedNameDets',
-    'name_type, name_details, name_str, unpacking_idx')
+@dataclass
+class AssignedNameDets:
+    name_type: str
+    name_details: Sequence[str]
+    name_str: str
+    unpacking_idx: int | None = None
 
 def _std_name_dets_from_std_name_el(std_name_el, unpacking_idx=None):
     name_str = std_name_el.get('id')
