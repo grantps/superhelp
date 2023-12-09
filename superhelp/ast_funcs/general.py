@@ -1,6 +1,35 @@
 import logging
 
-from superhelp import conf, gen_utils
+from superhelp import conf, gen_utils, utils
+
+def ast_detective(snippet: str):
+    """
+    You have a snippet and you're wondering how to identify its signature. Start by seeing ast as xml.
+    The experiment in http://xpather.com/
+    """
+    import ast
+    print("\nAST dump (pre-XML)")
+    tree = gen_utils.get_tree(snippet, debug=True)
+    xml = gen_utils.xml_from_tree(tree)
+    print("\n\nAs XML to identify xpath patterns to find target Python usage."
+        "\nOnly paste into http://xpather.com/ what is below")
+    utils.inspect_el(xml)
+
+ast_detective("""
+from functools import wraps
+
+def tweet(func):
+    @wraps(func)  ## ignored even though it is a decorator
+    def wrapper(message):
+        func(message)
+        print(f"I'm tweeting the message {message}")
+    return wrapper
+
+@email
+@tweet
+def say(message):
+    print(message)
+""")
 
 def get_el_lines_dets(el, *, ignore_trailing_lines=False) -> tuple[int, int, int]:
     """

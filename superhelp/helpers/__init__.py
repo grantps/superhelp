@@ -1,27 +1,26 @@
 """
 Add help modules inside this folder.
 
-To add more helpers, just declare more helper functions inside the helpers
-modules with the @..._help decorators :-). Make sure the first paragraph of the
-docstring is a good, user-facing description of its purpose so it can be
+To add more helpers, just declare more helper functions inside the helpers modules
+with the @..._help decorators :-).
+Make sure the first paragraph of the docstring is a good, user-facing description of its purpose so it can be
 automatically processed into lists of available help in SuperHELP.
 
 So which help decorator to use?
 
-Is the advice for the snippet as a whole? If so, are you processing the raw
-snippet string or the XML code block elements? If processing the snippet string
-e.g. passing into flake8 linter use snippet_str_help; if processing XML use
-all_blocks_help.
+Is the advice for the snippet as a whole? If so, are you processing the raw snippet string
+or the XML code block elements?
+If processing the snippet string e.g. passing into flake8 linter use snippet_str_help;
+if processing XML use all_blocks_help.
 
-If looking at individual code blocks, are you prefiltering or looking at every
-sort? If prefiltering use filt_block_help; if not use any_block_help.
+If looking at individual code blocks, are you prefiltering or looking at every sort?
+If prefiltering use filt_block_help; if not use any_block_help.
 Simple really :-)
 
 Re: function signatures:
 * block_dets for filt_block_help and any_block_help; blocks_dets (note plural)
   for snippet_str_help and all_blocks_help.
-* kwargs is used to stop too many needless parameters
-when a function doesn't use everything supplied e.g. execute_code.
+* kwargs is used to stop too many needless parameters when a function doesn't use everything supplied e.g. execute_code.
    (block_dets, *, repeat=False, **_kwargs)
 or (block_dets, *, repeat=False, execute_code=True, **_kwargs)
 
@@ -29,26 +28,22 @@ Re: decorator signatures, see actual code below after comment:
 
 The basic pattern within an help function is:
 
-* Get the correct elements and see if the target pattern is found e.g. a value
-  being assigned to a name
+* Get the correct elements and see if the target pattern is found e.g. a value being assigned to a name
 
 * If not, exit returning None
 
-* Otherwise create all the different message parts ready to assemble in the
-  message.
+* Otherwise create all the different message parts ready to assemble in the message.
 
-  Some parts will have two versions - one for the first time the message appears
-  for a block of the code snippet; and one for subsequent appearances. These
-  "repeat" versions are sometimes empty strings; other times they are simply
-  much shorter versions.
+  Some parts will have two versions - one for the first time the message appears for a block of the code snippet;
+  and one for subsequent appearances.
+  These "repeat" versions are sometimes empty strings; other times they are simply much shorter versions.
 
-  Don't manually try to dedent etc the message parts - use the layout_comment
-  function and follow the example of other helper modules. It is very easy to
-  break markdown in ways which mess up the terminal output.
+  Don't manually try to dedent etc the message parts - use the layout_comment function
+  and follow the example of other helper modules.
+  It is very easy to break markdown in ways which mess up the terminal output.
 
 * Assemble the message. There can be up to three parts: brief, main, and extra.
-  Only the brief component is mandatory. If not supplied, the main component is
-  just a repeat of the brief component.
+  Only the brief component is mandatory. If not supplied, the main component is just a repeat of the brief component.
 
 * Add to the appropriate test module. Only test helpers within the module.
 """
@@ -90,41 +85,34 @@ SnippetStrHelperDets.__doc__ += '\n\nDetails for helpers that work on code snipp
 SnippetStrHelperDets.helper.__doc__ = 'Functions which take the snippet as a single code str and return message'
 SnippetStrHelperDets.input_type.__doc__ = 'Input type for all blocks helper functions'
 
-def filt_block_help(*, xpath, warning=False):
+def filt_block_help(*, xpath: str, warning=False):
     """
-    Simple decorator that registers an unchanged helper function in the list of
-    FILT_BLOCK_HELPERS.
+    Simple decorator that registers an unchanged helper function in the list of FILT_BLOCK_HELPERS.
 
-    :param str xpath: Used by xpath on the block element being examined. Can
-     only use XPath 1.0 syntax.
-    :param bool warning: tags messages as warning or not - up to displayer
+    :param xpath: Used by xpath on the block element being examined. Can only use XPath 1.0 syntax.
+    :param warning: tags messages as warning or not - up to displayer
      e.g. HTML to decide what to do with that information, if anything.
     """
     def decorator(func):
         """
         :param func func: func expecting block_dets
         """
-        FILT_BLOCK_HELPERS.append(
-            FiltHelperDets(
-                f"{func.__module__}.{func.__name__}", func, xpath, warning))
+        FILT_BLOCK_HELPERS.append(FiltHelperDets(f"{func.__module__}.{func.__name__}", func, xpath, warning))
         return func
     return decorator
 
 def any_block_help(*, warning=False):
     """
-    Simple decorator that registers an unchanged helper function in the list of
-    ANY_BLOCK_HELPERS.
+    Simple decorator that registers an unchanged helper function in the list of ANY_BLOCK_HELPERS.
 
-    :param bool warning: tags messages as warning or not - up to displayer
+    :param warning: tags messages as warning or not - up to displayer
      e.g. HTML to decide what to do with that information, if anything.
     """
     def decorator(func):
         """
         :param func func: func expecting block_dets
         """
-        ANY_BLOCK_HELPERS.append(
-            AnyBlockHelperDets(
-                f"{func.__module__}.{func.__name__}", func, warning))
+        ANY_BLOCK_HELPERS.append(AnyBlockHelperDets(f"{func.__module__}.{func.__name__}", func, warning))
         return func
     return decorator
 
@@ -133,8 +121,7 @@ def all_blocks_help(*, warning=False):
     Use when processing XML for all blocks at once. Probably looking for first
     instance of something rather than processing code block by code block.
 
-    Simple decorator that registers an unchanged helper function in the list of
-    ALL_BLOCKS_HELPERS.
+    Simple decorator that registers an unchanged helper function in the list of ALL_BLOCKS_HELPERS.
 
     :param bool warning: tags messages as warning or not - up to displayer
      e.g. HTML to decide what to do with that information, if anything.
@@ -144,8 +131,7 @@ def all_blocks_help(*, warning=False):
         :param func func: func expecting blocks_dets (note plural)
         """
         ALL_BLOCKS_HELPERS.append(
-            AllBlocksHelperDets(f"{func.__module__}.{func.__name__}", func,
-                warning, conf.BLOCKS_DETS))
+            AllBlocksHelperDets(f"{func.__module__}.{func.__name__}", func, warning, conf.BLOCKS_DETS))
         return func
     return decorator
 
@@ -165,23 +151,19 @@ def snippet_str_help(*, warning=False):
          snippet as input
         """
         SNIPPET_STR_HELPERS.append(
-            SnippetStrHelperDets(f"{func.__module__}.{func.__name__}", func,\
-                warning, conf.SNIPPET_STR))
+            SnippetStrHelperDets(f"{func.__module__}.{func.__name__}", func, warning, conf.SNIPPET_STR))
         return func
     return decorator
 
 def load_helpers():
     this_module = sys.modules[__name__]
-    submodules = iter_modules(
-        this_module.__path__,
-        this_module.__name__ + '.')
+    submodules = iter_modules(this_module.__path__, this_module.__name__ + '.')
     for submodule in submodules:
         import_module(submodule.name)
 
 def get_helper_comments():
     helper_comments = []
-    all_helpers_dets = (
-        FILT_BLOCK_HELPERS + ANY_BLOCK_HELPERS + ALL_BLOCKS_HELPERS)
+    all_helpers_dets = (FILT_BLOCK_HELPERS + ANY_BLOCK_HELPERS + ALL_BLOCKS_HELPERS)
     all_helpers_dets.sort(key=lambda helper_dets: helper_dets.helper.__module__)
     for helper_dets in all_helpers_dets:
         docstring = helper_dets.helper.__doc__

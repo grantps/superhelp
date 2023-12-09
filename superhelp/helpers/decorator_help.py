@@ -2,12 +2,12 @@ from superhelp.helpers import filt_block_help, get_aop_msg
 from superhelp import conf
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
 
-DECORATOR_XPATH = (
-    'descendant-or-self::decorator_list/Name '
+DECORATOR_XPATH = (  ## excluding dataclass decorators
+    "descendant-or-self::decorator_list[not(parent::ClassDef and //Name[@id='dataclass'])]/Name[@id!='dataclass'] "
     '| '
-    'descendant-or-self::decorator_list/Call/func/Name'
-    ' | '
-    'descendant-or-self::decorator_list/Call/func/Attribute/value/Name'
+    "descendant-or-self::decorator_list[not(parent::ClassDef and //Name[@id='dataclass'])]/Call/func/Name "
+    '| '
+    "descendant-or-self::decorator_list[not(parent::ClassDef and //Name[@id='dataclass'])]/Call/func/Attribute/value/Name"
 )
 
 @filt_block_help(xpath=DECORATOR_XPATH)

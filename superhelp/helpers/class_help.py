@@ -7,7 +7,8 @@ from superhelp.helpers import filt_block_help
 from superhelp import conf
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
 
-CLASS_XPATH = ('descendant-or-self::ClassDef')
+## a class without a decorator (can't be a dataclass then) OR has a different decorator from that used by dataclasses
+CLASS_XPATH = ("descendant-or-self::ClassDef[not(decorator_list/Name)] | descendant-or-self::ClassDef[decorator_list/Name[@id!='dataclass']]")
 
 @filt_block_help(xpath=CLASS_XPATH, warning=True)
 def getters_setters(block_dets, *, repeat=False, **_kwargs):
@@ -287,6 +288,8 @@ def one_method_classes(block_dets, *, repeat=False, **_kwargs):
     """
     Look for classes with only one method (other than __init__) and suggest a
     simple function as an alternative.
+
+    TODO: ignore dataclasses
     """
     class_els = block_dets.element.xpath(CLASS_XPATH)
     if not class_els:

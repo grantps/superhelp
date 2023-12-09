@@ -210,6 +210,24 @@ def test_misc():
                 ROOT + 'getters_setters': 1,
             }
         ),
+        (
+            dedent("""\
+            from dataclass import dataclasses
+            @dataclass
+            class Demo:
+                def __init__(self, x):
+                    self.__x = x
+                def get_x(self):
+                    return self.__x
+                def set_x(self, x):
+                    self.__x  == x
+            """),
+            {
+                ROOT + 'one_method_classes': 0,
+                ROOT + 'selfless_methods': 0,
+                ROOT + 'getters_setters': 0,  ## ignored because considered a dataclass and so should be handled by dataclass helper instead
+            }
+        ),
     ]
     check_as_expected(test_conf, execute_code=True)
     check_as_expected(test_conf, execute_code=False)

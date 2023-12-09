@@ -114,6 +114,18 @@ def test_misc():
                 ROOT + 'decorator_overview': 4,  ## each block should get the message
             }
         ),
+        (
+            dedent("""\
+            from dataclasses import dataclass
+            
+            @dataclass
+            class Sausage:
+                pass
+            """),
+            {
+                ROOT + 'decorator_overview': 0,  ## decorator for a dataclass should be ignored (and handled under dataclasses)
+            }
+        ),
     ]
     check_as_expected(test_conf, execute_code=True)
     check_as_expected(test_conf, execute_code=False)

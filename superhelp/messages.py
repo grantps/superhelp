@@ -144,12 +144,11 @@ def _get_filtered_blocks_dets(helper_dets, xml, blocks_dets):
 def get_block_level_messages_dets(blocks_dets, xml, *,
         warnings_only=False, execute_code=True, repeat_set=None):
     """
-    For each helper, get advice on every relevant block. Element type specific
-    helpers process filtered blocks_dets; all block helpers process all blocks
-    (as you'd expect ;-)).
+    For each helper, get advice on every relevant block.
+    Element type specific helpers process filtered blocks_dets;
+    all block helpers process all blocks (as you'd expect ;-)).
 
-    As we iterate through the blocks, only the first block under an helper
-    should get the full message.
+    As we iterate through the blocks, only the first block under a helper should get the full message.
     """
     messages_dets = []
     all_helpers_dets = helpers.FILT_BLOCK_HELPERS + helpers.ANY_BLOCK_HELPERS
@@ -163,8 +162,7 @@ def get_block_level_messages_dets(blocks_dets, xml, *,
                 helper_dets, xml, blocks_dets)
             blocks_dets2use = filtered_blocks_dets
             logging.debug(
-                f"'{helper_dets.helper_name}' has element filtering for "
-                f"{len(blocks_dets2use)} matching blocks")
+                f"'{helper_dets.helper_name}' has element filtering for {len(blocks_dets2use)} matching blocks")
         else:  ## no filtering by element type so process all blocks
             blocks_dets2use = blocks_dets
         for block_dets in blocks_dets2use:
