@@ -1,4 +1,4 @@
-from superhelp.helpers import filt_block_help, get_aop_msg
+from superhelp.helpers import get_aop_msg, indiv_block_help
 from superhelp import conf
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
 
@@ -10,12 +10,12 @@ DECORATOR_XPATH = (  ## excluding dataclass decorators
     "descendant-or-self::decorator_list[not(parent::ClassDef and //Name[@id='dataclass'])]/Call/func/Attribute/value/Name"
 )
 
-@filt_block_help(xpath=DECORATOR_XPATH)
-def decorator_overview(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=DECORATOR_XPATH)
+def decorator_overview(block_spec, *, repeat=False, **_kwargs):
     """
     Look for decorators and explain some options for improving them.
     """
-    decorator_els = block_dets.element.xpath(DECORATOR_XPATH)
+    decorator_els = block_spec.element.xpath(DECORATOR_XPATH)
     if not decorator_els:
         return None
     decorator_names = []

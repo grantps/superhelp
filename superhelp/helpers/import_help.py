@@ -1,16 +1,16 @@
 from superhelp import conf
 from superhelp.gen_utils import layout_comment as layout
-from superhelp.helpers import all_blocks_help
+from superhelp.helpers import multi_block_help
 
 MAIN_EXTERNAL_LIBS = conf.STD_LIBS + conf.POPULAR_LIBS
 
-def internal_importing(block_dets):
-    from_import_els = block_dets.element.xpath('descendant-or-self::ImportFrom')
+def internal_importing(block_spec):
+    from_import_els = block_spec.element.xpath('descendant-or-self::ImportFrom')
     from_internal_els = [el for el in from_import_els
         if el.get('module') not in MAIN_EXTERNAL_LIBS]
     if from_internal_els:
         return True
-    direct_import_els = block_dets.element.xpath('descendant-or-self::Import')
+    direct_import_els = block_spec.element.xpath('descendant-or-self::Import')
     for import_el in direct_import_els:
         direct_name_els = import_el.xpath('names/alias')
         direct_names = [el.get('name') for el in direct_name_els]
@@ -19,8 +19,8 @@ def internal_importing(block_dets):
             return True
     return False
 
-@all_blocks_help()
-def internal_imports(blocks_dets, *, repeat=False, **_kwargs):
+@multi_block_help()
+def internal_imports(block_specs, *, repeat=False, **_kwargs):
     """
     Look for use of internal libraries. Explain the correct use of absolute
     imports and ways of combining those with code organisation into folders.
@@ -39,8 +39,8 @@ def internal_imports(blocks_dets, *, repeat=False, **_kwargs):
     if repeat:
         return None
     has_internal = False
-    for block_dets in blocks_dets:
-        block_has_internal = internal_importing(block_dets)
+    for block_spec in block_specs:
+        block_has_internal = internal_importing(block_spec)
         if block_has_internal:
             has_internal = True
         break

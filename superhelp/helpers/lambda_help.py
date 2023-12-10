@@ -7,7 +7,7 @@ def lambda_advice(snippet, *, repeat=False, **_kwargs):
     """
     Look for use of lambda and give general advice on when / how to use.
     """
-    if not 'lambda' in snippet:
+    if 'lambda' not in snippet:
         return None
     if repeat:
         return None

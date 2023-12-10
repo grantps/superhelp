@@ -259,10 +259,9 @@ def lint_snippet(snippet, *, repeat=False, **_kwargs):
     """
     Look for "lint" as defined by flake8 linter and share the results.
 
-    The repeat argument is used to avoid repeating all the generic linter
-    information. But we also need to know if specific linter msg_types have been
-    repeated or not. We track those with module-level set
-    `already_supplemented`.
+    The repeat argument is used to avoid repeating all the generic linter information.
+    But we also need to know if specific linter msg_types have been repeated or not.
+    We track those with module-level set `already_supplemented`.
     """
     if not conf.INCLUDE_LINTING:  ## disabled when testing for speed reasons
         return None

@@ -1,4 +1,4 @@
-from superhelp.helpers import all_blocks_help
+from superhelp.helpers import multi_block_help
 from superhelp import ast_funcs, conf
 from superhelp.gen_utils import layout_comment as layout
 
@@ -101,14 +101,14 @@ def get_manual_incrementing_var(for_el):
     else:
         return None
 
-@all_blocks_help()
-def manual_incrementing(blocks_dets, *, repeat=False, **_kwargs):
+@multi_block_help()
+def manual_incrementing(block_specs, *, repeat=False, **_kwargs):
     """
     Look for manual handling of incrementing inside for loops.
     """
     for_els = []
-    for block_dets in blocks_dets:
-        for_els.extend(block_dets.element.xpath('descendant-or-self::For'))
+    for block_spec in block_specs:
+        for_els.extend(block_spec.element.xpath('descendant-or-self::For'))
     if not for_els:
         return None
     incrementing_var = None

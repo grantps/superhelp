@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from superhelp.helpers import filt_block_help
+from superhelp.helpers import indiv_block_help
 from superhelp import ast_funcs, code_execution, conf, name_utils
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
 from superhelp.utils import inspect_el  # @UnusedImport
@@ -15,14 +15,14 @@ def get_num_from_ast(num_el):
         val, _needs_quoting = res
     return val
 
-@filt_block_help(xpath=ASSIGN_VAL_XPATH)
-def num_overview(block_dets, *, execute_code=True, repeat=False, **_kwargs):
+@indiv_block_help(xpath=ASSIGN_VAL_XPATH)
+def num_overview(block_spec, *, execute_code=True, repeat=False, **_kwargs):
     """
     Get general advice about assigned numbers e.g.
     var = 123
     mydict[1] = 5
     """
-    block_el = block_dets.element
+    block_el = block_spec.element
     # inspect_el(block_el)
     num_els = ast_funcs.assigned_num_els_from_block(block_el)
     if not num_els:
@@ -35,7 +35,7 @@ def num_overview(block_dets, *, execute_code=True, repeat=False, **_kwargs):
         if execute_code:
             try:
                 val = code_execution.get_val(
-                    block_dets.pre_block_code_str, block_dets.block_code_str,
+                    block_spec.pre_block_code_str, block_spec.block_code_str,
                     name_dets.name_type, name_dets.name_details,
                     name_dets.name_str)
                 val_type = type(val).__name__

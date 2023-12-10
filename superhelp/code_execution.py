@@ -47,10 +47,10 @@ def get_val(pre_block_code_str, block_code_str,
         raise Exception(f"Unexpected name_type: '{name_type}'")
     return val
 
-def execute_collection_dets(block_dets, name_dets):
+def execute_collection_dets(block_spec, name_dets):
     try:
         items = get_val(
-            block_dets.pre_block_code_str, block_dets.block_code_str,
+            block_spec.pre_block_code_str, block_spec.block_code_str,
             name_dets.name_type, name_dets.name_details,
             name_dets.name_str)
     except Exception:

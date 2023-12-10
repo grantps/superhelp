@@ -1,7 +1,7 @@
 """
 Covers functions and methods.
 """
-from superhelp.helpers import filt_block_help
+from superhelp.helpers import indiv_block_help
 from superhelp.ast_funcs.general import get_el_lines_dets
 from superhelp.ast_funcs import get_danger_status, get_docstring_from_value
 from superhelp import conf, gen_utils
@@ -160,13 +160,13 @@ def _get_exit_comment(func_el, func_type_lbl, *, repeat=False):
             return_elements, repeat=repeat)
     return exit_comment
 
-@filt_block_help(xpath=FUNC_DEFN_XPATH)
-def func_overview(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=FUNC_DEFN_XPATH)
+def func_overview(block_spec, *, repeat=False, **_kwargs):
     """
     Advise on function (or method) definition statements.
     e.g. def greeting(): ...
     """
-    func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
+    func_els = block_spec.element.xpath(FUNC_DEFN_XPATH)
     if not func_els:
         return None
     overall_func_type_lbl = get_overall_func_type_lbl(func_els)
@@ -219,12 +219,12 @@ def func_overview(block_dets, *, repeat=False, **_kwargs):
     }
     return message
 
-@filt_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
-def func_len_check(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
+def func_len_check(block_spec, *, repeat=False, **_kwargs):
     """
     Warn about functions that might be too long.
     """
-    func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
+    func_els = block_spec.element.xpath(FUNC_DEFN_XPATH)
     if not func_els:
         return None
     overall_func_type_lbl = get_overall_func_type_lbl(func_els)
@@ -233,7 +233,7 @@ def func_len_check(block_dets, *, repeat=False, **_kwargs):
         func_type_lbl = get_func_type_lbl(func_el)
         name = func_el.get('name')
         first_line_no, last_line_no, _func_lines_n = get_el_lines_dets(func_el, ignore_trailing_lines=True)
-        block_lines = block_dets.block_code_str.split('\n')
+        block_lines = block_spec.block_code_str.split('\n')
         func_lines = block_lines[first_line_no - 1: last_line_no]
         func_non_empty_lines = [line for line in func_lines if line]
         func_lines_n = len(func_non_empty_lines)
@@ -275,12 +275,12 @@ def get_n_args(func_el):
     n_args = len(arg_els + posonlyarg_els + kwonlyarg_els)
     return n_args
 
-@filt_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
-def func_excess_parameters(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
+def func_excess_parameters(block_spec, *, repeat=False, **_kwargs):
     """
     Warn about functions that might have too many parameters.
     """
-    func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
+    func_els = block_spec.element.xpath(FUNC_DEFN_XPATH)
     if not func_els:
         return None
     overall_func_type_lbl = get_overall_func_type_lbl(func_els)
@@ -361,12 +361,12 @@ def _get_mutable_default_args(func_el):
     return get_arg_default_issues(
         func_el, get_issue_status_func=get_mutable_status, include_kw=True)
 
-@filt_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
-def mutable_default(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
+def mutable_default(block_spec, *, repeat=False, **_kwargs):
     """
     Look for use of mutable defaults and warn against use except in rare cases.
     """
-    func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
+    func_els = block_spec.element.xpath(FUNC_DEFN_XPATH)
     if not func_els:
         return None
     overall_func_type_lbl = get_overall_func_type_lbl(func_els)
@@ -476,8 +476,8 @@ def _get_positional_danger_args(func_el):
     return get_arg_default_issues(
         func_el, get_issue_status_func=get_danger_status, include_kw=False)
 
-@filt_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
-def positional_boolean(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
+def positional_boolean(block_spec, *, repeat=False, **_kwargs):
     """
     Look for any obvious candidates for forced keyword use e.g. where a
     parameter is a boolean or a number.
@@ -485,7 +485,7 @@ def positional_boolean(block_dets, *, repeat=False, **_kwargs):
     Defaults apply from the rightmost backwards (within their group - either
     defaults or kw_defaults (related to kwonlyargs)).
     """
-    func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
+    func_els = block_spec.element.xpath(FUNC_DEFN_XPATH)
     if not func_els:
         return None
     overall_func_type_lbl = get_overall_func_type_lbl(func_els)
@@ -595,8 +595,8 @@ def get_funcs_dets_and_docstring(func_els):
         funcs_dets_and_docstring.append(func_dets_and_docstring)
     return funcs_dets_and_docstring
 
-@filt_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
-def docstring_issues(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
+def docstring_issues(block_spec, *, repeat=False, **_kwargs):
     """
     Check over function doc strings. Missing doc string, not enough lines to
     cover params, return etc.
@@ -604,7 +604,7 @@ def docstring_issues(block_dets, *, repeat=False, **_kwargs):
     WRAPPING_NEWLINE_N = 2
     MISSING_DOCSTRING = 'missing_docstring'
     DOCSTRING_TOO_SHORT = 'docstring_too_short'
-    func_els = block_dets.element.xpath(FUNC_DEFN_XPATH)
+    func_els = block_spec.element.xpath(FUNC_DEFN_XPATH)
     if not func_els:
         return None
     funcs_dets_and_docstring = get_funcs_dets_and_docstring(func_els)

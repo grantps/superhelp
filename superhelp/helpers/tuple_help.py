@@ -1,4 +1,4 @@
-from superhelp.helpers import filt_block_help
+from superhelp.helpers import indiv_block_help
 from superhelp import conf, gen_utils
 from superhelp.gen_utils import layout_comment as layout
 
@@ -14,16 +14,16 @@ def get_tup_els(block_el):
         if el.tag == 'Tuple' or el.get('id') == 'tuple']
     return tup_els
 
-@filt_block_help(xpath=ASSIGN_TUPLE_XPATH)
-def tuple_overview(block_dets, *, repeat=False, execute_code=True, **_kwargs):
+@indiv_block_help(xpath=ASSIGN_TUPLE_XPATH)
+def tuple_overview(block_spec, *, repeat=False, execute_code=True, **_kwargs):
     """
     Explain usage of tuples.
     """
-    tup_els = get_tup_els(block_dets.element)
+    tup_els = get_tup_els(block_spec.element)
     if not tup_els:
         return None
     names_items, oversized_msg = gen_utils.get_collections_dets(
-        tup_els, block_dets,
+        tup_els, block_spec,
         collection_plural='tuples', truncated_items_func=truncate_tuple,
         execute_code=execute_code)
     assigned_names_items = [

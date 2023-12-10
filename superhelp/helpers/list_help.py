@@ -1,4 +1,4 @@
-from superhelp.helpers import filt_block_help
+from superhelp.helpers import indiv_block_help
 from superhelp import conf, gen_utils
 from superhelp.gen_utils import get_collections_dets, layout_comment as layout
 
@@ -142,12 +142,12 @@ def truncate_list(items):
 
 ## only interested in lists when being assigned as a value
 ## (e.g. <body><Assign><value><List> so we're looking for List under value only)
-@filt_block_help(xpath=ASSIGN_LIST_XPATH)
-def list_overview(block_dets, *, repeat=False, execute_code=True, **_kwargs):
+@indiv_block_help(xpath=ASSIGN_LIST_XPATH)
+def list_overview(block_spec, *, repeat=False, execute_code=True, **_kwargs):
     """
     General overview of list taking content details into account.
     """
-    list_els = get_list_els(block_dets.element)
+    list_els = get_list_els(block_spec.element)
     if not list_els:
         return None
     plural = 's' if len(list_els) > 1 else ''
@@ -156,7 +156,7 @@ def list_overview(block_dets, *, repeat=False, execute_code=True, **_kwargs):
     """)
     first_name = None
     first_items = None
-    names_items, oversized_msg = get_collections_dets(list_els, block_dets,
+    names_items, oversized_msg = get_collections_dets(list_els, block_spec,
         collection_plural='lists', truncated_items_func=truncate_list,
         execute_code=execute_code)
     summary_bits = []
@@ -213,16 +213,16 @@ def list_overview(block_dets, *, repeat=False, execute_code=True, **_kwargs):
     }
     return message
 
-@filt_block_help(xpath=ASSIGN_LIST_XPATH, warning=True)
-def mixed_list_types(block_dets, *, repeat=False, execute_code=True, **_kwargs):  # @UnusedVariable
+@indiv_block_help(xpath=ASSIGN_LIST_XPATH, warning=True)
+def mixed_list_types(block_spec, *, repeat=False, execute_code=True, **_kwargs):  # @UnusedVariable
     """
     Warns about lists containing a mix of data types.
     """
-    list_els = get_list_els(block_dets.element)
+    list_els = get_list_els(block_spec.element)
     if not list_els:
         return None
     list_dets = []
-    names_items, oversized_msg = get_collections_dets(list_els, block_dets,
+    names_items, oversized_msg = get_collections_dets(list_els, block_spec,
         collection_plural='lists', truncated_items_func=truncate_list,
         execute_code=execute_code)
     has_mixed = False

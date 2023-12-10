@@ -188,7 +188,7 @@ def ast_collection_items(named_el):
         raise Exception(f"Unexpected named_el: '{tag}'")
     return items
 
-def get_collections_dets(named_els, block_dets, *, collection_plural, truncated_items_func, execute_code=True):
+def get_collections_dets(named_els, block_spec, *, collection_plural, truncated_items_func, execute_code=True):
     """
     Get information on collections - names with associated items, plus a string message
     (empty str if no oversized items) which can be assembled as part of a full helper message.
@@ -207,7 +207,7 @@ def get_collections_dets(named_els, block_dets, *, collection_plural, truncated_
         for name_dets in names_dets:
             if execute_code:
                 items = code_execution.execute_collection_dets(
-                    block_dets, name_dets)
+                    block_spec, name_dets)
                 if items == conf.UNKNOWN_ITEMS:
                     items = ast_collection_items(named_el)
             else:

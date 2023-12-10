@@ -1,14 +1,14 @@
 from superhelp import conf
 from superhelp.ast_funcs import num_str_from_parent_el
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
-from superhelp.helpers import any_block_help
+from superhelp.helpers import indiv_block_help
 
-@any_block_help(warning=True)
-def magic_number(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(warning=True)
+def magic_number(block_spec, *, repeat=False, **_kwargs):
     """
     Warn about magic numbers - suggest "constants" or Enums.
     """
-    comparator_els = block_dets.element.xpath('descendant-or-self::comparators')
+    comparator_els = block_spec.element.xpath('descendant-or-self::comparators')
     if not comparator_els:
         return None
     num_strs = []

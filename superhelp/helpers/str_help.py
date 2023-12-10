@@ -1,4 +1,4 @@
-from superhelp.helpers import any_block_help, filt_block_help
+from superhelp.helpers import indiv_block_help
 from superhelp import ast_funcs
 from superhelp import code_execution, conf, name_utils
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
@@ -24,13 +24,13 @@ def get_str_from_ast(str_el):
 
 F_STR_REMINDER = False
 
-@filt_block_help(xpath=ASSIGN_VALUE_XPATH)
-def assigned_str_overview(block_dets, *,
+@indiv_block_help(xpath=ASSIGN_VALUE_XPATH)
+def assigned_str_overview(block_spec, *,
         execute_code=True, repeat=False, **_kwargs):
     """
     Provide overview of assigned strings e.g. name = 'Hamish'.
     """
-    str_els = ast_funcs.assigned_str_els_from_block(block_dets.element)
+    str_els = ast_funcs.assigned_str_els_from_block(block_spec.element)
     if not str_els:
         return None
     names = []
@@ -60,7 +60,7 @@ def assigned_str_overview(block_dets, *,
         if execute_code:
             try:
                 first_val = code_execution.get_val(
-                    block_dets.pre_block_code_str, block_dets.block_code_str,
+                    block_spec.pre_block_code_str, block_spec.block_code_str,
                     first_name_dets.name_type,
                     first_name_dets.name_details, first_name_dets.name_str)
             except KeyError:
@@ -222,23 +222,23 @@ def str_combination(combination_type, str_els, *, repeat=False):
     }
     return message
 
-@filt_block_help(xpath=JOINED_STR_XPATH)
-def f_str_interpolation(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=JOINED_STR_XPATH)
+def f_str_interpolation(block_spec, *, repeat=False, **_kwargs):
     """
     Examine f-string interpolation.
     """
-    joined_els = block_dets.element.xpath(JOINED_STR_XPATH)
+    joined_els = block_spec.element.xpath(JOINED_STR_XPATH)
     if not joined_els:
         return None
     return str_combination(F_STR,
         joined_els, repeat=repeat)
 
-@filt_block_help(xpath=FUNC_ATTR_XPATH)
-def format_str_interpolation(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=FUNC_ATTR_XPATH)
+def format_str_interpolation(block_spec, *, repeat=False, **_kwargs):
     """
     Look at use of .format() to interpolate into strings.
     """
-    func_attr_els = block_dets.element.xpath(FUNC_ATTR_XPATH)
+    func_attr_els = block_spec.element.xpath(FUNC_ATTR_XPATH)
     if not func_attr_els:
         return None
     format_funcs = []
@@ -251,26 +251,26 @@ def format_str_interpolation(block_dets, *, repeat=False, **_kwargs):
     return str_combination(STR_FORMAT_FUNC,
         format_funcs, repeat=repeat)
 
-@any_block_help()
-def sprintf(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help()
+def sprintf(block_spec, *, repeat=False, **_kwargs):
     """
     Look at use of sprintf for string interpolation
     e.g. greeting = "Hi %s" % name
     """
-    sprintf_els = block_dets.element.xpath(SPRINTF_XPATH)
+    sprintf_els = block_spec.element.xpath(SPRINTF_XPATH)
     if not sprintf_els:
         return None
     return str_combination(SPRINTF,
         sprintf_els, repeat=repeat)
 
-@any_block_help()
-def string_addition(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help()
+def string_addition(block_spec, *, repeat=False, **_kwargs):
     """
     Advise on string combination using +.
     Explain how f-string alternative works.
     """
     str_els_being_combined = ast_funcs.get_str_els_being_combined(
-        block_dets.element)
+        block_spec.element)
     if not str_els_being_combined:
         return None
     has_string_addition = False

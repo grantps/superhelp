@@ -3,19 +3,19 @@ Method helpers are effectively function helpers and are covered there.
 """
 from collections import defaultdict
 
-from superhelp.helpers import filt_block_help
+from superhelp.helpers import indiv_block_help
 from superhelp import conf
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
 
 ## a class without a decorator (can't be a dataclass then) OR has a different decorator from that used by dataclasses
 CLASS_XPATH = ("descendant-or-self::ClassDef[not(decorator_list/Name)] | descendant-or-self::ClassDef[decorator_list/Name[@id!='dataclass']]")
 
-@filt_block_help(xpath=CLASS_XPATH, warning=True)
-def getters_setters(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=CLASS_XPATH, warning=True)
+def getters_setters(block_spec, *, repeat=False, **_kwargs):
     """
     Look for getters and setters and suggest @property if appropriate.
     """
-    class_els = block_dets.element.xpath(CLASS_XPATH)
+    class_els = block_spec.element.xpath(CLASS_XPATH)
     if not class_els:
         return None
     class_getter_setter_methods = defaultdict(list)
@@ -186,14 +186,14 @@ def getters_setters(block_dets, *, repeat=False, **_kwargs):
     }
     return message
 
-@filt_block_help(xpath=CLASS_XPATH, warning=True)
-def selfless_methods(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=CLASS_XPATH, warning=True)
+def selfless_methods(block_spec, *, repeat=False, **_kwargs):
     """
     Look for class methods that don't use self as candidates for @staticmethod
     decorator. Note - not worried about detecting sophisticated cases with
     packing etc although it doesn't have to be named "self".
     """
-    class_els = block_dets.element.xpath(CLASS_XPATH)
+    class_els = block_spec.element.xpath(CLASS_XPATH)
     if not class_els:
         return None
     class_selfless_methods = defaultdict(list)
@@ -283,15 +283,13 @@ def selfless_methods(block_dets, *, repeat=False, **_kwargs):
     }
     return message
 
-@filt_block_help(xpath=CLASS_XPATH, warning=True)
-def one_method_classes(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=CLASS_XPATH, warning=True)
+def one_method_classes(block_spec, *, repeat=False, **_kwargs):
     """
     Look for classes with only one method (other than __init__) and suggest a
     simple function as an alternative.
-
-    TODO: ignore dataclasses
     """
-    class_els = block_dets.element.xpath(CLASS_XPATH)
+    class_els = block_spec.element.xpath(CLASS_XPATH)
     if not class_els:
         return None
     classes_sole_methods = []

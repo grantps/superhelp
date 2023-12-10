@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from superhelp.helpers import all_blocks_help
+from superhelp.helpers import multi_block_help
 from superhelp import ast_funcs, conf
 from superhelp.gen_utils import layout_comment as layout
 
@@ -22,10 +22,10 @@ def get_named_tuple_dets(named_tuple_el):
     named_tuple_dets = NTDets(name, label, fields_str, fields_list)
     return named_tuple_dets
 
-def get_named_tuples_dets(blocks_dets):
+def get_named_tuples_dets(block_specs):
     all_named_tuples_dets = []
-    for block_dets in blocks_dets:
-        func_name_els = block_dets.element.xpath(
+    for block_spec in block_specs:
+        func_name_els = block_spec.element.xpath(
             'descendant-or-self::value/Call/func/Name')
         if not func_name_els:
             continue
@@ -37,12 +37,12 @@ def get_named_tuples_dets(blocks_dets):
         all_named_tuples_dets.extend(named_tuples_dets)
     return all_named_tuples_dets
 
-@all_blocks_help()
-def named_tuple_overview(blocks_dets, *, repeat=False, **_kwargs):
+@multi_block_help()
+def named_tuple_overview(block_specs, *, repeat=False, **_kwargs):
     """
     Look for named tuples and explain how they can be enhanced.
     """
-    named_tuples_dets = get_named_tuples_dets(blocks_dets)
+    named_tuples_dets = get_named_tuples_dets(block_specs)
     if not named_tuples_dets:
         return None
     if repeat:

@@ -25,7 +25,7 @@ class MessageDets:
     warning: bool
     source: str  ## A unique identifier of the source of message - useful for auditing / testing
 
-def get_blocks_dets(snippet, snippet_block_els):
+def get_block_specs(snippet, snippet_block_els):
     """
     Returning a list of all the details needed to process a line
     (namely BlockDets named tuples)
@@ -36,13 +36,13 @@ def get_blocks_dets(snippet, snippet_block_els):
     :rtype: list
     """
     snippet_lines = snippet.split('\n')
-    blocks_dets = []
+    block_specs = []
     for snippet_block_el in snippet_block_els:
         first_line_no, last_line_no, _el_lines_n = ast_gen.get_el_lines_dets(snippet_block_el)
         block_code_str = '\n'.join(snippet_lines[first_line_no - 1: last_line_no]).strip()
         pre_block_code_str = '\n'.join(snippet_lines[0: first_line_no - 1]).strip() + '\n'
-        blocks_dets.append(BlockDets(snippet_block_el, pre_block_code_str, block_code_str, first_line_no))
-    return blocks_dets
+        block_specs.append(BlockDets(snippet_block_el, pre_block_code_str, block_code_str, first_line_no))
+    return block_specs
 
 def complete_message(message, *, source):
     """
@@ -69,21 +69,19 @@ def complete_message(message, *, source):
         message[conf.Level.EXTRA] = ''
     return message
 
-def get_message_dets_from_input(helper_dets, *,
-        helper_input, code_str, first_line_no, execute_code=True, repeat=False):
+def get_message_dets_from_input(helper_spec, *, helper_input, code_str, first_line_no, execute_code=True, repeat=False):
     """
-    :param namedtuple helper_dets: details of the helper e.g. name, function,
+    :param namedtuple helper_spec: details of the helper e.g. name, function,
      etc depending on type of HelperDets (e.g. FiltHelperDets)
     :param obj helper_input: the main input to the helper function
-     e.g. block_dets, blocks_dets, or snippet_str.
+     e.g. block_spec, block_specs, or snippet_str.
     """
-    name = helper_dets.helper_name
-    docstring = helper_dets.helper.__doc__
+    name = helper_spec.helper_name
+    docstring = helper_spec.helper.__doc__
     if not docstring:
         raise Exception(f'Helper "{name}" lacks a docstring - add one!')
     try:
-        message = helper_dets.helper(
-            helper_input, execute_code=execute_code, repeat=repeat)
+        message = helper_spec.helper(helper_input, execute_code=execute_code, repeat=repeat)
     except Exception as e:
         brief_name = '.'.join(name.split('.')[-2:])  ## last two parts only
         message = {
@@ -103,7 +101,7 @@ def get_message_dets_from_input(helper_dets, *,
         warning = True
     else:
         source = name
-        warning = helper_dets.warning
+        warning = helper_spec.warning
         if message is None:
             return None
     message = complete_message(message, source=source)
@@ -118,99 +116,92 @@ def _get_ancestor_block_element(element):
     ancestor_block_element = ancestor_elements[2]  ## [0] will be Module, 1 is body, and blocks are the children of body
     return ancestor_block_element
 
-def _get_filtered_blocks_dets(helper_dets, xml, blocks_dets):
+def _get_filtered_block_specs(helper_spec, xml, block_specs):
     """
-    Identify source block elements according to xpath supplied. Then filter
-    blocks_dets accordingly.
+    Identify source block elements according to xpath supplied. Then filter block_specs accordingly.
 
-    :return: filtered_blocks_dets
+    :return: filtered_block_specs
     :rtype: list
     """
-    matching_elements = xml.xpath(helper_dets.xpath)
+    matching_elements = xml.xpath(helper_spec.xpath)
     if matching_elements:
-        logging.debug(f"{helper_dets.helper_name} had at least one match")
+        logging.debug(f"{helper_spec.helper_name} had at least one match")
     else:
-        logging.debug(f"{helper_dets.helper_name} had no matches")
-    filt_block_elements = set(
-        [_get_ancestor_block_element(element) for element in matching_elements])
-    filtered_blocks_dets = [block_dets for block_dets in blocks_dets
-        if block_dets.element in filt_block_elements]
-    if filtered_blocks_dets:
-        logging.debug(f"{helper_dets.helper_name} had at least one block")
+        logging.debug(f"{helper_spec.helper_name} had no matches")
+    filt_block_elements = set([_get_ancestor_block_element(element) for element in matching_elements])
+    filtered_block_specs = [block_spec for block_spec in block_specs
+        if block_spec.element in filt_block_elements]
+    if filtered_block_specs:
+        logging.debug(f"{helper_spec.helper_name} had at least one block")
     else:
-        logging.debug(f"{helper_dets.helper_name} had no blocks")
-    return filtered_blocks_dets
+        logging.debug(f"{helper_spec.helper_name} had no blocks")
+    return filtered_block_specs
 
-def get_block_level_messages_dets(blocks_dets, xml, *,
-        warnings_only=False, execute_code=True, repeat_set=None):
+def get_block_level_messages_dets(block_specs, xml: str, *, warnings_only=False, execute_code=True, repeat_set=None):
     """
     For each helper, get advice on every relevant block.
-    Element type specific helpers process filtered blocks_dets;
+    Element type specific helpers process filtered block_specs;
     all block helpers process all blocks (as you'd expect ;-)).
 
     As we iterate through the blocks, only the first block under a helper should get the full message.
     """
     messages_dets = []
-    all_helpers_dets = helpers.FILT_BLOCK_HELPERS + helpers.ANY_BLOCK_HELPERS
-    for helper_dets in all_helpers_dets:
-        logging.debug(f"About to process '{helper_dets.helper_name}'")
-        if warnings_only and not helper_dets.warning:
+    for helper_spec in helpers.INDIV_BLOCK_HELPERS:
+        logging.debug(f"About to process '{helper_spec.helper_name}'")
+        if warnings_only and not helper_spec.warning:
             continue
-        element_filtering = hasattr(helper_dets, 'xpath')
+        element_filtering = helper_spec.xpath is not None
         if element_filtering:
-            filtered_blocks_dets = _get_filtered_blocks_dets(
-                helper_dets, xml, blocks_dets)
-            blocks_dets2use = filtered_blocks_dets
+            filtered_block_specs = _get_filtered_block_specs(helper_spec, xml, block_specs)
+            block_specs2use = filtered_block_specs
             logging.debug(
-                f"'{helper_dets.helper_name}' has element filtering for {len(blocks_dets2use)} matching blocks")
+                f"'{helper_spec.helper_name}' has element filtering for {len(block_specs2use)} matching blocks")
         else:  ## no filtering by element type so process all blocks
-            blocks_dets2use = blocks_dets
-        for block_dets in blocks_dets2use:
-            repeat = (helper_dets.helper_name in repeat_set)
-            message_dets = get_message_dets_from_input(helper_dets,
-                helper_input=block_dets, code_str=block_dets.block_code_str,
-                first_line_no=block_dets.first_line_no,
+            block_specs2use = block_specs
+        for block_spec in block_specs2use:
+            repeat = (helper_spec.helper_name in repeat_set)
+            message_dets = get_message_dets_from_input(helper_spec,
+                helper_input=block_spec, code_str=block_spec.block_code_str,
+                first_line_no=block_spec.first_line_no,
                 execute_code=execute_code, repeat=repeat)
             if message_dets:
-                repeat_set.add(helper_dets.helper_name)
+                repeat_set.add(helper_spec.helper_name)
                 messages_dets.append(message_dets)
     return messages_dets
 
-def get_overall_snippet_messages_dets(snippet, blocks_dets, *,
+def get_overall_snippet_messages_dets(snippet, block_specs, *,
         warnings_only=False, execute_code=True, repeat_set=None):
     """
-    Returns messages which apply to snippet as a whole, not just specific
-    blocks. E.g. looking at every block to look for opportunities to unpack. Or
-    reporting on linting results.
+    Returns messages which apply to snippet as a whole, not just specific blocks.
+    E.g. looking at every block to look for opportunities to unpack. Or reporting on linting results.
     """
     messages_dets = []
-    all_helpers_dets = (
-        helpers.ALL_BLOCKS_HELPERS + helpers.SNIPPET_STR_HELPERS)
-    for helper_dets in all_helpers_dets:
-        logging.debug(f"About to process '{helper_dets.helper_name}'")
-        if warnings_only and not helper_dets.warning:
+    all_helpers_dets = helpers.MULTI_BLOCK_HELPERS + helpers.SNIPPET_STR_HELPERS
+    for helper_spec in all_helpers_dets:
+        logging.debug(f"About to process '{helper_spec.helper_name}'")
+        if warnings_only and not helper_spec.warning:
             continue
-        if helper_dets.input_type == conf.BLOCKS_DETS:
-            helper_input = blocks_dets
-        elif helper_dets.input_type == conf.SNIPPET_STR:
+        if helper_spec.input_type == conf.InputType.BLOCKS_SPECS:
+            helper_input = block_specs
+        elif helper_spec.input_type == conf.InputType.SNIPPET_STR:
             helper_input = snippet
         else:
-            raise Exception(
-                f"Unexpected input_type: '{helper_dets.input_type}'")
-        repeat = (helper_dets.helper_name in repeat_set)
-        message_dets = get_message_dets_from_input(helper_dets,
+            raise Exception(f"Unexpected input_type: '{helper_spec.input_type}'")
+        repeat = (helper_spec.helper_name in repeat_set)
+        message_dets = get_message_dets_from_input(helper_spec,
             helper_input=helper_input, code_str=snippet, first_line_no=None,
             execute_code=execute_code, repeat=repeat)
         if message_dets:
-            repeat_set.add(helper_dets.helper_name)
+            repeat_set.add(helper_spec.helper_name)
             messages_dets.append(message_dets)
     return messages_dets
 
 def get_separated_messages_dets(snippet, snippet_block_els, xml, *,
         warnings_only=False, execute_code=True, repeat_set=None):
     """
-    Break snippet up into syntactical parts and blocks of code. Apply helper
-    functions and get message details. Split into overall messages and block-specific messages.
+    Break snippet up into syntactical parts and blocks of code.
+    Apply helper functions and get message details.
+    Split into overall messages and block-specific messages.
 
     :param str snippet: code snippet
     :param list snippet_block_els: list of block elements for snippet
@@ -225,17 +216,16 @@ def get_separated_messages_dets(snippet, snippet_block_els, xml, *,
      or None if no messages
     :rtype: tuple (or None)
     """
-    blocks_dets = get_blocks_dets(snippet, snippet_block_els)
+    block_specs = get_block_specs(snippet, snippet_block_els)
     overall_snippet_messages_dets = get_overall_snippet_messages_dets(
-        snippet, blocks_dets,
+        snippet, block_specs,
         warnings_only=warnings_only, execute_code=execute_code,
         repeat_set=repeat_set)
     block_level_messages_dets = get_block_level_messages_dets(
-        blocks_dets, xml,
+        block_specs, xml,
         warnings_only=warnings_only, execute_code=execute_code,
         repeat_set=repeat_set)
-    for messages_dets in [
-            overall_snippet_messages_dets, block_level_messages_dets]:
+    for messages_dets in [overall_snippet_messages_dets, block_level_messages_dets]:
         if None in messages_dets:
             raise Exception("messages_dets in meant to be a list of "
                 "MessageDets named tuples yet a None item was found")
@@ -249,8 +239,7 @@ def get_separated_messages_dets(snippet, snippet_block_els, xml, *,
                 first_line_no=None, warning=False, source=conf.SYSTEM_MESSAGE)]
     return overall_snippet_messages_dets, block_level_messages_dets
 
-def get_snippet_dets(snippet, *,
-        warnings_only=False, execute_code=True, repeat_set=None):
+def get_snippet_dets(snippet, *, warnings_only=False, execute_code=True, repeat_set=None):
     """
     Get details for snippet of code.
 
@@ -266,9 +255,7 @@ def get_snippet_dets(snippet, *,
     snippet_block_els = xml.xpath('body')[0].getchildren()  ## [0] because there is only one body under root
     multi_block_snippet = len(snippet_block_els) > 1
     snippet_messages_dets = get_separated_messages_dets(
-        snippet, snippet_block_els, xml,
-        warnings_only=warnings_only, execute_code=execute_code,
-        repeat_set=repeat_set)
+        snippet, snippet_block_els, xml, warnings_only=warnings_only, execute_code=execute_code, repeat_set=repeat_set)
     return snippet_messages_dets, multi_block_snippet
 
 def get_system_messages_dets(snippet, brief_message, *, warning=True):
@@ -282,8 +269,7 @@ def get_system_messages_dets(snippet, brief_message, *, warning=True):
     }
     message = complete_message(message, source=conf.SYSTEM_MESSAGE)
     overall_messages_dets = [
-        MessageDets(snippet, message,
-            first_line_no=None, warning=warning, source=conf.SYSTEM_MESSAGE)]
+        MessageDets(snippet, message, first_line_no=None, warning=warning, source=conf.SYSTEM_MESSAGE)]
     block_messages_dets = []
     messages_dets = (overall_messages_dets, block_messages_dets)
     return messages_dets

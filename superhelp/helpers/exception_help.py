@@ -1,18 +1,18 @@
-from superhelp.helpers import all_blocks_help
+from superhelp.helpers import multi_block_help
 from superhelp import conf
 from superhelp.gen_utils import get_nice_str_list, int2nice, layout_comment as layout
 
 UNSPECIFIC_EXCEPTION = 'Exception'
 
-def get_exception_blocks(blocks_dets):
+def get_exception_blocks(block_specs):
     """
     There can be multiple try-except statements in a snippet so we have to
     handle each of them.
     """
     exception_blocks = []
-    for block_dets in blocks_dets:
+    for block_spec in block_specs:
         block_exception_types = []
-        except_handler_els = block_dets.element.xpath(
+        except_handler_els = block_spec.element.xpath(
             'descendant-or-self::handlers/ExceptHandler')
         for except_handler_el in except_handler_els:
             exception_type_els = except_handler_el.xpath(
@@ -25,12 +25,12 @@ def get_exception_blocks(blocks_dets):
             exception_blocks.append(block_exception_types)
     return exception_blocks
 
-@all_blocks_help()
-def exception_overview(blocks_dets, *, repeat=False, **_kwargs):
+@multi_block_help()
+def exception_overview(block_specs, *, repeat=False, **_kwargs):
     """
     Provide overview of exception handling.
     """
-    exception_blocks = get_exception_blocks(blocks_dets)
+    exception_blocks = get_exception_blocks(block_specs)
     if not exception_blocks:
         return None
     if repeat:
@@ -55,12 +55,12 @@ def exception_overview(blocks_dets, *, repeat=False, **_kwargs):
     }
     return message
 
-@all_blocks_help(warning=True)
-def unspecific_exception(blocks_dets, *, repeat=False, **_kwargs):
+@multi_block_help(warning=True)
+def unspecific_exception(block_specs, *, repeat=False, **_kwargs):
     """
     Look for unspecific exceptions.
     """
-    exception_blocks = get_exception_blocks(blocks_dets)
+    exception_blocks = get_exception_blocks(block_specs)
     if not exception_blocks:
         return None
     unspecific_block_ns = []

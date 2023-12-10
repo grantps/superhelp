@@ -1,4 +1,4 @@
-from superhelp.helpers import all_blocks_help
+from superhelp.helpers import multi_block_help
 from superhelp import ast_funcs, conf
 from superhelp.gen_utils import layout_comment as layout
 
@@ -64,15 +64,15 @@ def used_verbose(block_el):
 def used_compile(block_el):
     pass
 
-@all_blocks_help()
-def verbose_option(blocks_dets, *, repeat=False, **_kwargs):
+@multi_block_help()
+def verbose_option(block_specs, *, repeat=False, **_kwargs):
     """
     Check for use of regex without verbose mode and introduce the idea.
     """
     has_imported_re = False
     has_used_verbose = False
-    for block_dets in blocks_dets:
-        block_el = block_dets.element
+    for block_spec in block_specs:
+        block_el = block_spec.element
         if not has_imported_re:
             if imported_re(block_el):
                 has_imported_re = True

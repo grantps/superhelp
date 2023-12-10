@@ -1,4 +1,4 @@
-from superhelp.helpers import filt_block_help
+from superhelp.helpers import indiv_block_help
 from superhelp import conf, gen_utils
 from superhelp.gen_utils import get_collections_dets, get_nice_str_list, layout_comment as layout
 
@@ -75,20 +75,20 @@ def get_comment(names_items, *, brief=True, repeat=False):
     comment = ''.join(comment_bits)
     return comment
 
-@filt_block_help(xpath=ASSIGN_DICT_XPATH)
-def dict_overview(block_dets, *, repeat=False, execute_code=True, **_kwargs):
+@indiv_block_help(xpath=ASSIGN_DICT_XPATH)
+def dict_overview(block_spec, *, repeat=False, execute_code=True, **_kwargs):
     """
     Look at assigned dictionaries e.g. location = {'country' 'New Zealand',
     'city': 'Auckland'}
     """
-    dict_els = get_dict_els(block_dets.element)
+    dict_els = get_dict_els(block_spec.element)
     if not dict_els:
         return None
     plural = 'ies' if len(dict_els) > 1 else 'y'
     title = layout(f"""\
     ### Dictionar{plural} defined
     """)
-    names_items, oversized_msg = get_collections_dets(dict_els, block_dets,
+    names_items, oversized_msg = get_collections_dets(dict_els, block_spec,
         collection_plural='dictionaries', truncated_items_func=truncate_dict,
         execute_code=execute_code)
     brief_desc = get_comment(names_items, repeat=repeat)
@@ -184,16 +184,16 @@ def get_key_type_names(items):
         for key_type in key_type_names]
     return key_type_names, key_type_nice_names
 
-@filt_block_help(xpath=ASSIGN_DICT_XPATH, warning=True)
-def mixed_key_types(block_dets, *, repeat=False, execute_code=True, **_kwargs):
+@indiv_block_help(xpath=ASSIGN_DICT_XPATH, warning=True)
+def mixed_key_types(block_spec, *, repeat=False, execute_code=True, **_kwargs):
     """
     Warns about dictionaries with mix of string and integer keys.
     """
-    dict_els = get_dict_els(block_dets.element)
+    dict_els = get_dict_els(block_spec.element)
     if not dict_els:
         return None
     mixed_names = []
-    names_items, oversized_msg = get_collections_dets(dict_els, block_dets,
+    names_items, oversized_msg = get_collections_dets(dict_els, block_spec,
         collection_plural='dictionaries', truncated_items_func=truncate_dict,
         execute_code=execute_code)
     for name, items in names_items:

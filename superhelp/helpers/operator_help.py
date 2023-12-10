@@ -1,6 +1,6 @@
 from superhelp import ast_funcs, conf
 from superhelp.gen_utils import layout_comment as layout
-from superhelp.helpers import any_block_help
+from superhelp.helpers import indiv_block_help
 
 op_name2symbol = {
     'Add': '+',
@@ -17,12 +17,12 @@ op_name2symbol = {
     'LShift': '<<',
 }
 
-@any_block_help()
-def compound_operator_possible(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help()
+def compound_operator_possible(block_spec, *, repeat=False, **_kwargs):
     """
     Look for code like x = x + 1 and suggest the compound operator option.
     """
-    block_el = block_dets.element
+    block_el = block_spec.element
     assign_els = block_el.xpath('descendant-or-self::Assign')
     if not assign_els:
         return None

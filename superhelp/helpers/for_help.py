@@ -1,14 +1,14 @@
 from superhelp.helpers import (
     get_dict_comprehension_msg, get_general_comprehension_msg,
-    get_set_comprehension_msg, filt_block_help)
+    get_set_comprehension_msg, indiv_block_help)
 from superhelp.ast_funcs.general import get_el_lines_dets
 from superhelp import conf
 from superhelp.gen_utils import layout_comment as layout
 
 FOR_XPATH = 'descendant-or-self::For'
 
-@filt_block_help(xpath=FOR_XPATH)
-def comprehension_option(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=FOR_XPATH)
+def comprehension_option(block_spec, *, repeat=False, **_kwargs):
     """
     Provide overview of for loop to see if simple enough to be a possible
     candidate for a comprehension.
@@ -18,7 +18,7 @@ def comprehension_option(block_dets, *, repeat=False, **_kwargs):
     comprehension or not. And to see whether appending, key setting, or adding
     is happening and suggesting the right comprehension accordingly.
     """
-    for_els = block_dets.element.xpath(FOR_XPATH)
+    for_els = block_spec.element.xpath(FOR_XPATH)
     if not for_els:
         return None
     any_short_enough = False
@@ -33,13 +33,13 @@ def comprehension_option(block_dets, *, repeat=False, **_kwargs):
         return None
     comp_type = None
     comp_comment = ''
-    if 'append' in block_dets.block_code_str:
+    if 'append' in block_spec.block_code_str:
         comp_type = 'List Comprehension'
         comp_comment = get_dict_comprehension_msg()
-    elif len(block_dets.element.cssselect('Subscript')):  ## Seems a reasonable indicator
+    elif len(block_spec.element.cssselect('Subscript')):  ## Seems a reasonable indicator
         comp_type = 'Dictionary Comprehension'
         comp_comment = get_dict_comprehension_msg()
-    elif 'set' in block_dets.block_code_str:
+    elif 'set' in block_spec.block_code_str:
         comp_type = 'Set Comprehension'
         comp_comment = get_set_comprehension_msg()
     else:
@@ -131,8 +131,8 @@ def get_incremental_iteration_dets(for_el):
         return None
     return index_name, iterable_name
 
-@filt_block_help(xpath=FOR_XPATH)
-def for_index_iteration(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=FOR_XPATH)
+def for_index_iteration(block_spec, *, repeat=False, **_kwargs):
     """
     Look to see if an opportunity for simple iteration available as more
     pythonic alternative to incremental indexing.
@@ -142,7 +142,7 @@ def for_index_iteration(block_dets, *, repeat=False, **_kwargs):
     for i in range(len(foo)):
         foo[i] detected
     """
-    for_els = block_dets.element.xpath(FOR_XPATH)
+    for_els = block_spec.element.xpath(FOR_XPATH)
     any_incremental_iteration = False
     for for_el in for_els:
         try:
@@ -194,12 +194,12 @@ def for_index_iteration(block_dets, *, repeat=False, **_kwargs):
     }
     return message
 
-@filt_block_help(xpath=FOR_XPATH, warning=True)
-def for_else(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=FOR_XPATH, warning=True)
+def for_else(block_spec, *, repeat=False, **_kwargs):
     """
     Look for the for-else construct and warn about its safe usage.
     """
-    for_els = block_dets.element.xpath(FOR_XPATH)
+    for_els = block_spec.element.xpath(FOR_XPATH)
     has_for_else = False
     for for_el in for_els:
         for_else_els = for_el.xpath('orelse')
@@ -272,13 +272,13 @@ def for_else(block_dets, *, repeat=False, **_kwargs):
     }
     return message
 
-@filt_block_help(xpath=FOR_XPATH)
-def nested_fors(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=FOR_XPATH)
+def nested_fors(block_spec, *, repeat=False, **_kwargs):
     """
     Look to see if an opportunity for using itertools.product instead of nested
     iteration.
     """
-    for_els = block_dets.element.xpath(FOR_XPATH)
+    for_els = block_spec.element.xpath(FOR_XPATH)
     nested_iteration = False
     for for_el in for_els:
         nested_for_els = for_el.xpath('descendant::For')

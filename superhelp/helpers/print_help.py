@@ -1,5 +1,5 @@
 
-from superhelp.helpers import all_blocks_help
+from superhelp.helpers import multi_block_help
 from superhelp import conf
 from superhelp.gen_utils import layout_comment as layout
 
@@ -21,14 +21,14 @@ def _includes_print(block_el):
         return True
     return False
 
-@all_blocks_help()
-def print_overview(blocks_dets, *, repeat=False, **_kwargs):
+@multi_block_help()
+def print_overview(block_specs, *, repeat=False, **_kwargs):
     """
     Show some of the surprise features of the humble print function.
     """
     has_print = False
-    for block_dets in blocks_dets:
-        if _includes_print(block_dets.element):
+    for block_spec in block_specs:
+        if _includes_print(block_spec.element):
             has_print = True
             break
     if not has_print:

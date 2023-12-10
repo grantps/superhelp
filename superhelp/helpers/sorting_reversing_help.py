@@ -1,15 +1,15 @@
-from superhelp.helpers import any_block_help, filt_block_help
+from superhelp.helpers import indiv_block_help
 from superhelp import conf, name_utils
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
 
-def _get_sorting_or_reversing_comment(block_dets):
+def _get_sorting_or_reversing_comment(block_spec):
     """
     Get a comment on any sorting or reversing identified.
 
     :return: string describing type of reversing/sorting or None
     :rtype: str
     """
-    element = block_dets.element
+    element = block_spec.element
     comment = None
     func_attr_els = element.xpath('descendant-or-self::Call/func/Attribute')
     sort_els = [func_attr_el for func_attr_el in func_attr_els
@@ -31,13 +31,13 @@ def _get_sorting_or_reversing_comment(block_dets):
         comment = "uses the `reversed` function"
     return comment
 
-@any_block_help()
-def sorting_reversing_overview(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help()
+def sorting_reversing_overview(block_spec, *, repeat=False, **_kwargs):
     """
     Provide an overview of sorting and/or reversing. Advise on common
     confusions.
     """
-    sorting_or_reversing_comment = _get_sorting_or_reversing_comment(block_dets)
+    sorting_or_reversing_comment = _get_sorting_or_reversing_comment(block_spec)
     if not sorting_or_reversing_comment:
         return None
 
@@ -136,12 +136,12 @@ def sorting_reversing_overview(block_dets, *, repeat=False, **_kwargs):
 
 ASSIGN_FUNC_ATTRIBUTE_XPATH = 'descendant-or-self::Assign/value/Call/func/Attribute'
 
-@filt_block_help(xpath=ASSIGN_FUNC_ATTRIBUTE_XPATH, warning=True)
-def list_sort_as_value(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=ASSIGN_FUNC_ATTRIBUTE_XPATH, warning=True)
+def list_sort_as_value(block_spec, *, repeat=False, **_kwargs):
     """
     Warn about assigning a name to the result using .sort() on a list.
     """
-    func_attr_els = block_dets.element.xpath(ASSIGN_FUNC_ATTRIBUTE_XPATH)
+    func_attr_els = block_spec.element.xpath(ASSIGN_FUNC_ATTRIBUTE_XPATH)
     if not func_attr_els:
         return None
     names_assigned_to_sort = []

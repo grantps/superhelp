@@ -154,8 +154,12 @@ MISSING_ADVICE_MESSAGE = ("If there was some advice you think should have "
 SYSTEM_MESSAGE = 'System message'
 
 ## input types
-BLOCKS_DETS = 'blocks_dets'
-SNIPPET_STR = 'snippet_str'
+class InputType(StrEnum):
+    """
+    Only needed so we can distinguish snippets from multi-block helpers when getting snippet-level messages
+    """
+    BLOCKS_SPECS = 'blocks_specs'
+    SNIPPET_STR = 'snippet_str'
 
 XKCD_WARNING_WORDS = ['supervolcano', 'seagull', 'garbage disposal']
 

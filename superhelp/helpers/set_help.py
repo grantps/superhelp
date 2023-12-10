@@ -1,4 +1,4 @@
-from superhelp.helpers import filt_block_help
+from superhelp.helpers import indiv_block_help
 from superhelp.ast_funcs import general as ast_gen
 from superhelp import conf, gen_utils
 from superhelp.gen_utils import layout_comment as layout
@@ -15,8 +15,8 @@ def get_set_els(block_el):
         if el.tag == 'Set' or el.get('id') == 'set']
     return set_els
 
-@filt_block_help(xpath=ASSIGN_SET_XPATH)
-def set_overview(block_dets, *, repeat=False, execute_code=True, **_kwargs):
+@indiv_block_help(xpath=ASSIGN_SET_XPATH)
+def set_overview(block_spec, *, repeat=False, execute_code=True, **_kwargs):
     """
     Look for sets and provide general advice on using them and finding out more.
 
@@ -30,12 +30,12 @@ def set_overview(block_dets, *, repeat=False, execute_code=True, **_kwargs):
     E.g. {dt, dt, dt, 4} -> {conf.UNKNOWN_ITEM, 4} i.e. 2 items when it should
     be 4.
     """
-    set_els = [el for el in block_dets.element.xpath(ASSIGN_SET_XPATH)
+    set_els = [el for el in block_spec.element.xpath(ASSIGN_SET_XPATH)
         if el.tag == 'Set' or el.get('id') == 'set']
     if not set_els:
         return None
     names_items, oversized_msg = gen_utils.get_collections_dets(
-        set_els, block_dets,
+        set_els, block_spec,
         collection_plural='sets', truncated_items_func=truncate_set,
         execute_code=execute_code)
     if not names_items:
@@ -285,13 +285,13 @@ def _get_inappropriate_list(if_el):
 
 XPATH_COMPARE = 'descendant-or-self::If/test/Compare'
 
-@filt_block_help(xpath=XPATH_COMPARE, warning=True)
-def set_better_than_list(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=XPATH_COMPARE, warning=True)
+def set_better_than_list(block_spec, *, repeat=False, **_kwargs):
     """
     Look for cases where the code checks list membership before adding.
     Candidate for a set?
     """
-    if_els = block_dets.element.xpath('descendant-or-self::If')
+    if_els = block_spec.element.xpath('descendant-or-self::If')
     if not if_els:
         return None
     inappropriate_lists = []

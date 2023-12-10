@@ -1,11 +1,9 @@
 from collections import defaultdict, namedtuple
 
-from superhelp.helpers import all_blocks_help, any_block_help, is_reserved_name
+from superhelp.helpers import indiv_block_help, is_reserved_name, multi_block_help
 from superhelp import ast_funcs, conf, name_utils
 from superhelp import gen_utils
-from superhelp.utils import inspect_el  # @UnusedImport
-from superhelp.gen_utils import (get_nice_str_list,
-    int2first_etc, int2nice, layout_comment as layout)
+from superhelp.gen_utils import get_nice_str_list, int2first_etc, int2nice, layout_comment as layout
 
 PairDets = namedtuple('PairDets', 'name, name_value, unpacking_idx')
 PairDets.name.__doc__ = (
@@ -252,15 +250,16 @@ def _get_names_and_values_msg(name2name_pairs_dets):
     }
     return message
 
-@all_blocks_help()
-def names_and_values(blocks_dets, *, repeat=False, **_kwargs):
+@multi_block_help()
+def names_and_values(block_specs, *, repeat=False, **_kwargs):
     """
     Look for names assigned to other names and explain names and values in
     Python.
     """
+    # from superhelp.utils import inspect_el
     name2name_pairs_dets = []
-    for block_dets in blocks_dets:
-        block_el = block_dets.element
+    for block_spec in block_specs:
+        block_el = block_spec.element
         # inspect_el(block_el)
         block_name2name_pairs_dets = pairs_dets_from_block(block_el)
         if block_name2name_pairs_dets:
@@ -316,14 +315,14 @@ def _get_shamed_names_title(reserved_names, bad_names, dubious_names):
                 title = 'Possibly some un-pythonic names'
     return title
 
-def get_standard_assigned_names(block_dets):
+def get_standard_assigned_names(block_spec):
     """
     Only get names where we expect standard pythonic naming. So not named tuple
     or class names, for example. We have to explicitly ignore named tuple names.
     Classes are automatically excluded because I haven't explicitly included
     them. They are stored differently e.g. <ClassDef ...name="ActuallyGoodName">
     """
-    assigned_name_els = block_dets.element.xpath(
+    assigned_name_els = block_spec.element.xpath(
         'descendant-or-self::targets/Name | descendant-or-self::target/Name')
     assigned_names = []
     for name_el in assigned_name_els:
@@ -345,13 +344,13 @@ def get_standard_assigned_names(block_dets):
         assigned_names.append(name)
     return assigned_names
 
-def get_class_names(block_dets):
-    class_els = block_dets.element.xpath('ClassDef')
+def get_class_names(block_spec):
+    class_els = block_spec.element.xpath('ClassDef')
     class_names = [class_el.get('name') for class_el in class_els]
     return class_names
 
-def get_named_tuple_names(block_dets):
-    assigned_name_els = block_dets.element.xpath(
+def get_named_tuple_names(block_spec):
+    assigned_name_els = block_spec.element.xpath(
         'descendant-or-self::Assign/targets/Name')
     named_tuple_names = []
     for name_el in assigned_name_els:
@@ -366,8 +365,8 @@ def get_named_tuple_names(block_dets):
         named_tuple_names.append(name)
     return named_tuple_names
 
-def get_unpacked_names(block_dets):
-    unpacked_name_els = block_dets.element.xpath(
+def get_unpacked_names(block_spec):
+    unpacked_name_els = block_spec.element.xpath(
         'descendant-or-self::targets/Tuple/elts/Name'
         ' | '
         'descendant-or-self::target/Tuple/elts/Name')
@@ -375,34 +374,34 @@ def get_unpacked_names(block_dets):
         for unpacked_name_el in unpacked_name_els]
     return unpacked_names
 
-def get_def_func_names(block_dets):
-    def_func_elements = block_dets.element.xpath(
+def get_def_func_names(block_spec):
+    def_func_elements = block_spec.element.xpath(
         'descendant-or-self::FunctionDef')
     def_func_names = [name_el.get('name') for name_el in def_func_elements]
     return def_func_names
 
-def get_all_names(block_dets, *, include_non_standard=False):
+def get_all_names(block_spec, *, include_non_standard=False):
     """
     :param bool include_non_standard: if True include variables that aren't
      expected to follow standard Python naming conventions e.g. class or named
      tuple names.
     """
-    assigned_names = get_standard_assigned_names(block_dets)
-    unpacked_names = get_unpacked_names(block_dets)
-    def_func_names = get_def_func_names(block_dets)
+    assigned_names = get_standard_assigned_names(block_spec)
+    unpacked_names = get_unpacked_names(block_spec)
+    def_func_names = get_def_func_names(block_spec)
     all_names = assigned_names + unpacked_names + def_func_names
     if include_non_standard:
-        class_names = get_class_names(block_dets)
-        named_tuple_names = get_named_tuple_names(block_dets)
+        class_names = get_class_names(block_spec)
+        named_tuple_names = get_named_tuple_names(block_spec)
         all_names = all_names + class_names + named_tuple_names
     return all_names
 
-@any_block_help(warning=True)
-def unpythonic_name_check(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(warning=True)
+def unpythonic_name_check(block_spec, *, repeat=False, **_kwargs):
     """
     Check names used for use of reserved words and camel case.
     """
-    names = get_all_names(block_dets, include_non_standard=False)
+    names = get_all_names(block_spec, include_non_standard=False)
     if not names:
         return None
     reserved_names = set()
@@ -481,12 +480,12 @@ def unpythonic_name_check(block_dets, *, repeat=False, **_kwargs):
     }
     return message
 
-@any_block_help(warning=True)
-def short_name_check(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(warning=True)
+def short_name_check(block_spec, *, repeat=False, **_kwargs):
     """
     Check for short variable names.
     """
-    names = get_all_names(block_dets, include_non_standard=True)
+    names = get_all_names(block_spec, include_non_standard=True)
     if not names:
         return None
     short_names = defaultdict(set)

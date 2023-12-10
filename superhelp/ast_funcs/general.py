@@ -15,21 +15,7 @@ def ast_detective(snippet: str):
         "\nOnly paste into http://xpather.com/ what is below")
     utils.inspect_el(xml)
 
-ast_detective("""
-from functools import wraps
-
-def tweet(func):
-    @wraps(func)  ## ignored even though it is a decorator
-    def wrapper(message):
-        func(message)
-        print(f"I'm tweeting the message {message}")
-    return wrapper
-
-@email
-@tweet
-def say(message):
-    print(message)
-""")
+# S
 
 def get_el_lines_dets(el, *, ignore_trailing_lines=False) -> tuple[int, int, int]:
     """

@@ -1,5 +1,5 @@
 from superhelp.helpers import (get_dict_comprehension_msg, get_general_comprehension_msg,
-    get_set_comprehension_msg, filt_block_help)
+    get_set_comprehension_msg, indiv_block_help)
 from superhelp import conf
 from superhelp import gen_utils
 from superhelp.gen_utils import layout_comment as layout
@@ -9,18 +9,18 @@ def truncate_list(items):
 
 ASSIGN_LISTCOMP_XPATH = 'descendant-or-self::Assign/value/ListComp'
 
-@filt_block_help(xpath=ASSIGN_LISTCOMP_XPATH)
-def listcomp_overview(block_dets, *,
+@indiv_block_help(xpath=ASSIGN_LISTCOMP_XPATH)
+def listcomp_overview(block_spec, *,
         repeat=False, execute_code=True, **_kwargs):
     """
     Provide advice on list comprehensions and explain other types of
     comprehension available in Python.
     """
-    listcomp_els = block_dets.element.xpath(ASSIGN_LISTCOMP_XPATH)
+    listcomp_els = block_spec.element.xpath(ASSIGN_LISTCOMP_XPATH)
     if not listcomp_els:
         return None
     names_items, oversized_msg = gen_utils.get_collections_dets(
-        listcomp_els, block_dets,
+        listcomp_els, block_spec,
         collection_plural='lists', truncated_items_func=truncate_list,
         execute_code=execute_code)
     plural = 's' if len(names_items) > 1 else ''

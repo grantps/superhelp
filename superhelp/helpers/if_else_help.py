@@ -1,6 +1,6 @@
 from collections import defaultdict, namedtuple, Counter
 
-from superhelp.helpers import filt_block_help
+from superhelp.helpers import indiv_block_help
 from superhelp import ast_funcs, conf
 from superhelp.gen_utils import int2nice, layout_comment as layout
 
@@ -40,7 +40,7 @@ def add_if_details(if_element, if_clauses):
         if_clauses.append(ELSE)
     return
 
-def get_ifs_details(block_dets):
+def get_ifs_details(block_spec):
     """
     There can be multiple if statements in a snippet so we have to handle each
     of them.
@@ -66,9 +66,9 @@ def get_ifs_details(block_dets):
     whether an 'else' or 'elif'.
     """
     ## skip when if __name__ == '__main__'
-    if block_dets.block_code_str.startswith("if __name__ == "):
+    if block_spec.block_code_str.startswith("if __name__ == "):
         return []
-    raw_if_els = block_dets.element.xpath(IF_XPATH)
+    raw_if_els = block_spec.element.xpath(IF_XPATH)
     if_elements = []
     for raw_if_el in raw_if_els:
         ## ignore if really an elif
@@ -92,12 +92,12 @@ def get_ifs_details(block_dets):
             IfDets(multiple_conditions, missing_else, if_clauses))
     return ifs_details
 
-def _get_if_comment(block_dets):
+def _get_if_comment(block_spec):
     """
     Have to cope with multiple if statements and make it nice (unnumbered) when
     only one.
     """
-    ifs_details = get_ifs_details(block_dets)
+    ifs_details = get_ifs_details(block_spec)
     if_comment = ''
     for n, if_details in enumerate(ifs_details, 1):
         counter = '' if len(ifs_details) == 1 else f" {int2nice(n)}"
@@ -122,19 +122,19 @@ def _get_if_comment(block_dets):
             """)
     return if_comment
 
-@filt_block_help(xpath=IF_XPATH)
-def if_else_overview(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=IF_XPATH)
+def if_else_overview(block_spec, *, repeat=False, **_kwargs):
     """
     Look at conditional statements using if (apart from if __name__ ==
     '__main__").
     """
-    if block_dets.block_code_str.startswith("if __name__ == "):
+    if block_spec.block_code_str.startswith("if __name__ == "):
         return None
 
     title = layout("""
     ### Conditional statement detected
     """)
-    if_comment = _get_if_comment(block_dets)
+    if_comment = _get_if_comment(block_spec)
     if not repeat:
         demo = (
             layout("""\
@@ -172,12 +172,12 @@ def if_else_overview(block_dets, *, repeat=False, **_kwargs):
     }
     return message
 
-@filt_block_help(xpath=IF_XPATH, warning=True)
-def missing_else(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=IF_XPATH, warning=True)
+def missing_else(block_spec, *, repeat=False, **_kwargs):
     """
     Warn about benefits in many cases of adding else clause if missing.
     """
-    ifs_details = get_ifs_details(block_dets)
+    ifs_details = get_ifs_details(block_spec)
     ifs_dets_missing_else = [
         if_details for if_details in ifs_details if if_details.missing_else]
     if not ifs_dets_missing_else:
@@ -323,8 +323,8 @@ def get_split_membership_dets(if_el):
     comp_vals_gp_str = '[' + ', '.join(comp_val_strs) + ']'
     return comp_var, comp_vals_gp_str
 
-@filt_block_help(xpath=IF_XPATH)
-def split_group_membership(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=IF_XPATH)
+def split_group_membership(block_spec, *, repeat=False, **_kwargs):
     """
     Explain how to use in group and not in group rather than multiple
     comparisons.
@@ -335,7 +335,7 @@ def split_group_membership(block_dets, *, repeat=False, **_kwargs):
     if x in ['a', 'b', 'c']:
         print(x)
     """
-    if_els = block_dets.element.xpath(IF_XPATH)
+    if_els = block_spec.element.xpath(IF_XPATH)
     if not if_els:
         return None
     has_split = False
@@ -427,14 +427,14 @@ def get_has_explicit_count(if_el):
     has_explicit_boolean = ((operator_type, n) in explicit_booleans)
     return has_explicit_boolean
 
-@filt_block_help(xpath=IF_XPATH)
-def implicit_boolean_enough(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=IF_XPATH)
+def implicit_boolean_enough(block_spec, *, repeat=False, **_kwargs):
     """
     Look for cases where an implicit boolean comparison is enough.
     """
     if repeat:
         return None
-    if_els = block_dets.element.xpath(IF_XPATH)
+    if_els = block_spec.element.xpath(IF_XPATH)
     if not if_els:
         return None
     implicit_boolean_possible = False
@@ -523,12 +523,12 @@ def could_short_circuit(if_el):
     ## we have an IF with one child which is an IF and the nested IF's ORELSE has no children
     return True
 
-@filt_block_help(xpath=IF_XPATH)
-def short_circuit(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=IF_XPATH)
+def short_circuit(block_spec, *, repeat=False, **_kwargs):
     """
     Look for cases where short-circuiting is possible.
     """
-    if_els = block_dets.element.xpath(IF_XPATH)
+    if_els = block_spec.element.xpath(IF_XPATH)
     if not if_els:
         return None
     could_short_circuit_something = False
@@ -610,12 +610,12 @@ def could_any_or_all(if_el):
             break
     return could_any, could_all
 
-@filt_block_help(xpath=IF_XPATH)
-def any_all(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=IF_XPATH)
+def any_all(block_spec, *, repeat=False, **_kwargs):
     """
     Look for cases where using built-in any or all functions makes sense.
     """
-    if_els = block_dets.element.xpath(IF_XPATH)
+    if_els = block_spec.element.xpath(IF_XPATH)
     if not if_els:
         return None
     could_any_something = False

@@ -1,4 +1,4 @@
-from superhelp.helpers import filt_block_help
+from superhelp.helpers import indiv_block_help
 from superhelp import conf
 from superhelp.ast_funcs import general as ast_gen
 from superhelp.gen_utils import layout_comment as layout
@@ -30,8 +30,8 @@ def has_long_block(block_el, xpath):
             break
     return long_block
 
-@filt_block_help(xpath=NESTING_XPATH, warning=True)
-def bloated_nested_block(block_dets, *, repeat=False, **_kwargs):
+@indiv_block_help(xpath=NESTING_XPATH, warning=True)
+def bloated_nested_block(block_spec, *, repeat=False, **_kwargs):
     """
     Look for long indented blocks under conditionals, inside loops etc that are
     candidates for separating into functions to simplify the narrative of the
@@ -40,7 +40,7 @@ def bloated_nested_block(block_dets, *, repeat=False, **_kwargs):
     bloated_outer_types = set()
     included_if = False
     for lbl, outer_xpath in OUTER_XPATHS.items():
-        if has_long_block(block_dets.element, outer_xpath):
+        if has_long_block(block_spec.element, outer_xpath):
             bloated_outer_types.add(lbl)
             if lbl == 'if':
                 included_if = True
