@@ -228,8 +228,6 @@ def f_str_interpolation(block_spec, *, repeat=False, **_kwargs):
     Examine f-string interpolation.
     """
     joined_els = block_spec.element.xpath(JOINED_STR_XPATH)
-    if not joined_els:
-        return None
     return str_combination(F_STR,
         joined_els, repeat=repeat)
 

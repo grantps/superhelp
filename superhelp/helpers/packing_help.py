@@ -13,9 +13,6 @@ def unpacking(block_spec, *, repeat=False, **_kwargs):
     Identify name unpacking e.g. x, y = coord
     """
     unpacked_els = block_spec.element.xpath(ASSIGN_UNPACKING_XPATH)
-    if not unpacked_els:
-        return None
-
     title = layout("""\
     ### Name unpacking
     """)

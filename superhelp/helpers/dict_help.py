@@ -82,8 +82,6 @@ def dict_overview(block_spec, *, repeat=False, execute_code=True, **_kwargs):
     'city': 'Auckland'}
     """
     dict_els = get_dict_els(block_spec.element)
-    if not dict_els:
-        return None
     plural = 'ies' if len(dict_els) > 1 else 'y'
     title = layout(f"""\
     ### Dictionar{plural} defined
@@ -190,8 +188,6 @@ def mixed_key_types(block_spec, *, repeat=False, execute_code=True, **_kwargs):
     Warns about dictionaries with mix of string and integer keys.
     """
     dict_els = get_dict_els(block_spec.element)
-    if not dict_els:
-        return None
     mixed_names = []
     names_items, oversized_msg = get_collections_dets(dict_els, block_spec,
         collection_plural='dictionaries', truncated_items_func=truncate_dict,

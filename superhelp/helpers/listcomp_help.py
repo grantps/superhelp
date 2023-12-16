@@ -17,8 +17,6 @@ def listcomp_overview(block_spec, *,
     comprehension available in Python.
     """
     listcomp_els = block_spec.element.xpath(ASSIGN_LISTCOMP_XPATH)
-    if not listcomp_els:
-        return None
     names_items, oversized_msg = gen_utils.get_collections_dets(
         listcomp_els, block_spec,
         collection_plural='lists', truncated_items_func=truncate_list,

@@ -142,8 +142,6 @@ def list_sort_as_value(block_spec, *, repeat=False, **_kwargs):
     Warn about assigning a name to the result using .sort() on a list.
     """
     func_attr_els = block_spec.element.xpath(ASSIGN_FUNC_ATTRIBUTE_XPATH)
-    if not func_attr_els:
-        return None
     names_assigned_to_sort = []
     for func_attr_el in func_attr_els:
         is_sort = (func_attr_el.get('attr') == 'sort')

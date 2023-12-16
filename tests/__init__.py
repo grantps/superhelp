@@ -1,5 +1,5 @@
 """
-cd ~/projects/superhelp/tests && pytest  ## if in surrounding folder will open some odd tabs (looking in build?)
+cd ~/projects/superhelp/tests && s && python3 -m pytest  ## if in surrounding folder will open some odd tabs (looking in build?)
 """
 
 import astpath

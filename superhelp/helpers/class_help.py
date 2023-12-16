@@ -16,8 +16,6 @@ def getters_setters(block_spec, *, repeat=False, **_kwargs):
     Look for getters and setters and suggest @property if appropriate.
     """
     class_els = block_spec.element.xpath(CLASS_XPATH)
-    if not class_els:
-        return None
     class_getter_setter_methods = defaultdict(list)
     for class_el in class_els:
         class_name = class_el.get('name')
@@ -194,8 +192,6 @@ def selfless_methods(block_spec, *, repeat=False, **_kwargs):
     packing etc although it doesn't have to be named "self".
     """
     class_els = block_spec.element.xpath(CLASS_XPATH)
-    if not class_els:
-        return None
     class_selfless_methods = defaultdict(list)
     for class_el in class_els:
         class_name = class_el.get('name')
@@ -290,8 +286,6 @@ def one_method_classes(block_spec, *, repeat=False, **_kwargs):
     simple function as an alternative.
     """
     class_els = block_spec.element.xpath(CLASS_XPATH)
-    if not class_els:
-        return None
     classes_sole_methods = []
     for class_el in class_els:
         method_els = class_el.xpath('body/FunctionDef')

@@ -6,7 +6,6 @@ from tabulate import tabulate
 
 from superhelp.formatters.cli_extras import cli_colour, cli_conf, cli_utils, tag_formatting
 
-
 class AnsiPrinter(Treeprocessor):
 
     @staticmethod

@@ -16,8 +16,6 @@ def decorator_overview(block_spec, *, repeat=False, **_kwargs):
     Look for decorators and explain some options for improving them.
     """
     decorator_els = block_spec.element.xpath(DECORATOR_XPATH)
-    if not decorator_els:
-        return None
     decorator_names = []
     for decorator_el in decorator_els:
         name = decorator_el.get('id')

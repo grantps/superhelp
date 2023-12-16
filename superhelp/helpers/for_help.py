@@ -19,8 +19,6 @@ def comprehension_option(block_spec, *, repeat=False, **_kwargs):
     is happening and suggesting the right comprehension accordingly.
     """
     for_els = block_spec.element.xpath(FOR_XPATH)
-    if not for_els:
-        return None
     any_short_enough = False
     for for_el in for_els:
         _first_line_no, _last_line_no, for_lines_n = get_el_lines_dets(

@@ -336,8 +336,6 @@ def split_group_membership(block_spec, *, repeat=False, **_kwargs):
         print(x)
     """
     if_els = block_spec.element.xpath(IF_XPATH)
-    if not if_els:
-        return None
     has_split = False
     for if_el in if_els:
         try:
@@ -435,8 +433,6 @@ def implicit_boolean_enough(block_spec, *, repeat=False, **_kwargs):
     if repeat:
         return None
     if_els = block_spec.element.xpath(IF_XPATH)
-    if not if_els:
-        return None
     implicit_boolean_possible = False
     for if_el in if_els:
         has_explicit_count = get_has_explicit_count(if_el)
@@ -529,8 +525,6 @@ def short_circuit(block_spec, *, repeat=False, **_kwargs):
     Look for cases where short-circuiting is possible.
     """
     if_els = block_spec.element.xpath(IF_XPATH)
-    if not if_els:
-        return None
     could_short_circuit_something = False
     for if_el in if_els:
         if could_short_circuit(if_el):
@@ -616,8 +610,6 @@ def any_all(block_spec, *, repeat=False, **_kwargs):
     Look for cases where using built-in any or all functions makes sense.
     """
     if_els = block_spec.element.xpath(IF_XPATH)
-    if not if_els:
-        return None
     could_any_something = False
     could_all_something = False
     for if_el in if_els:

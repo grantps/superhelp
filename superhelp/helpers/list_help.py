@@ -148,8 +148,6 @@ def list_overview(block_spec, *, repeat=False, execute_code=True, **_kwargs):
     General overview of list taking content details into account.
     """
     list_els = get_list_els(block_spec.element)
-    if not list_els:
-        return None
     plural = 's' if len(list_els) > 1 else ''
     title = layout(f"""\
     ### List{plural} defined
@@ -219,8 +217,6 @@ def mixed_list_types(block_spec, *, repeat=False, execute_code=True, **_kwargs):
     Warns about lists containing a mix of data types.
     """
     list_els = get_list_els(block_spec.element)
-    if not list_els:
-        return None
     list_dets = []
     names_items, oversized_msg = get_collections_dets(list_els, block_spec,
         collection_plural='lists', truncated_items_func=truncate_list,
