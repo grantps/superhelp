@@ -1,6 +1,7 @@
 from superhelp.helpers import indiv_block_help
 from superhelp import conf, name_utils
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
+from superhelp.messages import MessageLevelStrs
 
 def _get_sorting_or_reversing_comment(block_spec):
     """
@@ -32,7 +33,7 @@ def _get_sorting_or_reversing_comment(block_spec):
     return comment
 
 @indiv_block_help()
-def sorting_reversing_overview(block_spec, *, repeat=False, **_kwargs):
+def sorting_reversing_overview(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Provide an overview of sorting and/or reversing. Advise on common
     confusions.
@@ -127,17 +128,15 @@ def sorting_reversing_overview(block_spec, *, repeat=False, **_kwargs):
         This block of code {sorting_or_reversing_comment}.
         """)
         details = summary
-
-    message = {
-        conf.Level.BRIEF: title + summary,
-        conf.Level.MAIN: title + details,
-    }
-    return message
+    brief = title + summary
+    main = title + details
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs
 
 ASSIGN_FUNC_ATTRIBUTE_XPATH = 'descendant-or-self::Assign/value/Call/func/Attribute'
 
 @indiv_block_help(xpath=ASSIGN_FUNC_ATTRIBUTE_XPATH, warning=True)
-def list_sort_as_value(block_spec, *, repeat=False, **_kwargs):
+def list_sort_as_value(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Warn about assigning a name to the result using .sort() on a list.
     """
@@ -180,8 +179,7 @@ def list_sort_as_value(block_spec, *, repeat=False, **_kwargs):
             """)
     else:
         details = ''
-
-    message = {
-        conf.Level.BRIEF: title + details,
-    }
-    return message
+    brief = title + details
+    main = title + details
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs

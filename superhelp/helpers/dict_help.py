@@ -1,6 +1,7 @@
 from superhelp.helpers import indiv_block_help
 from superhelp import conf, gen_utils
 from superhelp.gen_utils import get_collections_dets, get_nice_str_list, layout_comment as layout
+from superhelp.messages import MessageLevelStrs
 
 def truncate_dict(input_dict):
     output_dict = {}
@@ -76,10 +77,9 @@ def get_comment(names_items, *, brief=True, repeat=False):
     return comment
 
 @indiv_block_help(xpath=ASSIGN_DICT_XPATH)
-def dict_overview(block_spec, *, repeat=False, execute_code=True, **_kwargs):
+def dict_overview(block_spec, *, repeat=False, execute_code=True, **_kwargs) -> MessageLevelStrs | None:
     """
-    Look at assigned dictionaries e.g. location = {'country' 'New Zealand',
-    'city': 'Auckland'}
+    Look at assigned dictionaries e.g. location = {'country' 'New Zealand', 'city': 'Auckland'}
     """
     dict_els = get_dict_els(block_spec.element)
     plural = 'ies' if len(dict_els) > 1 else 'y'
@@ -163,15 +163,10 @@ def dict_overview(block_spec, *, repeat=False, execute_code=True, **_kwargs):
         main_dict_desc = brief_desc
         general = ''
         mighty_dict = ''
-
-    message = {
-        conf.Level.BRIEF: (title + oversized_msg + dict_def + brief_desc
-            + keys_and_vals + workhorses),
-        conf.Level.MAIN: (
-            title + oversized_msg + main_dict_desc + workhorses + general),
-        conf.Level.EXTRA: mighty_dict,
-    }
-    return message
+    brief = title + oversized_msg + dict_def + brief_desc + keys_and_vals + workhorses
+    main = title + oversized_msg + main_dict_desc + workhorses + general
+    message_level_strs = MessageLevelStrs(brief, main, mighty_dict)
+    return message_level_strs
 
 def get_key_type_names(items):
     key_type_names = sorted(set(
@@ -183,7 +178,7 @@ def get_key_type_names(items):
     return key_type_names, key_type_nice_names
 
 @indiv_block_help(xpath=ASSIGN_DICT_XPATH, warning=True)
-def mixed_key_types(block_spec, *, repeat=False, execute_code=True, **_kwargs):
+def mixed_key_types(block_spec, *, repeat=False, execute_code=True, **_kwargs) -> MessageLevelStrs | None:
     """
     Warns about dictionaries with mix of string and integer keys.
     """
@@ -231,9 +226,7 @@ def mixed_key_types(block_spec, *, repeat=False, execute_code=True, **_kwargs):
         """)
     else:
         one_vs_1 = ''
-
-    message = {
-        conf.Level.BRIEF: title + oversized_msg + mixed_warning,
-        conf.Level.MAIN: title + oversized_msg + mixed_warning + one_vs_1,
-    }
-    return message
+    brief = title + oversized_msg + mixed_warning
+    main = title + oversized_msg + mixed_warning + one_vs_1
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs

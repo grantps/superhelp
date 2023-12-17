@@ -4,6 +4,7 @@ from superhelp.helpers import indiv_block_help, is_reserved_name, multi_block_he
 from superhelp import ast_funcs, conf, name_utils
 from superhelp import gen_utils
 from superhelp.gen_utils import get_nice_str_list, int2first_etc, int2nice, layout_comment as layout
+from superhelp.messages import MessageLevelStrs
 
 PairDets = namedtuple('PairDets', 'name, name_value, unpacking_idx')
 PairDets.name.__doc__ = (
@@ -98,7 +99,7 @@ def pairs_dets_from_block(block_el):
             pairs_dets.extend(el_pairs_dets)
     return pairs_dets
 
-def _get_names_and_values_msg(name2name_pairs_dets):
+def _get_names_and_values_msg(name2name_pairs_dets) -> MessageLevelStrs | None:
     name2name_pair_strs = []
     for pair_dets in name2name_pairs_dets:
         if pair_dets.unpacking_idx is not None:
@@ -242,21 +243,19 @@ def _get_names_and_values_msg(name2name_pairs_dets):
     pass-by-object-reference. See
     [Is Python pass-by-reference or pass-by-value?](https://robertheaton.com/2014/02/09/pythons-pass-by-object-reference-as-explained-by-philip-k-dick/)
     """)
-
-    message = {
-        conf.Level.BRIEF: title + assignments + brief_summary,
-        conf.Level.MAIN: title + assignments + main_summary,
-        conf.Level.EXTRA: ned_talk_etc,
-    }
-    return message
+    brief = title + assignments + brief_summary
+    main = title + assignments + main_summary
+    message_level_strs = MessageLevelStrs(brief, main, ned_talk_etc)
+    return message_level_strs
 
 @multi_block_help()
-def names_and_values(block_specs, *, repeat=False, **_kwargs):
+def names_and_values(block_specs, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look for names assigned to other names and explain names and values in
     Python.
     """
-    # from superhelp.utils import inspect_el
+    if repeat:
+        return None
     name2name_pairs_dets = []
     for block_spec in block_specs:
         block_el = block_spec.element
@@ -266,9 +265,6 @@ def names_and_values(block_specs, *, repeat=False, **_kwargs):
             name2name_pairs_dets.extend(block_name2name_pairs_dets)
     if not name2name_pairs_dets:
         return None
-    if repeat:
-        return None
-
     message = _get_names_and_values_msg(name2name_pairs_dets)
     return message
 
@@ -397,7 +393,7 @@ def get_all_names(block_spec, *, include_non_standard=False):
     return all_names
 
 @indiv_block_help(warning=True)
-def unpythonic_name_check(block_spec, *, repeat=False, **_kwargs):
+def unpythonic_name_check(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Check names used for use of reserved words and camel case.
     """
@@ -471,17 +467,13 @@ def unpythonic_name_check(block_spec, *, repeat=False, **_kwargs):
     else:
         snake_case = ''
         pascal = ''
-
-    message = {
-        conf.Level.BRIEF: (title + reserved_comment + bad_comment
-            + dubious_comment + snake_case + pascal),
-        conf.Level.MAIN: (title + reserved_comment + bad_comment
-            + dubious_comment + snake_case + pascal),
-    }
-    return message
+    brief = title + reserved_comment + bad_comment + dubious_comment + snake_case + pascal
+    main = title + reserved_comment + bad_comment + dubious_comment + snake_case + pascal
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs
 
 @indiv_block_help(warning=True)
-def short_name_check(block_spec, *, repeat=False, **_kwargs):
+def short_name_check(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Check for short variable names.
     """
@@ -571,9 +563,7 @@ def short_name_check(block_spec, *, repeat=False, **_kwargs):
         )
     else:
         idiomatic = ''
-
-    message = {
-        conf.Level.BRIEF: title + sometimes_ok,
-        conf.Level.MAIN: title + sometimes_ok + idiomatic,
-    }
-    return message
+    brief = title + sometimes_ok
+    main = title + sometimes_ok + idiomatic
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs

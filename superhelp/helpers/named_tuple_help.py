@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from superhelp.helpers import multi_block_help
 from superhelp import ast_funcs, conf
 from superhelp.gen_utils import layout_comment as layout
+from superhelp.messages import MessageLevelStrs
 
 @dataclass
 class NTDets:
@@ -38,14 +39,14 @@ def get_named_tuples_dets(block_specs):
     return all_named_tuples_dets
 
 @multi_block_help()
-def named_tuple_overview(block_specs, *, repeat=False, **_kwargs):
+def named_tuple_overview(block_specs, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look for named tuples and explain how they can be enhanced.
     """
+    if repeat:
+        return None
     named_tuples_dets = get_named_tuples_dets(block_specs)
     if not named_tuples_dets:
-        return None
-    if repeat:
         return None
 
     example_dets = named_tuples_dets[0]
@@ -111,10 +112,7 @@ def named_tuple_overview(block_specs, *, repeat=False, **_kwargs):
                  self.area = self.length * self.width
         """, is_code=True)
     )
-
-    message = {
-        conf.Level.BRIEF: replacement,
-        conf.Level.MAIN: replacement + replacement_options,
-    }
-    return message
-    
+    brief = replacement
+    main = replacement + replacement_options
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs

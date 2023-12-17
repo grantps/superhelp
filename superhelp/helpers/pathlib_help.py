@@ -1,6 +1,7 @@
 from superhelp import conf
 from superhelp.gen_utils import layout_comment as layout
 from superhelp.helpers import multi_block_help
+from superhelp.messages import MessageLevelStrs
 
 def _method_from_mod(block_spec, modname, methodname):
     """
@@ -133,7 +134,7 @@ def has_os_path_join(block_spec):
     return True
 
 @multi_block_help()
-def using_os(block_specs, *, repeat=False, **_kwargs):
+def using_os(block_specs, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look for use of os.path.join, os.getcwd, etc and give general advice on when
     / how to use pathlib.
@@ -222,10 +223,7 @@ def using_os(block_specs, *, repeat=False, **_kwargs):
         brief_msg = ''
         main_msg = ''
         extra_msg = ''
-
-    message = {
-        conf.Level.BRIEF: title + brief_msg,
-        conf.Level.MAIN: title + main_msg,
-        conf.Level.EXTRA: extra_msg,
-    }
-    return message
+    brief = title + brief_msg
+    main = title + main_msg
+    message_level_strs = MessageLevelStrs(brief, main, extra_msg)
+    return message_level_strs

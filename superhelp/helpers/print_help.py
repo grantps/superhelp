@@ -2,6 +2,7 @@
 from superhelp.helpers import multi_block_help
 from superhelp import conf
 from superhelp.gen_utils import layout_comment as layout
+from superhelp.messages import MessageLevelStrs
 
 def _includes_print(block_el):
     """
@@ -22,7 +23,7 @@ def _includes_print(block_el):
     return False
 
 @multi_block_help()
-def print_overview(block_specs, *, repeat=False, **_kwargs):
+def print_overview(block_specs, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Show some of the surprise features of the humble print function.
     """
@@ -70,9 +71,7 @@ def print_overview(block_specs, *, repeat=False, **_kwargs):
     else:
         brief_details = ''
         main_details = ''
-
-    message = {
-        conf.Level.BRIEF: title + brief_details,
-        conf.Level.MAIN: title + main_details,
-    }
-    return message
+    brief = title + brief_details
+    main = title + main_details
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs

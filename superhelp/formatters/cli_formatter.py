@@ -5,9 +5,8 @@ from superhelp import conf
 from superhelp.conf import Level, Theme
 from superhelp.formatters.cli_extras import md2cli
 from superhelp.formatters.cli_extras.cli_colour import set_global_colours
-from superhelp.gen_utils import (get_code_desc, get_intro,
-    get_line_numbered_snippet, layout_comment as layout)
-
+from superhelp.gen_utils import get_code_desc, get_intro, get_line_numbered_snippet, layout_comment as layout
+from superhelp.messages import MessageSpec
 """
 Note - displays properly in the terminal but not necessarily in other output e.g. Eclipse console.
 
@@ -20,15 +19,19 @@ TERMINAL_WIDTH = 80
 
 MDV_CODE_BOUNDARY = "```"
 
-def get_message(message_dets, detail_level: Level):
-    message = dedent(message_dets.message[detail_level])
-    if detail_level == Level.EXTRA:
-        message = dedent(message_dets.message[Level.MAIN]) + message
-    message = dedent(message)
+def get_message(message_spec: MessageSpec, detail_level: Level) -> str:
+    message_level_strs = message_spec.message_level_strs
+    if detail_level == Level.BRIEF:
+        message = dedent(message_level_strs.brief)
+    elif detail_level == Level.MAIN:
+        message = dedent(message_level_strs.main)
+    elif detail_level == Level.EXTRA:
+        message = dedent(message_level_strs.main + message_level_strs.extra)
+    else:
+        raise ValueError(f"Unexpected {detail_level = }")
     message = (message
         .replace(f"    {conf.PYTHON_CODE_START}", MDV_CODE_BOUNDARY)
-        .replace(f"\n    {conf.PYTHON_CODE_END}", MDV_CODE_BOUNDARY)
-    )
+        .replace(f"\n    {conf.PYTHON_CODE_END}", MDV_CODE_BOUNDARY))
     message = md2cli.main(md=message.replace('`', ''))  ## They create problems in formatting
     return message
 
@@ -76,8 +79,7 @@ def get_formatted_help(code: str, code_file_path: Path, messages_dets, *,
         )),
     ]
     overall_messages_dets, block_messages_dets = messages_dets
-    display_snippet = _need_snippet_displayed(
-        overall_messages_dets, block_messages_dets, multi_block=multi_block)
+    display_snippet = _need_snippet_displayed(overall_messages_dets, block_messages_dets, multi_block=multi_block)
     if display_snippet:
         line_numbered_snippet = get_line_numbered_snippet(code)
         code_desc = get_code_desc(code_file_path)
@@ -86,8 +88,8 @@ def get_formatted_help(code: str, code_file_path: Path, messages_dets, *,
             f"\n{MDV_CODE_BOUNDARY}\n"
             + line_numbered_snippet
             + f"\n{MDV_CODE_BOUNDARY}")))
-    for message_dets in overall_messages_dets:
-        message = get_message(message_dets, detail_level)
+    for message_spec in overall_messages_dets:
+        message = get_message(message_spec, detail_level)
         text.append(message)
     block_messages_dets.sort(key=lambda nt: (nt.first_line_no, nt.warning))
     prev_line_no = None

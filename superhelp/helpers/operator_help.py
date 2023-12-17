@@ -1,6 +1,7 @@
 from superhelp import ast_funcs, conf
 from superhelp.gen_utils import layout_comment as layout
 from superhelp.helpers import indiv_block_help
+from superhelp.messages import MessageLevelStrs
 
 op_name2symbol = {
     'Add': '+',
@@ -18,7 +19,7 @@ op_name2symbol = {
 }
 
 @indiv_block_help()
-def compound_operator_possible(block_spec, *, repeat=False, **_kwargs):
+def compound_operator_possible(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look for code like x = x + 1 and suggest the compound operator option.
     """
@@ -118,9 +119,7 @@ def compound_operator_possible(block_spec, *, repeat=False, **_kwargs):
         )
     else:
         compound_operators = ''
-
-    message = {
-        conf.Level.BRIEF: title + brief_msg,
-        conf.Level.MAIN: title + brief_msg + compound_operators,
-    }
-    return message
+    brief = title + brief_msg
+    main = title + brief_msg + compound_operators
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs

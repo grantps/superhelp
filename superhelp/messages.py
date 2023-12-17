@@ -6,34 +6,43 @@ from lxml.etree import _Element
 from superhelp.ast_funcs import general as ast_gen
 from superhelp import conf, helpers
 from superhelp.gen_utils import get_docstring_start, get_tree, layout_comment as layout, xml_from_tree
-
+from superhelp.helpers import HelperSpec
 @dataclass
-class BlockDets:
+class BlockSpec:
+    """
+    Top-level code block with details
+    """
     element: _Element
     pre_block_code_str: str  ## The code up until the line we are interested in needs to be run - it may depend on names from earlier
     block_code_str: str
     first_line_no: int
 
 @dataclass
-class MessageDets:
+class MessageLevelStrs:
+    """
+    The actual text per level (brief, main, extra)
+    """
+    brief: str
+    main: str
+    extra: str = ''
+
+@dataclass
+class MessageSpec:
     """
     All the bits and pieces that might be needed to craft a message
     """
     code_str: str  ## The block of code the message relates to
-    message: str
+    message_level_strs: MessageLevelStrs
     first_line_no: int
     warning: bool
     source: str  ## A unique identifier of the source of message - useful for auditing / testing
 
-def get_block_specs(snippet, snippet_block_els):
+def get_block_specs(snippet: str, snippet_block_els) -> list[BlockSpec]:
     """
     Returning a list of all the details needed to process a line
-    (namely BlockDets named tuples)
+    (namely BlockSpec dataclasses)
 
     Note - lines in the XML sit immediately under body.
-
-    :return: list of BlockDets named tuples
-    :rtype: list
     """
     snippet_lines = snippet.split('\n')
     block_specs = []
@@ -41,72 +50,45 @@ def get_block_specs(snippet, snippet_block_els):
         first_line_no, last_line_no, _el_lines_n = ast_gen.get_el_lines_dets(snippet_block_el)
         block_code_str = '\n'.join(snippet_lines[first_line_no - 1: last_line_no]).strip()
         pre_block_code_str = '\n'.join(snippet_lines[0: first_line_no - 1]).strip() + '\n'
-        block_specs.append(BlockDets(snippet_block_el, pre_block_code_str, block_code_str, first_line_no))
+        block_specs.append(BlockSpec(snippet_block_el, pre_block_code_str, block_code_str, first_line_no))
     return block_specs
 
-def complete_message(message, *, source):
+def get_message_dets_from_input(helper_spec: HelperSpec, *, helper_input, code_str: str, xml: str, first_line_no,
+        execute_code=True, repeat=False) -> MessageSpec | None:  ## TODO:
     """
-    Ensure a complete message with all levels is available.
-
-    :param dict message: a dict with as many as three levels
-     e.g. conf.Level.BRIEF, MAIN, EXTRA.
-    :param str source: usually helper name but might be the system sending the
-     message e.g. if no advice given or a bug happened.
-    :return: fixed version of original dict with all levels populated
-    :rtype: dict
-    """
-    try:
-        message_keys = message.keys()
-    except TypeError:
-        raise TypeError(f"message had no keys - message: {message} "
-            f"(type {type(message).__name__})")
-    if conf.Level.BRIEF not in message_keys:
-        raise Exception(f"'{source}' gave a message lacking the mandatory "
-            f"'{conf.Level.BRIEF}' level")
-    if conf.Level.MAIN not in message_keys:
-        message[conf.Level.MAIN] = message[conf.Level.BRIEF]
-    if conf.Level.EXTRA not in message_keys:
-        message[conf.Level.EXTRA] = ''
-    return message
-
-def get_message_dets_from_input(helper_spec, *, helper_input, code_str, first_line_no, execute_code=True, repeat=False):
-    """
-    :param namedtuple helper_spec: details of the helper e.g. name, function,
-     etc depending on type of HelperDets (e.g. FiltHelperDets)
-    :param obj helper_input: the main input to the helper function
-     e.g. block_spec, block_specs, or snippet_str.
+    :param helper_spec: details of the helper e.g. name, function,
+     etc depending on type of HelperSpec (e.g. IndivBlockHelperSpec)
+    :param helper_input: the main input to the helper function e.g. block_spec, block_specs, or snippet_str.
     """
     name = helper_spec.helper_name
     docstring = helper_spec.helper.__doc__
     if not docstring:
         raise Exception(f'Helper "{name}" lacks a docstring - add one!')
     try:
-        message = helper_spec.helper(helper_input, execute_code=execute_code, repeat=repeat)
+        message_level_strs = helper_spec.helper(helper_input, xml=xml, execute_code=execute_code, repeat=repeat)  ## some helpers respond to execute_code or xml and some don't so need to mop up **_kwargs
     except Exception as e:
         brief_name = '.'.join(name.split('.')[-2:])  ## last two parts only
-        message = {
-            conf.Level.BRIEF: (
-                layout(f"""\
-                    ### Helper "`{brief_name}`" unable to run
+        brief = (
+            layout(f"""\
+                ### Helper "`{brief_name}`" unable to run
 
-                    Helper {brief_name} unable to run. Helper description:
-                    """)
-                +  ## show first line of docstring (subsequent lines might have more technical, internally-oriented comments)
-                layout(get_docstring_start(docstring) + '\n')
-                +
-                layout(str(e))
-            )
-        }
+                Helper {brief_name} unable to run. Helper description:
+                """)
+            +  ## show first line of docstring (subsequent lines might have more technical, internally-oriented comments)
+            layout(get_docstring_start(docstring) + '\n')
+            +
+            layout(str(e))
+        )
+        message_level_strs = MessageLevelStrs(brief, brief)
         source = conf.SYSTEM_MESSAGE
         warning = True
     else:
         source = name
         warning = helper_spec.warning
-        if message is None:
+        if message_level_strs is None:
             return None
-    message = complete_message(message, source=source)
-    message_dets = MessageDets(code_str, message, first_line_no, warning, source=source)
-    return message_dets
+    message_spec = MessageSpec(code_str, message_level_strs, first_line_no, warning, source=source)
+    return message_spec
 
 def _get_ancestor_block_element(element):
     """
@@ -116,12 +98,9 @@ def _get_ancestor_block_element(element):
     ancestor_block_element = ancestor_elements[2]  ## [0] will be Module, 1 is body, and blocks are the children of body
     return ancestor_block_element
 
-def _get_filtered_block_specs(helper_spec, xml, block_specs):
+def _get_filtered_block_specs(helper_spec, xml, block_specs) -> list[BlockSpec]:
     """
     Identify source block elements according to xpath supplied. Then filter block_specs accordingly.
-
-    :return: filtered_block_specs
-    :rtype: list
     """
     matching_elements = xml.xpath(helper_spec.xpath)
     if matching_elements:
@@ -161,7 +140,7 @@ def get_block_level_messages_dets(block_specs, xml: str, *, warnings_only=False,
         for block_spec in block_specs2use:
             repeat = (helper_spec.helper_name in repeat_set)
             message_dets = get_message_dets_from_input(helper_spec,
-                helper_input=block_spec, code_str=block_spec.block_code_str,
+                helper_input=block_spec, code_str=block_spec.block_code_str, xml=xml,
                 first_line_no=block_spec.first_line_no,
                 execute_code=execute_code, repeat=repeat)
             if message_dets:
@@ -175,6 +154,8 @@ def get_overall_snippet_messages_dets(snippet, block_specs, *,
     Returns messages which apply to snippet as a whole, not just specific blocks.
     E.g. looking at every block to look for opportunities to unpack. Or reporting on linting results.
     """
+    tree = get_tree(snippet)
+    xml = xml_from_tree(tree)
     messages_dets = []
     all_helpers_dets = helpers.MULTI_BLOCK_HELPERS + helpers.SNIPPET_STR_HELPERS
     for helper_spec in all_helpers_dets:
@@ -189,7 +170,7 @@ def get_overall_snippet_messages_dets(snippet, block_specs, *,
             raise Exception(f"Unexpected input_type: '{helper_spec.input_type}'")
         repeat = (helper_spec.helper_name in repeat_set)
         message_dets = get_message_dets_from_input(helper_spec,
-            helper_input=helper_input, code_str=snippet, first_line_no=None,
+            helper_input=helper_input, code_str=snippet, xml=xml, first_line_no=None,
             execute_code=execute_code, repeat=repeat)
         if message_dets:
             repeat_set.add(helper_spec.helper_name)
@@ -217,26 +198,17 @@ def get_separated_messages_dets(snippet, snippet_block_els, xml, *,
     :rtype: tuple (or None)
     """
     block_specs = get_block_specs(snippet, snippet_block_els)
-    overall_snippet_messages_dets = get_overall_snippet_messages_dets(
-        snippet, block_specs,
-        warnings_only=warnings_only, execute_code=execute_code,
-        repeat_set=repeat_set)
-    block_level_messages_dets = get_block_level_messages_dets(
-        block_specs, xml,
-        warnings_only=warnings_only, execute_code=execute_code,
-        repeat_set=repeat_set)
+    overall_snippet_messages_dets = get_overall_snippet_messages_dets(snippet, block_specs,
+        warnings_only=warnings_only, execute_code=execute_code, repeat_set=repeat_set)
+    block_level_messages_dets = get_block_level_messages_dets(block_specs, xml,
+        warnings_only=warnings_only, execute_code=execute_code, repeat_set=repeat_set)
     for messages_dets in [overall_snippet_messages_dets, block_level_messages_dets]:
         if None in messages_dets:
-            raise Exception("messages_dets in meant to be a list of "
-                "MessageDets named tuples yet a None item was found")
+            raise Exception("messages_dets is meant to be a list of MessageDets dataclasses yet a None item was found")
     if not (overall_snippet_messages_dets or block_level_messages_dets):
-        message = {
-            conf.Level.BRIEF: conf.NO_ADVICE_MESSAGE,
-        }
-        message = complete_message(message, source=conf.SYSTEM_MESSAGE)
+        message_level_strs = MessageLevelStrs(conf.NO_ADVICE_MESSAGE, conf.NO_ADVICE_MESSAGE)
         overall_snippet_messages_dets = [
-            MessageDets(snippet, message,
-                first_line_no=None, warning=False, source=conf.SYSTEM_MESSAGE)]
+            MessageSpec(snippet, message_level_strs, first_line_no=None, warning=False, source=conf.SYSTEM_MESSAGE)]
     return overall_snippet_messages_dets, block_level_messages_dets
 
 def get_snippet_dets(snippet, *, warnings_only=False, execute_code=True, repeat_set=None):
@@ -264,14 +236,11 @@ def get_system_messages_dets(snippet, brief_message, *, warning=True):
     standard format the displayers expect means they can operate in their usual
     messages_dets consuming ways :-).
     """
-    message = {
-        conf.Level.BRIEF: brief_message,
-    }
-    message = complete_message(message, source=conf.SYSTEM_MESSAGE)
-    overall_messages_dets = [
-        MessageDets(snippet, message, first_line_no=None, warning=warning, source=conf.SYSTEM_MESSAGE)]
+    message_level_strs = MessageLevelStrs(brief_message, brief_message)
+    overall_messages_spec = [
+        MessageSpec(snippet, message_level_strs, first_line_no=None, warning=warning, source=conf.SYSTEM_MESSAGE)]
     block_messages_dets = []
-    messages_dets = (overall_messages_dets, block_messages_dets)
+    messages_dets = (overall_messages_spec, block_messages_dets)
     return messages_dets
 
 def get_error_messages_dets(e, snippet):

@@ -2,9 +2,10 @@ from superhelp import conf
 from superhelp.ast_funcs import num_str_from_parent_el
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
 from superhelp.helpers import indiv_block_help
+from superhelp.messages import MessageLevelStrs
 
 @indiv_block_help(warning=True)
-def magic_number(block_spec, *, repeat=False, **_kwargs):
+def magic_number(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Warn about magic numbers - suggest "constants" or Enums.
     """
@@ -114,10 +115,7 @@ def magic_number(block_spec, *, repeat=False, **_kwargs):
     else:
         main_explanation = ''
         extra = ''
-
-    message = {
-        conf.Level.BRIEF: title + brief_comment,
-        conf.Level.MAIN: title + brief_comment + main_explanation,
-        conf.Level.EXTRA: extra,
-    }
-    return message
+    brief = title + brief_comment
+    main = title + brief_comment + main_explanation
+    message_level_strs = MessageLevelStrs(brief, main, extra)
+    return message_level_strs

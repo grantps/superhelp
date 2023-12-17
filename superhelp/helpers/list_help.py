@@ -1,6 +1,7 @@
 from superhelp.helpers import indiv_block_help
 from superhelp import conf, gen_utils
 from superhelp.gen_utils import get_collections_dets, layout_comment as layout
+from superhelp.messages import MessageLevelStrs
 
 ASSIGN_LIST_XPATH = (
     'descendant-or-self::Assign/value/Call/func/Name '
@@ -143,7 +144,7 @@ def truncate_list(items):
 ## only interested in lists when being assigned as a value
 ## (e.g. <body><Assign><value><List> so we're looking for List under value only)
 @indiv_block_help(xpath=ASSIGN_LIST_XPATH)
-def list_overview(block_spec, *, repeat=False, execute_code=True, **_kwargs):
+def list_overview(block_spec, *, repeat=False, execute_code=True, **_kwargs) -> MessageLevelStrs | None:
     """
     General overview of list taking content details into account.
     """
@@ -203,16 +204,13 @@ def list_overview(block_spec, *, repeat=False, execute_code=True, **_kwargs):
     else:
         brief_overview = ''
         detailed_list_comment = ''
-
-    message = {
-        conf.Level.BRIEF: title + oversized_msg + summary + brief_overview,
-        conf.Level.MAIN: (
-            title + oversized_msg + summary + detailed_list_comment),
-    }
-    return message
+    brief = title + oversized_msg + summary + brief_overview
+    main = title + oversized_msg + summary + detailed_list_comment
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs
 
 @indiv_block_help(xpath=ASSIGN_LIST_XPATH, warning=True)
-def mixed_list_types(block_spec, *, repeat=False, execute_code=True, **_kwargs):  # @UnusedVariable
+def mixed_list_types(block_spec, *, repeat=False, execute_code=True, **_kwargs) -> MessageLevelStrs | None:
     """
     Warns about lists containing a mix of data types.
     """
@@ -250,9 +248,7 @@ def mixed_list_types(block_spec, *, repeat=False, execute_code=True, **_kwargs):
 
     The data types found were: {", ".join(item_type_nice_names)}.
     """)
-
-    message = {
-        conf.Level.BRIEF: title + oversized_msg + mixed_warning,
-        conf.Level.MAIN: title + oversized_msg + mixed_warning + mixed_dets,
-    }
-    return message
+    brief = title + oversized_msg + mixed_warning
+    main = title + oversized_msg + mixed_warning + mixed_dets
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs

@@ -1,6 +1,7 @@
 from superhelp.helpers import multi_block_help
 from superhelp import ast_funcs, conf
 from superhelp.gen_utils import layout_comment as layout
+from superhelp.messages import MessageLevelStrs
 
 def imported_re(block_el):
     ## straight import
@@ -65,7 +66,7 @@ def used_compile(block_el):
     pass
 
 @multi_block_help()
-def verbose_option(block_specs, *, repeat=False, **_kwargs):
+def verbose_option(block_specs, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Check for use of regex without verbose mode and introduce the idea.
     """
@@ -156,10 +157,7 @@ def verbose_option(block_specs, *, repeat=False, **_kwargs):
         brief_explain = ''
         longer_explain = ''
         extra = ''
-
-    message = {
-        conf.Level.BRIEF: title + brief_explain,
-        conf.Level.MAIN: title + longer_explain,
-        conf.Level.EXTRA: extra,
-    }
-    return message
+    brief = title + brief_explain
+    main = title + longer_explain
+    message_level_strs = MessageLevelStrs(brief, main, extra)
+    return message_level_strs

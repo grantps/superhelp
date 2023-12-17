@@ -7,6 +7,7 @@ import sys
 from superhelp.helpers import snippet_str_help
 from superhelp import conf, lint_conf
 from superhelp.gen_utils import get_nice_str_list, get_os_platform, layout_comment as layout, make_open_tmp_file
+from superhelp.messages import MessageLevelStrs
 
 prog = re.compile(lint_conf.LINT_PATTERN, flags=re.VERBOSE)  # @UndefinedVariable
 
@@ -255,7 +256,7 @@ def get_lint_messages_by_level(raw_lint_feedback_str):
     return lint_msgs
 
 @snippet_str_help(warning=True)
-def lint_snippet(snippet, *, repeat=False, **_kwargs):
+def lint_snippet(snippet, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look for "lint" as defined by flake8 linter and share the results.
 
@@ -313,10 +314,8 @@ def lint_snippet(snippet, *, repeat=False, **_kwargs):
     """)
     brief_msg, main_msg, extra_msg = get_lint_messages_by_level(
         raw_lint_feedback_str=res.stdout)
-
-    message = {
-        conf.Level.BRIEF: title + findings + brief_msg,
-        conf.Level.MAIN: title + linting + findings + main_msg,
-        conf.Level.EXTRA: obviousness + extra_msg,
-    }
-    return message
+    brief = title + findings + brief_msg
+    main = title + linting + findings + main_msg
+    extra = obviousness + extra_msg
+    message_level_strs = MessageLevelStrs(brief, main, extra)
+    return message_level_strs

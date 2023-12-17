@@ -4,11 +4,12 @@ from superhelp.helpers import (
 from superhelp.ast_funcs.general import get_el_lines_dets
 from superhelp import conf
 from superhelp.gen_utils import layout_comment as layout
+from superhelp.messages import MessageLevelStrs
 
 FOR_XPATH = 'descendant-or-self::For'
 
 @indiv_block_help(xpath=FOR_XPATH)
-def comprehension_option(block_spec, *, repeat=False, **_kwargs):
+def comprehension_option(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Provide overview of for loop to see if simple enough to be a possible
     candidate for a comprehension.
@@ -56,13 +57,10 @@ def comprehension_option(block_spec, *, repeat=False, **_kwargs):
         """)
     else:
         option = ''
-
-    message = {
-        conf.Level.BRIEF: title + option,
-        conf.Level.MAIN: (title + option + get_general_comprehension_msg()
-            + '\n\n' + comp_comment),
-    }
-    return message
+    brief = title + option
+    main = title + option + get_general_comprehension_msg() + '\n\n' + comp_comment
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs
 
 def get_incremental_iteration_dets(for_el):
     """
@@ -130,7 +128,7 @@ def get_incremental_iteration_dets(for_el):
     return index_name, iterable_name
 
 @indiv_block_help(xpath=FOR_XPATH)
-def for_index_iteration(block_spec, *, repeat=False, **_kwargs):
+def for_index_iteration(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look to see if an opportunity for simple iteration available as more
     pythonic alternative to incremental indexing.
@@ -186,14 +184,13 @@ def for_index_iteration(block_spec, *, repeat=False, **_kwargs):
         )
     else:
         examples = ''
-
-    message = {
-        conf.Level.BRIEF: summary + examples,
-    }
-    return message
+    brief = summary + examples
+    main = summary + examples
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs
 
 @indiv_block_help(xpath=FOR_XPATH, warning=True)
-def for_else(block_spec, *, repeat=False, **_kwargs):
+def for_else(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look for the for-else construct and warn about its safe usage.
     """
@@ -262,16 +259,13 @@ def for_else(block_spec, *, repeat=False, **_kwargs):
         problem = ''
         solution = ''
         extra_msg = ''
-
-    message = {
-        conf.Level.BRIEF: title + problem,
-        conf.Level.MAIN: title + problem + solution,
-        conf.Level.EXTRA: extra_msg,
-    }
-    return message
+    brief = title + problem
+    main = title + problem + solution
+    message_level_strs = MessageLevelStrs(brief, main, extra_msg)
+    return message_level_strs
 
 @indiv_block_help(xpath=FOR_XPATH)
-def nested_fors(block_spec, *, repeat=False, **_kwargs):
+def nested_fors(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look to see if an opportunity for using itertools.product instead of nested
     iteration.
@@ -325,9 +319,7 @@ def nested_fors(block_spec, *, repeat=False, **_kwargs):
     else:
         demo = ''
         pros = ''
-
-    message = {
-        conf.Level.BRIEF: summary + demo,
-        conf.Level.MAIN: summary + demo + pros,
-    }
-    return message
+    brief = summary + demo
+    main = summary + demo + pros
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs

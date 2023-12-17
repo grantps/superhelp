@@ -2,6 +2,7 @@ from superhelp.helpers import indiv_block_help
 from superhelp import conf
 from superhelp.ast_funcs import general as ast_gen
 from superhelp.gen_utils import layout_comment as layout
+from superhelp.messages import MessageLevelStrs
 
 FOR_XPATH = 'descendant-or-self::For'
 WHILE_XPATH = 'descendant-or-self::While'
@@ -31,7 +32,7 @@ def has_long_block(block_el, xpath):
     return long_block
 
 @indiv_block_help(xpath=NESTING_XPATH, warning=True)
-def bloated_nested_block(block_spec, *, repeat=False, **_kwargs):
+def bloated_nested_block(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look for long indented blocks under conditionals, inside loops etc that are
     candidates for separating into functions to simplify the narrative of the
@@ -165,12 +166,7 @@ def bloated_nested_block(block_spec, *, repeat=False, **_kwargs):
         move_to_func = ''
         move_to_func_demo = ''
         human = ''
-
-    message = {
-        conf.Level.BRIEF: (title + summary + brief_strategy + short_circuit
-            + move_to_func),
-        conf.Level.MAIN: (title + summary + brief_strategy + short_circuit
-            + short_circuit_demo + move_to_func + move_to_func_demo),
-        conf.Level.EXTRA: human,
-    }
-    return message
+    brief = title + summary + brief_strategy + short_circuit + move_to_func
+    main = title + summary + brief_strategy + short_circuit + short_circuit_demo + move_to_func + move_to_func_demo
+    message_level_strs = MessageLevelStrs(brief, main, human)
+    return message_level_strs

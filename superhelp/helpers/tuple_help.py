@@ -1,6 +1,7 @@
 from superhelp.helpers import indiv_block_help
 from superhelp import conf, gen_utils
 from superhelp.gen_utils import layout_comment as layout
+from superhelp.messages import MessageLevelStrs
 
 def truncate_tuple(items):
     return tuple(items[: conf.MAX_ITEMS_EVALUATED])
@@ -15,7 +16,7 @@ def get_tup_els(block_el):
     return tup_els
 
 @indiv_block_help(xpath=ASSIGN_TUPLE_XPATH)
-def tuple_overview(block_spec, *, repeat=False, execute_code=True, **_kwargs):
+def tuple_overview(block_spec, *, repeat=False, execute_code=True, **_kwargs) -> MessageLevelStrs | None:
     """
     Explain usage of tuples.
     """
@@ -196,12 +197,7 @@ def tuple_overview(block_spec, *, repeat=False, execute_code=True, **_kwargs):
         ordered = ''
         longer_immutability = ''
         extra = ''
-
-    message = {
-        conf.Level.BRIEF: (title + oversized_msg + summary + quick_immutability
-            + why_immutability + ordered),
-        conf.Level.MAIN: (title + oversized_msg + summary + pre_immutability
-            + why_immutability + longer_immutability + ordered),
-        conf.Level.EXTRA: extra,
-    }
-    return message
+    brief = title + oversized_msg + summary + quick_immutability + why_immutability + ordered
+    main = title + oversized_msg + summary + pre_immutability + why_immutability + longer_immutability + ordered
+    message_level_strs = MessageLevelStrs(brief, main, extra)
+    return message_level_strs

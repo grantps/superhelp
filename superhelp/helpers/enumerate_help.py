@@ -1,6 +1,7 @@
 from superhelp.helpers import multi_block_help
 from superhelp import ast_funcs, conf
 from superhelp.gen_utils import layout_comment as layout
+from superhelp.messages import MessageLevelStrs
 
 def get_var_initialised(el):
     """
@@ -102,7 +103,7 @@ def get_manual_incrementing_var(for_el):
         return None
 
 @multi_block_help()
-def manual_incrementing(block_specs, *, repeat=False, **_kwargs):
+def manual_incrementing(block_specs, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look for manual handling of incrementing inside for loops.
     """
@@ -171,9 +172,7 @@ def manual_incrementing(block_specs, *, repeat=False, **_kwargs):
         )
     else:
         demo = ''
-
-    message = {
-        conf.Level.BRIEF: summary,
-        conf.Level.MAIN: summary + demo,
-    }
-    return message
+    brief = summary
+    main = summary + demo
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs

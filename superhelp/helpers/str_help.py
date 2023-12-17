@@ -2,6 +2,7 @@ from superhelp.helpers import indiv_block_help
 from superhelp import ast_funcs
 from superhelp import code_execution, conf, name_utils
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
+from superhelp.messages import MessageLevelStrs
 
 F_STR = 'f-string'
 STR_FORMAT_FUNC = 'str_format'
@@ -25,8 +26,7 @@ def get_str_from_ast(str_el):
 F_STR_REMINDER = False
 
 @indiv_block_help(xpath=ASSIGN_VALUE_XPATH)
-def assigned_str_overview(block_spec, *,
-        execute_code=True, repeat=False, **_kwargs):
+def assigned_str_overview(block_spec, *, execute_code=True, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Provide overview of assigned strings e.g. name = 'Hamish'.
     """
@@ -126,16 +126,13 @@ def assigned_str_overview(block_spec, *,
         upper = ''
         longer_demo = ''
         more = ''
+    brief = title + summary + cool + short_demo + upper
+    main = title + summary + cool + short_demo + upper + longer_demo
+    extra = more
+    message_level_strs = MessageLevelStrs(brief, main, extra)
+    return message_level_strs
 
-    message = {
-        conf.Level.BRIEF: title + summary + cool + short_demo + upper,
-        conf.Level.MAIN: (
-            title + summary + cool + short_demo + upper + longer_demo),
-        conf.Level.EXTRA: more,
-    }
-    return message
-
-def str_combination(combination_type, str_els, *, repeat=False):
+def str_combination(combination_type, str_els, *, repeat=False) -> MessageLevelStrs | None:
     global F_STR_REMINDER
     combination_type2comment = {
         F_STR: "f-string interpolation",
@@ -215,24 +212,21 @@ def str_combination(combination_type, str_els, *, repeat=False):
     else:
         brief_fstring_msg = ''
         longer_fstring_msg = ''
-
-    message = {
-        conf.Level.BRIEF: title + how_combined + brief_fstring_msg,
-        conf.Level.MAIN: title + how_combined + longer_fstring_msg,
-    }
-    return message
+    brief = title + how_combined + brief_fstring_msg
+    main = title + how_combined + longer_fstring_msg
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs
 
 @indiv_block_help(xpath=JOINED_STR_XPATH)
-def f_str_interpolation(block_spec, *, repeat=False, **_kwargs):
+def f_str_interpolation(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Examine f-string interpolation.
     """
     joined_els = block_spec.element.xpath(JOINED_STR_XPATH)
-    return str_combination(F_STR,
-        joined_els, repeat=repeat)
+    return str_combination(F_STR, joined_els, repeat=repeat)
 
 @indiv_block_help(xpath=FUNC_ATTR_XPATH)
-def format_str_interpolation(block_spec, *, repeat=False, **_kwargs):
+def format_str_interpolation(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look at use of .format() to interpolate into strings.
     """
@@ -246,11 +240,10 @@ def format_str_interpolation(block_spec, *, repeat=False, **_kwargs):
             format_funcs.append(func_attr_el)
     if not format_funcs:
         return None
-    return str_combination(STR_FORMAT_FUNC,
-        format_funcs, repeat=repeat)
+    return str_combination(STR_FORMAT_FUNC, format_funcs, repeat=repeat)
 
 @indiv_block_help()
-def sprintf(block_spec, *, repeat=False, **_kwargs):
+def sprintf(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look at use of sprintf for string interpolation
     e.g. greeting = "Hi %s" % name
@@ -258,24 +251,22 @@ def sprintf(block_spec, *, repeat=False, **_kwargs):
     sprintf_els = block_spec.element.xpath(SPRINTF_XPATH)
     if not sprintf_els:
         return None
-    return str_combination(SPRINTF,
-        sprintf_els, repeat=repeat)
+    return str_combination(SPRINTF, sprintf_els, repeat=repeat)
 
 @indiv_block_help()
-def string_addition(block_spec, *, repeat=False, **_kwargs):
+def string_addition(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Advise on string combination using +.
     Explain how f-string alternative works.
     """
-    str_els_being_combined = ast_funcs.get_str_els_being_combined(
-        block_spec.element)
+    str_els_being_combined = ast_funcs.get_str_els_being_combined(block_spec.element)
     if not str_els_being_combined:
         return None
     has_string_addition = False
     str_addition_els = []
     for str_el in str_els_being_combined:
         ## Does their immediate ancestor BinOp have op of Add?
-        ## Don't know if there any alternatives but let's be sure
+        ## Don't know if there are any alternatives but let's be sure
         ## Ordered set of nodes, from parent to ancestor? https://stackoverflow.com/a/15645846
         bin_op_el = str_el.xpath('ancestor-or-self::BinOp')[-1]
         ## was it an Add op
@@ -285,6 +276,5 @@ def string_addition(block_spec, *, repeat=False, **_kwargs):
             has_string_addition = True
     if not has_string_addition:
         return None
-    addition_message = str_combination(STR_ADDITION,
-        str_addition_els, repeat=repeat)
+    addition_message = str_combination(STR_ADDITION, str_addition_els, repeat=repeat)
     return addition_message

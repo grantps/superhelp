@@ -3,7 +3,7 @@ from collections import defaultdict
 from superhelp.helpers import indiv_block_help
 from superhelp import ast_funcs, code_execution, conf, name_utils
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
-from superhelp.utils import inspect_el  # @UnusedImport
+from superhelp.messages import MessageLevelStrs
 
 ASSIGN_VAL_XPATH = 'descendant-or-self::Assign/value'
 
@@ -16,7 +16,7 @@ def get_num_from_ast(num_el):
     return val
 
 @indiv_block_help(xpath=ASSIGN_VAL_XPATH)
-def num_overview(block_spec, *, execute_code=True, repeat=False, **_kwargs):
+def num_overview(block_spec, *, execute_code=True, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Get general advice about assigned numbers e.g.
     var = 123
@@ -112,9 +112,7 @@ def num_overview(block_spec, *, execute_code=True, repeat=False, **_kwargs):
     else:
         specifics = ''
         floats = ''
-
-    message = {
-        conf.Level.BRIEF: title + names_msg + specifics,
-        conf.Level.EXTRA: floats,
-    }
-    return message
+    brief = title + names_msg + specifics
+    main = title + names_msg + specifics
+    message_level_strs = MessageLevelStrs(brief, main, floats)
+    return message_level_strs

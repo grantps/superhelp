@@ -6,12 +6,13 @@ from collections import defaultdict
 from superhelp.helpers import indiv_block_help
 from superhelp import conf
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
+from superhelp.messages import MessageLevelStrs
 
 ## a class without a decorator (can't be a dataclass then) OR has a different decorator from that used by dataclasses
 CLASS_XPATH = ("descendant-or-self::ClassDef[not(decorator_list/Name)] | descendant-or-self::ClassDef[decorator_list/Name[@id!='dataclass']]")
 
 @indiv_block_help(xpath=CLASS_XPATH, warning=True)
-def getters_setters(block_spec, *, repeat=False, **_kwargs):
+def getters_setters(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look for getters and setters and suggest @property if appropriate.
     """
@@ -177,15 +178,11 @@ def getters_setters(block_spec, *, repeat=False, **_kwargs):
     main_msg = (title + simple_class_msg + properties_option
         + why_getters_etc + comparison)
     extra_msg = deleter
-    message = {
-        conf.Level.BRIEF: brief_msg,
-        conf.Level.MAIN: main_msg,
-        conf.Level.EXTRA: extra_msg,
-    }
-    return message
+    message_level_strs = MessageLevelStrs(brief_msg, main_msg,extra_msg)
+    return message_level_strs
 
 @indiv_block_help(xpath=CLASS_XPATH, warning=True)
-def selfless_methods(block_spec, *, repeat=False, **_kwargs):
+def selfless_methods(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look for class methods that don't use self as candidates for @staticmethod
     decorator. Note - not worried about detecting sophisticated cases with
@@ -268,19 +265,14 @@ def selfless_methods(block_spec, *, repeat=False, **_kwargs):
         staticmethod_msg = ''
         staticmethod_demo = ''
         call_it_self = ''
-
     brief_msg = title + simple_class_msg + staticmethod_msg
     main_msg = title + simple_class_msg + staticmethod_msg + staticmethod_demo
     extra_msg = call_it_self
-    message = {
-        conf.Level.BRIEF: brief_msg,
-        conf.Level.MAIN: main_msg,
-        conf.Level.EXTRA: extra_msg,
-    }
-    return message
+    message_level_strs = MessageLevelStrs(brief_msg, main_msg,extra_msg)
+    return message_level_strs
 
 @indiv_block_help(xpath=CLASS_XPATH, warning=True)
-def one_method_classes(block_spec, *, repeat=False, **_kwargs):
+def one_method_classes(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look for classes with only one method (other than __init__) and suggest a
     simple function as an alternative.
@@ -302,7 +294,6 @@ def one_method_classes(block_spec, *, repeat=False, **_kwargs):
             classes_sole_methods.append((class_name, sole_method_name))
     if not classes_sole_methods:
         return None
-
     multi_sole = len(classes_sole_methods) > 1
     class_plural = 'es' if multi_sole else ''
     class_have_has = 'have' if multi_sole else 'has'
@@ -379,11 +370,8 @@ def one_method_classes(block_spec, *, repeat=False, **_kwargs):
         not_just_oo = ''
         function_option = ''
         function_demo = ''
-
-    message = {
-        conf.Level.BRIEF: summary + n_methods_msg + function_option,
-        conf.Level.MAIN: (
-            summary + n_methods_msg + function_option + function_demo),
-        conf.Level.EXTRA: not_just_oo,
-    }
-    return message
+    brief = summary + n_methods_msg + function_option
+    main = summary + n_methods_msg + function_option + function_demo
+    extra = not_just_oo
+    message_level_strs = MessageLevelStrs(brief, main, extra)
+    return message_level_strs

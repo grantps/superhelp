@@ -13,13 +13,27 @@ automatically processed into lists of available help in SuperHELP.
 
 So which help decorator to use?
 
-Is the advice for the snippet as a whole? If so, are you processing the raw snippet string
-or the XML code block elements?
-If processing the snippet string e.g. passing into flake8 linter use snippet_str_help;
-if processing XML use collected_blocks_help.
+Is the advice for the snippet as a whole? Perhaps commenting on the number of usages
+and focusing some help on the first instance.
 
-If looking at individual code blocks, use indiv_block_help.
-Simple really :-)
+General comments will appear before the block-by-block comments.
+
+    If so, are you processing the raw snippet string or the XML code block elements?
+    If processing the snippet string e.g. passing into flake8 linter use snippet_str_help;
+    if processing XML use multi_block_help.
+
+If looking at individual code blocks and wanting to comment on each block individually use indiv_block_help.
+For example:
+Comments on block 1:
+It is a list with four items namely ....
+AND here are some general comments on lists;
+Comments on block 2:
+It is a list with three items namely ...
+(not repeating general comments on lists)
+
+Usually quite simple really :-)
+
+Some helper modules will have both indiv and multi block_spec helpers.
 
 Re: function signatures:
 * block_spec for filt_block_help and any_block_help; block_specs (note plural)
@@ -27,6 +41,7 @@ Re: function signatures:
 * kwargs is used to stop too many needless parameters when a function doesn't use everything supplied e.g. execute_code.
    (block_spec, *, repeat=False, **_kwargs)
 or (block_spec, *, repeat=False, execute_code=True, **_kwargs)
+See messages.get_message_dets_from_input() which actually runs the helper functions and supplies the arguments
 
 Re: decorator signatures, see actual code below after comment:
 
@@ -65,8 +80,11 @@ from superhelp.gen_utils import get_docstring_start, layout_comment as layout
 
 INDIV_BLOCK_HELPERS = []  ## block-based helpers
 
+class HelperSpec:
+    pass
+
 @dataclass(frozen=True)
-class IndivBlockHelperSpec:
+class IndivBlockHelperSpec(HelperSpec):
     """
     Block-based helper functions that take a block spec (including element and block code string) and return a message.
     Might be looking exclusively at class blocks only.
@@ -83,7 +101,7 @@ class IndivBlockHelperSpec:
 MULTI_BLOCK_HELPERS = []  ## looks at multiple blocks, possibly looking for first that meets a condition
 
 @dataclass(frozen=True)
-class MultipleBlocksHelperSpec:
+class MultipleBlocksHelperSpec(HelperSpec):
     """
     Helper functions which deal with multiple block specs at once.
     E.g. looking at every block to look for opportunities to unpack.
@@ -96,7 +114,7 @@ class MultipleBlocksHelperSpec:
 SNIPPET_STR_HELPERS = []  ## works on entire code snippet as a single string
 
 @dataclass(frozen=True)
-class SnippetStrHelperSpec:  ## same structure as MultipleBlocksHelperSpec but helpers are different
+class SnippetStrHelperSpec(HelperSpec):  ## same structure as MultipleBlocksHelperSpec but helpers are different
     """
     Snippet-based helpers that work on code snippet as a single string and return message
     """

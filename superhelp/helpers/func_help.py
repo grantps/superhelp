@@ -6,6 +6,7 @@ from superhelp.ast_funcs.general import get_el_lines_dets
 from superhelp.ast_funcs import get_danger_status, get_docstring_from_value
 from superhelp import conf, gen_utils
 from superhelp.gen_utils import get_nice_pairs, layout_comment as layout
+from superhelp.messages import MessageLevelStrs
 
 FUNC_DEFN_XPATH = 'descendant-or-self::FunctionDef'
 
@@ -35,6 +36,9 @@ def get_func_type_lbl(func_el):
     return func_type_lbl
 
 def get_overall_func_type_lbl(func_els):
+    """
+    'function' or 'method'?
+    """
     if not func_els:
         return None
     includes_plain_function = False
@@ -42,8 +46,7 @@ def get_overall_func_type_lbl(func_els):
         func_type_lbl = get_func_type_lbl(func_el)
         if func_type_lbl == conf.FUNCTION_LBL:
             includes_plain_function = True
-    overall_func_type_lbl = (
-        conf.FUNCTION_LBL if includes_plain_function else conf.METHOD_LBL)
+    overall_func_type_lbl = conf.FUNCTION_LBL if includes_plain_function else conf.METHOD_LBL
     return overall_func_type_lbl
 
 def count_args(func_el):
@@ -161,7 +164,7 @@ def _get_exit_comment(func_el, func_type_lbl, *, repeat=False):
     return exit_comment
 
 @indiv_block_help(xpath=FUNC_DEFN_XPATH)
-def func_overview(block_spec, *, repeat=False, **_kwargs):
+def func_overview(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Advise on function (or method) definition statements.
     e.g. def greeting(): ...
@@ -211,16 +214,13 @@ def func_overview(block_spec, *, repeat=False, **_kwargs):
     else:
         args_vs_params = ''
         methods = ''
-
-    message = {
-        conf.Level.BRIEF: title + details,
-        conf.Level.MAIN: title + details + methods,
-        conf.Level.EXTRA: args_vs_params,
-    }
-    return message
+    brief = title + details
+    main = title + details + methods
+    message_level_strs = MessageLevelStrs(brief, main, args_vs_params)
+    return message_level_strs
 
 @indiv_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
-def func_len_check(block_spec, *, repeat=False, **_kwargs):
+def func_len_check(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Warn about functions that might be too long.
     """
@@ -262,11 +262,10 @@ def func_len_check(block_spec, *, repeat=False, **_kwargs):
             "into smaller units.")
     else:
         sometimes_ok = ''
-
-    message = {
-        conf.Level.BRIEF: title + summary + sometimes_ok,
-    }
-    return message
+    brief = title + summary + sometimes_ok
+    main = title + summary + sometimes_ok
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs
 
 def get_n_args(func_el):
     arg_els = func_el.xpath('args/arguments/args/arg')
@@ -276,7 +275,7 @@ def get_n_args(func_el):
     return n_args
 
 @indiv_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
-def func_excess_parameters(block_spec, *, repeat=False, **_kwargs):
+def func_excess_parameters(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Warn about functions that might have too many parameters.
     """
@@ -315,13 +314,12 @@ def func_excess_parameters(block_spec, *, repeat=False, **_kwargs):
             image size argument details.
             """))
     summary = ''.join(summary_bits)
+    brief = title + summary
+    main = title + summary
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs
 
-    message = {
-        conf.Level.BRIEF: title + summary,
-    }
-    return message
-
-def get_arg_default_issues(func_el, *, get_issue_status_func, include_kw=True):
+def get_arg_default_issues(func_el, *, get_issue_status_func, include_kw=True) -> MessageLevelStrs | None:
     """
     Look at this function's arguments. Any issues?
     """
@@ -358,11 +356,10 @@ def _get_mutable_default_args(func_el):
     Interested in all args, not just non-keyword ones as when looking for danger
     arguments. We are also interested in all defaults as well.
     """
-    return get_arg_default_issues(
-        func_el, get_issue_status_func=get_mutable_status, include_kw=True)
+    return get_arg_default_issues(func_el, get_issue_status_func=get_mutable_status, include_kw=True)
 
 @indiv_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
-def mutable_default(block_spec, *, repeat=False, **_kwargs):
+def mutable_default(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look for use of mutable defaults and warn against use except in rare cases.
     """
@@ -460,12 +457,10 @@ def mutable_default(block_spec, *, repeat=False, **_kwargs):
         )
     else:
         defaults_explained = ''
-
-    message = {
-        conf.Level.BRIEF: title + brief_summary,
-        conf.Level.MAIN: title + main_summary + defaults_explained,
-    }
-    return message
+    brief = title + brief_summary
+    main = title + main_summary + defaults_explained
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs
 
 def _get_positional_danger_args(func_el):
     """
@@ -473,11 +468,10 @@ def _get_positional_danger_args(func_el):
     As for defaults, defaults only (ignoring kw_defaults - the only other option
     - there is no separate posonly_defaults)
     """
-    return get_arg_default_issues(
-        func_el, get_issue_status_func=get_danger_status, include_kw=False)
+    return get_arg_default_issues(func_el, get_issue_status_func=get_danger_status, include_kw=False)
 
 @indiv_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
-def positional_boolean(block_spec, *, repeat=False, **_kwargs):
+def positional_boolean(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look for any obvious candidates for forced keyword use e.g. where a
     parameter is a boolean or a number.
@@ -552,12 +546,10 @@ def positional_boolean(block_spec, *, repeat=False, **_kwargs):
     else:
         asterisk_demo = ''
         asterisk_explained = ''
-
-    message = {
-        conf.Level.BRIEF: title + summary + asterisk_demo,
-        conf.Level.EXTRA: asterisk_explained,
-    }
-    return message
+    brief = title + summary + asterisk_demo
+    main = title + summary + asterisk_demo
+    message_level_strs = MessageLevelStrs(brief, main, asterisk_explained)
+    return message_level_strs
 
 def get_func_name_docstring(func_el):
     func_body_el = func_el.xpath('body')[0]
@@ -596,7 +588,7 @@ def get_funcs_dets_and_docstring(func_els):
     return funcs_dets_and_docstring
 
 @indiv_block_help(xpath=FUNC_DEFN_XPATH, warning=True)
-def docstring_issues(block_spec, *, repeat=False, **_kwargs):
+def docstring_issues(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Check over function doc strings. Missing doc string, not enough lines to
     cover params, return etc.
@@ -698,8 +690,7 @@ def docstring_issues(block_spec, *, repeat=False, **_kwargs):
                 It might be good to add to the doc string for `{func_name}`.
                 """))
     summary = ''.join(summary_bits)
-
-    message = {
-        conf.Level.BRIEF: title + summary,
-    }
-    return message
+    brief = title + summary
+    main = title + summary
+    message_level_strs = MessageLevelStrs(brief, main,)
+    return message_level_strs

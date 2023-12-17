@@ -1,6 +1,7 @@
 from superhelp.helpers import get_aop_msg, indiv_block_help
 from superhelp import conf
 from superhelp.gen_utils import layout_comment as layout
+from superhelp.messages import MessageLevelStrs
 
 def get_open_cm_msg():
     return (
@@ -96,13 +97,11 @@ def with_is_using_open(with_el):
     return func_name == 'open'
 
 @indiv_block_help(xpath=WITH_XPATH)
-def content_manager_overview(block_spec, *, repeat=False, **_kwargs):
+def content_manager_overview(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Explain context managers.
     """
     with_els = block_spec.element.xpath(WITH_XPATH)
-    if not with_els:
-        return None
     using_open_cm = any([with_is_using_open(with_el) for with_el in with_els])
 
     title = layout("""\
@@ -137,13 +136,10 @@ def content_manager_overview(block_spec, *, repeat=False, **_kwargs):
         brief_example = ''
         long_example = ''
         aop = ''
-
-    message = {
-        conf.Level.BRIEF: title + summary + brief_usage + brief_example,
-        conf.Level.MAIN: title + summary + brief_usage + long_example,
-        conf.Level.EXTRA: aop,
-    }
-    return message
+    brief = title + summary + brief_usage + brief_example
+    main = title + summary + brief_usage + long_example
+    message_level_strs = MessageLevelStrs(brief, main, aop)
+    return message_level_strs
 
 def has_with_ancestor(open_el):
     with_els = open_el.xpath('ancestor::With')
@@ -159,14 +155,11 @@ def has_with_ancestor(open_el):
 FUNC_NAME_XPATH = 'descendant-or-self::Call/func/Name'
 
 @indiv_block_help(xpath=FUNC_NAME_XPATH, warning=True)
-def file_cm_needed(block_spec, *, repeat=False, **_kwargs):
+def file_cm_needed(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
-    Look for opening of file without a context managers - recommend use of the
-    "with open" context manager.
+    Look for opening of file without a context managers - recommend use of the "with open" context manager.
     """
     func_name_els = block_spec.element.xpath(FUNC_NAME_XPATH)
-    if not func_name_els:
-        return None
     open_els = []
     for func_name_el in func_name_els:
         func_name = func_name_el.get('id')
@@ -196,10 +189,8 @@ def file_cm_needed(block_spec, *, repeat=False, **_kwargs):
         reasons = ''
         long_example = ''
         aop = ''
+    brief = title + summary
+    main = title + summary + reasons + long_example
+    message_level_strs = MessageLevelStrs(brief, main, aop)
+    return message_level_strs
 
-    message = {
-        conf.Level.BRIEF: title + summary,
-        conf.Level.MAIN: title + summary + reasons + long_example,
-        conf.Level.EXTRA: aop,
-    }
-    return message

@@ -1,6 +1,7 @@
 from superhelp.helpers import get_aop_msg, indiv_block_help
 from superhelp import conf
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
+from superhelp.messages import MessageLevelStrs
 
 DECORATOR_XPATH = (  ## excluding dataclass decorators
     "descendant-or-self::decorator_list[not(parent::ClassDef and //Name[@id='dataclass'])]/Name[@id!='dataclass'] "
@@ -11,7 +12,7 @@ DECORATOR_XPATH = (  ## excluding dataclass decorators
 )
 
 @indiv_block_help(xpath=DECORATOR_XPATH)
-def decorator_overview(block_spec, *, repeat=False, **_kwargs):
+def decorator_overview(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look for decorators and explain some options for improving them.
     """
@@ -92,10 +93,7 @@ def decorator_overview(block_spec, *, repeat=False, **_kwargs):
     else:
         dec_dets = ''
         aop = ''
-
-    message = {
-        conf.Level.BRIEF: summary,
-        conf.Level.MAIN: summary + dec_dets,
-        conf.Level.EXTRA: aop,
-    }
-    return message
+    brief = summary
+    main = summary + dec_dets
+    message_level_strs = MessageLevelStrs(brief, main, aop)
+    return message_level_strs

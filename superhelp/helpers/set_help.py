@@ -2,6 +2,7 @@ from superhelp.helpers import indiv_block_help
 from superhelp.ast_funcs import general as ast_gen
 from superhelp import conf, gen_utils
 from superhelp.gen_utils import layout_comment as layout
+from superhelp.messages import MessageLevelStrs
 
 def truncate_set(items):
     return set(list(items)[: conf.MAX_ITEMS_EVALUATED])
@@ -16,7 +17,7 @@ def get_set_els(block_el):
     return set_els
 
 @indiv_block_help(xpath=ASSIGN_SET_XPATH)
-def set_overview(block_spec, *, repeat=False, execute_code=True, **_kwargs):
+def set_overview(block_spec, *, repeat=False, execute_code=True, **_kwargs) -> MessageLevelStrs | None:
     """
     Look for sets and provide general advice on using them and finding out more.
 
@@ -162,13 +163,10 @@ def set_overview(block_spec, *, repeat=False, execute_code=True, **_kwargs):
         sets_rock = ''
         set_dets = ''
         set_extras = ''
-
-    message = {
-        conf.Level.BRIEF: title + oversized_msg + summary + sets_rock,
-        conf.Level.MAIN: title + oversized_msg + summary + sets_rock + set_dets,
-        conf.Level.EXTRA: set_extras,
-    }
-    return message
+    brief = title + oversized_msg + summary + sets_rock
+    main = title + oversized_msg + summary + sets_rock + set_dets
+    message_level_strs = MessageLevelStrs(brief, main, set_extras)
+    return message_level_strs
 
 ## Raise exceptions when something happens that apparently shouldn't
 
@@ -286,7 +284,7 @@ def _get_inappropriate_list(if_el):
 XPATH_COMPARE = 'descendant-or-self::If/test/Compare'
 
 @indiv_block_help(xpath=XPATH_COMPARE, warning=True)
-def set_better_than_list(block_spec, *, repeat=False, **_kwargs):
+def set_better_than_list(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look for cases where the code checks list membership before adding.
     Candidate for a set?
@@ -353,9 +351,7 @@ def set_better_than_list(block_spec, *, repeat=False, **_kwargs):
         )
     else:
         alternative = ''
-
-    message = {
-        conf.Level.BRIEF: title + summary,
-        conf.Level.MAIN: title + summary + alternative,
-    }
-    return message
+    brief = title + summary
+    main = title + summary + alternative
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs

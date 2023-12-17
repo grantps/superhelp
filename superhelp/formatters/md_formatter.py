@@ -12,22 +12,26 @@ from textwrap import dedent
 from superhelp import conf, gen_utils
 from superhelp.conf import Level
 from superhelp.gen_utils import layout_comment as layout
+from superhelp.messages import MessageSpec
 
 MDV_CODE_START = MDV_CODE_END = "```"
 
-def get_message(message_dets, detail_level):
-    message = dedent(message_dets.message[detail_level])
-    if detail_level == Level.EXTRA:
-        message = dedent(message_dets.message[Level.MAIN]) + message
-    message = dedent(message)
+def get_message(message_spec: MessageSpec, detail_level: Level) -> str:
+    message_level_strs = message_spec.message_level_strs
+    if detail_level == Level.BRIEF:
+        message = dedent(message_level_strs.brief)
+    elif detail_level == Level.MAIN:
+        message = dedent(message_level_strs.main)
+    elif detail_level == Level.EXTRA:
+        message = dedent(message_level_strs.main + message_level_strs.extra)
+    else:
+        raise ValueError(f"Unexpected {detail_level = }")
     message = (message
         .replace(conf.PYTHON_CODE_START, '\n' + MDV_CODE_START)
-        .replace('\n    ' + conf.PYTHON_CODE_END, MDV_CODE_END + '\n')
-    )
+        .replace('\n    ' + conf.PYTHON_CODE_END, MDV_CODE_END + '\n'))
     return message
 
-def _need_snippet_displayed(overall_messages_dets, block_messages_dets, *,
-        multi_block=False):
+def _need_snippet_displayed(overall_messages_dets, block_messages_dets, *, multi_block=False):
     """
     Don't need to see the code snippet displayed when it is already visible:
     * because there is only one block in snippet and there is a block message
@@ -73,8 +77,7 @@ def get_formatted_help(code: str, code_file_path: Path, messages_dets, *,
         ),
     ]
     overall_messages_dets, block_messages_dets = messages_dets
-    display_snippet = _need_snippet_displayed(
-        overall_messages_dets, block_messages_dets, multi_block=multi_block)
+    display_snippet = _need_snippet_displayed(overall_messages_dets, block_messages_dets, multi_block=multi_block)
     if display_snippet:
         line_numbered_snippet = gen_utils.get_line_numbered_snippet(code)
         code_desc = gen_utils.get_code_desc(code_file_path)

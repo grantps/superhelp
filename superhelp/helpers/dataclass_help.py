@@ -1,77 +1,45 @@
 from superhelp.helpers import indiv_block_help
-from superhelp import conf
-from superhelp import gen_utils
+from superhelp import utils
 from superhelp.gen_utils import layout_comment as layout
+from superhelp.messages import MessageLevelStrs
 
 DATACLASS_XPATH = "descendant-or-self::ClassDef[decorator_list/Name[@id='dataclass']]"
 
+def has_named_tuples_in_snippet(xml: str) -> bool:
+    """
+    We don't want to repeat the advice on dataclasses so if it is already going to be handled by the named tuple
+    feedback we need to know so don't do it again here.
+    """
+    func_name_els = xml.xpath('descendant-or-self::value/Call/func/Name')
+    if not func_name_els:
+        return False
+    named_tuple_els = [func_name_el for func_name_el in func_name_els if func_name_el.get('id') == 'namedtuple']
+    return bool(named_tuple_els)
+
 @indiv_block_help(xpath=DATACLASS_XPATH)
-def dataclass_overview(block_spec, *,
-        repeat=False, execute_code=True, **_kwargs):
+def dataclass_overview(block_spec, *, xml: str, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
-    Provide advice on list comprehensions and explain other types of
-    comprehension available in Python.
+    Provide advice on dataclasses and explain key features.
     """
+    if repeat:
+        return None
+    named_tuples_in_snippet = has_named_tuples_in_snippet(xml)
+    print(f"{named_tuples_in_snippet = }")
     dataclass_els = block_spec.element.xpath(DATACLASS_XPATH)
+    title = layout("""\
 
-    return None
-
-
-
-    names_items, oversized_msg = 1, 2
-    plural = 's' if len(names_items) > 1 else ''
-    title = layout(f"""\
-    ### List comprehension{plural} used
-    """)
-    summary_bits = []
-    for name, items in names_items:
-        if items is None or items == conf.UNKNOWN_ITEMS:
-            if not repeat:
-                summary_bits.append(layout(f"""\
-                Unable to evaluate all contents of list comprehension `{name}`
-                but still able to make some general comments.
-                """))
-            else:
-                summary_bits.append(layout(f"""\
-                `{name}` is a list comprehension but unable to evaluate
-                contents.
-                """))
-        elif len(items) == 0:
-            summary_bits.append(layout(f"""\
-            `{name}` is an empty list comprehension.
-            """))
-        else:
-            summary_bits.append(layout(f"""
-
-            `{name}` is a list comprehension returning a list with
-            {gen_utils.int2nice(len(items))} items: {items}
-            """))
-    summary = ''.join(summary_bits)
-    brief_summary = summary
-    main_summary = summary
-    if not repeat:
-        other_comprehensions = (
-            layout("""\
-            ### Other "comprehensions"
-            """)
-            + layout("""\
-
-            List comprehensions aren't the only type of comprehension you can
-            make. Python also lets you write Dictionary and Set Comprehensions:
-            """)
-            + '\n\n'
-            + layout("""\
-
-            Pro tip: don't make comprehension *in*comprehensions ;-). If it is
-            hard to read it is probably better written as a looping structure.
-            """)
-        )
-    else:
-        other_comprehensions = ''
-
-    message = {
-        conf.Level.BRIEF: title + oversized_msg + brief_summary,
-        conf.Level.MAIN: title + oversized_msg + main_summary,
-        conf.Level.EXTRA: other_comprehensions,
-    }
-    return message
+        ### Dataclass Details
+        """)
+    detail_bits = []
+    for dataclass_el in dataclass_els:
+        utils.inspect_el(dataclass_el)
+        # detail_bits.append(layout(f"""\
+        #
+        #     The {func_type_lbl} named `{name}` {arg_comment}. {exit_comment}.
+        #     """))
+    details = ''.join(detail_bits)
+    brief = title + details
+    main = title + details
+    extra = ''
+    message_level_strs = MessageLevelStrs(brief, main, extra)
+    return message_level_strs

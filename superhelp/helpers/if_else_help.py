@@ -3,6 +3,7 @@ from collections import defaultdict, namedtuple, Counter
 from superhelp.helpers import indiv_block_help
 from superhelp import ast_funcs, conf
 from superhelp.gen_utils import int2nice, layout_comment as layout
+from superhelp.messages import MessageLevelStrs
 
 IfDets = namedtuple('IfDetails', 'multiple_conditions, missing_else, if_clauses')
 
@@ -123,7 +124,7 @@ def _get_if_comment(block_spec):
     return if_comment
 
 @indiv_block_help(xpath=IF_XPATH)
-def if_else_overview(block_spec, *, repeat=False, **_kwargs):
+def if_else_overview(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look at conditional statements using if (apart from if __name__ ==
     '__main__").
@@ -165,15 +166,13 @@ def if_else_overview(block_spec, *, repeat=False, **_kwargs):
         )
     else:
         demo = ''
-
-    message = {
-        conf.Level.BRIEF: title + if_comment,
-        conf.Level.MAIN: title + if_comment + demo,
-    }
-    return message
+    brief = title + if_comment
+    main = title + if_comment + demo
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs
 
 @indiv_block_help(xpath=IF_XPATH, warning=True)
-def missing_else(block_spec, *, repeat=False, **_kwargs):
+def missing_else(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Warn about benefits in many cases of adding else clause if missing.
     """
@@ -253,12 +252,10 @@ def missing_else(block_spec, *, repeat=False, **_kwargs):
             raise Exception(f"Unexpected user: '{user}'")
         """, is_code=True)
         )
-
-    message = {
-        conf.Level.BRIEF: title + summary,
-        conf.Level.MAIN: title + summary + dets,
-    }
-    return message
+    brief = title + summary
+    main = title + summary + dets
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs
 
 def get_split_membership_dets(if_el):
     """
@@ -324,7 +321,7 @@ def get_split_membership_dets(if_el):
     return comp_var, comp_vals_gp_str
 
 @indiv_block_help(xpath=IF_XPATH)
-def split_group_membership(block_spec, *, repeat=False, **_kwargs):
+def split_group_membership(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Explain how to use in group and not in group rather than multiple
     comparisons.
@@ -378,12 +375,10 @@ def split_group_membership(block_spec, *, repeat=False, **_kwargs):
     else:
         demo = ''
         extra_demo = ''
-
-    message = {
-        conf.Level.BRIEF: summary + demo,
-        conf.Level.MAIN: summary + demo + extra_demo,
-    }
-    return message
+    brief = summary + demo
+    main = summary + demo + extra_demo
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs
 
 def get_has_explicit_count(if_el):
     compare_els = if_el.xpath('test/Compare')
@@ -426,7 +421,7 @@ def get_has_explicit_count(if_el):
     return has_explicit_boolean
 
 @indiv_block_help(xpath=IF_XPATH)
-def implicit_boolean_enough(block_spec, *, repeat=False, **_kwargs):
+def implicit_boolean_enough(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look for cases where an implicit boolean comparison is enough.
     """
@@ -477,10 +472,10 @@ def implicit_boolean_enough(block_spec, *, repeat=False, **_kwargs):
         summary = layout("""\
         There is often no need to check a non-zero length explicitly.
         """)
-    message = {
-        conf.Level.BRIEF: title + summary,
-    }
-    return message
+    brief = title + summary
+    main = title + summary
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs
 
 def could_short_circuit(if_el):
     """
@@ -520,7 +515,7 @@ def could_short_circuit(if_el):
     return True
 
 @indiv_block_help(xpath=IF_XPATH)
-def short_circuit(block_spec, *, repeat=False, **_kwargs):
+def short_circuit(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look for cases where short-circuiting is possible.
     """
@@ -577,12 +572,10 @@ def short_circuit(block_spec, *, repeat=False, **_kwargs):
     else:
         how2short_circuit = ''
         demo = ''
-
-    message = {
-        conf.Level.BRIEF: summary + how2short_circuit,
-        conf.Level.MAIN: summary + how2short_circuit + demo,
-    }
-    return message
+    brief = summary + how2short_circuit
+    main = summary + how2short_circuit + demo
+    message_level_strs = MessageLevelStrs(brief, main)
+    return message_level_strs
 
 def could_any_or_all(if_el):
     could_any = False
@@ -605,7 +598,7 @@ def could_any_or_all(if_el):
     return could_any, could_all
 
 @indiv_block_help(xpath=IF_XPATH)
-def any_all(block_spec, *, repeat=False, **_kwargs):
+def any_all(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look for cases where using built-in any or all functions makes sense.
     """
@@ -718,10 +711,7 @@ def any_all(block_spec, *, repeat=False, **_kwargs):
         """)
         demo = ''
         extra = ''
-
-    message = {
-        conf.Level.BRIEF: title + summary,
-        conf.Level.MAIN: title + summary + demo,
-        conf.Level.EXTRA: extra,
-    }
-    return message
+    brief = title + summary
+    main = title + summary + demo
+    message_level_strs = MessageLevelStrs(brief, main, extra)
+    return message_level_strs

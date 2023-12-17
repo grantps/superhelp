@@ -3,12 +3,12 @@ from collections import defaultdict
 from superhelp.helpers import get_unpacking_msg, indiv_block_help, multi_block_help
 from superhelp import ast_funcs, conf, gen_utils
 from superhelp.gen_utils import layout_comment as layout
-from superhelp.utils import inspect_el  # @UnusedImport
+from superhelp.messages import MessageLevelStrs
 
 ASSIGN_UNPACKING_XPATH = 'descendant-or-self::Assign/targets/Tuple'
 
 @indiv_block_help(xpath=ASSIGN_UNPACKING_XPATH)
-def unpacking(block_spec, *, repeat=False, **_kwargs):
+def unpacking(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Identify name unpacking e.g. x, y = coord
     """
@@ -32,15 +32,13 @@ def unpacking(block_spec, *, repeat=False, **_kwargs):
         unpacking_msg = get_unpacking_msg()
     else:
         unpacking_msg = ''
-
-    message = {
-        conf.Level.BRIEF: title + summary,
-        conf.Level.EXTRA: unpacking_msg,
-    }
-    return message
+    brief = title + summary
+    main = title + summary
+    message_level_strs = MessageLevelStrs(brief, main, unpacking_msg)
+    return message_level_strs
 
 @multi_block_help()
-def unpacking_opportunity(block_specs, *, repeat=False, **_kwargs):
+def unpacking_opportunity(block_specs, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look for opportunities to unpack values into multiple names instead of
     repeated and un-pythonic extraction using indexes.
@@ -94,9 +92,7 @@ def unpacking_opportunity(block_specs, *, repeat=False, **_kwargs):
         extra_msg = get_unpacking_msg()
     else:
         extra_msg = ''
-
-    message = {
-        conf.Level.BRIEF: title + unpackable,
-        conf.Level.EXTRA: extra_msg,
-    }
-    return message
+    brief = title + unpackable
+    main = extra_msg
+    message_level_strs = MessageLevelStrs(brief, main, extra_msg)
+    return message_level_strs

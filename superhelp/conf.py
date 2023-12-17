@@ -51,7 +51,7 @@ THEME_OPTIONS = (Theme.DARK, Theme.LIGHT)
 class Level(StrEnum):
     BRIEF = 'Brief'  ## no spaces; used as labels and as parts of class names in CSS
     MAIN = 'Main'
-    EXTRA = 'Extra'
+    EXTRA = 'Extra'  ## automatically added to end of whatever is in MAIN - only needs to include the extra portion of what is displayed when EXTRA selected
 
 LEVEL_OPTIONS = (Level.BRIEF, Level.MAIN, Level.EXTRA)
 

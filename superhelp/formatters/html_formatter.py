@@ -6,10 +6,11 @@ https://coderbook.com/@marcus/how-to-render-markdown-syntax-as-html-using-python
 from pathlib import Path
 from textwrap import dedent, indent
 
+from markdown import markdown
+
 from superhelp import conf, gen_utils
 from superhelp.conf import LEVEL_OPTIONS, Level
-
-from markdown import markdown
+from superhelp.messages import MessageSpec
 
 DETAIL_LEVEL2CLASS = {
     detail_level: f"help help-{detail_level}"
@@ -172,7 +173,7 @@ def _get_radio_buttons(*, detail_level=Level.BRIEF):
     radio_buttons = '\n'.join(radio_buttons_dets)
     return radio_buttons
 
-def get_separate_code_message_parts(message):
+def get_separate_code_message_parts(message_str: str):
     """
     Need to handle code portions differently so need to separate it out.
 
@@ -182,7 +183,7 @@ def get_separate_code_message_parts(message):
     """
     message_parts = []
     open_code_block = False
-    lines = message.split('\n')
+    lines = message_str.split('\n')
     for i, line in enumerate(lines):
         first_line = i == 0
         line_in_code_block = line.startswith(' ' * 4)
@@ -202,12 +203,20 @@ def get_separate_code_message_parts(message):
             open_code_block = False
     return message_parts
 
-def get_html_strs(message, message_type, *, warning=False):
-    if not message:
+def _get_detail_level_html_strs(message_str: str, detail_level: Level) -> list[str]:
+    if not message_str:
         return []
-    message_type_class = DETAIL_LEVEL2CLASS[message_type]
+    try:
+        message_str = (
+            message_str
+            .replace(conf.PYTHON_CODE_START, conf.MD_PYTHON_CODE_START)
+            .replace(f"\n    {conf.PYTHON_CODE_END}", '')
+        )
+    except Exception:
+        pass
+    message_type_class = DETAIL_LEVEL2CLASS[detail_level]
     str_html_list = [f"<div class='{message_type_class}'>", ]
-    message_parts = get_separate_code_message_parts(message)
+    message_parts = get_separate_code_message_parts(message_str)
     for message_part in message_parts:
         if message_part[IS_CODE]:
             message_part_str = markdown(
@@ -219,36 +228,30 @@ def get_html_strs(message, message_type, *, warning=False):
     str_html_list.append("</div>")
     return str_html_list
 
-def get_message_html_strs(message_dets):
+def get_message_html_strs(message_spec: MessageSpec) -> list[str]:
     """
     Process message.
+    Note - in HTML need results ready for any level of detail -
+    all hidden apart from one depending on display option selected by radio button.
+    Extra is optional but if missing the HTML displayer will be showing all main AND extra tagged content
+    i.e. the main content.
     """
     message_html_strs = []
-    if message_dets.warning:
+    if message_spec.warning:
         message_html_strs.append("<div class='warning'>")
+    message_level_strs = message_spec.message_level_strs
     for detail_level in LEVEL_OPTIONS:
-        try:
-            message = message_dets.message[detail_level]
-        except KeyError:
-            if detail_level != Level.EXTRA:
-                raise Exception(
-                    f"Missing required message level {detail_level}")
-        except TypeError:
-            raise TypeError(
-                f"Missing message in message_dets {message_dets}")
+        if detail_level == Level.BRIEF:
+            message_str = message_level_strs.brief
+        elif detail_level == Level.MAIN:
+            message_str = message_level_strs.main
+        elif detail_level == Level.EXTRA:
+            message_str = message_level_strs.extra  ## OK if an empty string - don't make it main otherwise main will be repeated (see function doc string)
         else:
-            try:
-                message = (
-                    message
-                    .replace(conf.PYTHON_CODE_START, conf.MD_PYTHON_CODE_START)
-                    .replace(f"\n    {conf.PYTHON_CODE_END}", '')
-                )
-            except Exception:
-                pass
-            detail_level_html_strs = get_html_strs(
-                message, detail_level, warning=message_dets.warning)
-            message_html_strs.extend(detail_level_html_strs)
-    if message_dets.warning:
+            raise ValueError(f"Unexpected {detail_level = }")
+        detail_level_html_strs = _get_detail_level_html_strs(message_str, detail_level)
+        message_html_strs.extend(detail_level_html_strs)
+    if message_spec.warning:
         message_html_strs.append("</div>")
     return message_html_strs
 

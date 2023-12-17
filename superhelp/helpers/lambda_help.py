@@ -1,15 +1,16 @@
 from superhelp import conf
 from superhelp.gen_utils import layout_comment as layout
 from superhelp.helpers import snippet_str_help
+from superhelp.messages import MessageLevelStrs
 
 @snippet_str_help()
-def lambda_advice(snippet, *, repeat=False, **_kwargs):
+def lambda_advice(snippet, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Look for use of lambda and give general advice on when / how to use.
     """
-    if 'lambda' not in snippet:
-        return None
     if repeat:
+        return None
+    if 'lambda' not in snippet:
         return None
 
     title = layout("""\
@@ -161,11 +162,7 @@ def lambda_advice(snippet, *, repeat=False, **_kwargs):
     and `methodcaller`) becomes more common and idiomatic then it could be time
     to substantially reduce the usage of `lambda`.
     """)
-
-    message = {
-        conf.Level.BRIEF: title + brief_msg,
-        conf.Level.MAIN: title + main_msg,
-        conf.Level.EXTRA: extra,
-    }
-    return message
-    
+    brief = title + brief_msg
+    main = title + main_msg
+    message_level_strs = MessageLevelStrs(brief, main, extra)
+    return message_level_strs

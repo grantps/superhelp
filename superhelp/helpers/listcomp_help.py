@@ -3,6 +3,7 @@ from superhelp.helpers import (get_dict_comprehension_msg, get_general_comprehen
 from superhelp import conf
 from superhelp import gen_utils
 from superhelp.gen_utils import layout_comment as layout
+from superhelp.messages import MessageLevelStrs
 
 def truncate_list(items):
     return items[: conf.MAX_ITEMS_EVALUATED]
@@ -10,8 +11,7 @@ def truncate_list(items):
 ASSIGN_LISTCOMP_XPATH = 'descendant-or-self::Assign/value/ListComp'
 
 @indiv_block_help(xpath=ASSIGN_LISTCOMP_XPATH)
-def listcomp_overview(block_spec, *,
-        repeat=False, execute_code=True, **_kwargs):
+def listcomp_overview(block_spec, *, repeat=False, execute_code=True, **_kwargs) -> MessageLevelStrs | None:
     """
     Provide advice on list comprehensions and explain other types of
     comprehension available in Python.
@@ -74,10 +74,7 @@ def listcomp_overview(block_spec, *,
         )
     else:
         other_comprehensions = ''
-
-    message = {
-        conf.Level.BRIEF: title + oversized_msg + brief_summary,
-        conf.Level.MAIN: title + oversized_msg + main_summary,
-        conf.Level.EXTRA: other_comprehensions,
-    }
-    return message
+    brief = title + oversized_msg + brief_summary
+    main = title + oversized_msg + main_summary
+    message_level_strs = MessageLevelStrs(brief, main, other_comprehensions)
+    return message_level_strs

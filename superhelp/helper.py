@@ -249,7 +249,8 @@ def show_help(code: str | None = None, *,
     if not output_settings:
 
 
-        output_settings = OutputSettings(format_name=Format.CLI)
+        # output_settings = OutputSettings(format_name=Format.CLI)
+        output_settings = OutputSettings(format_name=Format.HTML)
         logging.warning("Restore to HTML once fixed HTML temp folder problem with snap-packaged web browsers (Grrr!!!)")
 
 
@@ -392,5 +393,7 @@ if __name__ == '__main__':
     # show_help(output_settings=output_settings)
     # shelp()
     pass
-    show_help("from dataclasses import dataclass\n\n\n@dataclass\nclass Fruit:\n    colour: str\n    taste: str\n    price: float\n\n")
+    # show_help("from dataclasses import dataclass\n\n\n@dataclass\nclass Fruit:\n    colour: str\n    taste: str\n    price: float\n\n")
+    show_help("from collections import namedtuple\nfrom dataclasses import dataclass\n\n\n@dataclass\nclass Fruit:\n    colour: str\n    taste: str\n    price: float\n\nMisc = namedtuple('Misc', 'a, b, c')")
+    # show_help("a = ['a', 'b', 'c']\nb = [1, 2, 3, 4]")
     print('Finished!')
