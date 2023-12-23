@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from superhelp.helpers import get_unpacking_msg, indiv_block_help, multi_block_help
+from superhelp.helpers import indiv_block_help, multi_block_help,shared_messages
 from superhelp import ast_funcs, conf, gen_utils
 from superhelp.gen_utils import layout_comment as layout
 from superhelp.messages import MessageLevelStrs
@@ -29,7 +29,7 @@ def unpacking(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs | None
         """))
     summary = ''.join(summary_bits)
     if not repeat:
-        unpacking_msg = get_unpacking_msg()
+        unpacking_msg = shared_messages.get_unpacking_msg()
     else:
         unpacking_msg = ''
     brief = title + summary
@@ -89,7 +89,7 @@ def unpacking_opportunity(block_specs, *, repeat=False, **_kwargs) -> MessageLev
         indexing so might be a suitable candidate for unpacking.
         """)
     if not repeat:
-        extra_msg = get_unpacking_msg()
+        extra_msg = shared_messages.get_unpacking_msg()
     else:
         extra_msg = ''
     brief = title + unpackable

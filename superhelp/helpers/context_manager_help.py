@@ -1,5 +1,4 @@
-from superhelp.helpers import get_aop_msg, indiv_block_help
-from superhelp import conf
+from superhelp.helpers import indiv_block_help, shared_messages
 from superhelp.gen_utils import layout_comment as layout
 from superhelp.messages import MessageLevelStrs
 
@@ -131,7 +130,7 @@ def content_manager_overview(block_spec, *, repeat=False, **_kwargs) -> MessageL
         need to do when we start a code block as well.
         """)
         long_example = get_open_cm_msg()
-        aop = get_aop_msg()
+        aop = shared_messages.get_aop_msg()
     else:
         brief_example = ''
         long_example = ''
@@ -184,7 +183,7 @@ def file_cm_needed(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs |
         hard) but using the standard ones has big advantages.
         """)
         long_example = get_open_cm_msg()
-        aop = get_aop_msg()
+        aop = shared_messages.get_aop_msg()
     else:
         reasons = ''
         long_example = ''
@@ -193,4 +192,3 @@ def file_cm_needed(block_spec, *, repeat=False, **_kwargs) -> MessageLevelStrs |
     main = title + summary + reasons + long_example
     message_level_strs = MessageLevelStrs(brief, main, aop)
     return message_level_strs
-

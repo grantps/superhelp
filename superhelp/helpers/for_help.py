@@ -1,8 +1,5 @@
-from superhelp.helpers import (
-    get_dict_comprehension_msg, get_general_comprehension_msg,
-    get_set_comprehension_msg, indiv_block_help)
+from superhelp.helpers import indiv_block_help, shared_messages
 from superhelp.ast_funcs.general import get_el_lines_dets
-from superhelp import conf
 from superhelp.gen_utils import layout_comment as layout
 from superhelp.messages import MessageLevelStrs
 
@@ -34,13 +31,13 @@ def comprehension_option(block_spec, *, repeat=False, **_kwargs) -> MessageLevel
     comp_comment = ''
     if 'append' in block_spec.block_code_str:
         comp_type = 'List Comprehension'
-        comp_comment = get_dict_comprehension_msg()
+        comp_comment = shared_messages.get_dict_comprehension_msg()
     elif len(block_spec.element.cssselect('Subscript')):  ## Seems a reasonable indicator
         comp_type = 'Dictionary Comprehension'
-        comp_comment = get_dict_comprehension_msg()
+        comp_comment = shared_messages.get_dict_comprehension_msg()
     elif 'set' in block_spec.block_code_str:
         comp_type = 'Set Comprehension'
-        comp_comment = get_set_comprehension_msg()
+        comp_comment = shared_messages.get_set_comprehension_msg()
     else:
         return None
 
@@ -58,7 +55,7 @@ def comprehension_option(block_spec, *, repeat=False, **_kwargs) -> MessageLevel
     else:
         option = ''
     brief = title + option
-    main = title + option + get_general_comprehension_msg() + '\n\n' + comp_comment
+    main = title + option + shared_messages.get_general_comprehension_msg() + '\n\n' + comp_comment
     message_level_strs = MessageLevelStrs(brief, main)
     return message_level_strs
 

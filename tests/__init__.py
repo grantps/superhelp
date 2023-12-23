@@ -5,7 +5,7 @@ cd ~/projects/superhelp/tests && s && python3 -m pytest  ## if in surrounding fo
 import astpath
 
 from superhelp import ast_funcs, conf, helpers
-from superhelp.messages import get_separated_messages_dets
+from superhelp.messages import get_separated_message_specs
 from superhelp.gen_utils import get_tree, xml_from_tree
 
 conf.INCLUDE_LINTING = False
@@ -46,9 +46,9 @@ def check_as_expected(test_conf: list, *, execute_code=True):
         xml = astpath.asts.convert_to_xml(tree)
         ast_funcs.general.store_ast_output(xml)
         snippet_block_els = xml.xpath('body')[0].getchildren()  ## [0] because there is only one body under root
-        messages_dets = get_separated_messages_dets(snippet, snippet_block_els, xml,
+        message_specs = get_separated_message_specs(snippet, snippet_block_els, xml,
             execute_code=execute_code, repeat_set=set())
-        actual_source_freqs = get_actual_source_freqs(messages_dets, expected_source_freqs)
+        actual_source_freqs = get_actual_source_freqs(message_specs, expected_source_freqs)
         msg = (f"\n\nSnippet\n\n{snippet}\n\ndidn't get messages as expected from the sources"
             f"\n(execute_code={execute_code}):"
             f"\n\nExpected:\n{expected_source_freqs}"

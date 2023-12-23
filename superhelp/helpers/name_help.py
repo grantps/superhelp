@@ -1,6 +1,8 @@
+import builtins
 from collections import defaultdict, namedtuple
+import keyword
 
-from superhelp.helpers import indiv_block_help, is_reserved_name, multi_block_help
+from superhelp.helpers import indiv_block_help,  multi_block_help
 from superhelp import ast_funcs, conf, name_utils
 from superhelp import gen_utils
 from superhelp.gen_utils import get_nice_str_list, int2first_etc, int2nice, layout_comment as layout
@@ -18,6 +20,10 @@ ASSIGN_SUBSCRIPT_XPATH = 'descendant-or-self::Assign/value/Subscript'
 ASSIGN_NAME_XPATH = (
     'descendant-or-self::Assign/value/Name'
     '|descendant-or-self::Assign/value/Tuple/elts/Name')
+
+def is_reserved_name(name):
+    is_reserved = name in set(keyword.kwlist + dir(builtins) + conf.STD_LIBS)
+    return is_reserved
 
 def get_subscript_name_value(assign_subscript_el):
     """

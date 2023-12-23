@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from superhelp.helpers import multi_block_help
-from superhelp import ast_funcs, conf
+from superhelp.helpers import multi_block_help, shared_messages
+from superhelp import ast_funcs
 from superhelp.gen_utils import layout_comment as layout
 from superhelp.messages import MessageLevelStrs
 
@@ -70,48 +70,7 @@ def named_tuple_overview(block_specs, *, repeat=False, **_kwargs) -> MessageLeve
                 {fields}
             """, is_code=True)
         )
-    replacement_options = (
-        layout("""\
-
-        Dataclasses make it much easier to display default values e.g.
-        """)
-        +
-        layout("""\
-        @dataclass
-        class People:
-             name: str
-             IQ: int = 100
-        """, is_code=True)
-        +
-        layout("""\
-        Validation is also easy to add to dataclasses e.g.
-        """)
-        +
-        layout("""\
-        @dataclass
-        class People:
-             name: str
-             IQ: int = 100
-
-             def __post_init__(self):
-                 if not 70 <= self.IQ <= 170:
-                     raise ValueError(f"Invalid IQ ({self.IQ})")
-        """, is_code=True)
-        +
-        layout("""\
-        It is also easy to add derived values e.g.
-        """)
-        +
-        layout("""\
-        @dataclass
-        class Rect:
-             length: float
-             width: float
-
-             def __post_init__(self):
-                 self.area = self.length * self.width
-        """, is_code=True)
-    )
+    replacement_options = shared_messages.get_dataclass_msg(in_named_tuple_context=True)
     brief = replacement
     main = replacement + replacement_options
     message_level_strs = MessageLevelStrs(brief, main)

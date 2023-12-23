@@ -1,5 +1,4 @@
-from superhelp.helpers import (get_dict_comprehension_msg, get_general_comprehension_msg,
-    get_set_comprehension_msg, indiv_block_help)
+from superhelp.helpers import indiv_block_help, shared_messages
 from superhelp import conf
 from superhelp import gen_utils
 from superhelp.gen_utils import layout_comment as layout
@@ -56,15 +55,15 @@ def listcomp_overview(block_spec, *, repeat=False, execute_code=True, **_kwargs)
             layout("""\
             ### Other "comprehensions"
             """)
-            + get_general_comprehension_msg()
+            + shared_messages.get_general_comprehension_msg()
             + layout("""\
 
             List comprehensions aren't the only type of comprehension you can
             make. Python also lets you write Dictionary and Set Comprehensions:
             """)
-            + get_dict_comprehension_msg()
+            + shared_messages.get_dict_comprehension_msg()
             + '\n\n'
-            + get_set_comprehension_msg()
+            + shared_messages.get_set_comprehension_msg()
             + '\n\n'
             + layout("""\
 

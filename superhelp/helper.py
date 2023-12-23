@@ -128,7 +128,7 @@ class Pipeline:
                         execute_code=output_settings.execute_code,
                         repeat_set=repeat_set)
                 except Exception as e:
-                    messages_dets = messages.get_error_messages_dets(e, code)
+                    messages_dets = messages.get_error_message_specs(e, code)
                     multi_block = False
             yield code, code_file_path, messages_dets, multi_block
 
@@ -249,8 +249,8 @@ def show_help(code: str | None = None, *,
     if not output_settings:
 
 
-        # output_settings = OutputSettings(format_name=Format.CLI)
-        output_settings = OutputSettings(format_name=Format.HTML)
+        output_settings = OutputSettings(format_name=Format.CLI)
+        # output_settings = OutputSettings(format_name=Format.HTML)
         logging.warning("Restore to HTML once fixed HTML temp folder problem with snap-packaged web browsers (Grrr!!!)")
 
 

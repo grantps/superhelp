@@ -1,5 +1,4 @@
-from superhelp.helpers import get_aop_msg, indiv_block_help
-from superhelp import conf
+from superhelp.helpers import indiv_block_help, shared_messages
 from superhelp.gen_utils import get_nice_str_list, layout_comment as layout
 from superhelp.messages import MessageLevelStrs
 
@@ -89,7 +88,7 @@ def decorator_overview(block_spec, *, repeat=False, **_kwargs) -> MessageLevelSt
             say("sausage!")
             ''', is_code=True)
         )
-        aop = get_aop_msg()
+        aop = shared_messages.get_aop_msg()
     else:
         dec_dets = ''
         aop = ''
