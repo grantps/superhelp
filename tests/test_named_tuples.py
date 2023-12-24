@@ -38,7 +38,7 @@ def test_misc():
                 Person2 = namedtuple('PersonDetails2', 'a, b, c')
             """),
             {
-                ROOT + 'named_tuple_overview': 1, ## in one snippet so one message
+                ROOT + 'named_tuple_overview': 1,  ## in one snippet so one message
             }
         ),
         (
@@ -48,7 +48,7 @@ def test_misc():
             Person3 = namedtuple('PersonDetails3', 'a, b, c')
             """),
             {
-                ROOT + 'named_tuple_overview': 1, ## in one snippet so one message
+                ROOT + 'named_tuple_overview': 1,  ## in one snippet so one message
             }
         ),
         (
@@ -59,7 +59,7 @@ def test_misc():
             Person3 = namedtuple('PersonDetails3', 'a, b, c')
             """),
             {
-                ROOT + 'named_tuple_overview': 1, ## in one snippet so one message
+                ROOT + 'named_tuple_overview': 1,  ## in one snippet so one message
             }
         ),
         (
@@ -67,7 +67,7 @@ def test_misc():
             FolderDets = namedtuple('FolderDets', ("folder", "exclusions_fpath"))
             """),
             {
-                ROOT + 'named_tuple_overview': 1, ## in one snippet so one message
+                ROOT + 'named_tuple_overview': 1,  ## in one snippet so one message
             }
         ),
         (
@@ -75,7 +75,7 @@ def test_misc():
             FolderDets = namedtuple('FolderDets', ["folder", "exclusions_fpath"])
             """),
             {
-                ROOT + 'named_tuple_overview': 1, ## in one snippet so one message
+                ROOT + 'named_tuple_overview': 1,  ## in one snippet so one message
             }
         ),
     ]

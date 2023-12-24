@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from superhelp.conf import Level
 from superhelp.helpers import multi_block_help, shared_messages
 from superhelp import ast_funcs
 from superhelp.gen_utils import layout_comment as layout
@@ -70,8 +71,8 @@ def named_tuple_overview(block_specs, *, repeat=False, **_kwargs) -> MessageLeve
                 {fields}
             """, is_code=True)
         )
-    replacement_options = shared_messages.get_dataclass_msg(in_named_tuple_context=True)
     brief = replacement
-    main = replacement + replacement_options
-    message_level_strs = MessageLevelStrs(brief, main)
+    main = replacement + shared_messages.get_dataclass_msg(level=Level.MAIN, in_named_tuple_context=True)
+    extra = shared_messages.get_dataclass_msg(level=Level.EXTRA, in_named_tuple_context=True)
+    message_level_strs = MessageLevelStrs(brief, main, extra)
     return message_level_strs

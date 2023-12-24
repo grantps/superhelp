@@ -249,10 +249,9 @@ def show_help(code: str | None = None, *,
     if not output_settings:
 
 
-        output_settings = OutputSettings(format_name=Format.CLI)
+        output_settings = OutputSettings(format_name=Format.CLI, detail_level=Level.EXTRA)
         # output_settings = OutputSettings(format_name=Format.HTML)
         logging.warning("Restore to HTML once fixed HTML temp folder problem with snap-packaged web browsers (Grrr!!!)")
-
 
 
     formatted_help_dets = get_formatted_help_dets(code=code, file_path=file_path,
@@ -374,7 +373,8 @@ def shelp():
         project_path=args.project_path, exclude_folders=args.exclude_folders,
         output_settings=output_settings, in_notebook=False)
 
-if __name__ == '__main__':
+def experiments_only():
+    return  ## uncomment to neutralise experiments
     ## don't include anything outside of this block unless you like seeing it twice when import this happens in __init__ ;-)
     # output_settings = OutputSettings(
     #     format_name=Format.HTML if conf.SHOW_OUTPUT else None,
@@ -392,8 +392,14 @@ if __name__ == '__main__':
     #     warnings_only=False, execute_code=False)
     # show_help(output_settings=output_settings)
     # shelp()
-    pass
     # show_help("from dataclasses import dataclass\n\n\n@dataclass\nclass Fruit:\n    colour: str\n    taste: str\n    price: float\n\n")
-    show_help("from collections import namedtuple\nfrom dataclasses import dataclass\n\n\n@dataclass\nclass Fruit:\n    colour: str\n    taste: str\n    price: float\n\nMisc = namedtuple('Misc', 'a, b, c')")
+    # show_help("from collections import namedtuple\nfrom dataclasses import dataclass\n\n\n@dataclass\nclass Fruit:\n    colour: str\n    taste: str\n    price: float\n\nMisc = namedtuple('Misc', 'a, b, c')")
+    show_help("from collections import namedtuple\n\nMisc = namedtuple('Misc', 'a, b, c')")
     # show_help("a = ['a', 'b', 'c']\nb = [1, 2, 3, 4]")
-    print('Finished!')
+    print('Finished running experiment!')
+
+if __name__ == '__main__':  ## for experimentation only
+    experiments_only()
+
+## don't run any code directly here unless you like seeing it twice when import this happens in __init__ ;-)
+## use experiments_only() which is contained in direct calls only

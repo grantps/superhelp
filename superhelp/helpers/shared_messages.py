@@ -307,6 +307,22 @@ def get_dataclass_msg(level: Level, *, in_named_tuple_context=False):
                      self.area = self.length * self.width
             """, is_code=True)
     )
+    astuple_example = layout("""\
+        from dataclasses import astuple, dataclass
+
+        @dataclass
+        class Coord:
+            lat: float
+            lon: float
+
+        office = Coord(-36.88845388357006, 174.7189585342616)
+        lat, lon = astuple(office)
+        """, is_code=True)
+    frozen_example = layout("""\
+        @dataclass(frozen=True)
+        class Coord:
+            ...
+        """, is_code=True)
     if in_named_tuple_context:
         simple_msg = (
             layout("""\
@@ -324,6 +340,39 @@ def get_dataclass_msg(level: Level, *, in_named_tuple_context=False):
             validation_msg
             +
             derived_values_msg
+        )
+        unpacking_msg = (
+            layout("""\
+
+            Unpacking named tuples is easy - they're tuples after all. For example:
+            """)
+            +
+            layout("""\
+            from collections import namedtuple
+
+            Coord = namedtuple('Coord', 'lat, lon')
+            office = Coord(-36.88845388357006, 174.7189585342616)
+            lat, lon = office
+            """, is_code=True)
+            +
+            layout("""\
+
+            Dataclasses are at a slight disadvantage here as you need to import `astuple` from `dataclasses`
+            to do the same thing:
+            """)
+            +
+            astuple_example
+        )
+        frozen_msg = (
+            layout("""\
+            Named tuples provide the usual guarantees of tuples - the attributes are frozen or immutable
+            in the sense that you can't add or remove attributes and you can't reassign values.
+
+            To achieve the same with dataclasses you need to use the `frozen` keyword. E.g.
+
+            """)
+            +
+            frozen_example
         )
     else:
         simple_msg = (
@@ -343,6 +392,47 @@ def get_dataclass_msg(level: Level, *, in_named_tuple_context=False):
             +
             derived_values_msg
         )
+        unpacking_msg = (
+            layout("""\
+
+            Unpacking dataclasses requires us to import astuple from dataclasses. For example:
+            """)
+            +
+            astuple_example
+        )
+        frozen_msg = (
+            layout("""\
+            To give dataclasses the immutability guarantees of tuples
+            (i.e. to prevent attributes being added or removed, and stopping values from being reassigned)
+            you need to use the `frozen` keyword. E.g.
+            """)
+            +
+            frozen_example
+        )
+    main_msg = unpacking_msg + frozen_msg
+    extra_msg = (  ## kw_only (to allow a natural grouping and sequence of parameters when instantiating a dataclass without regard to which attributes have defaults)
+        layout("""\
+
+        Another useful keyword parameter is `kw_only`.
+        This is useful when the natural grouping and sequence of parameters is disrupted
+        by the requirement of having default arguments in a contiguous block at the end.
+        By setting `kw_only` to `True` it can be possible to keep the desired order
+        while including defaults only where it makes sense. For example: 
+        """)
+        + layout("""\
+        @dataclass(kw_only=True)
+        class Coord:
+            lat: float
+            lon: float
+            SRID: int = 4326
+            label: str
+            country: str = 'NZ'
+            
+        c = Coord(lat=-36.88845388357006, lon=174.7189585342616, label='Mt Albert')
+        >>> print(c)
+        Coord(lat=-36.88845388357006, lon=174.7189585342616, SRID=4326, label='Mt Albert', country='NZ')
+        """, is_code=True)
+    )
     if level == Level.BRIEF:
         msg = simple_msg
     elif level == Level.MAIN:

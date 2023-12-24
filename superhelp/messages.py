@@ -204,7 +204,7 @@ def get_separated_message_specs(snippet: str, snippet_block_els, xml, *,
             raise Exception("messages_dets is meant to be a list of MessageDets dataclasses yet a None item was found")
     if not (overall_snippet_message_specs or block_level_message_specs):
         message_level_strs = MessageLevelStrs(conf.NO_ADVICE_MESSAGE, conf.NO_ADVICE_MESSAGE)
-        overall_snippet_messages_dets = [
+        overall_snippet_message_specs = [
             MessageSpec(snippet, message_level_strs, first_line_no=None, warning=False, source=conf.SYSTEM_MESSAGE)]
     return overall_snippet_message_specs, block_level_message_specs
 

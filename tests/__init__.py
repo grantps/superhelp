@@ -1,11 +1,16 @@
 """
 cd ~/projects/superhelp/tests && s && python3 -m pytest  ## if in surrounding folder will open some odd tabs (looking in build?)
+
+{
+    ROOT + 'named_tuple_overview': 1,
+}
+means we expect to see the helper-decorated function named_tuple_overview() called 0 times.
 """
 
 import astpath
 
 from superhelp import ast_funcs, conf, helpers
-from superhelp.messages import get_separated_message_specs
+from superhelp.messages import MessageSpec, get_separated_message_specs
 from superhelp.gen_utils import get_tree, xml_from_tree
 
 conf.INCLUDE_LINTING = False
@@ -13,28 +18,29 @@ conf.RECORD_AST = True
 
 helpers.load_helpers()
 
-def get_actual_source_freqs(messages_dets: list, expected_source_freqs: dict[str, int]) -> bool:
+def get_actual_source_freqs(
+        messages_dets: tuple[list[MessageSpec], list[MessageSpec]], expected_source_freqs: dict[str, int]) -> bool:
     """
-    Check the message sources are as expected. Note - we don't have to know what messages generated from helpers
-    in other modules will do - just what we expect from this module.
+    Check the message sources are as expected.
+
+    Note - we don't have to know what messages generated from helpers in other modules will do -
+    just what we expect from this module.
     So we don't specify what sources we expect - just those that we require (and how often)
     and those we ban (we expect those 0 times).
 
     Note - exclude system-generated messages e.g. a message fails to run so we get a message all right
     but it is a message reporting the problem. Don't count those ;-).
 
-    :param messages_dets: list of MessageDets named tuples
     :param expected_source_freqs: keys are sources (strings) and values are integers.
      The integer should be set to 0 if we want to explicitly ban a source i.e. we do not expect it provide a message.
      E.g. if our list does not have mixed data types we do not expect a message saying there are.
-    :return: whether it is as expected or not
     """
-    overall_snippet_messages_dets, block_level_messages_dets = messages_dets
-    all_messages_dets = overall_snippet_messages_dets + block_level_messages_dets
+    overall_snippet_message_specs, block_level_message_specs = messages_dets
+    all_message_specs = overall_snippet_message_specs + block_level_message_specs
     actual_source_freqs = {source: 0 for source in expected_source_freqs}
-    for message_dets in all_messages_dets:
-        if message_dets.source in expected_source_freqs:
-            actual_source_freqs[message_dets.source] += 1  ## if we track any sources not in the expected list the dicts will vary even if the results for the tracked sources are exactly as expected and we'll fail the test when we shouldn't
+    for message_spec in all_message_specs:
+        if message_spec.source in expected_source_freqs:
+            actual_source_freqs[message_spec.source] += 1  ## if we track any sources not in the expected list the dicts will vary even if the results for the tracked sources are exactly as expected and we'll fail the test when we shouldn't
     return actual_source_freqs
 
 def check_as_expected(test_conf: list, *, execute_code=True):
@@ -46,9 +52,9 @@ def check_as_expected(test_conf: list, *, execute_code=True):
         xml = astpath.asts.convert_to_xml(tree)
         ast_funcs.general.store_ast_output(xml)
         snippet_block_els = xml.xpath('body')[0].getchildren()  ## [0] because there is only one body under root
-        message_specs = get_separated_message_specs(snippet, snippet_block_els, xml,
+        message_dets = get_separated_message_specs(snippet, snippet_block_els, xml,
             execute_code=execute_code, repeat_set=set())
-        actual_source_freqs = get_actual_source_freqs(message_specs, expected_source_freqs)
+        actual_source_freqs = get_actual_source_freqs(message_dets, expected_source_freqs)
         msg = (f"\n\nSnippet\n\n{snippet}\n\ndidn't get messages as expected from the sources"
             f"\n(execute_code={execute_code}):"
             f"\n\nExpected:\n{expected_source_freqs}"

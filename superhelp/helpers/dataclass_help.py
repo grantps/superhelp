@@ -1,5 +1,5 @@
-from superhelp.helpers import indiv_block_help
-from superhelp import utils
+from superhelp.conf import Level
+from superhelp.helpers import multi_block_help, shared_messages
 from superhelp.gen_utils import layout_comment as layout
 from superhelp.messages import MessageLevelStrs
 
@@ -16,30 +16,34 @@ def has_named_tuples_in_snippet(xml: str) -> bool:
     named_tuple_els = [func_name_el for func_name_el in func_name_els if func_name_el.get('id') == 'namedtuple']
     return bool(named_tuple_els)
 
-@indiv_block_help(xpath=DATACLASS_XPATH)
-def dataclass_overview(block_spec, *, xml: str, repeat=False, **_kwargs) -> MessageLevelStrs | None:
+@multi_block_help()
+def dataclass_overview(block_specs, xml: str, *, repeat=False, **_kwargs) -> MessageLevelStrs | None:
     """
     Provide advice on dataclasses and explain key features.
     """
     if repeat:
         return None
     named_tuples_in_snippet = has_named_tuples_in_snippet(xml)
-    print(f"{named_tuples_in_snippet = }")
-    dataclass_els = block_spec.element.xpath(DATACLASS_XPATH)
-    title = layout("""\
+    if named_tuples_in_snippet:
+        return None
+    dataclass_els = []
+    for block_spec in block_specs:
+        block_dataclass_els = block_spec.element.xpath(DATACLASS_XPATH)
+        dataclass_els.extend(block_dataclass_els)
+    n_dcs = len(dataclass_els)
+    if not n_dcs:
+        return None
+    plural = 'es' if n_dcs > 1 else ''
+    names = [dataclass_el.get('name') for dataclass_el in dataclass_els]
+    names_str = ', '.join(names)
+    title = layout(f"""\
 
         ### Dataclass Details
+
+        Your code includes {n_dcs} dataclass{plural}: {names_str}
         """)
-    detail_bits = []
-    for dataclass_el in dataclass_els:
-        utils.inspect_el(dataclass_el)
-        # detail_bits.append(layout(f"""\
-        #
-        #     The {func_type_lbl} named `{name}` {arg_comment}. {exit_comment}.
-        #     """))
-    details = ''.join(detail_bits)
-    brief = title + details
-    main = title + details
-    extra = ''
+    brief = title + shared_messages.get_dataclass_msg(level=Level.BRIEF, in_named_tuple_context=False)
+    main = title + shared_messages.get_dataclass_msg(level=Level.BRIEF, in_named_tuple_context=False)
+    extra = shared_messages.get_dataclass_msg(level=Level.EXTRA, in_named_tuple_context=False)
     message_level_strs = MessageLevelStrs(brief, main, extra)
     return message_level_strs
