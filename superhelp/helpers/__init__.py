@@ -4,6 +4,8 @@ Add help modules inside this folder.
 To add more helpers, just declare more helper functions inside the helpers modules
 with the @..._help decorators :-).
 
+To identify xpath signatures for target language constructs use ast_funcs.general.ast_detective.
+
 The load_helpers function below will import each of the helpers.
 Doing so will trigger the decorators which will add the functions to some constants
 ready to be applied to blocks (e.g. a class definition) or snippets (e.g. the entire content of a script).

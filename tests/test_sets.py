@@ -143,6 +143,16 @@ def test_misc():
                 ROOT + 'set_better_than_list': 0,
             }
         ),
+        (  ## old signature was at risk of to finding sets when actually a named tuple
+            dedent("""\
+            from collections import namedtuple
+
+            Misc = namedtuple('Misc', 'a, b, c')
+            """),
+            {
+                ROOT + 'set_overview': 0,
+            }
+        )
     ]
     check_as_expected(test_conf, execute_code=True)
     check_as_expected(test_conf, execute_code=False)

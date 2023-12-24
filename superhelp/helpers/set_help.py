@@ -8,7 +8,7 @@ def truncate_set(items):
     return set(list(items)[: conf.MAX_ITEMS_EVALUATED])
 
 ASSIGN_SET_XPATH = (
-    'descendant-or-self::Assign/value/Call/func/Name '
+    "descendant-or-self::Assign/value/Call/func/Name[@id='set'] "
     '| descendant-or-self::Assign/value/Set')
 
 def get_set_els(block_el):

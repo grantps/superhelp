@@ -26,17 +26,18 @@ class OutputSettings:
     detail_level: Level = Level.MAIN  ## level of detail e.g. Extra
     warnings_only: bool = False  ## show warnings only
     execute_code: bool = False  ## execute code (vs only relying on inspection of AST)
+    tmp_html_path: Path | None = None  ## necessary if using HTML output and snap packing sand-boxing prevents access to standard temp folders (grrrr!)
 
 
 class Pipeline:
     """
     The parts of the pipeline from source inputs to either formatted help content or displayed help content.
     """
-    FORMAT2FORMATTER_MOD = {
+    FORMAT2FORMATTER_MODULE = {
         Format.HTML: html_formatter,
         Format.CLI: cli_formatter,
         Format.MD: md_formatter}
-    FORMAT2DISPLAYER_MOD = {
+    FORMAT2DISPLAYER_MODULE = {
         Format.HTML: html_displayer,
         Format.CLI: cli_displayer,
         Format.MD: md_displayer}
@@ -135,7 +136,7 @@ class Pipeline:
     @staticmethod
     def _get_formatter_module(format_name: Format) -> ModuleType:
         try:
-            formatter_module = Pipeline.FORMAT2FORMATTER_MOD[format_name]
+            formatter_module = Pipeline.FORMAT2FORMATTER_MODULE[format_name]
         except KeyError:
             raise ValueError(f"A format was supplied that lacks a formatter module")
         else:
@@ -144,7 +145,7 @@ class Pipeline:
     @staticmethod
     def _get_displayer_module(format_name: Format) -> ModuleType:
         try:
-            displayer_module = Pipeline.FORMAT2DISPLAYER_MOD[format_name]
+            displayer_module = Pipeline.FORMAT2DISPLAYER_MODULE[format_name]
         except KeyError:
             raise ValueError(f"A format ({format_name}) was supplied that lacks a displayer module")
         else:
@@ -178,17 +179,18 @@ class Pipeline:
             yield formatted_help, code_file_path
 
     @staticmethod
-    def display_help(formatted_help_dets: Generator, format_name: Format, *, single_script=True):
+    def display_help(formatted_help_dets: Generator, output_settings: OutputSettings, *, single_script=True):
         """
         Final stage of the pipeline.
 
         If HTML will open a tab per script.
         If interactive, will open one after the other with a user-controlled pause in between.
         """
-        displayer_module = Pipeline._get_displayer_module(format_name)
-        for formatted_help, file_path in formatted_help_dets:
-            displayer_module.display(formatted_help, file_path)
-            if not single_script and format_name in FORMAT_INTERACTIVE_FORMATS:
+        displayer_module = Pipeline._get_displayer_module(output_settings.format_name)
+        for formatted_help, code_file_path in formatted_help_dets:
+            displayer_module.display(formatted_help,
+                code_file_path=code_file_path, tmp_html_path=output_settings.tmp_html_path)  ## some args are displayer-specific so capture them in **_kwargs as required
+            if not single_script and output_settings.format_name in FORMAT_INTERACTIVE_FORMATS:
                 input("Press any key to continue ...")
 
 
@@ -247,19 +249,13 @@ def show_help(code: str | None = None, *,
     :param in_notebook: if True changes the formatting to make it Jupyter notebook friendly (default False)
     """
     if not output_settings:
-
-
-        output_settings = OutputSettings(format_name=Format.CLI, detail_level=Level.EXTRA)
-        # output_settings = OutputSettings(format_name=Format.HTML)
-        logging.warning("Restore to HTML once fixed HTML temp folder problem with snap-packaged web browsers (Grrr!!!)")
-
-
+        output_settings = OutputSettings(format_name=Format.HTML)
     formatted_help_dets = get_formatted_help_dets(code=code, file_path=file_path,
         project_path=project_path, exclude_folders=exclude_folders,
         output_settings=output_settings, in_notebook=in_notebook)
     if conf.SHOW_OUTPUT:
         single_script = project_path is None
-        Pipeline.display_help(formatted_help_dets, output_settings.format_name, single_script=single_script)
+        Pipeline.display_help(formatted_help_dets, output_settings, single_script=single_script)
     else:
         logging.info("NOT showing output because conf.SHOW_OUTPUT is False - presumably running tests "
             "and not wanting lots of HTML windows opening ;-)")
@@ -299,8 +295,7 @@ def shelp():
     """
     default_output = conf.OUTPUT
     ## don't use type=list ever https://stackoverflow.com/questions/15753701/argparse-option-for-passing-a-list-as-option
-    parser = argparse.ArgumentParser(
-        description='Superhelp - Help for Humans!')
+    parser = argparse.ArgumentParser(description='Superhelp - Help for Humans!')
     parser.add_argument('-c', '--code', type=str,
         required=False,
         help=("Python code - usually only a line or snippet. "
@@ -337,6 +332,10 @@ def shelp():
         choices=THEME_OPTIONS, default=Theme.DARK,
         help=("Select an output theme - currently only affects cli output "
             f"option. '{conf.Theme.DARK}' or '{conf.Theme.LIGHT}'"))
+    parser.add_argument('-h', '--tmp-html-path', type=str,
+        required=False,
+        help=("Select a path that SuperHELP can make temporary HTML files into - presumably this is necessary "
+            "because your web browser can't access the standard temporary file folder (snap packaged web browser?)"))
     parser.add_argument('-a', '--advice-list', action='store_true',
         default=False,
         help="List available advice")
@@ -365,16 +364,17 @@ def shelp():
         return
     logging.debug(args)
     output = args.output if conf.SHOW_OUTPUT else None
+    tmp_html_path = None if args.tmp_html_path is None else Path(args.tmp_html_path)
     output_settings = OutputSettings(format_name=output,
         theme_name=args.theme, detail_level=args.detail_level,
-        warnings_only=args.warnings_only, execute_code=args.execute_code)
+        warnings_only=args.warnings_only, execute_code=args.execute_code, tmp_html_path=tmp_html_path)
     show_help(args.code,
         file_path=args.file_path,
         project_path=args.project_path, exclude_folders=args.exclude_folders,
         output_settings=output_settings, in_notebook=False)
 
 def experiments_only():
-    return  ## uncomment to neutralise experiments
+    # return  ## uncomment to neutralise experiments
     ## don't include anything outside of this block unless you like seeing it twice when import this happens in __init__ ;-)
     # output_settings = OutputSettings(
     #     format_name=Format.HTML if conf.SHOW_OUTPUT else None,
@@ -394,7 +394,10 @@ def experiments_only():
     # shelp()
     # show_help("from dataclasses import dataclass\n\n\n@dataclass\nclass Fruit:\n    colour: str\n    taste: str\n    price: float\n\n")
     # show_help("from collections import namedtuple\nfrom dataclasses import dataclass\n\n\n@dataclass\nclass Fruit:\n    colour: str\n    taste: str\n    price: float\n\nMisc = namedtuple('Misc', 'a, b, c')")
-    show_help("from collections import namedtuple\n\nMisc = namedtuple('Misc', 'a, b, c')")
+    output_settings = OutputSettings(
+        format_name=Format.HTML, detail_level=Level.EXTRA, tmp_html_path=Path('/home/g/tmp_local'))
+    show_help("from collections import namedtuple\n\nMisc = namedtuple('Misc', 'a, b, c')",
+        output_settings=output_settings)
     # show_help("a = ['a', 'b', 'c']\nb = [1, 2, 3, 4]")
     print('Finished running experiment!')
 

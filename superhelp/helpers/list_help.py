@@ -4,7 +4,7 @@ from superhelp.gen_utils import get_collections_dets, layout_comment as layout
 from superhelp.messages import MessageLevelStrs
 
 ASSIGN_LIST_XPATH = (
-    'descendant-or-self::Assign/value/Call/func/Name '
+    "descendant-or-self::Assign/value/Call/func/Name[@id='list'] "
     '| descendant-or-self::Assign/value/List')
 
 DEFAULT_EXAMPLE_TYPE = conf.STR_TYPE

@@ -5,6 +5,5 @@ Not overkill in the other cases.
 import logging
 from pathlib import Path
 
-def display(formatted_help: str, file_path: Path):
-    logging.info("Ignoring file_path arg in CLI context")
+def display(formatted_help: str, **_kwargs):
     print(formatted_help)

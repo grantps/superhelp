@@ -23,7 +23,7 @@ def get_unknown_status(items):
     return unknowns
 
 ASSIGN_DICT_XPATH = (
-    'descendant-or-self::Assign/value/Call/func/Name '
+    "descendant-or-self::Assign/value/Call/func/Name[@id='dict'] "
     '| descendant-or-self::Assign/value/Dict')
 
 def get_dict_els(block_el):

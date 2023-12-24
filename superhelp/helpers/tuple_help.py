@@ -7,7 +7,7 @@ def truncate_tuple(items):
     return tuple(items[: conf.MAX_ITEMS_EVALUATED])
 
 ASSIGN_TUPLE_XPATH = (
-    'descendant-or-self::Assign/value/Call/func/Name '
+    "descendant-or-self::Assign/value/Call/func/Name[@id='tuple'] "
     '| descendant-or-self::Assign/value/Tuple')
 
 def get_tup_els(block_el):

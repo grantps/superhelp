@@ -78,6 +78,16 @@ def test_misc():
                 ROOT + 'tuple_overview': 2,
             }
         ),
+        (  ## old signature was at risk of to finding tuples when actually a named tuple
+            dedent("""\
+            from collections import namedtuple
+
+            Misc = namedtuple('Misc', 'a, b, c')
+            """),
+            {
+                ROOT + 'tuple_overview': 0,
+            }
+        )
     ]
     check_as_expected(test_conf, execute_code=True)
     check_as_expected(test_conf, execute_code=False)

@@ -5,7 +5,7 @@ from superhelp import conf, gen_utils, utils
 def ast_detective(snippet: str):
     """
     You have a snippet and you're wondering how to identify its signature. Start by seeing ast as xml.
-    The experiment in http://xpather.com/
+    Then experiment in http://xpather.com/
     """
     import ast
     print("\nAST dump (pre-XML)")
@@ -15,7 +15,7 @@ def ast_detective(snippet: str):
         "\nOnly paste into http://xpather.com/ what is below")
     utils.inspect_el(xml)
 
-# S
+# ast_detective("name = tuple((1, 2, 3))")
 
 def get_el_lines_dets(el, *, ignore_trailing_lines=False) -> tuple[int, int, int]:
     """

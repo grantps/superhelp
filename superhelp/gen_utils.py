@@ -1,5 +1,4 @@
 from contextlib import contextmanager
-from functools import partial
 import inspect
 import logging
 import os
@@ -16,7 +15,6 @@ import ast
 
 from superhelp import code_execution, conf, name_utils
 import astpath
-from astpath.asts import _set_encoded_literal, _strip_docstring
 
 starting_num_space_pattern = r"""(?x)
     ^      ## start
@@ -313,7 +311,7 @@ def clean_path_name(raw_path):
     )
     return clean_path
 
-def get_superhelp_tmpdir(folder='superhelp'):
+def get_superhelp_tmpdir(folder='superhelp') -> Path:
     tmpdir = tempfile.gettempdir()
     superhelp_tmpdir = os.path.join(tmpdir, folder)
     return Path(superhelp_tmpdir)

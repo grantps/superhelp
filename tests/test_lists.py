@@ -91,6 +91,16 @@ def test_misc():
                 ROOT + 'mixed_list_types': 0,
             }
         ),
+        (  ## old signature used to find lists when actually a named tuple
+            dedent("""\
+            from collections import namedtuple
+
+            Misc = namedtuple('Misc', 'a, b, c')
+            """),
+            {
+                ROOT + 'list_overview': 0,
+            }
+        )
     ]
     check_as_expected(test_conf, execute_code=True)
     check_as_expected(test_conf, execute_code=False)
