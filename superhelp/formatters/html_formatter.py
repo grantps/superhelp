@@ -2,7 +2,6 @@
 Code highlighting approach:
 https://coderbook.com/@marcus/how-to-render-markdown-syntax-as-html-using-python/
 """
-
 from pathlib import Path
 from textwrap import dedent, indent
 

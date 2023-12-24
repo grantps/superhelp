@@ -31,6 +31,6 @@ https://docs.quantifiedcode.com/python-anti-patterns/index.html
 """
 
 import warnings
-warnings.filterwarnings('ignore', '.*prior to execution of.*')
-
 from superhelp.helper import this
+
+warnings.filterwarnings('ignore', '.*prior to execution of.*')

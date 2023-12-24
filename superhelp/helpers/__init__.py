@@ -94,7 +94,6 @@ def load_helpers():
         if not submodule.name.endswith('shared_messages'):
             import_module(submodule.name)  ## e.g. superhelp.helpers.class_help
 
-INDIV_BLOCK_HELPERS = []  ## block-based helpers
 
 class HelperSpec:
     pass
@@ -102,7 +101,7 @@ class HelperSpec:
 @dataclass(frozen=True)
 class IndivBlockHelperSpec(HelperSpec):
     """
-    Block-based helper functions that take a block spec (including element and block code string) and return a message.
+    Block-based helper functions that provide messages block by block spec (including element and block code string) and return a message.
     Might be looking exclusively at class blocks only.
 
     xpath: xpath filtering to get specified elements e.g. body/Assign/value/Str
@@ -114,30 +113,20 @@ class IndivBlockHelperSpec(HelperSpec):
     xpath: str | None = None
     warning: bool = False
 
+@dataclass(frozen=True)
+class OverallCodeHelperSpec(HelperSpec):
+    """
+    Helper functions which deal with the entire code snippet at once.
+    Whether the input is a list of BlockSpec's or a snippet.
+    """
+    helper_name: str
+    helper: Callable
+    input_type: conf.InputType
+    warning: bool = False
+
+INDIV_BLOCK_HELPERS = []  ## block-based helpers
 MULTI_BLOCK_HELPERS = []  ## looks at multiple blocks, possibly looking for first that meets a condition
-
-@dataclass(frozen=True)
-class MultipleBlocksHelperSpec(HelperSpec):
-    """
-    Helper functions which deal with multiple block specs at once.
-    E.g. looking at every block to look for opportunities to unpack.
-    """
-    helper_name: str
-    helper: Callable
-    input_type: conf.InputType
-    warning: bool = False
-
 SNIPPET_STR_HELPERS = []  ## works on entire code snippet as a single string
-
-@dataclass(frozen=True)
-class SnippetStrHelperSpec(HelperSpec):  ## same structure as MultipleBlocksHelperSpec but helpers are different
-    """
-    Snippet-based helpers that work on code snippet as a single string and return message
-    """
-    helper_name: str
-    helper: Callable
-    input_type: conf.InputType
-    warning: bool = False
 
 def indiv_block_help(*, xpath: str | None = None, warning=False):
     """
@@ -166,7 +155,7 @@ def multi_block_help(*, warning=False):
         """
         :param func: func expecting block_specs
         """
-        MULTI_BLOCK_HELPERS.append(MultipleBlocksHelperSpec(
+        MULTI_BLOCK_HELPERS.append(OverallCodeHelperSpec(
             f"{func.__module__}.{func.__name__}", func, conf.InputType.BLOCKS_SPECS, warning))
         return func
     return decorator
@@ -184,8 +173,8 @@ def snippet_str_help(*, warning=False):
         """
         :param func func: func expecting a single code string for the entire snippet as input
         """
-        SNIPPET_STR_HELPERS.append(
-            SnippetStrHelperSpec(f"{func.__module__}.{func.__name__}", func, conf.InputType.SNIPPET_STR, warning))
+        SNIPPET_STR_HELPERS.append(OverallCodeHelperSpec(
+            f"{func.__module__}.{func.__name__}", func, conf.InputType.SNIPPET_STR, warning))
         return func
     return decorator
 

@@ -21,6 +21,7 @@ c = Format.CLI
 h = Format.HTML
 m = Format.MD
 
+## can be overriden in tests.__init__
 RECORD_AST = f  ## (f)
 OUTPUT = h  ## set html as default output (h)
 SHOW_OUTPUT = t  ## f is only ever used when testing pre-display (t)
