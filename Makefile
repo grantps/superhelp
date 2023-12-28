@@ -15,8 +15,8 @@ git_local:
 github:
 	git push   
 
-.PHONY: upload
-upload:
+.PHONY: upload_pypi
+upload_pypi:
 	rm -f dist/*
 	/home/g/projects/superhelp/env/bin/python3 setup.py sdist bdist_wheel
 	/home/g/projects/superhelp/env/bin/python3 -m twine upload dist/*

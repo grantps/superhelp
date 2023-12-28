@@ -39,6 +39,8 @@ LINE_LENGTH_MSG_TYPE = title2msg_type(line_length_title)
 UNUSED_IMPORTS_MSG_TYPE = title2msg_type(unused_imports_title)
 UNDEFINED_NAMES_MSG_TYPE = title2msg_type(undefined_names_title)
 
+MAX_LINE_LENGTH = 120
+
 def consolidated_msg_type(msg_type):
     if msg_type.startswith('E1'):
         msg_type = LINE_INDENTATION_MSG_TYPE
@@ -101,24 +103,24 @@ line_length_level_msgs = LevelMsgs(
 
         #### {line_length_title}
 
-        One or more lines are longer than the recommended 79 characters. This is
-        not necessarily a problem but long lines should be an exception to the
-        rule.
+        One or more lines are longer than {MAX_LINE_LENGTH} characters. This is
+        not necessarily a problem but long lines should be an exception to the rule.
 
         """),
     layout(f"""\
 
         #### {line_length_title}
 
-        One or more lines are longer than the recommended 79 characters. This is
-        not necessarily a problem given that we have wider monitors than when
-        the guidelines were formulated. But long lines should be an exception to
-        the rule. All being equal, short lines are easier to read and understand
-        than long lines. There are multiple strategies for shortening lines but
-        the overall goal has to be readability. Sometimes we have to live with
-        broken "rules". And that's official. Read PEP 8 - the official Python
-        style guide - especially the section "A Foolish Consistency is the
-        Hobgoblin of Little Minds".
+        One or more lines are longer than {MAX_LINE_LENGTH} characters.
+        Even though this clearly exceeds the original guideline of 79 characters
+        (and 72 for comments and docstrings) it is not necessarily a problem
+        given that we have wider monitors than when the guidelines were initially formulated.
+        But long lines should be an exception to the rule.
+        All being equal, short lines are easier to read and understand than long lines.
+        There are multiple strategies for shortening lines but the overall goal has to be readability.
+        Sometimes we have to live with broken "rules". And that's official.
+        Read PEP 8 - the official Python style guide - especially the section
+        "A Foolish Consistency is the Hobgoblin of Little Minds".
 
         """),
     ''

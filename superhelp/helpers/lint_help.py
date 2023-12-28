@@ -1,8 +1,9 @@
 from collections import defaultdict, namedtuple
 from pathlib import Path
 import re
-from subprocess import run, PIPE
 import sys
+
+from flake8.main import application
 
 from superhelp.helpers import snippet_str_help
 from superhelp import conf, lint_conf
@@ -19,6 +20,28 @@ MISC_ISSUES_TITLE = layout("""\
     #### Misc lint issues
     """)
 
+class Buffer:
+
+    def __init__(self):
+        self.saved_content = []
+
+    def write(self, content: str):
+        self.saved_content.append(str(content, encoding='utf-8'))
+
+class GatheredOut:
+    """
+    Monkey Patch sys.stdout using an object which has everything used from sys.stdout by flake8
+    """
+
+    def __init__(self):
+        self.buffer = Buffer()
+
+    def isatty(self):
+        pass
+
+    def flush(self):
+        pass
+
 def _store_snippet(snippet):
     """
     At least one test (E501 line too long) only triggered if a trailing newline.
@@ -31,43 +54,27 @@ def _store_snippet(snippet):
         tmp_fh.write(snippet.rstrip('\n') + '\n')
     return fpath
 
-def _get_env_flake8_fpath():
-    """
-    Perhaps we are in a virtual environment which hides flake8 from which /
-    where commands. Worth a try.
-    """
-    bin_path = Path(sys.executable).parent
-    flake8_fpath = str(bin_path / 'flake8')
-    return flake8_fpath
-
-def _get_flake8_fpath():
-    os_platform = get_os_platform()
-    if os_platform == conf.OS.WINDOWS:
-        """
-        The Joys of Where
-
-        The "where" statement won't always point to an actual executable -
-        sometimes it finds a stub which, when executed, opens up an MS app store
-        LOL FAIL. Sometimes refers to two places - one on a C: drive and another
-        on a D: drive!!
-        """
-        which_statement = 'where'
-    else:
-        which_statement = 'which'
-    args = [which_statement, 'flake8']
-    res = run(args=args, stdout=PIPE)
-    flake8_fpath = str(res.stdout, encoding='utf-8').strip()
-    if not flake8_fpath:
-        flake8_fpath = _get_env_flake8_fpath()
-    return flake8_fpath
-
-def _get_flake8_results(fpath):
-    flake8_fpath = _get_flake8_fpath()
-    args = [flake8_fpath, str(fpath)]
+def _get_flake8_results(fpath: Path, *, debug=False) -> str | None:
+    app = application.Application()
+    args = [str(fpath), f'--max-line-length={lint_conf.MAX_LINE_LENGTH}']
     if lint_conf.IGNORED_LINT_RULES:
         ignored = ','.join(lint_conf.IGNORED_LINT_RULES)
         args.append(f"--ignore={ignored}")
-    res = run(args=args, stdout=PIPE)
+    old_stdout = sys.stdout
+    try:
+        new_stdout = GatheredOut()
+        sys.stdout = new_stdout
+        app.run(args)
+    finally:
+        sys.stdout = old_stdout
+    msgs = new_stdout.buffer.saved_content
+    if debug:
+        for n, msg in enumerate(msgs, 1):
+            print(f"{n:>03} {msg}", end='')
+    if msgs:
+        res = '\n'.join(msgs)
+    else:
+        res = None
     return res
 
 def _msg_type_to_placeholder_key(msg_type):
@@ -222,8 +229,7 @@ def get_lint_messages_by_level(raw_lint_feedback_str):
     :rtype list
     """
     ## split into lines
-    raw_lint_lines = (
-        str(raw_lint_feedback_str, encoding='utf-8').strip().split('\n'))
+    raw_lint_lines = raw_lint_feedback_str.strip().split('\n')
     lint_lines = [line.strip() for line in raw_lint_lines if line.strip()]
     ## REGEX the lines
     lint_regex_dicts = []
@@ -268,7 +274,7 @@ def lint_snippet(snippet, *, repeat=False, **_kwargs) -> MessageLevelStrs | None
         return None
     fpath = _store_snippet(snippet)
     res = _get_flake8_results(fpath)
-    if not res.stdout:
+    if not res:
         return None
 
     title = layout("""\
@@ -312,8 +318,7 @@ def lint_snippet(snippet, *, repeat=False, **_kwargs) -> MessageLevelStrs | None
     findings = layout("""\
     Here is what the linter reported about your snippet.
     """)
-    brief_msg, main_msg, extra_msg = get_lint_messages_by_level(
-        raw_lint_feedback_str=res.stdout)
+    brief_msg, main_msg, extra_msg = get_lint_messages_by_level(raw_lint_feedback_str=res)
     brief = title + findings + brief_msg
     main = title + linting + findings + main_msg
     extra = obviousness + extra_msg

@@ -396,7 +396,7 @@ def experiments_only():
     # show_help("from collections import namedtuple\nfrom dataclasses import dataclass\n\n\n@dataclass\nclass Fruit:\n    colour: str\n    taste: str\n    price: float\n\nMisc = namedtuple('Misc', 'a, b, c')")
     output_settings = OutputSettings(
         format_name=Format.HTML, detail_level=Level.EXTRA, tmp_html_path=Path('/home/g/tmp_local'))
-    show_help("from collections import namedtuple\n\nMisc = namedtuple('Misc', 'a, b, c')",
+    show_help("from collections import namedtuple\n\nMisc = namedtuple('Misc', 'a, b, c')\n\n\na=6",
         output_settings=output_settings)
     # show_help("a = ['a', 'b', 'c']\nb = [1, 2, 3, 4]")
     print('Finished running experiment!')
