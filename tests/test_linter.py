@@ -79,13 +79,13 @@ def test_misc():
             }
         ),
         (
-            "a = 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'",
+            "a = '" + 'v' * (lint_conf.MAX_LINE_LENGTH + 10) + "'",
             {
                 ROOT + 'lint_snippet': 1,
             }
         ),
         (
-            "a = 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'",
+            "a = '" + 'v' * (lint_conf.MAX_LINE_LENGTH - 10) + "'",
             {
                 ROOT + 'lint_snippet': 0,
             }

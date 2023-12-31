@@ -374,7 +374,7 @@ def shelp():
         output_settings=output_settings, in_notebook=False)
 
 def experiments_only():
-    # return  ## uncomment to neutralise experiments
+    return  ## uncomment to neutralise experiments
     ## don't include anything outside of this block unless you like seeing it twice when import this happens in __init__ ;-)
     # output_settings = OutputSettings(
     #     format_name=Format.HTML if conf.SHOW_OUTPUT else None,

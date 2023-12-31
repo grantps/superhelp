@@ -9,13 +9,14 @@ local_git_prep:
 	sed -i 's/OUTPUT = m/OUTPUT = h/' /home/g/projects/superhelp/superhelp/conf.py
 	git status
 	grep "__version__ = '" /home/g/projects/superhelp/setup.py
+	grep "version number: " /home/g/projects/superhelp/README.md
 	@echo ""
 	@echo "It's up to you to update and commit"
 
-.PHONY: github_push
-github_push:
+.PHONY: push_github
+push_github:
 	git push   
 
 .PHONY: upload_pypi
 upload_pypi:
-	/home/g/projects/superhelp/env/bin/python3 pypi_push.py
+	python3 pypi_push.py
